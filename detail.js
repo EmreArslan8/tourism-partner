@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — Tedarikçi detay
+   Tourism Partner — Tedarikçi detay
    ============================================================ */
 
 let activeTab = "overview";
@@ -22,7 +22,7 @@ function renderBreadcrumb() {
 }
 
 function renderTitle() {
-  document.title = `${listing.name} — TurNet`;
+  document.title = `${listing.name} — Tourism Partner`;
   document.getElementById("detailCover").className = `detail-cover ${coverClass(listing.cat)}`;
   document.getElementById("detailCover").innerHTML = `
     <span class="cover-mono" aria-hidden="true">${initials(listing.name)}</span>

@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — ortak veri: tedarikçiler, kategoriler, lokasyonlar
+   Tourism Partner — ortak veri: tedarikçiler, kategoriler, lokasyonlar
    ============================================================ */
 
 const CATEGORY_LABELS = {

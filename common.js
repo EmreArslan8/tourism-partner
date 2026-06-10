@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — ortak davranışlar: i18n (TR/EN), sepet, header
+   Tourism Partner — ortak davranışlar: i18n (TR/EN), sepet, header
    ============================================================ */
 
 /* ---------------- i18n ---------------- */
@@ -53,13 +53,13 @@ const I18N = {
   "footer.howShort": { tr: "Nasıl çalışır?", en: "How it works" },
   "footer.addCompany": { tr: "Firma ekle", en: "List your business" },
   "footer.getQuote": { tr: "Teklif al", en: "Get quotes" },
-  "footer.note": { tr: "© 2026 TurNet — Demo tasarım", en: "© 2026 TurNet — Demo design" },
+  "footer.note": { tr: "© 2026 Tourism Partner — Demo tasarım", en: "© 2026 Tourism Partner — Demo design" },
   "footer.note2": { tr: "Ülke · Şehir · İlçe bazlı B2B listeleme", en: "Country · City · District based B2B listing" },
 };
 
-function getLang() { return localStorage.getItem("turnet_lang") || "tr"; }
+function getLang() { return localStorage.getItem("tourism_partner_lang") || "tr"; }
 function setLang(lang) {
-  localStorage.setItem("turnet_lang", lang);
+  localStorage.setItem("tourism_partner_lang", lang);
   document.documentElement.lang = lang;
   applyI18n();
   document.dispatchEvent(new CustomEvent("langchange", { detail: lang }));
@@ -87,9 +87,9 @@ function applyI18n() {
 
 /* ---------------- karşılaştırma / teklif sepeti ---------------- */
 function getCart() {
-  try { return JSON.parse(localStorage.getItem("turnet_cart") || "[]"); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem("tourism_partner_cart") || "[]"); } catch { return []; }
 }
-function setCart(ids) { localStorage.setItem("turnet_cart", JSON.stringify([...new Set(ids)])); }
+function setCart(ids) { localStorage.setItem("tourism_partner_cart", JSON.stringify([...new Set(ids)])); }
 function addToCart(id) { const c = getCart(); c.push(Number(id)); setCart(c); }
 function removeFromCart(id) { setCart(getCart().filter((x) => x !== Number(id))); }
 

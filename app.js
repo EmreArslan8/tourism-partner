@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — B2B Turizm Ağı (demo)
+   Tourism Partner — B2B Turizm Ağı (demo)
    Listeleme verisi + filtreleme (kategori, ülke→şehir→ilçe),
    arama, sıralama, teklif modalı
    ============================================================ */

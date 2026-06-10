@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — B2B Turizm Tedarikçi Ağı (demo)
+   Tourism Partner — B2B Turizm Tedarikçi Ağı (demo)
    Wireframe handoff'a göre 5 ekran; görsel stil: editoryal lüks
    seyahat — gece laciverdi, porselen beyazı, platin ve şampanya aksanı.
    ============================================================ */
@@ -13,6 +13,7 @@
   --terra: #537f9b;
   --terra-deep: #3d637c;
   --gold: #c8a45d;
+  --brand-blue: #2744d6;
   --ink: #111827;
   --muted: #667085;
   --line: #d9dee8;
@@ -92,9 +93,34 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   border-bottom: 1px solid rgba(200,164,93,.2);
 }
 .header-inner { display: flex; align-items: center; gap: 32px; height: 72px; }
-.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 23px; font-weight: 600; }
-.logo em { font-style: italic; color: var(--gold); }
-.logo-mark { width: 30px; height: 30px; color: var(--gold); flex-shrink: 0; }
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: currentColor;
+  line-height: 1;
+}
+.logo-type {
+  display: grid;
+  gap: 1px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: .82;
+  letter-spacing: 0;
+}
+.logo-type span {
+  display: block;
+}
+.logo-mark {
+  width: 52px;
+  height: 42px;
+  margin-left: -7px;
+  margin-top: -12px;
+  color: currentColor;
+  fill: currentColor;
+  flex-shrink: 0;
+}
 .main-nav { display: flex; gap: 24px; margin-left: 8px; }
 .main-nav a { font-size: 14.5px; font-weight: 500; opacity: .82; transition: opacity .2s; position: relative; padding-bottom: 2px; }
 .main-nav a:hover { opacity: 1; }
@@ -140,9 +166,8 @@ body[data-page="home"] .header-inner {
   text-shadow: 0 1px 18px rgba(255,255,255,.72);
 }
 
-body[data-page="home"] .logo-mark,
-body[data-page="home"] .logo em {
-  color: var(--terra);
+body[data-page="home"] .logo {
+  color: var(--brand-blue);
 }
 
 body[data-page="home"] .main-nav a {
@@ -1589,12 +1614,18 @@ body[data-page="list"] .empty-state {
   }
 
   .logo {
-    font-size: 21px;
+    gap: 2px;
+  }
+
+  .logo-type {
+    font-size: 14px;
   }
 
   .logo-mark {
-    width: 27px;
-    height: 27px;
+    width: 42px;
+    height: 36px;
+    margin-left: -6px;
+    margin-top: -10px;
   }
 
   body:not([data-page="home"]).nav-open .main-nav {

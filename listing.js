@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — Listeleme (Yön A: kart ızgarası)
+   Tourism Partner — Listeleme (Yön A: kart ızgarası)
    ============================================================ */
 
 Object.assign(I18N, {

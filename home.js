@@ -1,5 +1,5 @@
 /* ============================================================
-   TurNet — Ana sayfa (Yön A: klasik üst arama)
+   Tourism Partner — Ana sayfa (Yön A: klasik üst arama)
    ============================================================ */
 
 Object.assign(I18N, {
