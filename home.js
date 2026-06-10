@@ -32,6 +32,7 @@ Object.assign(I18N, {
     tr: "Gelen teklifleri karşılaştırın, firmayla doğrudan iletişime geçin.",
     en: "Compare incoming quotes and contact suppliers directly.",
   },
+  "partners.label": { tr: "İş birliği ağı", en: "Partner network" },
 });
 
 const HOME_TITLE = {
