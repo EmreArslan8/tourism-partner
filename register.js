@@ -14,7 +14,7 @@ function setRegisterStep(next) {
     pill.classList.toggle("active", n === registerStep);
     pill.classList.toggle("done", n < registerStep);
   });
-  document.getElementById("regPrev").style.visibility = registerStep === 1 ? "hidden" : "visible";
+  document.getElementById("regPrev").hidden = registerStep === 1;
   document.getElementById("regNext").hidden = registerStep === 4;
   document.getElementById("regSubmit").hidden = registerStep !== 4;
   if (registerStep === 4) renderReview();

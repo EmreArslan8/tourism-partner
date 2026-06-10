@@ -9,6 +9,7 @@ Object.assign(I18N, {
   "list.emptySub": { tr: "Filtreleri genişleterek tekrar deneyin.", en: "Broaden your filters and try again." },
   "list.clear": { tr: "Filtreleri Temizle", en: "Clear Filters" },
   "list.map": { tr: "Harita", en: "Map" },
+  "list.demoNote": { tr: "Örnek demo verisi", en: "Sample demo data" },
 });
 
 const PAGE_SIZE = 6;

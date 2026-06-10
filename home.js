@@ -33,6 +33,13 @@ Object.assign(I18N, {
     en: "Compare incoming quotes and contact suppliers directly.",
   },
   "partners.label": { tr: "İş birliği ağı", en: "Partner network" },
+  "home.rfqTitle": { tr: "Aradığınızı bulamadınız mı?", en: "Couldn't find what you need?" },
+  "home.rfqSub": { tr: "Talebinizi açın, uygun tedarikçiler size teklif göndersin.", en: "Post your request and let matching suppliers send you quotes." },
+  "home.rfqBtn": { tr: "Teklif Talebi Oluştur →", en: "Create Quote Request →" },
+  "stats.suppliers": { tr: "kayıtlı tedarikçi", en: "listed suppliers" },
+  "stats.cities": { tr: "il / bölge", en: "cities / regions" },
+  "stats.countries": { tr: "ülke", en: "countries" },
+  "stats.response": { tr: "ort. yanıt", en: "avg. response" },
 });
 
 const HOME_TITLE = {
@@ -102,7 +109,11 @@ function renderHome() {
   popWrap.innerHTML = `<span class="pop-label">${t("home.popular")}</span>` +
     popular.map((p) => `<a href="${p.href}">${p[lang]}</a>`).join("");
 
-  const featured = [...LISTINGS].sort((a, b) => b.featured - a.featured || b.rating - a.rating).slice(0, 6);
+  // vitrinde karma seçim: rozet anlamını koruması için doğrulanmış + doğrulanmamış birlikte
+  const byScore = (a, b) => b.featured - a.featured || b.rating - a.rating;
+  const verified = LISTINGS.filter((l) => l.verified).sort(byScore).slice(0, 4);
+  const unverified = LISTINGS.filter((l) => !l.verified).sort(byScore).slice(0, 2);
+  const featured = [...verified.slice(0, 2), unverified[0], ...verified.slice(2, 4), unverified[1]].filter(Boolean);
   document.getElementById("featuredGrid").innerHTML = featured.map(supplierCardHTML).join("");
 }
 
@@ -111,6 +122,8 @@ function setupHeroSearch() {
   const city = document.getElementById("heroCity");
   const district = document.getElementById("heroDistrict");
   refreshHeroLocation = setupCascade(country, city, district);
+  // hedef kitlenin ana pazarı: Türkiye varsayılan gelsin, şehir alanı baştan aktif olsun
+  refreshHeroLocation({ country: "Türkiye" });
 
   document.getElementById("heroSearch").addEventListener("submit", (e) => {
     e.preventDefault();

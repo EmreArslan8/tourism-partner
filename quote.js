@@ -42,7 +42,7 @@ function setQuoteStep(next) {
     pill.classList.toggle("active", n === quoteStep);
     pill.classList.toggle("done", n < quoteStep);
   });
-  document.getElementById("prevStep").style.visibility = quoteStep === 1 ? "hidden" : "visible";
+  document.getElementById("prevStep").hidden = quoteStep === 1;
   document.getElementById("nextStep").hidden = quoteStep === 3;
   document.getElementById("submitQuote").hidden = quoteStep !== 3;
 }

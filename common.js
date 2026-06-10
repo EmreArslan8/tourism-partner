@@ -13,8 +13,8 @@ const I18N = {
 
   /* genel */
   "common.search": { tr: "Ara", en: "Search" },
-  "common.discover": { tr: "Keşfet →", en: "Explore →" },
-  "common.detail": { tr: "Detay →", en: "Details →" },
+  "common.discover": { tr: "Görüntüle →", en: "View →" },
+  "common.detail": { tr: "Detay", en: "Details" },
   "common.requestQuote": { tr: "Teklif İste", en: "Request Quote" },
   "common.all": { tr: "Tümü →", en: "View all →" },
   "common.back": { tr: "← Geri", en: "← Back" },
