@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firma Ekle — TurNet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Archivo:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="register">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo"><svg viewBox="0 0 32 32" class="logo-mark" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 4 C 22 10, 22 22, 16 28 C 10 22, 10 10, 16 4 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/></svg><span>Tur<em>Net</em></span></a>
+    <nav class="main-nav">
+      <a href="index.html" data-nav="home" data-i18n="nav.home">Anasayfa</a>
+      <a href="listeleme.html" data-nav="list" data-i18n="nav.explore">Keşfet</a>
+      <a href="index.html#nasil" data-i18n="nav.how">Nasıl Çalışır</a>
+      <a href="teklif.html" data-nav="quote" data-i18n="nav.quote">Teklif Al</a>
+    </nav>
+    <div class="header-actions"><div class="lang-toggle" role="group" aria-label="Dil"><button data-lang="tr">TR</button><button data-lang="en">EN</button></div><a href="kayit.html" class="btn btn-solid" data-i18n="nav.add">+ Firma Ekle</a></div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menü"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main class="onboard">
+  <div class="onboard-head">
+    <p class="eyebrow">Firma Ekleme</p>
+    <h1>Tedarikçi profilinizi oluşturun</h1>
+    <p>TurNet vitrininde yer almak için temel firma bilgilerinizi gönderin.</p>
+  </div>
+
+  <div class="stepper" id="registerStepper">
+    <span class="step-pill active" data-step-pill="1"><span class="n">1</span>Firma tipi</span>
+    <span class="step-pill" data-step-pill="2"><span class="n">2</span>Bilgiler</span>
+    <span class="step-pill" data-step-pill="3"><span class="n">3</span>Hizmetler</span>
+    <span class="step-pill" data-step-pill="4"><span class="n">4</span>Onay</span>
+  </div>
+
+  <form id="registerForm">
+    <section class="step-panel active" data-step="1">
+      <div class="form-card">
+        <h2>Firma tipinizi seçin</h2>
+        <div class="type-cards" id="companyTypes">
+          <button type="button" class="type-card active" data-type="otel"><span class="t-icon cover-otel">OT</span><b>Otel</b><small>Konaklama tesisi</small></button>
+          <button type="button" class="type-card" data-type="acente"><span class="t-icon cover-acente">AC</span><b>Acente</b><small>Seyahat acentesi</small></button>
+          <button type="button" class="type-card" data-type="rehber"><span class="t-icon cover-rehber">RH</span><b>Rehber</b><small>Profesyonel rehber</small></button>
+          <button type="button" class="type-card" data-type="firma"><span class="t-icon cover-firma">TF</span><b>Tur firması</b><small>Aktivite operatörü</small></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="step-panel" data-step="2">
+      <div class="form-card">
+        <h2>Firma bilgileri</h2>
+        <div class="form-row">
+          <div class="form-field"><label for="companyName">Firma adı</label><input id="companyName" type="text"></div>
+          <div class="form-field"><label for="website">Web sitesi</label><input id="website" type="url" placeholder="https://"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label for="regCountry">Ülke</label><select id="regCountry"></select></div>
+          <div class="form-field"><label for="regCity">Şehir</label><select id="regCity" disabled></select></div>
+        </div>
+        <div class="form-field"><label for="regDistrict">İlçe</label><select id="regDistrict" disabled></select></div>
+      </div>
+    </section>
+
+    <section class="step-panel" data-step="3">
+      <div class="form-card">
+        <h2>Hizmetler</h2>
+        <div class="pick-chips" id="serviceChips">
+          <button type="button" class="pick-chip active">Konaklama</button>
+          <button type="button" class="pick-chip">Transfer</button>
+          <button type="button" class="pick-chip">Günlük tur</button>
+          <button type="button" class="pick-chip">MICE</button>
+          <button type="button" class="pick-chip">Rehberlik</button>
+          <button type="button" class="pick-chip">Yat / tekne</button>
+        </div>
+        <label class="logo-upload" for="logoInput">
+          <input id="logoInput" type="file" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          <span>Logo yükle</span>
+        </label>
+        <div class="form-field" style="margin-top:16px"><label for="intro">Kısa tanıtım</label><textarea id="intro" rows="4"></textarea></div>
+      </div>
+    </section>
+
+    <section class="step-panel" data-step="4">
+      <div class="form-card">
+        <h2>Yetkili & onay</h2>
+        <div class="form-row">
+          <div class="form-field"><label for="ownerName">Yetkili adı</label><input id="ownerName" type="text"></div>
+          <div class="form-field"><label for="ownerEmail">E-posta</label><input id="ownerEmail" type="email"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label for="ownerPhone">Telefon</label><input id="ownerPhone" type="tel"></div>
+          <div class="form-field"><label for="password">Şifre</label><input id="password" type="password"></div>
+        </div>
+        <div class="review-list" id="registerReview"></div>
+      </div>
+    </section>
+
+    <div class="step-nav">
+      <button class="btn btn-outline" type="button" id="regPrev">← Geri</button>
+      <button class="btn btn-solid" type="button" id="regNext">İleri →</button>
+      <button class="btn btn-solid" type="submit" id="regSubmit" hidden>Kaydı Gönder</button>
+    </div>
+
+    <div class="success-view" id="registerSuccess" hidden>
+      <div class="success-ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7"/></svg></div>
+      <h2>Başvurunuz alındı</h2>
+      <p>Firma profiliniz demo onay akışına gönderildi.</p>
+      <a href="index.html" class="btn btn-solid">Anasayfaya dön</a>
+    </div>
+  </form>
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand"><a href="index.html" class="logo"><svg viewBox="0 0 32 32" class="logo-mark" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M16 4 C 22 10, 22 22, 16 28 C 10 22, 10 10, 16 4 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/></svg><span>Tur<em>Net</em></span></a><p data-i18n="footer.tagline">B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler ve tur firmaları için ortak vitrin.</p></div>
+    <div class="footer-col"><h4 data-i18n="footer.categories">Kategoriler</h4><a href="listeleme.html?cat=otel" data-i18n="cat.otel">Oteller</a><a href="listeleme.html?cat=acente" data-i18n="cat.acente">Acenteler</a><a href="listeleme.html?cat=rehber" data-i18n="cat.rehber">Rehberler</a><a href="listeleme.html?cat=firma" data-i18n="cat.firma">Tur Firmaları</a></div>
+    <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="index.html#nasil" data-i18n="footer.howShort">Nasıl çalışır?</a><a href="kayit.html" data-i18n="footer.addCompany">Firma ekle</a><a href="teklif.html" data-i18n="footer.getQuote">Teklif al</a></div>
+    <div class="footer-col"><h4 data-i18n="footer.regions">Bölgeler</h4><a href="listeleme.html?city=İstanbul">İstanbul</a><a href="listeleme.html?city=Antalya">Antalya</a><a href="listeleme.html?city=Nevşehir">Kapadokya</a><a href="listeleme.html?city=Muğla">Muğla</a></div>
+  </div>
+  <div class="container footer-base"><span data-i18n="footer.note">© 2026 TurNet — Demo tasarım</span><span data-i18n="footer.note2">Ülke · Şehir · İlçe bazlı B2B listeleme</span></div>
+</footer>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script src="register.js"></script>
+</body>
+</html>

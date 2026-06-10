@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurNet — B2B Turizm Tedarikçi Ağı | Otel · Acente · Rehber · Tur Firması</title>
+<meta name="description" content="Türkiye'nin B2B turizm tedarikçi ağı. Otelleri, acenteleri, tur rehberlerini ve tur firmalarını keşfedin, teklif isteyin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Archivo:wght@400;500;600;700&display=swap&subset=latin-ext" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="home">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <svg viewBox="0 0 32 32" class="logo-mark" aria-hidden="true">
+        <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 4 C 22 10, 22 22, 16 28 C 10 22, 10 10, 16 4 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span>Tur<em>Net</em></span>
+    </a>
+    <nav class="main-nav">
+      <a href="index.html" data-nav="home" data-i18n="nav.home">Anasayfa</a>
+      <a href="listeleme.html" data-nav="list" data-i18n="nav.explore">Keşfet</a>
+      <a href="index.html#nasil" data-i18n="nav.how">Nasıl Çalışır</a>
+      <a href="teklif.html" data-nav="quote" data-i18n="nav.quote">Teklif Al</a>
+    </nav>
+    <div class="header-actions">
+      <div class="lang-toggle" role="group" aria-label="Dil">
+        <button data-lang="tr">TR</button><button data-lang="en">EN</button>
+      </div>
+      <a href="kayit.html" class="btn btn-solid" data-i18n="nav.add">+ Firma Ekle</a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menü"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- ======= HERO (Yön A: klasik üst arama) ======= -->
+<section class="home-hero">
+  <div class="hero-grain" aria-hidden="true"></div>
+  <div class="container home-hero-inner">
+    <div class="hero-panel">
+      <p class="eyebrow" data-i18n="home.kicker">B2B Tedarikçi Ağı</p>
+      <h1 data-i18n-html="home.title">Turizm tedarikçilerini<br><em>tek yerde bulun.</em></h1>
+      <p class="hero-sub" data-i18n="home.sub">Otel, acente, rehber ve tur firmalarını filtreleyin; uygun iş ortaklarından teklif isteyin.</p>
+
+      <form class="hero-search" id="heroSearch">
+        <div class="hs-field hs-grow">
+          <label for="heroSearchInput" data-i18n="filter.searchLabel">Arama</label>
+          <input type="text" id="heroSearchInput" data-i18n-ph="home.searchPh" placeholder="Ne arıyorsunuz? (otel, rehber…)" autocomplete="off">
+        </div>
+        <span class="hs-divider" aria-hidden="true"></span>
+        <div class="hs-field">
+          <label for="heroCountry" data-i18n="filter.country">Ülke</label>
+          <select id="heroCountry" aria-label="Ülke"></select>
+        </div>
+        <span class="hs-divider" aria-hidden="true"></span>
+        <div class="hs-field">
+          <label for="heroCity" data-i18n="filter.city">Şehir</label>
+          <select id="heroCity" aria-label="Şehir" disabled></select>
+        </div>
+        <span class="hs-divider" aria-hidden="true"></span>
+        <div class="hs-field">
+          <label for="heroDistrict" data-i18n="filter.district">İlçe</label>
+          <select id="heroDistrict" aria-label="İlçe" disabled></select>
+        </div>
+        <button type="submit" class="hs-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+          <span data-i18n="common.search">Ara</span>
+        </button>
+      </form>
+
+      <div class="hero-pop" id="heroPopular">
+        <span class="pop-label" data-i18n="home.popular">Popüler:</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= KATEGORİ KARTLARI ======= -->
+<section class="cat-section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.catEyebrow">Keşfet</p>
+        <h2 data-i18n="home.catTitle">Kategoriye göz atın</h2>
+      </div>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+  </div>
+</section>
+
+<!-- ======= ÖNE ÇIKANLAR ======= -->
+<section class="recent-section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow" data-i18n="home.featuredEyebrow">Vitrin</p>
+        <h2 data-i18n="home.featuredTitle">Öne çıkan tedarikçiler</h2>
+      </div>
+      <a href="listeleme.html" class="link-btn" data-i18n="common.all">Tümü →</a>
+    </div>
+    <div class="cards-grid-3" id="featuredGrid"></div>
+  </div>
+</section>
+
+<!-- ======= NASIL ÇALIŞIR ======= -->
+<section class="how" id="nasil">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow light" data-i18n="nav.how">Nasıl Çalışır</p>
+        <h2 data-i18n="how.title">Üç adımda iş birliği</h2>
+      </div>
+    </div>
+    <div class="how-grid">
+      <div class="how-card">
+        <span class="how-num">01</span>
+        <h3 data-i18n="how.s1">Keşfedin</h3>
+        <p data-i18n="how.s1d">Kategori, ülke, şehir ve ilçe filtreleriyle ihtiyacınıza uygun tedarikçiyi bulun.</p>
+      </div>
+      <div class="how-card">
+        <span class="how-num">02</span>
+        <h3 data-i18n="how.s2">Teklif İsteyin</h3>
+        <p data-i18n="how.s2d">Talebinizi tek formla iletin; birden çok tedarikçiden aynı anda teklif isteyin.</p>
+      </div>
+      <div class="how-card">
+        <span class="how-num">03</span>
+        <h3 data-i18n="how.s3">Anlaşın</h3>
+        <p data-i18n="how.s3d">Gelen teklifleri karşılaştırın, firmayla doğrudan iletişime geçin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======= FOOTER ======= -->
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 32 32" class="logo-mark" aria-hidden="true">
+          <circle cx="16" cy="16" r="15" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M16 4 C 22 10, 22 22, 16 28 C 10 22, 10 10, 16 4 Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="2" y1="16" x2="30" y2="16" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span>Tur<em>Net</em></span>
+      </a>
+      <p data-i18n="footer.tagline">B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler ve tur firmaları için ortak vitrin.</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.categories">Kategoriler</h4>
+      <a href="listeleme.html?cat=otel" data-i18n="cat.otel">Oteller</a>
+      <a href="listeleme.html?cat=acente" data-i18n="cat.acente">Acenteler</a>
+      <a href="listeleme.html?cat=rehber" data-i18n="cat.rehber">Rehberler</a>
+      <a href="listeleme.html?cat=firma" data-i18n="cat.firma">Tur Firmaları</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.platform">Platform</h4>
+      <a href="index.html#nasil" data-i18n="footer.howShort">Nasıl çalışır?</a>
+      <a href="kayit.html" data-i18n="footer.addCompany">Firma ekle</a>
+      <a href="teklif.html" data-i18n="footer.getQuote">Teklif al</a>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer.regions">Bölgeler</h4>
+      <a href="listeleme.html?city=İstanbul">İstanbul</a>
+      <a href="listeleme.html?city=Antalya">Antalya</a>
+      <a href="listeleme.html?city=Nevşehir">Kapadokya</a>
+      <a href="listeleme.html?city=Muğla">Muğla</a>
+    </div>
+  </div>
+  <div class="container footer-base">
+    <span data-i18n="footer.note">© 2026 TurNet — Demo tasarım</span>
+    <span data-i18n="footer.note2">Ülke · Şehir · İlçe bazlı B2B listeleme</span>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script src="home.js"></script>
+</body>
+</html>
