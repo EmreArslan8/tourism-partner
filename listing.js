@@ -10,6 +10,11 @@ Object.assign(I18N, {
   "list.clear": { tr: "Filtreleri Temizle", en: "Clear Filters" },
   "list.map": { tr: "Harita", en: "Map" },
   "list.demoNote": { tr: "Örnek demo verisi", en: "Sample demo data" },
+  "list.activeTitle": { tr: "Aktif filtreler:", en: "Active filters:" },
+  "list.clearAll": { tr: "Tümünü temizle", en: "Clear all" },
+  "list.regionPopular": { tr: "Popüler bölgeler", en: "Popular regions" },
+  "list.regionRelated": { tr: "Bu bölgeyi sevdiyseniz bunları da keşfedin", en: "Liked this region? Also explore" },
+  "list.regionEmpty": { tr: "Sonuç yok — diğer bölgeleri deneyin", en: "No results — try other regions" },
 });
 
 const PAGE_SIZE = 6;
@@ -132,6 +137,88 @@ function renderPagination(total) {
   nav.innerHTML = buttons.join("");
 }
 
+function renderActiveFilters() {
+  const wrap = document.getElementById("activeFilters");
+  if (!wrap) return;
+  const tags = [];
+  state.cats.forEach((c) =>
+    tags.push(`<button type="button" class="filter-tag" data-kind="cat" data-value="${c}">${catLabel(c)} <span aria-hidden="true">×</span></button>`));
+  if (state.country !== "all")
+    tags.push(`<button type="button" class="filter-tag" data-kind="country" data-value="${state.country}">${state.country} <span aria-hidden="true">×</span></button>`);
+  if (state.city !== "all")
+    tags.push(`<button type="button" class="filter-tag" data-kind="city" data-value="${state.city}">${state.city} <span aria-hidden="true">×</span></button>`);
+  if (state.district !== "all")
+    tags.push(`<button type="button" class="filter-tag" data-kind="district" data-value="${state.district}">${state.district} <span aria-hidden="true">×</span></button>`);
+  if (state.search)
+    tags.push(`<button type="button" class="filter-tag" data-kind="search" data-value="">“${state.search}” <span aria-hidden="true">×</span></button>`);
+
+  wrap.hidden = tags.length === 0;
+  wrap.innerHTML = tags.length
+    ? `<span class="active-label">${t("list.activeTitle")}</span>${tags.join("")}` +
+      `<button type="button" class="filter-tag clear-tag" data-kind="all">${t("list.clearAll")}</button>`
+    : "";
+}
+
+function removeFilter(kind, value) {
+  if (kind === "all") { resetFilters(); return; }
+  if (kind === "cat") state.cats.delete(value);
+  else if (kind === "country") { state.country = "all"; state.city = "all"; state.district = "all"; }
+  else if (kind === "city") { state.city = "all"; state.district = "all"; }
+  else if (kind === "district") state.district = "all";
+  else if (kind === "search") { state.search = ""; document.getElementById("searchInput").value = ""; }
+  state.page = 1;
+  if (refreshLocation) refreshLocation({ country: state.country, city: state.city, district: state.district });
+  renderListing();
+}
+
+function renderRegionSuggest(items) {
+  const wrap = document.getElementById("regionSuggest");
+  if (!wrap) return;
+
+  // seçili kategori varsa öneriler o kapsamda kalsın
+  const scope = LISTINGS.filter((l) => !state.cats.size || state.cats.has(l.cat));
+  const byCity = {};
+  scope.forEach((l) => {
+    const e = byCity[l.city] || (byCity[l.city] = { city: l.city, country: l.country, count: 0, views: 0 });
+    e.count += 1;
+    e.views += getViews(l);
+  });
+  const ranked = Object.values(byCity).sort((a, b) => b.views - a.views);
+
+  let title;
+  let list;
+  if (items.length === 0) {
+    title = t("list.regionEmpty");
+    list = ranked.slice(0, 6);
+  } else if (state.city !== "all") {
+    title = t("list.regionRelated");
+    list = ranked
+      .filter((e) => e.city !== state.city && (state.country === "all" || e.country === state.country))
+      .slice(0, 5);
+  } else {
+    title = t("list.regionPopular");
+    list = ranked.slice(0, 6);
+  }
+
+  wrap.hidden = list.length === 0;
+  wrap.innerHTML = list.length
+    ? `<span class="region-label">${ICONS.pin} ${title}</span>` +
+      list.map((e) =>
+        `<button type="button" class="region-chip" data-city="${e.city}" data-country="${e.country}">${e.city}<span class="region-count">${e.count}</span></button>`).join("")
+    : "";
+}
+
+function applyRegion(country, city) {
+  state.country = country;
+  state.city = city;
+  state.district = "all";
+  state.page = 1;
+  if (refreshLocation) refreshLocation({ country, city });
+  renderListing();
+  const head = document.querySelector(".page-head");
+  if (head) head.scrollIntoView({ behavior: "smooth" });
+}
+
 function renderListing() {
   const items = getFiltered();
   const maxPage = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
@@ -149,6 +236,8 @@ function renderListing() {
     chip.classList.toggle("active", state.cats.has(chip.dataset.cat));
   });
 
+  renderActiveFilters();
+  renderRegionSuggest(items);
   renderPagination(items.length);
   writeUrl();
 }
@@ -218,6 +307,18 @@ function setupListing() {
     state.sort = e.target.value;
     state.page = 1;
     renderListing();
+  });
+
+  document.getElementById("activeFilters").addEventListener("click", (e) => {
+    const tag = e.target.closest(".filter-tag");
+    if (!tag) return;
+    removeFilter(tag.dataset.kind, tag.dataset.value);
+  });
+
+  document.getElementById("regionSuggest").addEventListener("click", (e) => {
+    const chip = e.target.closest(".region-chip");
+    if (!chip) return;
+    applyRegion(chip.dataset.country, chip.dataset.city);
   });
 
   document.getElementById("emptyReset").addEventListener("click", resetFilters);

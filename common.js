@@ -22,6 +22,7 @@ const I18N = {
   "common.records": { tr: "kayıt", en: "listings" },
   "common.results": { tr: "sonuç", en: "results" },
   "common.verified": { tr: "Doğrulanmış", en: "Verified" },
+  "common.views": { tr: "görüntülenme", en: "views" },
 
   /* filtreler */
   "filter.country": { tr: "Ülke", en: "Country" },
@@ -93,6 +94,26 @@ function setCart(ids) { localStorage.setItem("tourism_partner_cart", JSON.string
 function addToCart(id) { const c = getCart(); c.push(Number(id)); setCart(c); }
 function removeFromCart(id) { setCart(getCart().filter((x) => x !== Number(id))); }
 
+/* ---------------- görüntülenme sayacı ---------------- */
+/* Backend yok; her işletme için puan/yorum/öne çıkma harmanından tutarlı bir
+   taban görüntülenme üretiyoruz, detay sayfası açıldıkça localStorage'da artıyor. */
+const VIEWS_KEY = "tourism_partner_views";
+function getViewMap() {
+  try { return JSON.parse(localStorage.getItem(VIEWS_KEY) || "{}"); } catch { return {}; }
+}
+function baseViews(l) {
+  return Math.round(l.reviews * 7.4 + l.featured * 53 + l.rating * 11);
+}
+function getViews(l) {
+  return baseViews(l) + (getViewMap()[l.id] || 0);
+}
+function bumpView(id) {
+  const map = getViewMap();
+  map[id] = (map[id] || 0) + 1;
+  localStorage.setItem(VIEWS_KEY, JSON.stringify(map));
+}
+function formatViews(n) { return n.toLocaleString("tr-TR"); }
+
 /* ---------------- kademeli Ülke→Şehir→İlçe ---------------- */
 function fillLocSelect(sel, values, placeholder) {
   sel.innerHTML = `<option value="all">${placeholder}</option>` +
@@ -138,6 +159,7 @@ const ICONS = {
   pin: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>`,
   star: `<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/></svg>`,
   check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg>`,
+  eye: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`,
 };
 
 function initials(name) { return name.split(" ").slice(0, 2).map((w) => w[0]).join(""); }

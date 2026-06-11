@@ -1227,6 +1227,107 @@ body[data-page="list"] .sort-wrap select {
   text-transform: none;
 }
 
+/* aktif filtre etiketleri */
+.active-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.active-filters .active-label {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1.5px solid rgba(53,109,168,.28);
+  border-radius: 999px;
+  background: rgba(53,109,168,.08);
+  color: var(--c-acente, #356da8);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease);
+}
+
+.filter-tag span { font-size: 14px; line-height: 1; opacity: .7; }
+.filter-tag:hover { background: rgba(53,109,168,.16); border-color: rgba(53,109,168,.5); }
+
+.filter-tag.clear-tag {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+.filter-tag.clear-tag:hover { color: var(--terra); border-color: var(--terra); background: transparent; }
+
+/* bölge önerileri */
+.region-suggest {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px dashed rgba(200,164,93,.5);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(200,164,93,.07), rgba(255,255,255,.5));
+}
+
+.region-suggest .region-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.region-suggest .region-label svg { width: 15px; height: 15px; color: var(--terra); }
+
+.region-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px 6px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+
+.region-chip:hover {
+  border-color: var(--terra);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -12px rgba(16,24,40,.4);
+}
+
+.region-chip .region-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--cream-deep, #eef0f3);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
 body[data-page="list"] .listing-shell {
   display: grid;
   grid-template-columns: minmax(0, 1.04fr) minmax(360px, .96fr);
