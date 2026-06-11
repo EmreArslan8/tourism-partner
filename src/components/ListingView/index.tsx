@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { BUSINESSES } from "@/lib/data";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { attrsPass, facetLabel } from "@/lib/facets";
 import { cn, normalizeTr } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
 import dynamic from "next/dynamic";
@@ -13,6 +14,7 @@ import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
 import FilterSelects from "./FilterSelects";
 import CategoryCatalog from "./CategoryCatalog";
+import FacetPanel from "./FacetPanel";
 import BottomSheet from "./BottomSheet";
 import SearchBox, { type Suggestion } from "./SearchBox";
 import ActiveTags, { type FilterTag } from "./ActiveTags";
@@ -21,8 +23,6 @@ import Pagination from "./Pagination";
 import styles from "./styles";
 
 
-/* Harita yalnızca "map" görünümünde mount edilir; leaflet paketi + CSS
-   bu chunk ile ancak o an indirilir, ilk sayfa yüküne maliyeti yoktur. */
 const MapPanel = dynamic(() => import("@/components/MapPanel"), {
   ssr: false,
   loading: () => (
@@ -44,6 +44,7 @@ export default function ListingView({
   initialVerified = false,
   initialMinRating = 0,
   initialSort = "featured",
+  initialAttrs = [],
 }: {
   initialGroups?: GroupKey[];
   initialTypes?: string[];
@@ -54,6 +55,7 @@ export default function ListingView({
   initialVerified?: boolean;
   initialMinRating?: number;
   initialSort?: Sort;
+  initialAttrs?: string[];
 }) {
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
@@ -70,6 +72,7 @@ export default function ListingView({
   const [q, setQ] = useState(initialQ);
   const [verifiedOnly, setVerifiedOnly] = useState(initialVerified);
   const [minRating, setMinRating] = useState(initialMinRating);
+  const [attrs, setAttrs] = useState<Set<string>>(new Set(initialAttrs));
   const [sort, setSort] = useState<Sort>(initialSort);
   const [view, setView] = useState<"list" | "map">("list");
   const [page, setPage] = useState(1);
@@ -120,6 +123,7 @@ export default function ListingView({
     if (district !== "all" && b.district !== district) return false;
     if (verifiedOnly && !b.verified) return false;
     if (minRating > 0 && b.rating < minRating) return false;
+    if (!attrsPass(b.attributes, attrs)) return false;
     if (needle && score(b, needle) === 0) return false;
     return true;
   };
@@ -134,7 +138,7 @@ export default function ListingView({
     else items.sort((a, b) => Number(b.b.sponsored) - Number(a.b.sponsored) || b.b.rating - a.b.rating);
     return items.map(({ b }) => b);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, sort]);
+  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
 
   // Facet sayaçları: grup sayımı grup+tür filtresini yok sayar; tür sayımı yalnız tür filtresini yok sayar.
   const groupCounts = useMemo(() => {
@@ -145,7 +149,7 @@ export default function ListingView({
     });
     return acc;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [types, country, city, district, deferredQ, verifiedOnly, minRating]);
+  }, [types, country, city, district, deferredQ, verifiedOnly, minRating, attrs]);
 
   const typeCounts = useMemo(() => {
     const needle = normalizeTr(deferredQ);
@@ -155,7 +159,7 @@ export default function ListingView({
     });
     return acc;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, country, city, district, deferredQ, verifiedOnly, minRating]);
+  }, [groups, country, city, district, deferredQ, verifiedOnly, minRating, attrs]);
 
   const maxPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, maxPage);
@@ -180,6 +184,15 @@ export default function ListingView({
       const next = new Set(prev);
       if (next.has(ty)) next.delete(ty);
       else next.add(ty);
+      return next;
+    });
+    setPage(1);
+  }
+  function toggleAttr(slug: string) {
+    setAttrs((prev) => {
+      const next = new Set(prev);
+      if (next.has(slug)) next.delete(slug);
+      else next.add(slug);
       return next;
     });
     setPage(1);
@@ -217,6 +230,7 @@ export default function ListingView({
     setQ("");
     setVerifiedOnly(false);
     setMinRating(0);
+    setAttrs(new Set());
     setSort("featured");
     setPage(1);
   }
@@ -232,13 +246,14 @@ export default function ListingView({
     if (deferredQ.trim()) p.set("q", deferredQ.trim());
     if (verifiedOnly) p.set("verified", "1");
     if (minRating > 0) p.set("rating", String(minRating));
+    if (attrs.size) p.set("attr", [...attrs].join(","));
     if (sort !== "featured") p.set("sort", sort);
     const qs = p.toString();
     if (qs !== (searchParams?.toString() ?? "")) {
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, sort]);
+  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
 
   const regions = useMemo(() => {
     const scope = BUSINESSES.filter((b) => (country === "all" || b.country === country) && (!groups.size || groups.has(b.group)));
@@ -262,6 +277,7 @@ export default function ListingView({
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
   if (verifiedOnly) tags.push({ kind: "verified", value: "", label: `✓ ${t("verifiedOnly")}` });
   if (minRating > 0) tags.push({ kind: "rating", value: "", label: `★ ${minRating}+` });
+  attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: facetLabel(slug) }));
   if (q.trim()) tags.push({ kind: "q", value: "", label: `“${q.trim()}”` });
 
   function removeTag(kind: string, value: string) {
@@ -276,6 +292,7 @@ export default function ListingView({
     else if (kind === "district") setDistrict("all");
     else if (kind === "verified") setVerifiedOnly(false);
     else if (kind === "rating") setMinRating(0);
+    else if (kind === "attr") toggleAttr(value);
     else if (kind === "q") setQ("");
     setPage(1);
   }
@@ -292,8 +309,8 @@ export default function ListingView({
         <div className={gridClass}>
           {pageItems.map((b) => (
             <SupplierCard key={b.id} business={b} flag={b.sponsored ? tCommon("ad") : null} showStars>
-              <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm">{tCommon("requestQuote")}</Link>
-              <Link href={`/tedarikci/${b.id}`} className="btn btn-outline btn-sm">{tCommon("detail")}</Link>
+              <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("requestQuote")}</Link>
+              <Link href={`/tedarikci/${b.id}`} className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("detail")}</Link>
             </SupplierCard>
           ))}
         </div>
@@ -345,18 +362,37 @@ export default function ListingView({
       </div>
 
       <div className={styles.layout}>
-        {/* Sol kenar katalog (masaüstü) */}
-        <aside className={styles.catalogAside}>{catalogEl}</aside>
+        {/* Sol kenar: kategoriler + hizmet/koşul facet'leri TEK kart içinde (masaüstü) */}
+        <aside className={styles.catalogAside}>
+          <CategoryCatalog
+            groups={groups}
+            types={types}
+            groupCounts={groupCounts}
+            typeCounts={typeCounts}
+            onToggleGroup={toggleGroup}
+            onToggleType={toggleType}
+          >
+            <FacetPanel
+              bare
+              groups={[...groups]}
+              selected={attrs}
+              onToggle={toggleAttr}
+              onClear={() => { setAttrs(new Set()); setPage(1); }}
+            />
+          </CategoryCatalog>
+        </aside>
 
         <div className={styles.content}>
           {/* Mobil araç çubuğu: arama + kategoriler + filtreler */}
           <div className={styles.toolbar}>
-            <SearchBox value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+            <div className={styles.toolbarSearch}>
+              <SearchBox value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+            </div>
             <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M3 6h18M3 12h18M3 18h18" />
               </svg>
-              {t("eyebrow")}
+              {t("suggestCategories")}
             </button>
             <button type="button" className={styles.toolBtn} onClick={() => setFiltersOpen(true)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -368,7 +404,7 @@ export default function ListingView({
           </div>
 
           {/* Masaüstü filtre barı */}
-          <div className="max-[1000px]:hidden">
+          <div className="max-[1120px]:hidden">
             <FilterBar
               country={country}
               city={city}
@@ -441,7 +477,7 @@ export default function ListingView({
           {view === "map" ? (
             <div className={styles.shell}>
               {resultsColumn(styles.grid)}
-              <aside className={cn(styles.mapAside, "max-[1000px]:order-first max-[1000px]:mb-4")}>
+              <aside className={cn(styles.mapAside, "max-[1120px]:order-first max-[1120px]:mb-4")}>
                 <MapPanel items={filtered} />
               </aside>
             </div>
@@ -452,11 +488,17 @@ export default function ListingView({
       </div>
 
       {/* Mobil: kategoriler ve filtreler alttan açılan panellerde */}
-      <BottomSheet open={catalogOpen} onClose={() => setCatalogOpen(false)} title={t("eyebrow")}>
+      <BottomSheet open={catalogOpen} onClose={() => setCatalogOpen(false)} title={t("suggestCategories")}>
         {catalogEl}
       </BottomSheet>
       <BottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title={t("filters")}>
         <FilterSelects {...selectProps} stack />
+        <FacetPanel
+          groups={[...groups]}
+          selected={attrs}
+          onToggle={toggleAttr}
+          onClear={() => { setAttrs(new Set()); setPage(1); }}
+        />
       </BottomSheet>
     </div>
   );

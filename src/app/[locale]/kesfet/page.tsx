@@ -16,6 +16,7 @@ export default async function KesfetPage({
     q?: string;
     verified?: string;
     rating?: string;
+    attr?: string;
     sort?: string;
   }>;
 }) {
@@ -30,10 +31,11 @@ export default async function KesfetPage({
   const q = sp.q ?? "";
   const verified = sp.verified === "1";
   const minRating = Number(sp.rating) || 0;
+  const attrsArr = sp.attr?.split(",").filter(Boolean) ?? [];
   const sort = (sp.sort === "rating" || sp.sort === "az" ? sp.sort : "featured") as "featured" | "rating" | "az";
 
   return (
-    <main className="container-px pb-10 pt-[104px]">
+    <main className="mx-auto w-full max-w-[1280px] px-6 pb-16 pt-[104px] max-[560px]:px-4">
       <ListingView
         initialGroups={groups}
         initialTypes={typesArr}
@@ -43,6 +45,7 @@ export default async function KesfetPage({
         initialQ={q}
         initialVerified={verified}
         initialMinRating={minRating}
+        initialAttrs={attrsArr}
         initialSort={sort}
       />
     </main>

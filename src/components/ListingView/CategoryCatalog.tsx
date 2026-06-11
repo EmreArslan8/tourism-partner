@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
-import type { CategoryGroup, GroupKey } from "@/lib/types";
+import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 function Chevron({ open }: { open: boolean }) {
@@ -22,6 +21,7 @@ export default function CategoryCatalog({
   typeCounts,
   onToggleGroup,
   onToggleType,
+  children,
 }: {
   groups: Set<GroupKey>;
   types: Set<string>;
@@ -29,57 +29,44 @@ export default function CategoryCatalog({
   typeCounts: Record<string, number>;
   onToggleGroup: (g: GroupKey) => void;
   onToggleType: (t: string) => void;
+  /** Aynı kart içinde kategorilerin altında render edilecek ek filtreler (facet'ler). */
+  children?: React.ReactNode;
 }) {
   const tc = useTranslations("cat");
   const t = useTranslations("listing");
-  const [manual, setManual] = useState<Set<GroupKey>>(new Set());
-
-  const isOpen = (g: CategoryGroup) =>
-    manual.has(g.key) || groups.has(g.key) || g.children.some((c) => types.has(c.label));
-
-  const toggleExpand = (k: GroupKey) =>
-    setManual((prev) => {
-      const next = new Set(prev);
-      if (next.has(k)) next.delete(k);
-      else next.add(k);
-      return next;
-    });
+  const totalCount = CATEGORY_GROUPS.reduce((sum, g) => sum + (groupCounts[g.key] ?? 0), 0);
 
   return (
     <div className={styles.catalog}>
       <div className={styles.catalogTitle}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M3 6h18M3 12h18M3 18h18" />
-        </svg>
-        {t("eyebrow")}
+        <span className={styles.catalogTitleText}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M4 7h16M7 12h10M10 17h4" />
+          </svg>
+          {t("suggestCategories")}
+        </span>
+        <span className={styles.catalogTotal}>{totalCount}</span>
       </div>
 
       {CATEGORY_GROUPS.map((g) => {
-        const open = isOpen(g);
         const active = groups.has(g.key);
+        const open = active || g.children.some((c) => types.has(c.label));
         return (
           <div key={g.key}>
-            <div className={cn(styles.catHead, active && styles.catHeadActive)}>
-              <button
-                type="button"
-                className={cn(styles.catHeadMain, active && styles.catHeadMainActive)}
-                onClick={() => onToggleGroup(g.key)}
-                aria-pressed={active}
-              >
-                <i className={styles.catDot} style={{ background: GROUP_COLORS[g.key] }} />
-                <span className={styles.catLabel}>{tc(g.key)}</span>
-                <span className={styles.catCount}>{groupCounts[g.key] ?? 0}</span>
-              </button>
-              <button
-                type="button"
-                className={styles.catChevBtn}
-                onClick={() => toggleExpand(g.key)}
-                aria-label={tc(g.key)}
-                aria-expanded={open}
-              >
+            <button
+              type="button"
+              className={cn(styles.catHead, active && styles.catHeadActive)}
+              onClick={() => onToggleGroup(g.key)}
+              aria-pressed={active}
+              aria-expanded={open}
+            >
+              <i className={styles.catDot} style={{ background: GROUP_COLORS[g.key] }} />
+              <span className={styles.catLabel}>{tc(g.key)}</span>
+              <span className={styles.catCount}>{groupCounts[g.key] ?? 0}</span>
+              <span className={styles.catChevBtn} aria-hidden>
                 <Chevron open={open} />
-              </button>
-            </div>
+              </span>
+            </button>
 
             {open && (
               <div className={styles.catChildren}>
@@ -103,6 +90,8 @@ export default function CategoryCatalog({
           </div>
         );
       })}
+
+      {children}
     </div>
   );
 }

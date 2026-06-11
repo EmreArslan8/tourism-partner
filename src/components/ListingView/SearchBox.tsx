@@ -30,11 +30,8 @@ export default function SearchBox({
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
   const wrapRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
-  // Kompakt mod: başlangıçta yalnız ikon; tıklayınca açılır. Değer varsa açık kalır.
-  const [expanded, setExpanded] = useState(Boolean(value));
 
   const sections = useMemo(() => {
     const needle = normalizeTr(value);
@@ -78,24 +75,16 @@ export default function SearchBox({
 
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 
-  useEffect(() => setActive(0), [value]);
-
-  // Açıldığında inputa odaklan.
-  useEffect(() => {
-    if (expanded) inputRef.current?.focus();
-  }, [expanded]);
-
-  // Dışarı tıklayınca öneri panelini kapat; değer boşsa kompakt moda dön.
+  // Dışarı tıklayınca öneri panelini kapat.
   useEffect(() => {
     function onDown(e: MouseEvent) {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setOpen(false);
-        if (!value.trim()) setExpanded(false);
       }
     }
     document.addEventListener("mousedown", onDown);
     return () => document.removeEventListener("mousedown", onDown);
-  }, [value]);
+  }, []);
 
   function choose(s: Suggestion) {
     onPick(s);
@@ -115,11 +104,11 @@ export default function SearchBox({
       choose(flat[active]);
     } else if (e.key === "Escape") {
       setOpen(false);
-      if (!value.trim()) setExpanded(false);
     }
   }
 
   const showPanel = open && normalizeTr(value).length >= 2;
+  const listboxId = "supplier-search-results";
 
   const SearchIcon = (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden width="18" height="18">
@@ -128,36 +117,21 @@ export default function SearchBox({
     </svg>
   );
 
-  // Kompakt mod: yalnız ikon butonu.
-  if (!expanded) {
-    return (
-      <div className={styles.acWrap} ref={wrapRef}>
-        <button
-          type="button"
-          className={styles.acIconBtn}
-          onClick={() => { setExpanded(true); setOpen(true); }}
-          aria-label={t("searchPh")}
-        >
-          {SearchIcon}
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.acWrap} ref={wrapRef}>
       <span className={styles.acSearchIcon}>{SearchIcon}</span>
       <input
-        ref={inputRef}
         type="text"
         role="combobox"
-        aria-expanded={showPanel}
+        aria-controls={listboxId}
+        aria-expanded={showPanel ? "true" : "false"}
         aria-autocomplete="list"
         className={styles.acInput}
         placeholder={t("searchPh")}
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
+          setActive(0);
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
@@ -166,7 +140,7 @@ export default function SearchBox({
       />
 
       {showPanel && (
-        <div className={styles.acPanel} role="listbox">
+        <div className={styles.acPanel} id={listboxId} role="listbox">
           {flat.length === 0 ? (
             <div className={styles.acEmpty}>{t("suggestEmpty")}</div>
           ) : (

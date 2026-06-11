@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import Logo from "@/components/Logo";
 import { styles } from "./styles";
 
 
@@ -11,13 +11,7 @@ export default function SiteFooter() {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div>
-          <Image
-            src="/assets/logo.jpeg"
-            alt="Tourism Partner"
-            width={112}
-            height={112}
-            className={styles.logoImage}
-          />
+          <Logo href="/" height={54} variant="light" className={styles.logo} />
           <p className={styles.brandText}>{t("tagline")}</p>
         </div>
         <div>

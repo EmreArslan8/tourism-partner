@@ -39,7 +39,6 @@ export default function FilterBar({
 }) {
   return (
     <div className={styles.bar}>
-      <SearchBox value={q} onChange={onQ} onPick={onPick} />
       <FilterSelects
         country={country}
         city={city}
@@ -55,6 +54,9 @@ export default function FilterBar({
         onVerified={onVerified}
         onMinRating={onMinRating}
       />
+      <div className={styles.barSearch}>
+        <SearchBox value={q} onChange={onQ} onPick={onPick} />
+      </div>
     </div>
   );
 }

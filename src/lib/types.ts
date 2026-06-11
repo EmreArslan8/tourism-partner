@@ -32,4 +32,6 @@ export interface Business {
   sponsored: boolean;
   /** Kart kapak görseli (public/ altı yol). Yoksa gruba göre varsayılan kullanılır. */
   image?: string;
+  /** Filtreleme facet slug'ları (hizmet/özellik/ticari şartlar). Bkz. lib/facets.ts */
+  attributes?: string[];
 }

@@ -6,17 +6,6 @@ import type { Business } from "@/lib/types";
 import { styles } from "./styles";
 
 
-export function Stars({ rating }: { rating: number }) {
-  const filled = Math.round(rating);
-  return (
-    <span className={styles.stars} aria-label={`${rating.toFixed(1)}`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <span key={i} className={i < filled ? "" : "text-line"}>★</span>
-      ))}
-    </span>
-  );
-}
-
 /* Ortak tedarikçi kartı. `flag` rozeti, `showStars` puan yıldızları,
    `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır. */
 export default function SupplierCard({
@@ -54,7 +43,6 @@ export default function SupplierCard({
         </div>
         <h3 className={styles.name}>{business.name}</h3>
         <p className={styles.loc}>
-          {showStars && <Stars rating={business.rating} />}
           <span>{business.district}, {business.city} · {business.country}</span>
         </p>
         <p className={styles.desc}>{business.desc}</p>
