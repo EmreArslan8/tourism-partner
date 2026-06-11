@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
 import { BUSINESSES } from "@/lib/data";
 import type { GroupKey } from "@/lib/types";
@@ -14,6 +15,9 @@ const ICONS: Record<GroupKey, React.ReactNode> = {
 
 /* Ana sayfa kategori girişi — yatay kartlar, /listeleme'ye yönlendirir. */
 export default function Categories() {
+  const t = useTranslations("categories");
+  const tc = useTranslations("cat");
+  const tCommon = useTranslations("common");
   const counts = BUSINESSES.reduce<Record<string, number>>((acc, b) => {
     acc[b.group] = (acc[b.group] ?? 0) + 1;
     return acc;
@@ -23,10 +27,10 @@ export default function Categories() {
     <section className={s.section} id="kategoriler">
       <div className={s.head}>
         <div>
-          <p className="eyebrow">Keşfet</p>
-          <h2 className={s.headTitle}>Kategoriye göz atın</h2>
+          <p className="eyebrow">{t("eyebrow")}</p>
+          <h2 className={s.headTitle}>{t("title")}</h2>
         </div>
-        <Link href="/listeleme" className={s.more}>Tümünü gör →</Link>
+        <Link href="/listeleme" className={s.more}>{tCommon("viewAll")}</Link>
       </div>
       <div className={s.grid}>
         {CATEGORY_GROUPS.map((g) => (
@@ -36,8 +40,8 @@ export default function Categories() {
                 {ICONS[g.key]}
               </svg>
             </span>
-            <h3 className={s.name}>{g.label}</h3>
-            <p className={s.count}>{counts[g.key] ?? 0} tedarikçi</p>
+            <h3 className={s.name}>{tc(g.key)}</h3>
+            <p className={s.count}>{t("count", { count: counts[g.key] ?? 0 })}</p>
           </Link>
         ))}
       </div>

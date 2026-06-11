@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
@@ -26,6 +27,8 @@ export default function FilterBar({
   onDistrict: (v: string) => void;
   onQ: (v: string) => void;
 }) {
+  const t = useTranslations("listing");
+  const tc = useTranslations("cat");
   return (
     <div className={s.bar}>
       <div className={s.chips}>
@@ -37,31 +40,31 @@ export default function FilterBar({
             onClick={() => onToggleGroup(g.key)}
           >
             <i className={s.chipDot} style={{ background: GROUP_COLORS[g.key] }} />
-            {g.label}
+            {tc(g.key)}
           </button>
         ))}
       </div>
-      <select aria-label="Şehir" className={s.field} value={city} onChange={(e) => onCity(e.target.value)}>
-        <option value="all">Tüm şehirler</option>
+      <select aria-label={t("allCities")} className={s.field} value={city} onChange={(e) => onCity(e.target.value)}>
+        <option value="all">{t("allCities")}</option>
         {cities.map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
       <select
-        aria-label="İlçe"
+        aria-label={t("allDistricts")}
         className={s.field}
         value={district}
         disabled={city === "all"}
         onChange={(e) => onDistrict(e.target.value)}
       >
-        <option value="all">{city === "all" ? "Önce şehir" : "Tüm ilçeler"}</option>
+        <option value="all">{city === "all" ? t("cityFirst") : t("allDistricts")}</option>
         {districts.map((d) => <option key={d} value={d}>{d}</option>)}
       </select>
       <input
         type="text"
         className={s.search}
-        placeholder="İsim / hizmet ara…"
+        placeholder={t("searchPh")}
         value={q}
         onChange={(e) => onQ(e.target.value)}
-        aria-label="Arama"
+        aria-label={t("searchPh")}
       />
     </div>
   );

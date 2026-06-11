@@ -1,9 +1,12 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import MobileMenu from "@/components/MobileMenu";
+import LangSwitcher from "@/components/LangSwitcher";
 import { s } from "./styles";
 
 /* Sunucu bileşeni — statik. Giriş/üyelik butonları (auth Faz 2'de bağlanacak). */
 export default function SiteHeader() {
+  const t = useTranslations("nav");
   return (
     <header className={s.header}>
       <div className={s.inner}>
@@ -19,16 +22,17 @@ export default function SiteHeader() {
         </Link>
 
         <nav className={s.nav}>
-          <Link href="/" className={s.navLink}>Anasayfa</Link>
-          <Link href="/listeleme" className={s.navLink}>Keşfet</Link>
-          <Link href="/#nasil" className={s.navLink}>Nasıl Çalışır</Link>
-          <Link href="/teklif" className={s.navLink}>Teklif Al</Link>
-          <Link href="/#sss" className={s.navLink}>SSS</Link>
+          <Link href="/" className={s.navLink}>{t("home")}</Link>
+          <Link href="/listeleme" className={s.navLink}>{t("explore")}</Link>
+          <Link href="/#nasil" className={s.navLink}>{t("how")}</Link>
+          <Link href="/teklif" className={s.navLink}>{t("quote")}</Link>
+          <Link href="/#sss" className={s.navLink}>{t("faq")}</Link>
         </nav>
 
         <div className={s.actions}>
-          <Link href="/giris" className="btn btn-outline btn-sm">Giriş Yap</Link>
-          <Link href="/kayit" className="btn btn-solid btn-sm">+ Firma Ekle</Link>
+          <LangSwitcher />
+          <Link href="/giris" className="btn btn-outline btn-sm">{t("login")}</Link>
+          <Link href="/kayit" className="btn btn-solid btn-sm">{t("addBusiness")}</Link>
         </div>
 
         <MobileMenu />

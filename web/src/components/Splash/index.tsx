@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { s } from "./styles";
 
 /* ~3 saniyelik karşılama ekranı. Oturum başına bir kez gösterilir.
@@ -8,6 +9,7 @@ import { s } from "./styles";
    callback'lerinde olur (effect içinde senkron setState yok). */
 export default function Splash() {
   const [phase, setPhase] = useState<"show" | "leaving" | "hidden">("show");
+  const t = useTranslations("splash");
 
   useEffect(() => {
     if (sessionStorage.getItem("tp_splash_seen")) {
@@ -41,7 +43,7 @@ export default function Splash() {
           <span className={s.typeTop}>TOURISM</span>
           <span className={s.typeBottom}>PARTNER</span>
         </span>
-        <p className={s.tag}>B2B Turizm Tedarikçi Ağı</p>
+        <p className={s.tag}>{t("tagline")}</p>
       </div>
     </div>
   );

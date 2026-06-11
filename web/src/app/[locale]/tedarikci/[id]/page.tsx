@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
 import { BUSINESSES, getBusiness } from "@/lib/data";
-import { GROUP_COLORS, groupLabel } from "@/lib/categories";
+import { GROUP_COLORS } from "@/lib/categories";
 import { initials } from "@/lib/utils";
 
 export function generateStaticParams() {
-  return BUSINESSES.map((b) => ({ id: String(b.id) }));
+  return routing.locales.flatMap((locale) =>
+    BUSINESSES.map((b) => ({ locale, id: String(b.id) }))
+  );
 }
 
 export async function generateMetadata({
@@ -16,22 +20,30 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const b = getBusiness(id);
-  return { title: b ? `${b.name} — Tourism Partner` : "Tedarikçi — Tourism Partner" };
+  return { title: b ? `${b.name} — Tourism Partner` : "Tourism Partner" };
 }
 
-export default async function DetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function DetailPage({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { locale, id } = await params;
+  setRequestLocale(locale);
   const b = getBusiness(id);
   if (!b) notFound();
 
-  const services = [b.type, "Grup indirimi", "Transfer", "Komisyonlu çalışma"];
+  const t = await getTranslations("supplier");
+  const tc = await getTranslations("cat");
+  const tCommon = await getTranslations("common");
+  const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
 
   return (
     <main className="container-px py-8">
       <nav className="mb-4 flex flex-wrap items-center gap-2 text-[13px] text-muted">
-        <Link href="/" className="hover:text-ink">Anasayfa</Link><span>›</span>
-        <Link href="/listeleme" className="hover:text-ink">Keşfet</Link><span>›</span>
-        <Link href={`/listeleme?cat=${b.group}`} className="hover:text-ink">{groupLabel(b.group)}</Link><span>›</span>
+        <Link href="/" className="hover:text-ink">{t("home")}</Link><span>›</span>
+        <Link href="/listeleme" className="hover:text-ink">{t("explore")}</Link><span>›</span>
+        <Link href={`/listeleme?cat=${b.group}`} className="hover:text-ink">{tc(b.group)}</Link><span>›</span>
         <strong className="text-ink">{b.name}</strong>
       </nav>
 
@@ -40,7 +52,7 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
         style={{ background: GROUP_COLORS[b.group] }}
       >
         {b.sponsored && (
-          <span className="absolute right-4 top-4 rounded-pill bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-[.06em] text-[#2a2208]">Reklam</span>
+          <span className="absolute right-4 top-4 rounded-pill bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-[.06em] text-[#2a2208]">{tCommon("ad")}</span>
         )}
         <span className="font-display text-[64px] italic">{initials(b.name)}</span>
       </section>
@@ -49,17 +61,17 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
         <article>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-[clamp(26px,3vw,38px)]">{b.name}</h1>
-            {b.verified && <span className="text-[12px] font-bold text-group-acente">✓ Doğrulanmış</span>}
+            {b.verified && <span className="text-[12px] font-bold text-group-acente">✓ {tCommon("verified")}</span>}
           </div>
           <p className="mt-2 text-[14.5px] text-muted">
-            {groupLabel(b.group)} · {b.type} &nbsp;|&nbsp; {b.district}, {b.city} · {b.country}
+            {tc(b.group)} · {b.type} &nbsp;|&nbsp; {b.district}, {b.city} · {b.country}
             &nbsp;|&nbsp; <span className="text-gold">★ {b.rating.toFixed(1)}</span> ({b.reviews})
           </p>
 
-          <h2 className="mt-7 text-[22px]">Hakkında</h2>
+          <h2 className="mt-7 text-[22px]">{t("about")}</h2>
           <p className="mt-2 text-[15px] leading-relaxed text-muted">{b.desc}</p>
 
-          <h2 className="mt-7 text-[22px]">Öne çıkan hizmetler</h2>
+          <h2 className="mt-7 text-[22px]">{t("services")}</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {services.map((sv) => (
               <span key={sv} className="rounded-pill border border-line bg-cream px-3 py-1.5 text-[13px] font-medium">{sv}</span>
@@ -67,22 +79,22 @@ export default async function DetailPage({ params }: { params: Promise<{ id: str
           </div>
 
           <div className="mt-7 rounded-[14px] border border-dashed border-line bg-cream px-5 py-4 text-[13.5px] text-muted">
-            Konum, iletişim ve fiyat detayları üyelere özeldir. <Link href="/giris" className="font-semibold text-terra">Giriş yapın</Link>.
+            {t("gated")} <Link href="/giris" className="font-semibold text-terra">{t("loginCta")}</Link>.
           </div>
         </article>
 
         <aside className="flex flex-col gap-4">
           <div className="rounded-[16px] border border-line bg-paper p-5 shadow-card">
-            <h3 className="text-[18px]">Bu tedarikçiden teklif al</h3>
-            <p className="mt-1 text-[13.5px] text-muted">Talebinizi iletin, firma doğrudan sizinle iletişime geçsin.</p>
-            <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-block mt-4">Teklif İste</Link>
+            <h3 className="text-[18px]">{t("quoteTitle")}</h3>
+            <p className="mt-1 text-[13.5px] text-muted">{t("quoteSub")}</p>
+            <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-block mt-4">{t("requestQuote")}</Link>
           </div>
           <div className="rounded-[16px] border border-line bg-paper p-5 shadow-card">
-            <h3 className="mb-3 text-[18px]">Hızlı bilgi</h3>
-            <Row k="Kategori" v={`${groupLabel(b.group)} · ${b.type}`} />
-            <Row k="Konum" v={`${b.city}, ${b.country}`} />
-            <Row k="Puan" v={`★ ${b.rating.toFixed(1)} (${b.reviews})`} />
-            <Row k="Doğrulama" v={b.verified ? "Tamamlandı" : "Bekliyor"} />
+            <h3 className="mb-3 text-[18px]">{t("quickInfo")}</h3>
+            <Row k={t("category")} v={`${tc(b.group)} · ${b.type}`} />
+            <Row k={t("location")} v={`${b.city}, ${b.country}`} />
+            <Row k={t("rating")} v={`★ ${b.rating.toFixed(1)} (${b.reviews})`} />
+            <Row k={t("verification")} v={b.verified ? t("verifiedDone") : t("verifiedPending")} />
           </div>
         </aside>
       </div>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { BUSINESSES } from "@/lib/data";
-import { groupLabel } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
 import MapPanel from "@/components/MapPanel";
@@ -25,6 +25,10 @@ export default function ListingView({
   initialGroups?: GroupKey[];
   initialCity?: string;
 }) {
+  const t = useTranslations("listing");
+  const tc = useTranslations("cat");
+  const tCommon = useTranslations("common");
+
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set(initialGroups));
   const [city, setCity] = useState(initialCity);
   const [district, setDistrict] = useState("all");
@@ -84,7 +88,6 @@ export default function ListingView({
     setPage(1);
   }
 
-  // bölge önerileri
   const regions = useMemo(() => {
     const scope = BUSINESSES.filter((b) => !groups.size || groups.has(b.group));
     const map = new Map<string, { city: string; country: string; count: number }>();
@@ -94,15 +97,13 @@ export default function ListingView({
       map.set(b.city, e);
     });
     const ranked = [...map.values()].sort((a, b) => b.count - a.count);
-    if (filtered.length === 0) return { title: "Sonuç yok — diğer bölgeleri deneyin", list: ranked.slice(0, 6) };
-    if (city !== "all")
-      return { title: "Bu bölgeyi sevdiyseniz bunları da keşfedin", list: ranked.filter((e) => e.city !== city).slice(0, 5) };
-    return { title: "Popüler bölgeler", list: ranked.slice(0, 6) };
+    if (filtered.length === 0) return { key: "regionEmpty", list: ranked.slice(0, 6) };
+    if (city !== "all") return { key: "regionRelated", list: ranked.filter((e) => e.city !== city).slice(0, 5) };
+    return { key: "regionPopular", list: ranked.slice(0, 6) };
   }, [groups, city, filtered.length]);
 
-  // aktif filtre etiketleri
   const tags: FilterTag[] = [];
-  groups.forEach((g) => tags.push({ kind: "group", value: g, label: groupLabel(g) }));
+  groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
   if (q.trim()) tags.push({ kind: "q", value: "", label: `“${q.trim()}”` });
@@ -115,21 +116,20 @@ export default function ListingView({
     setPage(1);
   }
 
-  // Sonuç sütunu: liste modunda tam genişlik (gridWide), harita modunda dar (grid).
   const resultsColumn = (gridClass: string) => (
     <div>
       {filtered.length === 0 ? (
         <div className={s.empty}>
-          <h3 className={s.emptyTitle}>Sonuç bulunamadı</h3>
-          <p className={s.emptyText}>Filtreleri genişleterek tekrar deneyin.</p>
-          <button type="button" className="btn btn-solid" onClick={reset}>Filtreleri Temizle</button>
+          <h3 className={s.emptyTitle}>{t("emptyTitle")}</h3>
+          <p className={s.emptyText}>{t("emptyText")}</p>
+          <button type="button" className="btn btn-solid" onClick={reset}>{t("clearFilters")}</button>
         </div>
       ) : (
         <div className={gridClass}>
           {pageItems.map((b) => (
-            <SupplierCard key={b.id} business={b} flag={b.sponsored ? "Reklam" : null} showStars>
-              <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm">Teklif İste</Link>
-              <Link href={`/tedarikci/${b.id}`} className="btn btn-outline btn-sm">Detay</Link>
+            <SupplierCard key={b.id} business={b} flag={b.sponsored ? tCommon("ad") : null} showStars>
+              <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm">{tCommon("requestQuote")}</Link>
+              <Link href={`/tedarikci/${b.id}`} className="btn btn-outline btn-sm">{tCommon("detail")}</Link>
             </SupplierCard>
           ))}
         </div>
@@ -141,9 +141,9 @@ export default function ListingView({
   return (
     <div>
       <div className={s.head}>
-        <p className="eyebrow">Listeleme</p>
-        <h1 className={s.title}>Tedarikçileri keşfedin</h1>
-        <p className={s.sub}>Kategori, şehir ve ilçe bazlı filtreleyin.</p>
+        <p className="eyebrow">{t("eyebrow")}</p>
+        <h1 className={s.title}>{t("title")}</h1>
+        <p className={s.sub}>{t("sub")}</p>
       </div>
 
       <FilterBar
@@ -163,11 +163,11 @@ export default function ListingView({
 
       <div className={s.resultsBar}>
         <p className={s.count}>
-          <strong className={s.countStrong}>{filtered.length}</strong> sonuç
+          {t.rich("results", { count: filtered.length, b: (c) => <strong className={s.countStrong}>{c}</strong> })}
           {city !== "all" ? ` · ${city}` : ""}
         </p>
         <div className={s.barRight}>
-          <div className={s.viewToggle} role="tablist" aria-label="Görünüm">
+          <div className={s.viewToggle} role="tablist" aria-label="View">
             <button
               type="button"
               role="tab"
@@ -178,7 +178,7 @@ export default function ListingView({
               <svg className={s.viewIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" aria-hidden>
                 <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
-              Liste
+              {t("viewList")}
             </button>
             <button
               type="button"
@@ -190,21 +190,21 @@ export default function ListingView({
               <svg className={s.viewIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.4" />
               </svg>
-              Harita
+              {t("viewMap")}
             </button>
           </div>
           <div className={s.sortWrap}>
-            <label className={s.sortLabel} htmlFor="sort">Sırala</label>
+            <label className={s.sortLabel} htmlFor="sort">{t("sortLabel")}</label>
             <select id="sort" className={s.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
-              <option value="featured">Önerilen</option>
-              <option value="rating">Puana göre</option>
-              <option value="az">A → Z</option>
+              <option value="featured">{t("sortFeatured")}</option>
+              <option value="rating">{t("sortRating")}</option>
+              <option value="az">{t("sortAz")}</option>
             </select>
           </div>
         </div>
       </div>
 
-      <RegionSuggest title={regions.title} list={regions.list} onPick={pickCity} />
+      <RegionSuggest title={t(regions.key)} list={regions.list} onPick={pickCity} />
 
       {view === "map" ? (
         <div className={s.shell}>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import type { Business } from "@/lib/types";
 import { GROUP_COLORS } from "@/lib/categories";
 import { s } from "./styles";
@@ -10,6 +11,7 @@ import { s } from "./styles";
    Gerçek OSM/Leaflet karoları deploy'da bu bileşenin yerine takılabilir. */
 export default function MapPanel({ items }: { items: Business[] }) {
   const router = useRouter();
+  const t = useTranslations("listing");
 
   const pins = useMemo(() => {
     if (items.length === 0) return [];
@@ -19,21 +21,20 @@ export default function MapPanel({ items }: { items: Business[] }) {
     const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
     const spanLat = maxLat - minLat || 1;
     const spanLng = maxLng - minLng || 1;
-    // kenarlara yapışmasın diye %10–%90 aralığına yerleştir
     const norm = (v: number, min: number, span: number) => 10 + ((v - min) / span) * 80;
     return items.map((b) => ({
       b,
-      top: 100 - norm(b.coords[0], minLat, spanLat), // kuzey yukarıda
+      top: 100 - norm(b.coords[0], minLat, spanLat),
       left: norm(b.coords[1], minLng, spanLng),
     }));
   }, [items]);
 
   return (
-    <div className={s.wrap} aria-label="Harita">
+    <div className={s.wrap} aria-label={t("mapLabel")}>
       <div className={s.canvas} />
-      <span className={s.label}>Harita</span>
+      <span className={s.label}>{t("mapLabel")}</span>
       {pins.length === 0 ? (
-        <p className={s.empty}>Sonuç yok</p>
+        <p className={s.empty}>{t("emptyTitle")}</p>
       ) : (
         pins.map(({ b, top, left }) => (
           <button
@@ -49,7 +50,7 @@ export default function MapPanel({ items }: { items: Business[] }) {
           </button>
         ))
       )}
-      <span className={s.note}>Demo harita · gerçek OSM karoları deploy’da</span>
+      <span className={s.note}>{t("mapNote")}</span>
     </div>
   );
 }

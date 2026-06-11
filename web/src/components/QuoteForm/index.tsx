@@ -1,24 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Business } from "@/lib/types";
-import { GROUP_COLORS, groupLabel } from "@/lib/categories";
+import { GROUP_COLORS } from "@/lib/categories";
+import { CATEGORY_GROUPS } from "@/lib/categories";
 import { initials } from "@/lib/utils";
 import { s } from "./styles";
 
 /* Teklif (RFQ) formu — Faz 1 yer tutucu. Gönderim Faz 2-3'te backend'e bağlanacak. */
 export default function QuoteForm({ business }: { business: Business | null }) {
   const [sent, setSent] = useState(false);
+  const t = useTranslations("quote");
+  const tc = useTranslations("cat");
+
+  const serviceOptions = business
+    ? [business.type, t("optAccommodation"), t("optTransfer"), t("optTour")]
+    : CATEGORY_GROUPS.map((g) => tc(g.key));
 
   return (
     <div className={s.card}>
-      <p className="eyebrow">Teklif Al</p>
-      <h1 className="mb-2 text-[28px]">
-        {business ? "Bu tedarikçiye talep gönderin" : "Teklif talebi oluşturun"}
-      </h1>
-      <p className={s.note}>
-        Talebinizi iletin; uygun tedarikçi(ler) doğrudan sizinle iletişime geçsin.
-      </p>
+      <p className="eyebrow">{t("eyebrow")}</p>
+      <h1 className="mb-2 text-[28px]">{business ? t("titleSupplier") : t("titleGeneral")}</h1>
+      <p className={s.note}>{t("note")}</p>
 
       {business && (
         <div className={`${s.supplier} mt-5`}>
@@ -27,36 +31,31 @@ export default function QuoteForm({ business }: { business: Business | null }) {
           </span>
           <div>
             <p className={s.supplierName}>{business.name}</p>
-            <p className={s.supplierMeta}>{groupLabel(business.group)} · {business.type} — {business.city}</p>
+            <p className={s.supplierMeta}>{tc(business.group)} · {business.type} — {business.city}</p>
           </div>
         </div>
       )}
 
-      <form
-        className={s.form}
-        onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-      >
+      <form className={s.form} onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
         <div className={s.row}>
-          <label className={s.label}>Ad Soyad<input className={s.field} placeholder="Adınız" /></label>
-          <label className={s.label}>Acente / Firma<input className={s.field} placeholder="Şirket adı" /></label>
+          <label className={s.label}>{t("name")}<input className={s.field} placeholder={t("namePh")} /></label>
+          <label className={s.label}>{t("company")}<input className={s.field} placeholder={t("companyPh")} /></label>
         </div>
-        <label className={s.label}>E-posta<input type="email" className={s.field} placeholder="ornek@acente.com" /></label>
+        <label className={s.label}>{t("email")}<input type="email" className={s.field} placeholder={t("emailPh")} /></label>
         <label className={s.label}>
-          Hizmet
+          {t("service")}
           <select className={s.field} defaultValue="">
-            <option value="" disabled>Seçin…</option>
-            {business
-              ? [business.type, "Grup konaklama", "Transfer", "Tur paketi"].map((o) => <option key={o}>{o}</option>)
-              : ["Konaklama", "Acente", "Rehber", "Eğlence", "Sağlık turizmi"].map((o) => <option key={o}>{o}</option>)}
+            <option value="" disabled>{t("select")}</option>
+            {serviceOptions.map((o) => <option key={o}>{o}</option>)}
           </select>
         </label>
         <div className={s.row}>
-          <label className={s.label}>Tarih aralığı<input className={s.field} placeholder="örn. 10–15 Temmuz" /></label>
-          <label className={s.label}>Kişi sayısı<input type="number" min={1} className={s.field} placeholder="0" /></label>
+          <label className={s.label}>{t("dateRange")}<input className={s.field} placeholder={t("datePh")} /></label>
+          <label className={s.label}>{t("people")}<input type="number" min={1} className={s.field} placeholder="0" /></label>
         </div>
-        <label className={s.label}>Mesaj<textarea className={s.textarea} placeholder="Talebinizin detayları…" /></label>
+        <label className={s.label}>{t("message")}<textarea className={s.textarea} placeholder={t("messagePh")} /></label>
         <button type="submit" className="btn btn-solid btn-block" disabled={sent}>
-          {sent ? "Talebiniz alındı (demo)" : "Talebi Gönder"}
+          {sent ? t("sent") : t("submit")}
         </button>
       </form>
     </div>
