@@ -1,0 +1,78 @@
+{
+  "hero": {
+    "eyebrow": "B2B Travel Supplier Network",
+    "titlePre": "Find travel suppliers ",
+    "titleEm": "in one place",
+    "titlePost": ".",
+    "sub": "Filter accommodation, agency, guide, activity and health-tourism suppliers. Member agencies get the full list and details.",
+    "popularLabel": "Popular:",
+    "pop1": "Istanbul hotels",
+    "pop2": "Cappadocia tours",
+    "pop3": "Antalya agencies",
+    "pop4": "Ankara health",
+    "statSuppliers": "listed suppliers",
+    "statCities": "cities / regions",
+    "statCountries": "countries",
+    "statResponse": "avg. response",
+    "searchCat": "All categories",
+    "searchLabel": "Search",
+    "countryLabel": "Country",
+    "cityLabel": "City",
+    "districtLabel": "District",
+    "allCountries": "All Countries",
+    "searchCity": "All Cities",
+    "allDistricts": "All Districts",
+    "countryFirst": "Select country first",
+    "cityFirst": "Select city first",
+    "searchPh": "What are you looking for? (hotel, guide...)",
+    "searchBtn": "Search"
+  },
+  "categories": {
+    "eyebrow": "Explore",
+    "title": "Browse by category",
+    "count": "{count} suppliers"
+  },
+  "showcase": {
+    "eyebrow": "Showcase",
+    "title": "Featured partners",
+    "sub": "Ad space — editor's pick"
+  },
+  "how": {
+    "eyebrow": "How It Works",
+    "title": "Partnership in three steps",
+    "s1t": "Sign up",
+    "s1d": "Add your business under accommodation, agency, guide, activity or health. First 200 agencies free.",
+    "s2t": "Get approved",
+    "s2d": "Your listing goes through verification and approval before going live — quality stays high.",
+    "s3t": "Get discovered",
+    "s3d": "Member agencies filter and find you; boost your listing to stand out if you wish.",
+    "faqEyebrow": "FAQ",
+    "faqTitle": "Frequently asked questions",
+    "q1": "Is membership paid?",
+    "a1": "Listing is via an annual membership. At launch the first 200 agencies are free; the first year may be free for everyone.",
+    "q2": "What is a boost?",
+    "a2": "An optional upgrade that highlights your business in the list and showcase. Businesses registering in the first 24 hours get a 1-day gift boost.",
+    "q3": "Why can't I see the details?",
+    "a3": "The full supplier list and contact/location details are members-only. Sign up free to access all data."
+  },
+  "cta": {
+    "title": "List your business today",
+    "sub": "First 200 agencies free. Businesses registering in the first 24 hours get a 1-day gift boost.",
+    "button": "+ List Business"
+  },
+  "footer": {
+    "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",
+    "categories": "Categories",
+    "platform": "Platform",
+    "membership": "Membership",
+    "membershipNote": "Free registration for the first 200 agencies. Listing via annual membership; boost optional.",
+    "howShort": "How it works?",
+    "addCompany": "List your business",
+    "login": "Member login",
+    "note": "© 2026 Tourism Partner — Demo",
+    "note2": "Country · City · District based B2B listing"
+  },
+  "splash": {
+    "tagline": "B2B Travel Supplier Network"
+  }
+}
