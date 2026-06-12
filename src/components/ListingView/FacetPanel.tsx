@@ -41,19 +41,19 @@ export default function FacetPanel({
         {facets.map((f) => (
           <div key={f.key} className={styles.facetRow}>
             <span className={styles.facetRowLabel}>{f.label}</span>
-            <div className={styles.facetChips}>
+            <div className={styles.facetCheckList}>
               {f.options.map((o) => {
                 const active = selected.has(o.slug);
                 return (
-                  <button
-                    key={o.slug}
-                    type="button"
-                    aria-pressed={active}
-                    className={cn(styles.facetChip, active && styles.facetChipActive)}
-                    onClick={() => onToggle(o.slug)}
-                  >
+                  <label key={o.slug} className={cn(styles.facetCheck, active && styles.facetCheckActive)}>
+                    <input
+                      type="checkbox"
+                      checked={active}
+                      onChange={() => onToggle(o.slug)}
+                      className={styles.facetCheckbox}
+                    />
                     {o.label}
-                  </button>
+                  </label>
                 );
               })}
             </div>

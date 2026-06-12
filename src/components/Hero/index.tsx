@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import HeroSearch from "@/components/HeroSearch";
+import type { Business } from "@/lib/types";
 import { styles } from "./styles";
 
 const GRAIN =
@@ -22,7 +23,7 @@ const STATS = [
 ] as const;
 
 /* Eski HTML'deki hero görseli + degrade + grain + güven şeridi (Next/Image ile). */
-export default function Hero() {
+export default function Hero({ businesses }: { businesses: Business[] }) {
   const t = useTranslations("hero");
   return (
     <section className={styles.section}>
@@ -37,7 +38,7 @@ export default function Hero() {
         <p className={styles.sub}>{t("sub")}</p>
 
         <div className={styles.searchWrap}>
-          <HeroSearch />
+          <HeroSearch businesses={businesses} />
         </div>
 
         <div className={styles.pop}>

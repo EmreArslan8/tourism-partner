@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { BUSINESSES, COUNTRIES } from "@/lib/data";
+import type { Business } from "@/lib/types";
 import { styles } from "./styles";
 
 
 /* Ana sayfa hero arama — filtreleme burada YAPILMAZ, /kesfet'ye yönlendirir. */
-export default function HeroSearch() {
+export default function HeroSearch({ businesses }: { businesses: Business[] }) {
   const router = useRouter();
   const t = useTranslations("hero");
   const [country, setCountry] = useState("Türkiye");
@@ -17,16 +17,19 @@ export default function HeroSearch() {
   const [q, setQ] = useState("");
   const cityDisabled = country === "all";
   const districtDisabled = cityDisabled || city === "all";
+  const countries = [...new Set(businesses.map((b) => b.country))].sort((a, b) =>
+    a.localeCompare(b, "tr")
+  );
   const cities =
     country === "all"
       ? []
-      : [...new Set(BUSINESSES.filter((b) => b.country === country).map((b) => b.city))].sort((a, b) =>
+      : [...new Set(businesses.filter((b) => b.country === country).map((b) => b.city))].sort((a, b) =>
           a.localeCompare(b, "tr")
         );
   const districts =
     districtDisabled
       ? []
-      : [...new Set(BUSINESSES.filter((b) => b.country === country && b.city === city).map((b) => b.district))].sort((a, b) =>
+      : [...new Set(businesses.filter((b) => b.country === country && b.city === city).map((b) => b.district))].sort((a, b) =>
           a.localeCompare(b, "tr")
         );
 
@@ -73,7 +76,7 @@ export default function HeroSearch() {
             }}
           >
             <option value="all">{t("allCountries")}</option>
-            {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {countries.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
           <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="m6 9 6 6 6-6" />

@@ -1,8 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
-import { BUSINESSES } from "@/lib/data";
-import type { GroupKey } from "@/lib/types";
+import type { Business, GroupKey } from "@/lib/types";
 import { styles } from "./styles";
 
 const ICONS: Record<GroupKey, React.ReactNode> = {
@@ -14,11 +13,11 @@ const ICONS: Record<GroupKey, React.ReactNode> = {
 };
 
 /* Ana sayfa kategori girişi — yatay kartlar, /kesfet'ye yönlendirir. */
-export default function Categories() {
+export default function Categories({ businesses }: { businesses: Business[] }) {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
   const tCommon = useTranslations("common");
-  const counts = BUSINESSES.reduce<Record<string, number>>((acc, b) => {
+  const counts = businesses.reduce<Record<string, number>>((acc, b) => {
     acc[b.group] = (acc[b.group] ?? 0) + 1;
     return acc;
   }, {});

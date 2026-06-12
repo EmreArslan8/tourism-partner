@@ -4,11 +4,11 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { BUSINESSES } from "@/lib/data";
+import { BUSINESSES as SEED_BUSINESSES } from "@/lib/data";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { attrsPass, facetLabel } from "@/lib/facets";
 import { cn, normalizeTr } from "@/lib/utils";
-import type { GroupKey } from "@/lib/types";
+import type { Business, GroupKey } from "@/lib/types";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
@@ -35,6 +35,7 @@ const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeC
 type Sort = "featured" | "rating" | "az";
 
 export default function ListingView({
+  businesses = SEED_BUSINESSES,
   initialGroups = [],
   initialTypes = [],
   initialCountry = "all",
@@ -46,6 +47,7 @@ export default function ListingView({
   initialSort = "featured",
   initialAttrs = [],
 }: {
+  businesses?: Business[];
   initialGroups?: GroupKey[];
   initialTypes?: string[];
   initialCountry?: string;
@@ -83,9 +85,9 @@ export default function ListingView({
   // ağır liste hesabı arka planda, düşük öncelikte güncellenir.
   const deferredQ = useDeferredValue(q);
 
-  const countries = useMemo(() => uniqSorted(BUSINESSES.map((b) => b.country)), []);
+  const countries = useMemo(() => uniqSorted(businesses.map((b) => b.country)), []);
   const cities = useMemo(
-    () => uniqSorted(BUSINESSES.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
+    () => uniqSorted(businesses.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
     [country]
   );
   const districts = useMemo(
@@ -93,13 +95,13 @@ export default function ListingView({
       city === "all"
         ? []
         : uniqSorted(
-            BUSINESSES.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)
+            businesses.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)
           ),
     [city, country]
   );
 
   // Alaka skoru: isimde geçen +3, tür +2, etiket/şehir/ilçe +1.
-  const score = (b: (typeof BUSINESSES)[number], needle: string) => {
+  const score = (b: (typeof businesses)[number], needle: string) => {
     if (!needle) return 0;
     let s = 0;
     if (normalizeTr(b.name).includes(needle)) s += 3;
@@ -112,7 +114,7 @@ export default function ListingView({
 
   // Tek facet'i atlayabilen ortak süzgeç — hem sonuç listesi hem sayaçlar için.
   const passes = (
-    b: (typeof BUSINESSES)[number],
+    b: (typeof businesses)[number],
     needle: string,
     opts: { ignoreGroup?: boolean; ignoreType?: boolean } = {}
   ) => {
@@ -130,7 +132,7 @@ export default function ListingView({
 
   const filtered = useMemo(() => {
     const needle = normalizeTr(deferredQ);
-    const items = BUSINESSES.filter((b) => passes(b, needle)).map((b) => ({ b, s: score(b, needle) }));
+    const items = businesses.filter((b) => passes(b, needle)).map((b) => ({ b, s: score(b, needle) }));
     if (sort === "rating") items.sort((a, b) => b.b.rating - a.b.rating || b.b.reviews - a.b.reviews);
     else if (sort === "az") items.sort((a, b) => a.b.name.localeCompare(b.b.name, "tr"));
     // Varsayılan: arama varsa önce alaka skoru, yoksa sponsor + puan.
@@ -144,7 +146,7 @@ export default function ListingView({
   const groupCounts = useMemo(() => {
     const needle = normalizeTr(deferredQ);
     const acc: Record<string, number> = {};
-    BUSINESSES.forEach((b) => {
+    businesses.forEach((b) => {
       if (passes(b, needle, { ignoreGroup: true, ignoreType: true })) acc[b.group] = (acc[b.group] ?? 0) + 1;
     });
     return acc;
@@ -154,7 +156,7 @@ export default function ListingView({
   const typeCounts = useMemo(() => {
     const needle = normalizeTr(deferredQ);
     const acc: Record<string, number> = {};
-    BUSINESSES.forEach((b) => {
+    businesses.forEach((b) => {
       if (passes(b, needle, { ignoreType: true })) acc[b.type] = (acc[b.type] ?? 0) + 1;
     });
     return acc;
@@ -256,7 +258,7 @@ export default function ListingView({
   }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
 
   const regions = useMemo(() => {
-    const scope = BUSINESSES.filter((b) => (country === "all" || b.country === country) && (!groups.size || groups.has(b.group)));
+    const scope = businesses.filter((b) => (country === "all" || b.country === country) && (!groups.size || groups.has(b.group)));
     const map = new Map<string, { city: string; country: string; count: number }>();
     scope.forEach((b) => {
       const e = map.get(b.city) ?? { city: b.city, country: b.country, count: 0 };
@@ -386,7 +388,7 @@ export default function ListingView({
           {/* Mobil araç çubuğu: arama + kategoriler + filtreler */}
           <div className={styles.toolbar}>
             <div className={styles.toolbarSearch}>
-              <SearchBox value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+              <SearchBox businesses={businesses} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
             </div>
             <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -406,6 +408,7 @@ export default function ListingView({
           {/* Masaüstü filtre barı */}
           <div className="max-[1120px]:hidden">
             <FilterBar
+              businesses={businesses}
               country={country}
               city={city}
               district={district}

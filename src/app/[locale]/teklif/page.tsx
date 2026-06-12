@@ -1,6 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import QuoteForm from "@/components/QuoteForm";
-import { getBusiness } from "@/lib/data";
+import { getBusinessById } from "@/lib/businesses";
 
 export default async function TeklifPage({
   params,
@@ -12,7 +12,7 @@ export default async function TeklifPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const sp = await searchParams;
-  const business = sp.s ? getBusiness(sp.s) ?? null : null;
+  const business = sp.s ? await getBusinessById(sp.s) : null;
 
   return (
     <main className="container-px pb-10 pt-[104px]">

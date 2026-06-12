@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
+import { getBusinesses } from "@/lib/businesses";
 import type { GroupKey } from "@/lib/types";
 
 export default async function KesfetPage({
@@ -33,10 +34,12 @@ export default async function KesfetPage({
   const minRating = Number(sp.rating) || 0;
   const attrsArr = sp.attr?.split(",").filter(Boolean) ?? [];
   const sort = (sp.sort === "rating" || sp.sort === "az" ? sp.sort : "featured") as "featured" | "rating" | "az";
+  const businesses = await getBusinesses();
 
   return (
     <main className="mx-auto w-full max-w-[1280px] px-6 pb-16 pt-[104px] max-[560px]:px-4">
       <ListingView
+        businesses={businesses}
         initialGroups={groups}
         initialTypes={typesArr}
         initialCountry={country}

@@ -1,8 +1,10 @@
 import SearchBox, { type Suggestion } from "./SearchBox";
 import FilterSelects from "./FilterSelects";
+import type { Business } from "@/lib/types";
 import styles from "./styles";
 
 export default function FilterBar({
+  businesses,
   country,
   city,
   district,
@@ -20,6 +22,7 @@ export default function FilterBar({
   onVerified,
   onMinRating,
 }: {
+  businesses: Business[];
   country: string;
   city: string;
   district: string;
@@ -55,7 +58,7 @@ export default function FilterBar({
         onMinRating={onMinRating}
       />
       <div className={styles.barSearch}>
-        <SearchBox value={q} onChange={onQ} onPick={onPick} />
+        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
       </div>
     </div>
   );

@@ -5,8 +5,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
-import SiteHeader from "@/components/Header";
-import SiteFooter from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 
 const display = Fraunces({
   subsets: ["latin", "latin-ext"],
@@ -46,9 +45,7 @@ export default async function LocaleLayout({
     <html lang={locale} data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
       <body>
         <NextIntlClientProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
+          <SiteChrome>{children}</SiteChrome>
         </NextIntlClientProvider>
       </body>
     </html>

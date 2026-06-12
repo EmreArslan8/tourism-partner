@@ -65,3 +65,12 @@
            focus:border-terra focus:outline-none disabled:cursor-not-allowed disabled:opacity-55;
   }
 }
+
+@keyframes how-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

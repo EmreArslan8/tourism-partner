@@ -3,9 +3,28 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { BUSINESSES, getBusiness } from "@/lib/data";
-import { GROUP_COLORS } from "@/lib/categories";
-import { initials } from "@/lib/utils";
+import SupplierGallery from "@/components/SupplierGallery";
+import { BUSINESSES } from "@/lib/data";
+import { getBusinessById } from "@/lib/businesses";
+import { GROUP_COLORS, GROUP_COVER } from "@/lib/categories";
+import type { GroupKey } from "@/lib/types";
+
+const GALLERY_BY_GROUP: Record<GroupKey, string[]> = {
+  konaklama: [
+    "/assets/cards/hotel-1.jpg",
+    "/assets/cards/hotel-2.jpg",
+    "/assets/cards/hotel-3.jpg",
+    "/assets/cards/resort-1.jpg",
+  ],
+  acente: ["/assets/cards/agency-1.jpg", "/assets/hero-turizm-b2b-v2.png"],
+  rehber: ["/assets/cards/guide-1.jpg", "/assets/cards/hotel-3.jpg"],
+  eglence: [
+    "/assets/cards/balloon-1.jpg",
+    "/assets/cards/yacht-1.jpg",
+    "/assets/cards/resort-1.jpg",
+  ],
+  saglik: ["/assets/cards/clinic-1.jpg", "/assets/cards/hotel-2.jpg"],
+};
 
 export function generateStaticParams() {
   return routing.locales.flatMap((locale) =>
@@ -19,7 +38,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const b = getBusiness(id);
+  const b = await getBusinessById(id);
   return { title: b ? `${b.name} — Tourism Partner` : "Tourism Partner" };
 }
 
@@ -30,13 +49,15 @@ export default async function DetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const b = getBusiness(id);
+  const b = await getBusinessById(id);
   if (!b) notFound();
 
   const t = await getTranslations("supplier");
   const tc = await getTranslations("cat");
   const tCommon = await getTranslations("common");
   const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
+  const cover = b.image ?? GROUP_COVER[b.group];
+  const gallery = getGalleryImages(cover, b.group);
 
   return (
     <main className="container-px pb-8 pt-[100px]">
@@ -47,15 +68,14 @@ export default async function DetailPage({
         <strong className="text-ink">{b.name}</strong>
       </nav>
 
-      <section
-        className="relative grid h-[200px] place-items-center overflow-hidden rounded-[18px] text-white/90"
-        style={{ background: GROUP_COLORS[b.group] }}
-      >
-        {b.sponsored && (
-          <span className="absolute right-4 top-4 rounded-pill bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-[.06em] text-pine">{tCommon("ad")}</span>
-        )}
-        <span className="font-display text-[64px] italic">{initials(b.name)}</span>
-      </section>
+      <SupplierGallery
+        images={gallery}
+        title={b.name}
+        eyebrow={`${tc(b.group)} · ${b.type}`}
+        color={GROUP_COLORS[b.group]}
+        adLabel={tCommon("ad")}
+        sponsored={b.sponsored}
+      />
 
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)_360px] items-start gap-7 max-[900px]:grid-cols-1">
         <article>
@@ -109,4 +129,8 @@ function Row({ k, v }: { k: string; v: string }) {
       <span className="font-medium text-ink">{v}</span>
     </div>
   );
+}
+
+function getGalleryImages(cover: string, group: GroupKey): string[] {
+  return Array.from(new Set([cover, ...GALLERY_BY_GROUP[group]]));
 }

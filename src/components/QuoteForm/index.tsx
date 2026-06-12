@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { useTranslations } from "next-intl";
 import type { Business } from "@/lib/types";
 import { GROUP_COLORS } from "@/lib/categories";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { initials } from "@/lib/utils";
+import { submitQuote } from "@/lib/actions/quote";
 import { styles } from "./styles";
 
 
-/* Teklif (RFQ) formu — Faz 1 yer tutucu. Gönderim Faz 2-3'te backend'e bağlanacak. */
+/* Teklif (RFQ) formu — gönderim Supabase quotes tablosuna yazar (server action). */
 export default function QuoteForm({ business }: { business: Business | null }) {
-  const [sent, setSent] = useState(false);
+  const [state, action, pending] = useActionState(submitQuote, { ok: false });
   const t = useTranslations("quote");
   const tc = useTranslations("cat");
 
@@ -36,26 +37,32 @@ export default function QuoteForm({ business }: { business: Business | null }) {
         </div>
       )}
 
-      <form className={styles.form} onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+      <form className={styles.form} action={action}>
+        {/* Honeypot — botlar doldurur, gerçek kullanıcı görmez */}
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+        {business && <input type="hidden" name="businessId" value={business.id} />}
         <div className={styles.row}>
-          <label className={styles.label}>{t("name")}<input className={styles.field} placeholder={t("namePh")} /></label>
-          <label className={styles.label}>{t("company")}<input className={styles.field} placeholder={t("companyPh")} /></label>
+          <label className={styles.label}>{t("name")}<input name="name" required className={styles.field} placeholder={t("namePh")} /></label>
+          <label className={styles.label}>{t("company")}<input name="company" className={styles.field} placeholder={t("companyPh")} /></label>
         </div>
-        <label className={styles.label}>{t("email")}<input type="email" className={styles.field} placeholder={t("emailPh")} /></label>
+        <label className={styles.label}>{t("email")}<input name="email" type="email" required className={styles.field} placeholder={t("emailPh")} /></label>
         <label className={styles.label}>
           {t("service")}
-          <select className={styles.field} defaultValue="">
+          <select name="service" className={styles.field} defaultValue="">
             <option value="" disabled>{t("select")}</option>
             {serviceOptions.map((o) => <option key={o}>{o}</option>)}
           </select>
         </label>
         <div className={styles.row}>
-          <label className={styles.label}>{t("dateRange")}<input className={styles.field} placeholder={t("datePh")} /></label>
-          <label className={styles.label}>{t("people")}<input type="number" min={1} className={styles.field} placeholder="0" /></label>
+          <label className={styles.label}>{t("dateRange")}<input name="dateRange" className={styles.field} placeholder={t("datePh")} /></label>
+          <label className={styles.label}>{t("people")}<input name="people" type="number" min={1} className={styles.field} placeholder="0" /></label>
         </div>
-        <label className={styles.label}>{t("message")}<textarea className={styles.textarea} placeholder={t("messagePh")} /></label>
-        <button type="submit" className="btn btn-solid btn-block" disabled={sent}>
-          {sent ? t("sent") : t("submit")}
+        <label className={styles.label}>{t("message")}<textarea name="message" className={styles.textarea} placeholder={t("messagePh")} /></label>
+        {state.error && !state.ok && (
+          <p className="text-[13px] font-medium text-red-600">{t("error")}</p>
+        )}
+        <button type="submit" className="btn btn-solid btn-block" disabled={pending || state.ok}>
+          {state.ok ? t("sent") : pending ? t("sending") : t("submit")}
         </button>
       </form>
     </div>

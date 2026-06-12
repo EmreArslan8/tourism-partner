@@ -34,4 +34,9 @@ export interface Business {
   image?: string;
   /** Filtreleme facet slug'ları (hizmet/özellik/ticari şartlar). Bkz. lib/facets.ts */
   attributes?: string[];
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  canonicalPath?: string;
+  ogImage?: string;
 }

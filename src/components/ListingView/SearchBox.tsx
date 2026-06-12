@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { BUSINESSES } from "@/lib/data";
 import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
 import { cn, normalizeTr } from "@/lib/utils";
-import type { GroupKey } from "@/lib/types";
+import type { Business, GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 export type Suggestion =
@@ -19,10 +18,12 @@ const MAX_REGION = 4;
 const MAX_CAT = 3;
 
 export default function SearchBox({
+  businesses,
   value,
   onChange,
   onPick,
 }: {
+  businesses: Business[];
   value: string;
   onChange: (v: string) => void;
   onPick: (s: Suggestion) => void;
@@ -37,13 +38,13 @@ export default function SearchBox({
     const needle = normalizeTr(value);
     if (needle.length < 2) return [] as { key: string; label: string; items: Suggestion[] }[];
 
-    const businesses: Suggestion[] = BUSINESSES.filter((b) => normalizeTr(b.name).includes(needle))
+    const bizMatches: Suggestion[] = businesses.filter((b) => normalizeTr(b.name).includes(needle))
       .slice(0, MAX_BUSINESS)
       .map((b) => ({ kind: "business", id: b.id, label: b.name, sub: `${b.city} · ${b.type}` }));
 
     const seen = new Set<string>();
     const regions: Suggestion[] = [];
-    for (const b of BUSINESSES) {
+    for (const b of businesses) {
       if (regions.length >= MAX_REGION) break;
       if (normalizeTr(b.city).includes(needle) && !seen.has(b.city)) {
         seen.add(b.city);
@@ -67,11 +68,11 @@ export default function SearchBox({
     }
 
     return [
-      { key: "suggestBusinesses", label: t("suggestBusinesses"), items: businesses },
+      { key: "suggestBusinesses", label: t("suggestBusinesses"), items: bizMatches },
       { key: "suggestRegions", label: t("suggestRegions"), items: regions },
       { key: "suggestCategories", label: t("suggestCategories"), items: cats },
     ].filter((s) => s.items.length > 0);
-  }, [value, t, tc]);
+  }, [value, t, tc, businesses]);
 
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 

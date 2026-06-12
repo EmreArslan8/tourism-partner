@@ -66,6 +66,12 @@ const styles= {
     "inline-flex cursor-pointer select-none items-center rounded-pill border-[1.5px] border-line bg-paper px-3 py-1 " +
     "text-[12.5px] font-semibold text-ink transition-colors hover:border-terra",
   facetChipActive: "!border-terra !bg-terra/10 !text-terra-deep",
+  // Checkbox listesi (chip yerine)
+  facetCheckList: "flex flex-col gap-0.5",
+  facetCheck:
+    "flex cursor-pointer select-none items-center gap-2 rounded-[8px] px-1.5 py-[5px] text-[12.5px] font-medium text-ink hover:bg-cream",
+  facetCheckActive: "text-terra-deep",
+  facetCheckbox: "h-[15px] w-[15px] shrink-0 accent-terra",
 
   resultsBar: "mb-4 mt-4 flex flex-wrap items-center justify-between gap-3 border-b border-line/70 pb-3",
   count: "text-[14px] font-medium text-muted",
