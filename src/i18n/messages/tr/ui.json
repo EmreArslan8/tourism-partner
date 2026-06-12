@@ -13,6 +13,7 @@
     "requestQuote": "Teklif İste",
     "detail": "Detay",
     "ad": "Sponsorlu",
+    "reviews": "yorum",
     "viewAll": "Tümünü gör →",
     "detailLogin": "Detay için giriş"
   },
@@ -24,9 +25,13 @@
     "saglik": "Sağlık Turizmi"
   },
   "listing": {
-    "eyebrow": "Listeleme",
+    "eyebrow": "Keşfet",
     "title": "Tedarikçileri keşfedin",
-    "sub": "Kategori, şehir ve ilçe bazlı filtreleyin.",
+    "sub": "Kategori, şehir, puan ve çalışma modeline göre hızlıca filtreleyin.",
+    "statSuppliers": "tedarikçi",
+    "statCities": "şehir",
+    "statVerified": "doğrulanmış",
+    "statRating": "ort. puan",
     "allCountries": "Tüm ülkeler",
     "allCities": "Tüm şehirler",
     "cityFirst": "Önce şehir",

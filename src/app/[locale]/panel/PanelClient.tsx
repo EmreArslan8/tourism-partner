@@ -6,6 +6,7 @@ import { saveMyBusiness } from "@/lib/actions/panel";
 import { signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
+import { businessSlug } from "@/lib/business-slug";
 import type { GroupKey } from "@/lib/types";
 
 export type PanelBusiness = {
@@ -151,7 +152,7 @@ export default function PanelClient({
         </div>
         <div className="flex items-center gap-2">
           {b && (
-            <a href={`/tedarikci/${b.id}`} target="_blank" className="btn btn-outline btn-sm">
+            <a href={`/tedarikci/${businessSlug(b)}`} target="_blank" className="btn btn-outline btn-sm">
               {t("preview")}
             </a>
           )}

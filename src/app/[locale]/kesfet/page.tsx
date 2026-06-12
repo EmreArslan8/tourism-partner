@@ -1,28 +1,43 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
 import { getBusinesses } from "@/lib/businesses";
 import type { GroupKey } from "@/lib/types";
+
+type KesfetSearchParams = {
+  cat?: string;
+  type?: string;
+  city?: string;
+  country?: string;
+  district?: string;
+  q?: string;
+  verified?: string;
+  rating?: string;
+  attr?: string;
+  sort?: string;
+};
 
 export default async function KesfetPage({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{
-    cat?: string;
-    type?: string;
-    city?: string;
-    country?: string;
-    district?: string;
-    q?: string;
-    verified?: string;
-    rating?: string;
-    attr?: string;
-    sort?: string;
-  }>;
+  searchParams: Promise<KesfetSearchParams>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  return (
+    <main className="mx-auto w-full max-w-[1360px] px-6 pb-16 pt-[102px] max-[560px]:px-4">
+      <Suspense fallback={null}>
+        <Listing searchParams={searchParams} />
+      </Suspense>
+    </main>
+  );
+}
+
+/* searchParams + useSearchParams(ListingView) runtime erişimleri — <Suspense> altında. */
+async function Listing({ searchParams }: { searchParams: Promise<KesfetSearchParams> }) {
   const sp = await searchParams;
   const groups = (sp.cat?.split(",").filter(Boolean) ?? []) as GroupKey[];
   const typesArr = sp.type?.split(",").filter(Boolean) ?? [];
@@ -37,20 +52,18 @@ export default async function KesfetPage({
   const businesses = await getBusinesses();
 
   return (
-    <main className="mx-auto w-full max-w-[1280px] px-6 pb-16 pt-[104px] max-[560px]:px-4">
-      <ListingView
-        businesses={businesses}
-        initialGroups={groups}
-        initialTypes={typesArr}
-        initialCountry={country}
-        initialCity={city}
-        initialDistrict={district}
-        initialQ={q}
-        initialVerified={verified}
-        initialMinRating={minRating}
-        initialAttrs={attrsArr}
-        initialSort={sort}
-      />
-    </main>
+    <ListingView
+      businesses={businesses}
+      initialGroups={groups}
+      initialTypes={typesArr}
+      initialCountry={country}
+      initialCity={city}
+      initialDistrict={district}
+      initialQ={q}
+      initialVerified={verified}
+      initialMinRating={minRating}
+      initialAttrs={attrsArr}
+      initialSort={sort}
+    />
   );
 }

@@ -14,11 +14,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <>
-      <main>
+      <main className="flex flex-col gap-16 max-[640px]:gap-10">
         <Hero businesses={businesses} />
         <Partners />
 
-        <div className="container-px">
+        <div className="container-px flex flex-col gap-16 max-[640px]:gap-10">
           <Categories businesses={businesses} />
           <Showcase businesses={businesses} />
           <HowItWorks />

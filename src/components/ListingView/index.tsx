@@ -4,10 +4,16 @@ import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
-import { BUSINESSES as SEED_BUSINESSES } from "@/lib/data";
 import { CATEGORY_GROUPS } from "@/lib/categories";
-import { attrsPass, facetLabel } from "@/lib/facets";
-import { cn, normalizeTr } from "@/lib/utils";
+import { businessSlug } from "@/lib/business-slug";
+import { facetLabel } from "@/lib/facets";
+import { cn } from "@/lib/utils";
+import {
+  facetCounts,
+  filterAndSortBusinesses,
+  type ListingFilters,
+  type Sort,
+} from "@/lib/listing";
 import type { Business, GroupKey } from "@/lib/types";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
@@ -18,7 +24,6 @@ import FacetPanel from "./FacetPanel";
 import BottomSheet from "./BottomSheet";
 import SearchBox, { type Suggestion } from "./SearchBox";
 import ActiveTags, { type FilterTag } from "./ActiveTags";
-import RegionSuggest from "./RegionSuggest";
 import Pagination from "./Pagination";
 import styles from "./styles";
 
@@ -30,12 +35,11 @@ const MapPanel = dynamic(() => import("@/components/MapPanel"), {
   ),
 });
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
-type Sort = "featured" | "rating" | "az";
 
 export default function ListingView({
-  businesses = SEED_BUSINESSES,
+  businesses = [],
   initialGroups = [],
   initialTypes = [],
   initialCountry = "all",
@@ -85,10 +89,10 @@ export default function ListingView({
   // ağır liste hesabı arka planda, düşük öncelikte güncellenir.
   const deferredQ = useDeferredValue(q);
 
-  const countries = useMemo(() => uniqSorted(businesses.map((b) => b.country)), []);
+  const countries = useMemo(() => uniqSorted(businesses.map((b) => b.country)), [businesses]);
   const cities = useMemo(
     () => uniqSorted(businesses.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
-    [country]
+    [businesses, country]
   );
   const districts = useMemo(
     () =>
@@ -97,71 +101,30 @@ export default function ListingView({
         : uniqSorted(
             businesses.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)
           ),
-    [city, country]
+    [businesses, city, country]
   );
 
-  // Alaka skoru: isimde geçen +3, tür +2, etiket/şehir/ilçe +1.
-  const score = (b: (typeof businesses)[number], needle: string) => {
-    if (!needle) return 0;
-    let s = 0;
-    if (normalizeTr(b.name).includes(needle)) s += 3;
-    if (normalizeTr(b.type).includes(needle)) s += 2;
-    if (normalizeTr(b.tag).includes(needle)) s += 1;
-    if (normalizeTr(b.city).includes(needle)) s += 1;
-    if (normalizeTr(b.district).includes(needle)) s += 1;
-    return s;
-  };
+  // Saf süzme/sıralama/skor mantığı lib/listing.ts'te; burada yalnız state → filtre nesnesi.
+  const filters: ListingFilters = useMemo(
+    () => ({ groups, types, country, city, district, verifiedOnly, minRating, attrs }),
+    [groups, types, country, city, district, verifiedOnly, minRating, attrs]
+  );
 
-  // Tek facet'i atlayabilen ortak süzgeç — hem sonuç listesi hem sayaçlar için.
-  const passes = (
-    b: (typeof businesses)[number],
-    needle: string,
-    opts: { ignoreGroup?: boolean; ignoreType?: boolean } = {}
-  ) => {
-    if (!opts.ignoreGroup && groups.size && !groups.has(b.group)) return false;
-    if (!opts.ignoreType && types.size && !types.has(b.type)) return false;
-    if (country !== "all" && b.country !== country) return false;
-    if (city !== "all" && b.city !== city) return false;
-    if (district !== "all" && b.district !== district) return false;
-    if (verifiedOnly && !b.verified) return false;
-    if (minRating > 0 && b.rating < minRating) return false;
-    if (!attrsPass(b.attributes, attrs)) return false;
-    if (needle && score(b, needle) === 0) return false;
-    return true;
-  };
-
-  const filtered = useMemo(() => {
-    const needle = normalizeTr(deferredQ);
-    const items = businesses.filter((b) => passes(b, needle)).map((b) => ({ b, s: score(b, needle) }));
-    if (sort === "rating") items.sort((a, b) => b.b.rating - a.b.rating || b.b.reviews - a.b.reviews);
-    else if (sort === "az") items.sort((a, b) => a.b.name.localeCompare(b.b.name, "tr"));
-    // Varsayılan: arama varsa önce alaka skoru, yoksa sponsor + puan.
-    else if (needle) items.sort((a, b) => b.s - a.s || Number(b.b.sponsored) - Number(a.b.sponsored) || b.b.rating - a.b.rating);
-    else items.sort((a, b) => Number(b.b.sponsored) - Number(a.b.sponsored) || b.b.rating - a.b.rating);
-    return items.map(({ b }) => b);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
+  const filtered = useMemo(
+    () => filterAndSortBusinesses(businesses, filters, deferredQ, sort),
+    [businesses, filters, deferredQ, sort]
+  );
 
   // Facet sayaçları: grup sayımı grup+tür filtresini yok sayar; tür sayımı yalnız tür filtresini yok sayar.
-  const groupCounts = useMemo(() => {
-    const needle = normalizeTr(deferredQ);
-    const acc: Record<string, number> = {};
-    businesses.forEach((b) => {
-      if (passes(b, needle, { ignoreGroup: true, ignoreType: true })) acc[b.group] = (acc[b.group] ?? 0) + 1;
-    });
-    return acc;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [types, country, city, district, deferredQ, verifiedOnly, minRating, attrs]);
+  const groupCounts = useMemo(
+    () => facetCounts(businesses, filters, deferredQ, "group"),
+    [businesses, filters, deferredQ]
+  );
 
-  const typeCounts = useMemo(() => {
-    const needle = normalizeTr(deferredQ);
-    const acc: Record<string, number> = {};
-    businesses.forEach((b) => {
-      if (passes(b, needle, { ignoreType: true })) acc[b.type] = (acc[b.type] ?? 0) + 1;
-    });
-    return acc;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, country, city, district, deferredQ, verifiedOnly, minRating, attrs]);
+  const typeCounts = useMemo(
+    () => facetCounts(businesses, filters, deferredQ, "type"),
+    [businesses, filters, deferredQ]
+  );
 
   const maxPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, maxPage);
@@ -206,7 +169,8 @@ export default function ListingView({
   }
   function handlePick(s: Suggestion) {
     if (s.kind === "business") {
-      router.push(`/tedarikci/${s.id}`);
+      const business = businesses.find((b) => b.id === s.id);
+      router.push(`/tedarikci/${business ? businessSlug(business) : s.id}`);
       return;
     }
     setQ("");
@@ -257,20 +221,6 @@ export default function ListingView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
 
-  const regions = useMemo(() => {
-    const scope = businesses.filter((b) => (country === "all" || b.country === country) && (!groups.size || groups.has(b.group)));
-    const map = new Map<string, { city: string; country: string; count: number }>();
-    scope.forEach((b) => {
-      const e = map.get(b.city) ?? { city: b.city, country: b.country, count: 0 };
-      e.count += 1;
-      map.set(b.city, e);
-    });
-    const ranked = [...map.values()].sort((a, b) => b.count - a.count);
-    if (filtered.length === 0) return { key: "regionEmpty", list: ranked.slice(0, 6) };
-    if (city !== "all") return { key: "regionRelated", list: ranked.filter((e) => e.city !== city).slice(0, 5) };
-    return { key: "regionPopular", list: ranked.slice(0, 6) };
-  }, [groups, country, city, filtered.length]);
-
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
   types.forEach((ty) => tags.push({ kind: "type", value: ty, label: ty }));
@@ -311,8 +261,8 @@ export default function ListingView({
         <div className={gridClass}>
           {pageItems.map((b) => (
             <SupplierCard key={b.id} business={b} flag={b.sponsored ? tCommon("ad") : null} showStars>
+              <Link href={`/tedarikci/${businessSlug(b)}`} className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("detail")}</Link>
               <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("requestQuote")}</Link>
-              <Link href={`/tedarikci/${b.id}`} className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("detail")}</Link>
             </SupplierCard>
           ))}
         </div>
@@ -359,6 +309,7 @@ export default function ListingView({
   return (
     <div>
       <div className={styles.head}>
+        <p className={styles.eyebrow}>{t("eyebrow")}</p>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.sub}>{t("sub")}</p>
       </div>
@@ -464,18 +415,19 @@ export default function ListingView({
           </div>
           <div className={styles.sortWrap}>
             <label className={styles.sortLabel} htmlFor="sort">{t("sortLabel")}</label>
-            <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
-              <option value="featured">{t("sortFeatured")}</option>
-              <option value="rating">{t("sortRating")}</option>
-              <option value="az">{t("sortAz")}</option>
-            </select>
+            <span className={styles.sortSelectWrap}>
+              <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+                <option value="featured">{t("sortFeatured")}</option>
+                <option value="rating">{t("sortRating")}</option>
+                <option value="az">{t("sortAz")}</option>
+              </select>
+              <svg className={styles.sortChevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
           </div>
         </div>
       </div>
-
-          <div className={styles.regionMobileHide}>
-            <RegionSuggest title={t(regions.key)} list={regions.list} onPick={pickCity} />
-          </div>
 
           {view === "map" ? (
             <div className={styles.shell}>

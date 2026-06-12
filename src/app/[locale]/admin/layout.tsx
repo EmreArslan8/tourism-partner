@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
 import { AdminAccessDenied, AdminShell } from "./_components";
@@ -17,9 +18,18 @@ export default async function AdminLayout({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  // getAdminData() cookies okur (runtime). Cache Components için <Suspense> altında;
+  // bu boundary içine render edilen admin sayfalarının auth erişimini de kapsar.
+  return (
+    <Suspense fallback={null}>
+      <AdminGate>{children}</AdminGate>
+    </Suspense>
+  );
+}
+
+async function AdminGate({ children }: { children: React.ReactNode }) {
   const data = await getAdminData();
-
   if (!data.isAdmin) return <AdminAccessDenied />;
-
   return <AdminShell data={data}>{children}</AdminShell>;
 }

@@ -13,6 +13,7 @@
     "requestQuote": "Request Quote",
     "detail": "Details",
     "ad": "Sponsored",
+    "reviews": "reviews",
     "viewAll": "View all →",
     "detailLogin": "Log in for details"
   },
@@ -24,9 +25,13 @@
     "saglik": "Health Tourism"
   },
   "listing": {
-    "eyebrow": "Listing",
+    "eyebrow": "Explore",
     "title": "Explore suppliers",
-    "sub": "Filter by category, city and district.",
+    "sub": "Filter quickly by category, city, rating and commercial model.",
+    "statSuppliers": "suppliers",
+    "statCities": "cities",
+    "statVerified": "verified",
+    "statRating": "avg. rating",
     "allCountries": "All countries",
     "allCities": "All cities",
     "cityFirst": "Select city first",

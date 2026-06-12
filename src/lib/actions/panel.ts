@@ -1,10 +1,18 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
+import type { GroupKey } from "@/lib/types";
 import type { ActionState } from "./application";
 import { clean } from "./validate";
+
+function groupFromMetadata(value: unknown): GroupKey {
+  return typeof value === "string" && CATEGORY_GROUPS.some((group) => group.key === value)
+    ? (value as GroupKey)
+    : "konaklama";
+}
 
 /* Firma panelinde ilan düzenleme — sahibi kendi businesses kaydını günceller.
    Kayıt yoksa (ör. e-posta onayı sonrası ilk giriş) oluşturur.
@@ -64,7 +72,7 @@ export async function saveMyBusiness(
       if (error) return { ok: false, error: error.message };
     } else {
       const meta = user.user_metadata ?? {};
-      const group = (meta.biz_group as string) || "konaklama";
+      const group = groupFromMetadata(meta.biz_group);
       const { error } = await supabase.from("businesses").insert({
         owner_id: user.id,
         group,
@@ -75,6 +83,8 @@ export async function saveMyBusiness(
       if (error) return { ok: false, error: error.message };
     }
     revalidatePath("/[locale]/panel", "page");
+    // Sahip onaylı ilanını düzenlediyse public liste cache'i (businesses tag) tazelensin.
+    revalidateTag("businesses", "max");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "unknown" };

@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { Database } from "./database.types";
 
 /* Proxy (eski adıyla middleware) içinde Supabase oturum çerezini tazeler.
    Verilen response üzerine güncel auth çerezlerini yazar ve geri döner. */
@@ -9,7 +10,7 @@ export async function updateSession(request: NextRequest, response: NextResponse
     return response;
   }
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {

@@ -4,11 +4,12 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import type { GroupKey } from "@/lib/types";
 import type { ActionState } from "./application";
 import { isEmail, isBot, clean } from "./validate";
 
 /** Alt kategori slug'ından ana grup + tür etiketini çözer. */
-function resolveCategory(slug: string): { group: string; typeLabel: string } | null {
+function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } | null {
   for (const g of CATEGORY_GROUPS) {
     const leaf = g.children.find((c) => c.slug === slug);
     if (leaf) return { group: g.key, typeLabel: leaf.label };

@@ -7,14 +7,12 @@ export default function SupplierGallery({
   images,
   title,
   eyebrow,
-  color,
   adLabel,
   sponsored,
 }: {
   images: string[];
   title: string;
   eyebrow: string;
-  color: string;
   adLabel: string;
   sponsored: boolean;
 }) {
@@ -40,7 +38,6 @@ export default function SupplierGallery({
     <section className="rounded-[18px]">
       <div
         className="relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_24px_70px_-48px_rgba(7,9,42,.75)]"
-        style={{ backgroundColor: color }}
         onTouchStart={(event) => setTouchStart(event.changedTouches[0]?.clientX ?? null)}
         onTouchEnd={(event) => handleTouchEnd(event.changedTouches[0]?.clientX ?? 0)}
       >

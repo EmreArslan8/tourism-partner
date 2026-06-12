@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Business, GroupKey } from "@/lib/types";
+import { cache } from "react";
 
 type AdminBusinessRow = {
   id: number;
@@ -122,7 +123,7 @@ const EMPTY = {
   pages: [] as ContentPage[],
 };
 
-export async function getAdminData(): Promise<AdminData> {
+export const getAdminData = cache(async (): Promise<AdminData> => {
   if (!hasEnv()) {
     return { mode: "demo", isAdmin: false, ...EMPTY };
   }
@@ -148,7 +149,7 @@ export async function getAdminData(): Promise<AdminData> {
 
   // Admin kendi oturumuyla okur; RLS admin policy'leri tüm satırlara erişim verir.
   return getSupabaseAdminData(user.email ?? undefined, supabase);
-}
+});
 
 async function getSupabaseAdminData(
   userEmail: string | undefined,

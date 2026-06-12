@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "@/i18n/navigation";
 import { useState, useRef, useEffect } from "react";
 import { styles } from "./styles";
 
+type Locale = "tr" | "en";
 
 /**
  * Dropdown dil seçici bileşeni.
@@ -24,8 +25,7 @@ export default function LocaleSwitcher() {
 
   const currentLocale = locales.find((l) => l.code === locale) || locales[0];
 
-  const handleLocaleChange = (newLocale: string) => {
-    // @ts-ignore - next-intl type issue with locale property
+  const handleLocaleChange = (newLocale: Locale) => {
     router.replace(pathname, { locale: newLocale });
     setIsOpen(false);
   };
@@ -70,7 +70,7 @@ export default function LocaleSwitcher() {
             <button
               key={l.code}
               className={`${styles.item} ${l.code === locale ? styles.itemActive : ""}`}
-              onClick={() => handleLocaleChange(l.code)}
+              onClick={() => handleLocaleChange(l.code as Locale)}
             >
               <span className={styles.itemLeft}>
                 <span className={styles.flag}>{l.flag}</span>

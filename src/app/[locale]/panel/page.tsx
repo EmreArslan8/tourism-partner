@@ -1,16 +1,25 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import PanelClient, { type PanelBusiness, type PanelQuote } from "./PanelClient";
 
-export const dynamic = "force-dynamic";
-
 /* Firma paneli — yalnızca giriş yapmış firma sahibi. Kendi ilanını ve gelen
-   teklifleri görür/düzenler. Oturum yoksa /giris'e yönlenir. */
+   teklifleri görür/düzenler. Oturum yoksa /giris'e yönlenir.
+   Auth (cookies) runtime erişimi olduğundan veri kısmı <Suspense> altında;
+   Cache Components statik kabuğu hemen, dinamik içeriği stream eder. */
 export default async function PanelPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  return (
+    <Suspense fallback={null}>
+      <PanelData locale={locale} />
+    </Suspense>
+  );
+}
+
+async function PanelData({ locale }: { locale: string }) {
   const supabase = await createClient();
   const {
     data: { user },

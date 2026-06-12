@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { styles } from "./styles";
 
 const AUTOPLAY_MS = 3600;
@@ -38,7 +37,6 @@ export default function HowItWorks() {
     <>
       <section className={styles.section} id="nasil">
         <div className={styles.headline}>
-          <span className={styles.eyebrow}>{t("eyebrow")}</span>
           <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.lead}>{t("lead")}</p>
         </div>
@@ -52,7 +50,7 @@ export default function HowItWorks() {
                 alt={step.caption}
                 fill
                 sizes="(max-width: 920px) 100vw, 48vw"
-                priority={index === 0}
+                loading="lazy"
                 className={index === active ? styles.imageActive : styles.image}
               />
             ))}
@@ -85,11 +83,6 @@ export default function HowItWorks() {
               );
             })}
           </div>
-        </div>
-
-        <div className={styles.actions}>
-          <Link href="/kayit" className="btn btn-solid">{t("primaryCta")}</Link>
-          <Link href="/kesfet" className="btn btn-outline">{t("secondaryCta")}</Link>
         </div>
       </section>
 

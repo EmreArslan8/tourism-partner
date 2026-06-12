@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import QuoteForm from "@/components/QuoteForm";
 import { getBusinessById } from "@/lib/businesses";
@@ -11,12 +12,23 @@ export default async function TeklifPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const sp = await searchParams;
-  const business = sp.s ? await getBusinessById(sp.s) : null;
 
   return (
     <main className="container-px pb-10 pt-[104px]">
-      <QuoteForm business={business} />
+      <Suspense fallback={<QuoteForm business={null} />}>
+        <QuoteFormWithBusiness searchParams={searchParams} />
+      </Suspense>
     </main>
   );
+}
+
+/* searchParams runtime erişimi — Cache Components için <Suspense> altında. */
+async function QuoteFormWithBusiness({
+  searchParams,
+}: {
+  searchParams: Promise<{ s?: string }>;
+}) {
+  const sp = await searchParams;
+  const business = sp.s ? await getBusinessById(sp.s) : null;
+  return <QuoteForm business={business} />;
 }

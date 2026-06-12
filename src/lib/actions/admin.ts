@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
@@ -70,6 +70,7 @@ function pageStatusValue(formData: FormData): "draft" | "published" | "archived"
 function revalidateAdmin(locale: string | null) {
   revalidatePath(`/${locale || "tr"}/admin`);
   revalidatePath("/", "layout");
+  revalidateTag("businesses", "max");
 }
 
 export async function saveBusiness(formData: FormData): Promise<void> {
@@ -145,10 +146,14 @@ export async function saveContentPage(formData: FormData): Promise<void> {
     const supabase = await requireAdmin();
     const locale = clean(formData.get("locale"), 8) ?? "tr";
     const slug = clean(formData.get("slug"), 120);
+    const title = clean(formData.get("title"), 180);
+
+    if (!slug || !title) throw new Error("Slug ve başlık gerekli.");
+
     const payload = {
       slug,
       locale,
-      title: clean(formData.get("title"), 180) ?? "",
+      title,
       excerpt: clean(formData.get("excerpt"), 320),
       body: clean(formData.get("body"), 12000),
       seo_title: clean(formData.get("seoTitle"), 90),
@@ -159,8 +164,6 @@ export async function saveContentPage(formData: FormData): Promise<void> {
       status: pageStatusValue(formData),
       updated_at: new Date().toISOString(),
     };
-
-    if (!payload.slug || !payload.title) throw new Error("Slug ve başlık gerekli.");
 
     const { error } = await supabase.from("content_pages").upsert(payload, {
       onConflict: "slug",

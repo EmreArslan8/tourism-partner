@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import type { Business } from "@/lib/types";
+import { businessSlug } from "@/lib/business-slug";
 import { GROUP_COLORS } from "@/lib/categories";
 import { styles } from "./styles";
 
@@ -61,7 +62,7 @@ export default function MapPanel({ items }: { items: Business[] }) {
       });
       const marker = L.marker(b.coords, { icon }).addTo(layer);
       marker.bindTooltip(b.name, { direction: "top", offset: [0, -8] });
-      marker.on("click", () => router.push(`/tedarikci/${b.id}`));
+      marker.on("click", () => router.push(`/tedarikci/${businessSlug(b)}`));
       points.push(b.coords);
     });
 

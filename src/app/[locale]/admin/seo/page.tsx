@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
+import { businessSlug } from "@/lib/businesses";
 import { BusinessForm, Metric, PageHeader, StatusPill, panel, seoScore } from "../_components";
 
 export default async function AdminSeoPage({
@@ -50,7 +51,7 @@ export default async function AdminSeoPage({
                     <td className="border-b border-line py-3 pr-3 font-bold">{business.name}</td>
                     <td className="border-b border-line py-3 pr-3">{business.seoTitle ? `${business.seoTitle.length} krk` : "Eksik"}</td>
                     <td className="border-b border-line py-3 pr-3">{business.seoDescription ? `${business.seoDescription.length} krk` : "Eksik"}</td>
-                    <td className="border-b border-line py-3 pr-3">{business.canonicalPath || `/tedarikci/${business.id}`}</td>
+                    <td className="border-b border-line py-3 pr-3">{business.canonicalPath || `/tedarikci/${businessSlug(business)}`}</td>
                     <td className="border-b border-line py-3 pr-3">
                       <StatusPill value={business.seoTitle && business.seoDescription ? "complete" : "pending"} />
                     </td>

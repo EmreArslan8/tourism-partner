@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import type { GroupKey } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
 export type ActionState = { ok: boolean; error?: string };
@@ -22,7 +23,7 @@ export async function submitApplication(
   if (!isEmail(email)) return { ok: false, error: "email" };
 
   // Seçilen alt kategori slug'ından ana grup + etiketi çöz.
-  let group: string | null = null;
+  let group: GroupKey | null = null;
   let categoryLabel: string | null = null;
   for (const g of CATEGORY_GROUPS) {
     const leaf = g.children.find((c) => c.slug === category);

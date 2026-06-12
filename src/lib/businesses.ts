@@ -1,34 +1,25 @@
-import type { Business, GroupKey } from "./types";
+import { cacheLife, cacheTag } from "next/cache";
+import type { Business } from "./types";
 import { BUSINESSES as SEED } from "./data";
-import { createClient } from "./supabase/server";
+import { createPublicClient } from "./supabase/public";
+import type { BusinessRow } from "./supabase/database.types";
+import { businessSlug } from "./business-slug";
+export { businessSlug } from "./business-slug";
 
 /* Firma veri erişim katmanı (server). Supabase'den okur; env yoksa veya
    sorgu hata verirse statik seed'e (lib/data.ts) düşer — site her durumda çalışır. */
 
-type Row = {
-  id: number;
-  group: GroupKey;
-  type: string;
-  name: string;
-  country: string;
-  city: string;
-  district: string;
-  lat: number | null;
-  lng: number | null;
-  description: string | null;
-  rating: number | string;
-  reviews: number;
-  tag: string | null;
-  verified: boolean;
-  sponsored: boolean;
-  image: string | null;
-  attributes: string[] | null;
-  seo_title?: string | null;
-  seo_description?: string | null;
-  seo_keywords?: string[] | null;
-  canonical_path?: string | null;
-  og_image?: string | null;
-};
+/* Public listede çekilen kolonlar — Row tipi şemadan türer (drift = derleme hatası). */
+const SELECT_COLUMNS =
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+
+type Row = Pick<
+  BusinessRow,
+  | "id" | "group" | "type" | "name" | "country" | "city" | "district"
+  | "lat" | "lng" | "description" | "rating" | "reviews" | "tag"
+  | "verified" | "sponsored" | "image" | "attributes"
+  | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
+>;
 
 function rowToBusiness(r: Row): Business {
   return {
@@ -59,42 +50,63 @@ function rowToBusiness(r: Row): Business {
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+/* Seed'e düşüş sessiz kalmasın — prod'da DB sorunu görünür olsun.
+   (İleride Sentry/log servisine bağlanabilir.) */
+function reportFallback(where: string, detail: unknown) {
+  console.error(`[businesses] DB okuma başarısız, SEED'e düşülüyor (${where}):`, detail);
+}
+
+/* Çerezsiz public client + 'use cache': oturumdan bağımsız, herkese açık liste.
+   Veri Next Data Cache'e yazılır; 'businesses' tag'i admin mutasyonlarında
+   revalidateTag ile tazelenir. Böylece her geçişte DB vurulmaz. */
 export async function getBusinesses(): Promise<Business[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("businesses");
   if (!hasEnv()) return SEED;
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("businesses")
-      .select(
-        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,seo_title,seo_description,seo_keywords,canonical_path,og_image"
-      )
+      .select(SELECT_COLUMNS)
       .eq("status", "approved")
       .order("id");
-    if (error || !data) return SEED;
+    if (error || !data) {
+      reportFallback("getBusinesses", error ?? "veri yok");
+      return SEED;
+    }
     return (data as Row[]).map(rowToBusiness);
-  } catch {
+  } catch (e) {
+    reportFallback("getBusinesses", e);
     return SEED;
   }
 }
 
 export async function getBusinessById(id: number | string): Promise<Business | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("businesses");
   if (!hasEnv()) return SEED.find((b) => b.id === Number(id)) ?? null;
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("businesses")
-      .select(
-        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,seo_title,seo_description,seo_keywords,canonical_path,og_image"
-      )
+      .select(SELECT_COLUMNS)
       .eq("id", Number(id))
       .maybeSingle();
-    if (error || !data) return SEED.find((b) => b.id === Number(id)) ?? null;
+    if (error) {
+      reportFallback("getBusinessById", error);
+      return SEED.find((b) => b.id === Number(id)) ?? null;
+    }
+    if (!data) return null;
     return rowToBusiness(data as Row);
-  } catch {
+  } catch (e) {
+    reportFallback("getBusinessById", e);
     return SEED.find((b) => b.id === Number(id)) ?? null;
   }
 }
 
-export async function getSponsored(): Promise<Business[]> {
-  return (await getBusinesses()).filter((b) => b.sponsored);
+export async function getBusinessBySlug(slug: string): Promise<Business | null> {
+  const businesses = await getBusinesses();
+  return businesses.find((business) => businessSlug(business) === slug) ?? null;
 }

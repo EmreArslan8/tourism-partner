@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStatus } from "@/lib/actions/admin";
 import { signOut } from "@/lib/actions/auth";
 import type { AdminApplication, AdminBusiness, AdminData, AdminQuote, ContentPage } from "@/lib/admin";
+import { businessSlug } from "@/lib/businesses";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 
 export const panel =
@@ -152,7 +153,7 @@ export function BusinessTable({ businesses }: { businesses: AdminBusiness[] }) {
             <tr key={business.id} className="align-top transition hover:bg-[#fbfcfb]">
               <td className="border-b border-line px-3 py-3 font-bold text-pine">#{business.id}</td>
               <td className="border-b border-line px-3 py-3">
-                <Link href={`/tedarikci/${business.id}`} className="font-bold text-ink hover:text-terra">
+                <Link href={`/tedarikci/${businessSlug(business)}`} className="font-bold text-ink hover:text-terra">
                   {business.name}
                 </Link>
                 <div className="mt-1 text-[12px] text-muted">
@@ -210,7 +211,7 @@ export function BusinessForm({ locale, business }: { locale: string; business?: 
           <label className={label}>SEO açıklama<textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${textarea} min-h-[80px]`} /></label>
           <label className={label}>Anahtar kelimeler<input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={input} /></label>
           <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-            <label className={label}>Canonical path<input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/tedarikci/1" className={input} /></label>
+            <label className={label}>Canonical path<input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/tedarikci/kaya-palas-hotel" className={input} /></label>
             <label className={label}>OG görsel<input name="ogImage" defaultValue={business?.ogImage ?? business?.image ?? ""} className={input} /></label>
           </div>
         </div>

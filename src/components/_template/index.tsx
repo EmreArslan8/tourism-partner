@@ -1,8 +1,4 @@
-import styles from './styles';
-
-interface TemplateProps {}
-
-const Template = ({}: TemplateProps) => {
+const Template = () => {
   return <>Template</>;
 };
 

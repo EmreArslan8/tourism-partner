@@ -22,6 +22,7 @@ export default function SupplierCard({
   const tc = useTranslations("cat");
   const tv = useTranslations("common");
   const cover = business.image ?? GROUP_COVER[business.group];
+  
   return (
     <article className={styles.card}>
       <div className={styles.cover} style={{ backgroundColor: GROUP_COLORS[business.group] }}>

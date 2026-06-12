@@ -4,9 +4,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import SupplierGallery from "@/components/SupplierGallery";
-import { BUSINESSES } from "@/lib/data";
-import { getBusinessById } from "@/lib/businesses";
-import { GROUP_COLORS, GROUP_COVER } from "@/lib/categories";
+import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
+import { GROUP_COVER } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 
 const GALLERY_BY_GROUP: Record<GroupKey, string[]> = {
@@ -26,9 +25,13 @@ const GALLERY_BY_GROUP: Record<GroupKey, string[]> = {
   saglik: ["/assets/cards/clinic-1.jpg", "/assets/cards/hotel-2.jpg"],
 };
 
-export function generateStaticParams() {
+/* Statik params'i gerçek (onaylı) tedarikçilerden üret — build'de DB'deki
+   ilanlar prebuild edilir; env yoksa getBusinesses seed'e düşer. İlk 200 ile
+   sınırlı tutulur, kalan id'ler ilk ziyarette PPR ile üretilir. */
+export async function generateStaticParams() {
+  const businesses = await getBusinesses();
   return routing.locales.flatMap((locale) =>
-    BUSINESSES.map((b) => ({ locale, id: String(b.id) }))
+    businesses.slice(0, 200).map((b) => ({ locale, id: businessSlug(b) }))
   );
 }
 
@@ -38,7 +41,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const b = await getBusinessById(id);
+  const b = await getBusinessBySlug(id);
   return { title: b ? `${b.name} — Tourism Partner` : "Tourism Partner" };
 }
 
@@ -49,12 +52,15 @@ export default async function DetailPage({
 }) {
   const { locale, id } = await params;
   setRequestLocale(locale);
-  const b = await getBusinessById(id);
-  if (!b) notFound();
 
-  const t = await getTranslations("supplier");
-  const tc = await getTranslations("cat");
-  const tCommon = await getTranslations("common");
+  // Firma sorgusu ve çeviriler birbirine bağlı değil — paralel çekiliyor.
+  const [b, t, tc, tCommon] = await Promise.all([
+    getBusinessBySlug(id),
+    getTranslations("supplier"),
+    getTranslations("cat"),
+    getTranslations("common"),
+  ]);
+  if (!b) notFound();
   const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
   const cover = b.image ?? GROUP_COVER[b.group];
   const gallery = getGalleryImages(cover, b.group);
@@ -72,7 +78,6 @@ export default async function DetailPage({
         images={gallery}
         title={b.name}
         eyebrow={`${tc(b.group)} · ${b.type}`}
-        color={GROUP_COLORS[b.group]}
         adLabel={tCommon("ad")}
         sponsored={b.sponsored}
       />

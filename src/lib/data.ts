@@ -108,8 +108,6 @@ export const BUSINESSES: Business[] = [
     attributes: ["jci", "iso", "refakat-tercuman", "dil-en", "dil-de", "dil-ru", "para-eur", "para-usd"] },
 ];
 
-export const SPONSORED = BUSINESSES.filter((b) => b.sponsored);
-
 export function getBusiness(id: number | string): Business | undefined {
   return BUSINESSES.find((b) => b.id === Number(id));
 }
