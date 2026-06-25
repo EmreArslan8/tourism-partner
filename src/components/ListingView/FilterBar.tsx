@@ -1,0 +1,67 @@
+import SearchBox, { type Suggestion } from "./SearchBox";
+import FilterSelects from "./FilterSelects";
+import type { Business } from "@/lib/types";
+import styles from "./styles";
+
+const FilterBar = ({
+  businesses,
+  country,
+  city,
+  district,
+  q,
+  verifiedOnly,
+  minRating,
+  countries,
+  cities,
+  districts,
+  onCountry,
+  onCity,
+  onDistrict,
+  onQ,
+  onPick,
+  onVerified,
+  onMinRating,
+}: {
+  businesses: Business[];
+  country: string;
+  city: string;
+  district: string;
+  q: string;
+  verifiedOnly: boolean;
+  minRating: number;
+  countries: string[];
+  cities: string[];
+  districts: string[];
+  onCountry: (v: string) => void;
+  onCity: (v: string) => void;
+  onDistrict: (v: string) => void;
+  onQ: (v: string) => void;
+  onPick: (s: Suggestion) => void;
+  onVerified: (v: boolean) => void;
+  onMinRating: (v: number) => void;
+}) => {
+  return (
+    <div className={styles.bar}>
+      <FilterSelects
+        country={country}
+        city={city}
+        district={district}
+        verifiedOnly={verifiedOnly}
+        minRating={minRating}
+        countries={countries}
+        cities={cities}
+        districts={districts}
+        onCountry={onCountry}
+        onCity={onCity}
+        onDistrict={onDistrict}
+        onVerified={onVerified}
+        onMinRating={onMinRating}
+      />
+      <div className={styles.barSearch}>
+        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
+      </div>
+    </div>
+  );
+};
+
+export default FilterBar;

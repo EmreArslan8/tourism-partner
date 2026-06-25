@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- temel katman ---------- */
+@layer base {
+  * {
+    @apply border-line;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream text-ink font-body leading-relaxed antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-medium leading-tight tracking-heading;
+  }
+  h1 em, h2 em {
+    font-style: italic;
+    color: theme("colors.terra");
+  }
+  ::selection {
+    @apply bg-terra text-cream;
+  }
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 rounded;
+    outline-style: solid;
+    outline-color: theme("colors.terra");
+  }
+}
+
+/* ---------- yeniden kullanılan bileşen sınıfları ---------- */
+@layer components {
+  .container-px {
+    @apply mx-auto w-full max-w-[1480px] px-8 max-[560px]:px-5;
+  }
+  /* Sapphire gradyanlar — tek kaynak (palette.ts). Sabit hex yerine bu sınıflar kullanılır. */
+  .bg-sapphire-grad {
+    /* Header / parlak yüzeyler: parlak → gece */
+    background-image: linear-gradient(180deg, theme("colors.sapphire-top"), theme("colors.sapphire-deep"));
+  }
+  .bg-sapphire-deep {
+    /* Footer / CTA gibi derin kapanış yüzeyleri: ana → gece → en derin */
+    background-image: linear-gradient(160deg, theme("colors.sapphire") 0%, theme("colors.brand") 55%, theme("colors.brand-deep") 100%);
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill
+           border border-transparent px-[22px] py-[11px] text-[14.5px] font-semibold
+           transition-all duration-200 ease-brand;
+  }
+  .btn-sm {
+    @apply px-4 py-[9px] text-[13.5px];
+  }
+  .btn-block {
+    @apply w-full;
+  }
+  .btn-solid {
+    @apply bg-terra text-white hover:bg-terra-deep hover:-translate-y-px;
+  }
+  .btn-pine {
+    @apply bg-pine text-cream hover:bg-pine-soft hover:-translate-y-px;
+  }
+  .btn-outline {
+    @apply border-line text-ink hover:border-pine;
+  }
+  .btn-cream {
+    @apply bg-cream text-pine hover:-translate-y-px hover:bg-white;
+  }
+  /* Ortak form alanı görünümü (input/select/textarea). Yükseklik/genişlik kullanım yerinde. */
+  .field {
+    @apply rounded-[11px] border-[1.5px] border-line bg-cream px-3.5 text-[14.5px] transition-colors
+           focus:border-terra focus:outline-none disabled:cursor-not-allowed disabled:opacity-55;
+  }
+}
+
+@keyframes how-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

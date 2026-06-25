@@ -1,0 +1,111 @@
+{
+  "hero": {
+    "eyebrow": "B2B Turizm Tedarikçi Ağı",
+    "titlePre": "Turizm iş ortaklarınızı",
+    "titleEm": "tek yerden",
+    "titlePost": "keşfedin.",
+    "sub": "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi sağlayıcılarını tek yerden arayın, karşılaştırın ve hızlıca teklif alın.",
+    "popularLabel": "Popüler:",
+    "pop1": "İstanbul otelleri",
+    "pop2": "Kapadokya turları",
+    "pop3": "Antalya acenteleri",
+    "pop4": "Ankara sağlık",
+    "statSuppliers": "kayıtlı tedarikçi",
+    "statCities": "il / bölge",
+    "statCountries": "ülke",
+    "statResponse": "ort. yanıt",
+    "searchCat": "Tüm kategoriler",
+    "searchLabel": "Arama",
+    "countryLabel": "Ülke",
+    "cityLabel": "Şehir",
+    "districtLabel": "İlçe",
+    "allCountries": "Tüm Ülkeler",
+    "searchCity": "Tüm Şehirler",
+    "allDistricts": "Tüm İlçeler",
+    "countryFirst": "Önce ülke seçin",
+    "cityFirst": "Önce şehir seçin",
+    "searchPh": "Ne arıyorsunuz? (otel, rehber...)",
+    "searchBtn": "Ara"
+  },
+  "categories": {
+    "eyebrow": "Keşfet",
+    "title": "Kategoriye göz atın",
+    "count": "{count} tedarikçi"
+  },
+  "ads": {
+    "label": "Sponsorlu",
+    "cta": "İncele"
+  },
+  "partners": {
+    "label": "Türkiye ve global turizmin önde gelen markalarıyla aynı ağda"
+  },
+  "regions": {
+    "eyebrow": "Bölgeler",
+    "title": "Popüler bölgeler",
+    "sub": "Operasyon düzenlediğiniz bölgedeki tedarikçilere hızlıca ulaşın.",
+    "count": "{count} tedarikçi"
+  },
+  "showcase": {
+    "eyebrow": "Vitrin",
+    "title": "Öne çıkan iş ortakları",
+    "sub": "Reklam alanı — editör seçkisi"
+  },
+  "how": {
+    "eyebrow": "Nasıl Çalışır",
+    "title": "Üç adımda iş birliği",
+    "lead": "Firmanızı ekleyin, doğrulama sürecinden geçin ve turizm acentelerinin gerçek taleplerinde görünür olun.",
+    "primaryCta": "Firma ekle",
+    "secondaryCta": "Tedarikçi ara",
+    "visualKicker": "Aktif adım",
+    "visualSummary": "Profil, doğrulama ve teklif akışı aynı panelde birleşir.",
+    "visual1": "Acenteler ve tedarikçiler aynı ağa dahil olur",
+    "visual2": "Profil, kategori ve kalite bilgisi yayına hazırlanır",
+    "visual3": "Doğru aramada görünür olur ve teklif akışı başlar",
+    "stripLabel": "İş birliği süreci",
+    "strip1": "Profil netleşir",
+    "strip2": "Kalite onaylanır",
+    "strip3": "Acenteye görünür olur",
+    "s1t": "Profilinizi oluşturun",
+    "s1d": "Firma türünüzü, lokasyonunuzu, hizmetlerinizi ve iletişim bilgilerinizi ekleyin.",
+    "s2t": "Onaydan geçin",
+    "s2d": "Tourism Partner ekibi bilgileri kontrol eder; doğrulanmış tedarikçiler yayına alınır.",
+    "s3t": "Teklif almaya başlayın",
+    "s3d": "Acenteler sizi arama ve filtrelerle bulur, uygun talepler için doğrudan teklif ister.",
+    "faqEyebrow": "SSS",
+    "faqTitle": "Sık sorulan sorular",
+    "faqLead": "Aklınıza takılan başka bir şey varsa ekibimize yazın, hızlıca dönüş yapalım.",
+    "q1": "Üyelik ücretli mi?",
+    "a1": "Listelenme yıllık üyelik ile alınır. Lansman döneminde ilk 200 acente ücretsizdir; ilk yıl herkese ücretsiz olabilir.",
+    "q2": "Doping nedir?",
+    "a2": "İşletmenizi listede ve vitrinde öne çıkaran tercihe bağlı bir yükseltmedir. İlk 24 saatte kaydolan işletmeler 1 günlük hediye doping kazanır.",
+    "q3": "Detayları neden göremiyorum?",
+    "a3": "Tüm tedarikçi listesi ve iletişim/konum detayları üyelere özeldir. Ücretsiz üye olarak tüm verilere erişebilirsiniz.",
+    "q4": "İlanım ne zaman yayına girer?",
+    "a4": "Kaydınız admin onayından geçtikten sonra yayına alınır; doğrulanmış ilanlar arama sonuçlarında listelenir.",
+    "q5": "Hangi belgeler gerekiyor?",
+    "a5": "Kategorinize göre değişir; örneğin acenteler için TÜRSAB belgesi, transfer firmaları için D2 belgesi gibi resmi evraklar istenir.",
+    "q6": "Teklif sistemi nasıl çalışır?",
+    "a6": "Acenteler bölge bazlı talep oluşturur; ilgili tedarikçiler bu talebe sistem üzerinden doğrudan özel teklif gönderir."
+  },
+  "cta": {
+    "title": "İşletmenizi bugün listeleyin",
+    "sub": "İlk 200 acente ücretsiz. İlk 24 saatte kaydolan işletmeler 1 günlük hediye doping kazanır.",
+    "button": "+ Firma Ekle",
+    "secondary": "Üye girişi"
+  },
+  "footer": {
+    "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",
+    "categories": "Kategoriler",
+    "platform": "Platform",
+    "membership": "Üyelik",
+    "membershipNote": "İlk 200 acenteye ücretsiz kayıt. Listelenme yıllık üyelik ile; doping tercihe bağlı.",
+    "howShort": "Nasıl çalışır?",
+    "addCompany": "Firma ekle",
+    "login": "Üye girişi",
+    "note": "© 2026 Tourism Partner — Demo",
+    "note2": "Ülke · Şehir · İlçe bazlı B2B listeleme"
+  },
+  "splash": {
+    "tagline": "B2B Turizm Tedarikçi Ağı"
+  }
+}
