@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
+    // Kullanılan görsel kaliteleri (Next 16 artık açıkça istiyor).
+    qualities: [75, 85],
     // Optimize edilmiş görseller CDN'de daha uzun tutulsun (saniye).
     minimumCacheTTL: 2592000,
   },

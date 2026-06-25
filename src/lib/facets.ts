@@ -1,17 +1,9 @@
-import type { GroupKey } from "./types";
+import type { GroupKey, Facet, FacetOption } from "./types";
 
 /* Filtreleme motoru — facet (öznitelik) kayıt defteri.
    Tüm çok-seçim facet'ler `business.attributes` slug'ları üzerinden çalışır.
    Mantık: facet İÇİNDE "VEYA", facet'ler ARASINDA "VE" (klasik faceted search).
    scope: "common" → her kategoride görünür; GroupKey[] → ilgili grup seçiliyse görünür. */
-
-export type FacetOption = { slug: string; label: string };
-export type Facet = {
-  key: string;
-  label: string;
-  scope: "common" | GroupKey[];
-  options: FacetOption[];
-};
 
 export const FACETS: Facet[] = [
   // ——— ORTAK (ticari) — projenin asıl ayrıştırıcısı ———

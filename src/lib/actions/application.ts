@@ -2,10 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
-import type { GroupKey } from "@/lib/types";
+import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
-
-export type ActionState = { ok: boolean; error?: string };
 
 /* Firma kayıt başvurusu — kayıt formundan applications tablosuna yazar. */
 export async function submitApplication(

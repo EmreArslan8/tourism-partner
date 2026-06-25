@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import type { ActionState } from "./application";
+import type { ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
 /* Teklif (RFQ) gönderimi — teklif formundan quotes tablosuna yazar. */

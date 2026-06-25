@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import type { Business } from "@/lib/types";
-import { styles } from "./styles";
+import styles from "./styles";
 
 
-/* Ana sayfa hero arama — filtreleme burada YAPILMAZ, /kesfet'ye yönlendirir. */
-export default function HeroSearch({ businesses }: { businesses: Business[] }) {
+const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
   const router = useRouter();
   const t = useTranslations("hero");
   const [country, setCountry] = useState("Türkiye");
@@ -35,12 +34,16 @@ export default function HeroSearch({ businesses }: { businesses: Business[] }) {
 
   function go(e: React.FormEvent) {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (q.trim()) params.set("q", q.trim());
-    if (country !== "all") params.set("country", country);
-    if (!cityDisabled && city !== "all") params.set("city", city);
-    if (!districtDisabled && district !== "all") params.set("district", district);
-    router.push(`/kesfet${params.toString() ? `?${params}` : ""}`);
+    const query: Record<string, string> = {};
+    if (q.trim()) query.q = q.trim();
+    if (country !== "all") query.country = country;
+    if (!cityDisabled && city !== "all") query.city = city;
+    if (!districtDisabled && district !== "all") query.district = district;
+    
+    router.push({
+      pathname: "/explore",
+      query: query
+    });
   }
 
   return (
@@ -140,4 +143,6 @@ export default function HeroSearch({ businesses }: { businesses: Business[] }) {
       </button>
     </form>
   );
-}
+};
+
+export default HeroSearch;

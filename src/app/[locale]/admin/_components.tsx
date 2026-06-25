@@ -1,7 +1,7 @@
-import { Link } from "@/i18n/navigation";
+import { Link, type Href } from "@/i18n/navigation";
 import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStatus } from "@/lib/actions/admin";
 import { signOut } from "@/lib/actions/auth";
-import type { AdminApplication, AdminBusiness, AdminData, AdminQuote, ContentPage } from "@/lib/admin";
+import type { AdminApplication, AdminBusiness, AdminData, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 
@@ -11,7 +11,7 @@ export const label = "flex flex-col gap-1.5 text-[11px] font-bold uppercase trac
 export const input = "field min-h-[42px] w-full rounded-[8px] border-[#d8ded7] bg-white normal-case tracking-normal text-ink";
 export const textarea = `${input} min-h-[110px] py-3`;
 
-const navItems = [
+const navItems: { href: Href; label: string; hint: string; mark: string }[] = [
   { href: "/admin", label: "Dashboard", hint: "Genel durum", mark: "D" },
   { href: "/admin/tedarikciler", label: "Tedarikçiler", hint: "İçerik, yayın, görsel", mark: "T" },
   { href: "/admin/seo", label: "SEO", hint: "Meta, canonical, OG", mark: "S" },
@@ -20,7 +20,7 @@ const navItems = [
   { href: "/admin/icerik", label: "İçerik sayfaları", hint: "Landing ve metinler", mark: "I" },
 ];
 
-export function AdminAccessDenied() {
+export const AdminAccessDenied = () => {
   return (
     <main className="container-px grid min-h-[70vh] place-items-center pb-12 pt-[120px]">
       <section className={`${panel} max-w-[520px] text-center`}>
@@ -29,19 +29,19 @@ export function AdminAccessDenied() {
         <p className="mt-3 text-[14.5px] text-muted">
           İçerik, SEO, tedarikçi, başvuru ve teklif yönetimi için admin hesabıyla giriş yapmalısın.
         </p>
-        <Link href="/giris" className="btn btn-solid mt-5">Giriş yap</Link>
+        <Link href="/login" className="btn btn-solid mt-5">Giriş yap</Link>
       </section>
     </main>
   );
-}
+};
 
-export function AdminShell({
+export const AdminShell = ({
   data,
   children,
 }: {
   data: AdminData;
   children: React.ReactNode;
-}) {
+}) => {
   const pendingBusinesses = data.businesses.filter((b) => b.status === "pending").length;
   const pendingApplications = data.applications.filter((a) => a.status === "pending").length;
   const newQuotes = data.quotes.filter((q) => q.status === "new").length;
@@ -60,7 +60,7 @@ export function AdminShell({
           <nav className="flex flex-col gap-1 p-3">
             {navItems.map((item) => (
               <Link
-                key={item.href}
+                key={item.label}
                 href={item.href}
                 className="group grid grid-cols-[32px_minmax(0,1fr)] items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-ink transition hover:bg-[#f1f4ef] hover:text-terra"
               >
@@ -89,9 +89,9 @@ export function AdminShell({
       </div>
     </main>
   );
-}
+};
 
-export function PageHeader({
+export const PageHeader = ({
   eyebrow,
   title,
   description,
@@ -101,7 +101,7 @@ export function PageHeader({
   title: string;
   description: string;
   action?: React.ReactNode;
-}) {
+}) => {
   return (
     <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[#d8ded7] pb-5">
       <div>
@@ -112,9 +112,9 @@ export function PageHeader({
       {action}
     </header>
   );
-}
+};
 
-export function Metric({ title, value, hint }: { title: string; value: number | string; hint: string }) {
+export const Metric = ({ title, value, hint }: { title: string; value: number | string; hint: string }) => {
   return (
     <div className="relative overflow-hidden rounded-[8px] border border-[#d9ded7] bg-white p-4 shadow-[0_16px_48px_-40px_rgba(16,24,40,.55)]">
       <span className="absolute inset-x-0 top-0 h-[3px] bg-terra" aria-hidden />
@@ -123,18 +123,18 @@ export function Metric({ title, value, hint }: { title: string; value: number | 
       <p className="mt-2 text-[12px] text-muted">{hint}</p>
     </div>
   );
-}
+};
 
-function MiniStat({ label, value }: { label: string; value: number | string }) {
+const MiniStat = ({ label, value }: { label: string; value: number | string }) => {
   return (
     <div className="rounded-[7px] border border-[#d8ded7] bg-[#f3f6f2] px-2 py-2 text-center">
       <p className="text-[15px] font-bold text-pine">{value}</p>
       <p className="text-[10px] uppercase tracking-[.06em] text-muted">{label}</p>
     </div>
   );
-}
+};
 
-export function BusinessTable({ businesses }: { businesses: AdminBusiness[] }) {
+export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) => {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-[13px]">
@@ -153,7 +153,10 @@ export function BusinessTable({ businesses }: { businesses: AdminBusiness[] }) {
             <tr key={business.id} className="align-top transition hover:bg-[#fbfcfb]">
               <td className="border-b border-line px-3 py-3 font-bold text-pine">#{business.id}</td>
               <td className="border-b border-line px-3 py-3">
-                <Link href={`/tedarikci/${businessSlug(business)}`} className="font-bold text-ink hover:text-terra">
+                <Link 
+                  href={{ pathname: "/supplier/[id]", params: { id: businessSlug(business) } }} 
+                  className="font-bold text-ink hover:text-terra"
+                >
                   {business.name}
                 </Link>
                 <div className="mt-1 text-[12px] text-muted">
@@ -170,9 +173,9 @@ export function BusinessTable({ businesses }: { businesses: AdminBusiness[] }) {
       </table>
     </div>
   );
-}
+};
 
-export function BusinessForm({ locale, business }: { locale: string; business?: AdminBusiness }) {
+export const BusinessForm = ({ locale, business }: { locale: string; business?: AdminBusiness }) => {
   return (
     <form action={saveBusiness} className="grid gap-4">
       <input type="hidden" name="locale" value={locale} />
@@ -211,7 +214,7 @@ export function BusinessForm({ locale, business }: { locale: string; business?: 
           <label className={label}>SEO açıklama<textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${textarea} min-h-[80px]`} /></label>
           <label className={label}>Anahtar kelimeler<input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={input} /></label>
           <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-            <label className={label}>Canonical path<input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/tedarikci/kaya-palas-hotel" className={input} /></label>
+            <label className={label}>Canonical path<input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/supplier/kaya-palas-hotel" className={input} /></label>
             <label className={label}>OG görsel<input name="ogImage" defaultValue={business?.ogImage ?? business?.image ?? ""} className={input} /></label>
           </div>
         </div>
@@ -219,9 +222,9 @@ export function BusinessForm({ locale, business }: { locale: string; business?: 
       <button className="btn btn-solid justify-self-start" type="submit">Tedarikçiyi kaydet</button>
     </form>
   );
-}
+};
 
-export function ContentForm({ locale, page }: { locale: string; page?: ContentPage }) {
+export const ContentForm = ({ locale, page }: { locale: string; page?: ContentPage }) => {
   return (
     <form action={saveContentPage} className="grid gap-3">
       <input type="hidden" name="locale" value={locale} />
@@ -238,9 +241,9 @@ export function ContentForm({ locale, page }: { locale: string; page?: ContentPa
       <button className="btn btn-solid justify-self-start" type="submit">İçeriği kaydet</button>
     </form>
   );
-}
+};
 
-export function ContentTable({ pages }: { pages: ContentPage[] }) {
+export const ContentTable = ({ pages }: { pages: ContentPage[] }) => {
   if (pages.length === 0) return <Empty text="Henüz içerik sayfası yok." />;
   return (
     <div className="overflow-x-auto">
@@ -268,9 +271,9 @@ export function ContentTable({ pages }: { pages: ContentPage[] }) {
       </table>
     </div>
   );
-}
+};
 
-export function ApplicationList({ applications, locale }: { applications: AdminApplication[]; locale: string }) {
+export const ApplicationList = ({ applications, locale }: { applications: AdminApplication[]; locale: string }) => {
   if (applications.length === 0) return <Empty text="Henüz başvuru yok." />;
   return (
     <div className="grid gap-3">
@@ -298,9 +301,9 @@ export function ApplicationList({ applications, locale }: { applications: AdminA
       ))}
     </div>
   );
-}
+};
 
-export function QuoteList({ quotes, locale }: { quotes: AdminQuote[]; locale: string }) {
+export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: string }) => {
   if (quotes.length === 0) return <Empty text="Henüz teklif talebi yok." />;
   return (
     <div className="grid gap-3">
@@ -333,9 +336,9 @@ export function QuoteList({ quotes, locale }: { quotes: AdminQuote[]; locale: st
       ))}
     </div>
   );
-}
+};
 
-export function StatusPill({ value }: { value: string }) {
+export const StatusPill = ({ value }: { value: string }) => {
   const tone =
     value === "approved" || value === "published"
       ? "bg-group-acente/10 text-group-acente"
@@ -343,19 +346,19 @@ export function StatusPill({ value }: { value: string }) {
         ? "bg-red-50 text-red-700"
         : "bg-gold/20 text-pine";
   return <span className={`rounded-[999px] px-3 py-1 text-[12px] font-bold ${tone}`}>{value}</span>;
-}
+};
 
-export function Empty({ text }: { text: string }) {
+export const Empty = ({ text }: { text: string }) => {
   return <p className="rounded-[8px] border border-dashed border-[#d8ded7] bg-[#f3f6f2] p-4 text-[13.5px] text-muted">{text}</p>;
-}
+};
 
-export function seoScore(businesses: AdminBusiness[]): string {
+export const seoScore = (businesses: AdminBusiness[]): string => {
   if (businesses.length === 0) return "0%";
   const complete = businesses.filter((b) => b.seoTitle && b.seoDescription).length;
   return `${Math.round((complete / businesses.length) * 100)}%`;
-}
+};
 
-export function formatDate(value: string | undefined): string {
+export const formatDate = (value: string | undefined): string => {
   if (!value) return "Tarih yok";
   return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-}
+};

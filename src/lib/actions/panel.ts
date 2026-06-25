@@ -4,8 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
-import type { GroupKey } from "@/lib/types";
-import type { ActionState } from "./application";
+import type { GroupKey, ActionState } from "@/lib/types";
 import { clean } from "./validate";
 
 function groupFromMetadata(value: unknown): GroupKey {
@@ -82,7 +81,7 @@ export async function saveMyBusiness(
       });
       if (error) return { ok: false, error: error.message };
     }
-    revalidatePath("/[locale]/panel", "page");
+    revalidatePath("/[locale]/dashboard", "page");
     // Sahip onaylı ilanını düzenlediyse public liste cache'i (businesses tag) tazelensin.
     revalidateTag("businesses", "max");
     return { ok: true };

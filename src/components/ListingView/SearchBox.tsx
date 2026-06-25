@@ -17,7 +17,7 @@ const MAX_BUSINESS = 5;
 const MAX_REGION = 4;
 const MAX_CAT = 3;
 
-export default function SearchBox({
+const SearchBox = ({
   businesses,
   value,
   onChange,
@@ -27,7 +27,7 @@ export default function SearchBox({
   value: string;
   onChange: (v: string) => void;
   onPick: (s: Suggestion) => void;
-}) {
+}) => {
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -180,9 +180,9 @@ export default function SearchBox({
       )}
     </div>
   );
-}
+};
 
-function Icon({ kind, className }: { kind: Suggestion["kind"]; className: string }) {
+const Icon = ({ kind, className }: { kind: Suggestion["kind"]; className: string }) => {
   if (kind === "region")
     return (
       <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -202,4 +202,6 @@ function Icon({ kind, className }: { kind: Suggestion["kind"]; className: string
       <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01" />
     </svg>
   );
-}
+};
+
+export default SearchBox;

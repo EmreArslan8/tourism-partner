@@ -15,7 +15,7 @@
     overflow-x: hidden;
   }
   h1, h2, h3, h4 {
-    @apply font-display font-medium leading-tight;
+    @apply font-display font-medium leading-tight tracking-heading;
   }
   h1 em, h2 em {
     font-style: italic;
@@ -35,6 +35,15 @@
 @layer components {
   .container-px {
     @apply mx-auto w-full max-w-[1480px] px-8 max-[560px]:px-5;
+  }
+  /* Sapphire gradyanlar — tek kaynak (palette.ts). Sabit hex yerine bu sınıflar kullanılır. */
+  .bg-sapphire-grad {
+    /* Header / parlak yüzeyler: parlak → gece */
+    background-image: linear-gradient(180deg, theme("colors.sapphire-top"), theme("colors.sapphire-deep"));
+  }
+  .bg-sapphire-deep {
+    /* Footer / CTA gibi derin kapanış yüzeyleri: ana → gece → en derin */
+    background-image: linear-gradient(160deg, theme("colors.sapphire") 0%, theme("colors.brand") 55%, theme("colors.brand-deep") 100%);
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill

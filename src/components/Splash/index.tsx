@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { styles } from "./styles";
+import styles from "./styles";
 
 
 /* ~3 saniyelik karşılama ekranı. Oturum başına bir kez gösterilir.
    İlk durum "show" (SSR ile tutarlı); state değişimleri yalnız timer
    callback'lerinde olur (effect içinde senkron setState yok). */
-export default function Splash() {
+const Splash = () => {
   const [phase, setPhase] = useState<"show" | "leaving" | "hidden">("show");
   const t = useTranslations("splash");
 
@@ -49,4 +49,6 @@ export default function Splash() {
       </div>
     </div>
   );
-}
+};
+
+export default Splash;

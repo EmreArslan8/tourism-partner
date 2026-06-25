@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Archivo } from "next/font/google";
+import { Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -7,14 +7,13 @@ import { routing } from "@/i18n/routing";
 import "../globals.css";
 import SiteChrome from "@/components/SiteChrome";
 
-const display = Fraunces({
+const display = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display",
-  style: ["normal", "italic"],
   display: "swap",
 });
 
-const body = Archivo({
+const body = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-body",
   display: "swap",

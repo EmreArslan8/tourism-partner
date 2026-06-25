@@ -3,7 +3,7 @@ import styles from "./styles";
 
 export type Region = { city: string; country: string; count: number };
 
-export default function RegionSuggest({
+const RegionSuggest = ({
   title,
   list,
   onPick,
@@ -11,7 +11,7 @@ export default function RegionSuggest({
   title: string;
   list: Region[];
   onPick: (city: string) => void;
-}) {
+}) => {
   if (list.length === 0) return null;
   return (
     <div className={styles.region}>
@@ -23,4 +23,6 @@ export default function RegionSuggest({
       ))}
     </div>
   );
-}
+};
+
+export default RegionSuggest;

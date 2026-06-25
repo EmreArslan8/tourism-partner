@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import styles from "./styles";
 
 
-export default function Pagination({
+const Pagination = ({
   page,
   maxPage,
   onPage,
@@ -10,7 +10,7 @@ export default function Pagination({
   page: number;
   maxPage: number;
   onPage: (p: number) => void;
-}) {
+}) => {
   if (maxPage <= 1) return null;
   return (
     <nav className={styles.pagination} aria-label="Sayfalama">
@@ -23,4 +23,6 @@ export default function Pagination({
       <button type="button" className={styles.pageBtn} disabled={page === maxPage} onClick={() => onPage(page + 1)}>→</button>
     </nav>
   );
-}
+};
+
+export default Pagination;

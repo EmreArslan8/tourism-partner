@@ -1,5 +1,5 @@
 /* QuoteForm — Tailwind sınıf token'ları */
-export const styles= {
+ const styles= {
   card: "mx-auto max-w-[640px] rounded-[18px] border border-line bg-paper p-7 shadow-card",
   supplier: "mb-5 flex items-center gap-3 rounded-[12px] border border-line bg-cream p-3.5",
   supplierMono: "grid h-12 w-12 shrink-0 place-items-center rounded-[10px] font-display text-[20px] italic text-white/90",
@@ -12,3 +12,5 @@ export const styles= {
   row: "grid grid-cols-2 gap-4 max-[480px]:grid-cols-1",
   note: "mt-1 text-[13px] text-muted",
 } as const;
+
+export default styles;

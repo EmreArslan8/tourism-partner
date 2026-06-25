@@ -6,6 +6,8 @@
     "quote": "Teklif Al",
     "faq": "SSS",
     "login": "Giriş Yap",
+    "agencyLogin": "Acente Girişi",
+    "supplierLogin": "Firma Girişi",
     "addBusiness": "+ Firma Ekle"
   },
   "common": {
@@ -15,7 +17,8 @@
     "ad": "Sponsorlu",
     "reviews": "yorum",
     "viewAll": "Tümünü gör →",
-    "detailLogin": "Detay için giriş"
+    "detailLogin": "Detay için giriş",
+    "categoriesEyebrow": "Tedarikçi türleri"
   },
   "cat": {
     "konaklama": "Konaklama",

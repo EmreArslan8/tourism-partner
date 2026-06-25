@@ -1,21 +1,8 @@
 /* Keşfet liste mantığı — SAF fonksiyonlar (UI/state'ten bağımsız, test edilebilir).
    ListingView yalnızca state tutar; süzme/sıralama/skor burada yaşar. */
-import type { Business, GroupKey } from "./types";
+import type { Business, GroupKey, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
 import { normalizeTr } from "./utils";
-
-export type Sort = "featured" | "rating" | "az";
-
-export interface ListingFilters {
-  groups: Set<GroupKey>;
-  types: Set<string>;
-  country: string;
-  city: string;
-  district: string;
-  verifiedOnly: boolean;
-  minRating: number;
-  attrs: Set<string>;
-}
 
 /* Alaka skoru: isimde geçen +3, tür +2, etiket/şehir/ilçe +1. `needle` normalize edilmiş olmalı. */
 export function scoreBusiness(b: Business, needle: string): number {

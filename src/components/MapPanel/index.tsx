@@ -8,12 +8,12 @@ import { useRouter } from "@/i18n/navigation";
 import type { Business } from "@/lib/types";
 import { businessSlug } from "@/lib/business-slug";
 import { GROUP_COLORS } from "@/lib/categories";
-import { styles } from "./styles";
+import styles from "./styles";
 
 /* Gerçek OSM/Leaflet haritası. Bu bileşen ListingView'da next/dynamic
    (ssr:false) ile lazy yüklenir; leaflet paketi + CSS yalnızca kullanıcı
    harita görünümüne geçtiğinde indirilir, ilk sayfa yüküne maliyeti yoktur. */
-export default function MapPanel({ items }: { items: Business[] }) {
+const MapPanel = ({ items }: { items: Business[] }) => {
   const router = useRouter();
   const t = useTranslations("listing");
   const elRef = useRef<HTMLDivElement>(null);
@@ -62,7 +62,10 @@ export default function MapPanel({ items }: { items: Business[] }) {
       });
       const marker = L.marker(b.coords, { icon }).addTo(layer);
       marker.bindTooltip(b.name, { direction: "top", offset: [0, -8] });
-      marker.on("click", () => router.push(`/tedarikci/${businessSlug(b)}`));
+      marker.on("click", () => router.push({
+        pathname: "/supplier/[id]",
+        params: { id: businessSlug(b) }
+      }));
       points.push(b.coords);
     });
 
@@ -80,4 +83,6 @@ export default function MapPanel({ items }: { items: Business[] }) {
       {items.length === 0 && <p className={styles.empty}>{t("emptyTitle")}</p>}
     </div>
   );
-}
+};
+
+export default MapPanel;

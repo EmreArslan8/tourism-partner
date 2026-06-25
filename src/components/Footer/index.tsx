@@ -1,10 +1,10 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Logo from "@/components/Logo";
-import { styles } from "./styles";
+import styles from "./styles";
 
 
-export default function SiteFooter() {
+const Footer = () => {
   const t = useTranslations("footer");
   const tc = useTranslations("cat");
   return (
@@ -16,16 +16,16 @@ export default function SiteFooter() {
         </div>
         <div>
           <h4 className={styles.colTitle}>{t("categories")}</h4>
-          <Link href="/kesfet?cat=konaklama" className={styles.colLink}>{tc("konaklama")}</Link>
-          <Link href="/kesfet?cat=acente" className={styles.colLink}>{tc("acente")}</Link>
-          <Link href="/kesfet?cat=eglence" className={styles.colLink}>{tc("eglence")}</Link>
-          <Link href="/kesfet?cat=saglik" className={styles.colLink}>{tc("saglik")}</Link>
+          <Link href={{ pathname: "/explore", query: { cat: "konaklama" } }} className={styles.colLink}>{tc("konaklama")}</Link>
+          <Link href={{ pathname: "/explore", query: { cat: "acente" } }} className={styles.colLink}>{tc("acente")}</Link>
+          <Link href={{ pathname: "/explore", query: { cat: "eglence" } }} className={styles.colLink}>{tc("eglence")}</Link>
+          <Link href={{ pathname: "/explore", query: { cat: "saglik" } }} className={styles.colLink}>{tc("saglik")}</Link>
         </div>
         <div>
           <h4 className={styles.colTitle}>{t("platform")}</h4>
-          <Link href="/#nasil" className={styles.colLink}>{t("howShort")}</Link>
-          <Link href="/kayit" className={styles.colLink}>{t("addCompany")}</Link>
-          <Link href="/giris" className={styles.colLink}>{t("login")}</Link>
+          <Link href={{ pathname: "/", hash: "nasil" }} className={styles.colLink}>{t("howShort")}</Link>
+          <Link href={{ pathname: "/register" }} className={styles.colLink}>{t("addCompany")}</Link>
+          <Link href={{ pathname: "/login" }} className={styles.colLink}>{t("login")}</Link>
         </div>
         <div>
           <h4 className={styles.colTitle}>{t("membership")}</h4>
@@ -38,4 +38,6 @@ export default function SiteFooter() {
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

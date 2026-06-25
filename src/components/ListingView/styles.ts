@@ -172,4 +172,5 @@ const styles= {
     "font-semibold text-ink transition-colors hover:border-terra disabled:opacity-40 disabled:hover:border-line",
   pageBtnActive: "!border-terra !bg-terra !text-white",
 } as const;
- export default styles
+
+export default styles;

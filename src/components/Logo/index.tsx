@@ -1,18 +1,18 @@
 import Image from "next/image";
-import { Link } from "@/i18n/navigation";
+import { Link, type Href } from "@/i18n/navigation";
 
 // logo.svg viewBox: 493.2 × 300.24 → en/boy oranı (= 685/417 ile aynı)
 const RATIO = 493.2 / 300.24;
 
 type Props = {
-  href?: string | null;
+  href?: Href | null;
   className?: string;
   height?: number;
   variant?: "brand" | "light";
   priority?: boolean;
 };
 
-function Img({ height = 100, variant = "brand", priority }: Omit<Props, "href" | "className">) {
+const Img = ({ height = 100, variant = "brand", priority }: Omit<Props, "href" | "className">) => {
   return (
     <Image
       src="/assets/logo.svg"
@@ -24,15 +24,15 @@ function Img({ height = 100, variant = "brand", priority }: Omit<Props, "href" |
       className={variant === "light" ? "[filter:brightness(0)_invert(1)]" : ""}
     />
   );
-}
+};
 
-export default function Logo({
+const Logo = ({
   href = "/",
   className = "",
   height = 40,
   variant = "brand",
   priority,
-}: Props) {
+}: Props) => {
   if (href === null) {
     return (
       <span className={className} aria-label="Tourism Partner">
@@ -49,4 +49,6 @@ export default function Logo({
       <Img height={height} variant={variant} priority={priority} />
     </Link>
   );
-}
+};
+
+export default Logo;

@@ -1,20 +1,19 @@
-export const styles = {
-  section: "relative overflow-hidden py-12 px-4 sm:py-20 sm:px-6 lg:px-8",
-  container: "container-px relative",
-  wrapper: "relative rounded-3xl sm:rounded-[40px] bg-pine px-6 py-10 sm:px-8 sm:py-12 md:px-16 md:py-20 lg:flex lg:items-center lg:justify-between shadow-2xl",
-  content: "relative z-10 lg:max-w-2xl",
-  eyebrow: "inline-flex items-center rounded-full bg-terra/20 px-3.5 py-1.5 text-xs sm:text-sm font-semibold tracking-wide text-gold border border-gold/20 mb-5 sm:mb-6",
-  title: "text-[clamp(26px,5vw,48px)] font-bold leading-[1.12] text-paper tracking-tight",
-  sub: "mt-4 sm:mt-6 text-base sm:text-lg leading-relaxed text-cream/70 max-w-xl",
-  actions: "relative z-10 mt-8 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-4 sm:gap-6 lg:mt-0 lg:flex-shrink-0",
-  button: "btn btn-cream !rounded-2xl !px-8 sm:!px-10 !py-3.5 sm:!py-4 !text-base sm:!text-lg !font-bold w-full sm:w-auto justify-center hover:scale-105 transition-transform",
-  offerBadge: "flex items-center gap-3 rounded-2xl bg-white/5 p-3.5 sm:p-4 backdrop-blur-sm border border-white/10",
-  offerIcon: "flex h-12 w-12 items-center justify-center rounded-xl bg-gold/20 text-gold",
-  offerText: "text-sm text-cream/90 font-medium",
-  offerEm: "block text-gold font-bold text-base",
-  
-  /* Arka plan efektleri */
-  bgEffect1: "pointer-events-none absolute -right-20 -top-20 h-96 w-96 rounded-full bg-terra opacity-20 blur-[100px]",
-  bgEffect2: "pointer-events-none absolute -left-20 -bottom-20 h-96 w-96 rounded-full bg-pine-soft opacity-40 blur-[100px]",
-  grain: "absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay",
+/* Cta — sade, şık sapphire kapanış bandı. */
+const styles = {
+  section: "container-px",
+  panel:
+    "bg-sapphire-deep relative isolate flex flex-col gap-8 overflow-hidden rounded-[28px] px-9 py-12 sm:px-14 sm:py-14 " +
+    "shadow-[0_40px_90px_-50px_rgba(12,33,86,.8)] " +
+    "md:flex-row md:items-center md:justify-between " +
+    "max-[560px]:gap-4 max-[560px]:rounded-[20px] max-[560px]:px-6 max-[560px]:py-7",
+  glow:
+    "pointer-events-none absolute -right-16 -top-24 -z-10 h-72 w-72 rounded-full blur-3xl " +
+    "bg-[radial-gradient(circle,rgba(43,80,216,.45),transparent_70%)]",
+  content: "max-w-xl",
+  title: "text-[clamp(24px,3.2vw,38px)] font-semibold leading-tight tracking-[-0.02em] text-white max-[560px]:text-[20px]",
+  sub: "mt-3 text-[15px] leading-relaxed text-white/70 sm:text-[16px] max-[560px]:mt-2 max-[560px]:text-[13.5px]",
+  actions: "flex shrink-0 items-center gap-5 max-[560px]:w-full max-[560px]:gap-4",
+  secondary: "text-[14.5px] font-semibold text-white/75 transition-colors hover:text-white",
 } as const;
+
+export default styles;

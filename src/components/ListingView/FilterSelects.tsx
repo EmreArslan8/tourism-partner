@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import styles from "./styles";
 
-export default function FilterSelects({
+const FilterSelects = ({
   country,
   city,
   district,
@@ -32,7 +32,7 @@ export default function FilterSelects({
   onVerified: (v: boolean) => void;
   onMinRating: (v: number) => void;
   stack?: boolean;
-}) {
+}) => {
   const t = useTranslations("listing");
   const field = cn(styles.field, styles.selectControl, "peer", stack && "!w-full");
   const selectWrap = cn(styles.selectWrap, !stack && styles.selectField, stack && "!w-full");
@@ -100,4 +100,6 @@ export default function FilterSelects({
   );
 
   return stack ? <div className={styles.sheetFilters}>{inner}</div> : inner;
-}
+};
+
+export default FilterSelects;

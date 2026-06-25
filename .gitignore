@@ -51,3 +51,8 @@ next-env.d.ts
 
 # database
 *.sql
+
+# proje brief / dökümanlar (repoya gitmesin)
+*.pdf
+/PROJE_YONERGESI.md
+/hero.png

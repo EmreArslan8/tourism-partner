@@ -1,19 +1,21 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
+import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { Business, GroupKey } from "@/lib/types";
-import { styles } from "./styles";
+import styles from "./styles";
 
-const ICONS: Record<GroupKey, React.ReactNode> = {
-  konaklama: <path d="M3 20V8l7-3v15M10 9l11 3v8M2 20h20M6 11h1.5M6 14h1.5M14 14h1.5M17 15h1.5" />,
-  acente: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c-2.6 2.4-4 5.5-4 9s1.4 6.6 4 9c2.6-2.4 4-5.5 4-9s-1.4-6.6-4-9Z" /></>,
-  rehber: <path d="M6 3v18M6 4h12l-2.5 3.5L18 11H6" />,
-  eglence: <><circle cx="12" cy="9" r="6" /><path d="M12 15v4M10 21h4" /></>,
-  saglik: <path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10ZM12 9v4M10 11h4" />,
+/* Kategori kapak görselleri. */
+const IMG: Record<GroupKey, string> = {
+  konaklama: "/assets/cards/hotel-1.jpg",
+  acente: "/assets/cards/agency-1.jpg",
+  rehber: "/assets/cards/guide-1.jpg",
+  eglence: "/assets/cards/balloon-1.jpg",
+  saglik: "/assets/cards/clinic-1.jpg",
 };
 
-/* Ana sayfa kategori girişi — yatay kartlar, /kesfet'ye yönlendirir. */
-export default function Categories({ businesses }: { businesses: Business[] }) {
+/* Ana sayfa kategori girişi — görsel kapaklı kartlar, /explore'ye yönlendirir. */
+const Categories = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
   const tCommon = useTranslations("common");
@@ -26,23 +28,43 @@ export default function Categories({ businesses }: { businesses: Business[] }) {
     <section className={styles.section} id="kategoriler">
       <div className={styles.head}>
         <div>
+          <span className={styles.eyebrow}>{tCommon("categoriesEyebrow")}</span>
           <h2 className={styles.headTitle}>{t("title")}</h2>
         </div>
-        <Link href="/kesfet" className={styles.more}>{tCommon("viewAll")}</Link>
+        <Link href={{ pathname: "/explore" }} className={styles.more}>
+          {tCommon("viewAll")}
+        </Link>
       </div>
+
       <div className={styles.grid}>
         {CATEGORY_GROUPS.map((g) => (
-          <Link key={g.key} href={`/kesfet?cat=${g.key}`} className={styles.card}>
-            <span className={styles.icon} style={{ background: `${GROUP_COLORS[g.key]}1a`, color: GROUP_COLORS[g.key] }}>
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
-                {ICONS[g.key]}
+          <Link
+            key={g.key}
+            href={{ pathname: "/explore", query: { cat: g.key } }}
+            className={styles.card}
+          >
+            <Image
+              src={IMG[g.key]}
+              alt=""
+              fill
+              sizes="(max-width:640px) 180px, (max-width:1100px) 33vw, 18vw"
+              className={styles.img}
+            />
+            <div className={styles.shade} />
+            <span className={styles.arrow}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
               </svg>
             </span>
-            <h3 className={styles.name}>{tc(g.key)}</h3>
-            <p className={styles.count}>{t("count", { count: counts[g.key] ?? 0 })}</p>
+            <div className={styles.body}>
+              <h3 className={styles.name}>{tc(g.key)}</h3>
+              <p className={styles.count}>{t("count", { count: counts[g.key] ?? 0 })}</p>
+            </div>
           </Link>
         ))}
       </div>
     </section>
   );
-}
+};
+
+export default Categories;

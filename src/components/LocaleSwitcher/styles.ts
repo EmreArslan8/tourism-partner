@@ -1,6 +1,7 @@
-export const styles = {
+ const styles = {
   wrapper: "relative inline-block text-left",
   button: "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold text-muted transition-colors hover:text-ink hover:bg-slate-100/50",
+  buttonLight: "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-semibold text-white transition-colors hover:bg-white/10",
   label: "uppercase",
   flag: "text-base leading-none",
   icon: "w-4 h-4 opacity-50",
@@ -11,3 +12,5 @@ export const styles = {
   itemName: "text-ink",
   itemCode: "text-[11px] opacity-40 font-bold",
 } as const;
+
+export default styles;

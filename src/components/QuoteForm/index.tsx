@@ -7,11 +7,11 @@ import { GROUP_COLORS } from "@/lib/categories";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { initials } from "@/lib/utils";
 import { submitQuote } from "@/lib/actions/quote";
-import { styles } from "./styles";
+import styles from "./styles";
 
 
 /* Teklif (RFQ) formu — gönderim Supabase quotes tablosuna yazar (server action). */
-export default function QuoteForm({ business }: { business: Business | null }) {
+const QuoteForm = ({ business }: { business: Business | null }) => {
   const [state, action, pending] = useActionState(submitQuote, { ok: false });
   const t = useTranslations("quote");
   const tc = useTranslations("cat");
@@ -67,4 +67,6 @@ export default function QuoteForm({ business }: { business: Business | null }) {
       </form>
     </div>
   );
-}
+};
+
+export default QuoteForm;

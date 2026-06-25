@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import styles from "./styles";
 
-export default function BottomSheet({
+const BottomSheet = ({
   open,
   onClose,
   title,
@@ -14,7 +14,7 @@ export default function BottomSheet({
   onClose: () => void;
   title: string;
   children: ReactNode;
-}) {
+}) => {
   // Açıkken arka plan kaymasını kilitle.
   useEffect(() => {
     if (!open) return;
@@ -42,4 +42,6 @@ export default function BottomSheet({
       </div>
     </div>
   );
-}
+};
+
+export default BottomSheet;

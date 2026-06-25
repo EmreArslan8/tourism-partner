@@ -1,5 +1,5 @@
 /* MapPanel — gerçek Leaflet/OSM haritası için Tailwind sınıf token'ları. */
-export const styles = {
+ const styles = {
   wrap: "relative h-[560px] overflow-hidden rounded-[16px] border border-line shadow-card max-[1000px]:h-[360px]",
   map: "absolute inset-0 z-0 bg-[#e7ecff]",
   label:
@@ -7,3 +7,5 @@ export const styles = {
   empty:
     "absolute inset-0 z-[500] grid place-items-center bg-paper/70 text-[13px] text-muted backdrop-blur-sm",
 } as const;
+
+export default styles;

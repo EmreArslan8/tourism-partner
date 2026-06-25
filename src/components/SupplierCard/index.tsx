@@ -3,12 +3,12 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { GROUP_COLORS, GROUP_COVER } from "@/lib/categories";
 import type { Business } from "@/lib/types";
-import { styles } from "./styles";
-
+import styles from "./styles";
+import Badge from "@/components/common/Badge";
 
 /* Ortak tedarikçi kartı. `flag` rozeti, `showStars` puan yıldızları,
    `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır. */
-export default function SupplierCard({
+const SupplierCard = ({
   business,
   flag = null,
   showStars = false,
@@ -18,7 +18,7 @@ export default function SupplierCard({
   flag?: string | null;
   showStars?: boolean;
   children: ReactNode;
-}) {
+}) => {
   const tc = useTranslations("cat");
   const tv = useTranslations("common");
   const cover = business.image ?? GROUP_COVER[business.group];
@@ -34,13 +34,15 @@ export default function SupplierCard({
           className={styles.coverImg}
         />
         <span className={styles.coverGrad} aria-hidden />
-        {flag && <span className={styles.flag}>{flag}</span>}
-        {showStars && <span className={styles.coverRating}>★ {business.rating.toFixed(1)}</span>}
+        {flag && <Badge variant="gold" className={styles.flag}>{flag}</Badge>}
+        {showStars && <Badge variant="muted" className={styles.coverRating}>★ {business.rating.toFixed(1)}</Badge>}
       </div>
       <div className={styles.body}>
         <div className={styles.tags}>
-          <span className={styles.badge}>{tc(business.group)} · {business.type}</span>
-          {business.verified && <span className={styles.verified}>✓ {tv("verified")}</span>}
+          <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
+          {business.verified && (
+            <span className={styles.verified}>✓ {tv("verified")}</span>
+          )}
         </div>
         <h3 className={styles.name}>{business.name}</h3>
         <p className={styles.loc}>
@@ -51,4 +53,6 @@ export default function SupplierCard({
       </div>
     </article>
   );
-}
+};
+
+export default SupplierCard;

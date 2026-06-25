@@ -6,15 +6,15 @@ import { cn } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
-function Chevron({ open }: { open: boolean }) {
+const Chevron = ({ open }: { open: boolean }) => {
   return (
     <svg className={cn(styles.catChev, open && styles.catChevOpen)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="m9 6 6 6-6 6" />
     </svg>
   );
-}
+};
 
-export default function CategoryCatalog({
+const CategoryCatalog = ({
   groups,
   types,
   groupCounts,
@@ -31,7 +31,7 @@ export default function CategoryCatalog({
   onToggleType: (t: string) => void;
   /** Aynı kart içinde kategorilerin altında render edilecek ek filtreler (facet'ler). */
   children?: React.ReactNode;
-}) {
+}) => {
   const tc = useTranslations("cat");
   const t = useTranslations("listing");
   const totalCount = CATEGORY_GROUPS.reduce((sum, g) => sum + (groupCounts[g.key] ?? 0), 0);
@@ -94,4 +94,6 @@ export default function CategoryCatalog({
       {children}
     </div>
   );
-}
+};
+
+export default CategoryCatalog;

@@ -1,4 +1,4 @@
-import { s } from "./styles";
+import styles from "./styles";
 
 const BRANDS = [
   "Turkish Airlines",
@@ -15,25 +15,24 @@ const BRANDS = [
   "Accor Hotels",
 ];
 
-export default function Partners() {
+/* Modern "güvenilen markalar" şeridi — kenar fade maskeli sonsuz marquee. */
+const Partners = () => {
   // Sonsuz döngü için listeyi ikiye katlıyoruz
   const list = [...BRANDS, ...BRANDS];
 
   return (
-    <section className={s.section}>
-      <div className={s.container}>
-        <div className={s.track}>
+    <section className={styles.section}>
+      <div className={styles.viewport}>
+        <div className={styles.track}>
           {list.map((brand, i) => (
-            <div key={i} className={s.item}>
-              {/* Demo olduğu için gerçek logo yerine isim + ikonumsu yapı */}
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-[12px] font-bold text-cream">
-                {brand.charAt(0)}
-              </div>
-              <span className={s.name}>{brand}</span>
-            </div>
+            <span key={i} className={styles.item} aria-hidden={i >= BRANDS.length}>
+              {brand}
+            </span>
           ))}
         </div>
       </div>
     </section>
   );
-}
+};
+
+export default Partners;

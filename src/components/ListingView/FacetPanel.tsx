@@ -7,7 +7,7 @@ import styles from "./styles";
 
 /* Hizmet/koşul facet paneli — seçili gruplara göre ilgili facet'leri gösterir.
    bare=true → kendi kartı olmadan, kategori kartının içinde bölüm olarak render. */
-export default function FacetPanel({
+const FacetPanel = ({
   groups,
   selected,
   onToggle,
@@ -19,7 +19,7 @@ export default function FacetPanel({
   onToggle: (slug: string) => void;
   onClear: () => void;
   bare?: boolean;
-}) {
+}) => {
   const facets = visibleFacets(groups);
   if (facets.length === 0) return null;
 
@@ -62,4 +62,6 @@ export default function FacetPanel({
       </div>
     </div>
   );
-}
+};
+
+export default FacetPanel;

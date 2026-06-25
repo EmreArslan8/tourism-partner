@@ -1,22 +1,20 @@
-/* ============================================================
-   palette.ts — projedeki tek renk kaynağı.
-   Tailwind config buradan beslenir; component'ler `bg-terra`,
-   `text-ink`, `border-line` gibi token sınıflarını kullanır.
-   ============================================================ */
-
 export const palette = {
   pine: "#07092a",
   pineSoft: "#172178",
   cream: "#f6f8ff",
   creamDeep: "#e7ecff",
   paper: "#ffffff",
-  terra: "#3542ee",
-  terraDeep: "#1724a6",
+  /* Sapphire — resmî palet. Ana: #0F3BB0 · Parlak: #004FE6 · Gece: #0A2472. */
+  sapphire: "#0f3bb0",
+  sapphireTop: "#004fe6",
+  sapphireDeep: "#0a2472",
+  terra: "#0f3bb0",
+  terraDeep: "#0a2472",
   gold: "#8ea2ff",
-  brandBlue: "#3542ee",
+  brandBlue: "#0f3bb0",
   /* Logodan örneklenen marka mavileri (TOURISM PARTNER wordmark). */
-  brand: "#1a1778",
-  brandDeep: "#11104f",
+  brand: "#0a2472",
+  brandDeep: "#071a52",
   ink: "#0b102f",
   muted: "#66708f",
   line: "#d8dffc",
@@ -41,6 +39,9 @@ export const tailwindColors = {
   cream: palette.cream,
   "cream-deep": palette.creamDeep,
   paper: palette.paper,
+  sapphire: palette.sapphire,
+  "sapphire-top": palette.sapphireTop,
+  "sapphire-deep": palette.sapphireDeep,
   terra: palette.terra,
   "terra-deep": palette.terraDeep,
   gold: palette.gold,
@@ -58,3 +59,4 @@ export const tailwindColors = {
     saglik: groupPalette.saglik,
   },
 } as const;
+

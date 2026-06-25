@@ -1,10 +1,10 @@
 {
   "hero": {
     "eyebrow": "B2B Turizm Tedarikçi Ağı",
-    "titlePre": "Turizm tedarikçilerini ",
-    "titleEm": "tek panoda",
-    "titlePost": " keşfedin.",
-    "sub": "Konaklama, acente, rehber, eğlence ve sağlık turizmi tedarikçilerini filtreleyin. Üye acenteler tam listeye ve detaylara erişir.",
+    "titlePre": "Turizm iş ortaklarınızı",
+    "titleEm": "tek yerden",
+    "titlePost": "keşfedin.",
+    "sub": "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi sağlayıcılarını tek yerden arayın, karşılaştırın ve hızlıca teklif alın.",
     "popularLabel": "Popüler:",
     "pop1": "İstanbul otelleri",
     "pop2": "Kapadokya turları",
@@ -32,6 +32,19 @@
     "title": "Kategoriye göz atın",
     "count": "{count} tedarikçi"
   },
+  "ads": {
+    "label": "Sponsorlu",
+    "cta": "İncele"
+  },
+  "partners": {
+    "label": "Türkiye ve global turizmin önde gelen markalarıyla aynı ağda"
+  },
+  "regions": {
+    "eyebrow": "Bölgeler",
+    "title": "Popüler bölgeler",
+    "sub": "Operasyon düzenlediğiniz bölgedeki tedarikçilere hızlıca ulaşın.",
+    "count": "{count} tedarikçi"
+  },
   "showcase": {
     "eyebrow": "Vitrin",
     "title": "Öne çıkan iş ortakları",
@@ -40,10 +53,11 @@
   "how": {
     "eyebrow": "Nasıl Çalışır",
     "title": "Üç adımda iş birliği",
-    "lead": "Tedarikçi profilini kur, ekip onayından geç ve acentelerin gerçek operasyon ihtiyacında görünür ol. Akış sade; kontrol, kalite ve keşif aynı panoda.",
+    "lead": "Firmanızı ekleyin, doğrulama sürecinden geçin ve turizm acentelerinin gerçek taleplerinde görünür olun.",
     "primaryCta": "Firma ekle",
     "secondaryCta": "Tedarikçi ara",
     "visualKicker": "Aktif adım",
+    "visualSummary": "Profil, doğrulama ve teklif akışı aynı panelde birleşir.",
     "visual1": "Acenteler ve tedarikçiler aynı ağa dahil olur",
     "visual2": "Profil, kategori ve kalite bilgisi yayına hazırlanır",
     "visual3": "Doğru aramada görünür olur ve teklif akışı başlar",
@@ -51,25 +65,33 @@
     "strip1": "Profil netleşir",
     "strip2": "Kalite onaylanır",
     "strip3": "Acenteye görünür olur",
-    "s1t": "Kaydolun",
-    "s1d": "İşletmenizi otel, acente, rehber, eğlence veya sağlık kategorisinde ekleyin. İlk 200 acente ücretsiz.",
+    "s1t": "Profilinizi oluşturun",
+    "s1d": "Firma türünüzü, lokasyonunuzu, hizmetlerinizi ve iletişim bilgilerinizi ekleyin.",
     "s2t": "Onaydan geçin",
-    "s2d": "İlanınız yayına girmeden önce doğrulama ve onay sürecinden geçer — kalite korunur.",
-    "s3t": "Keşfedilin",
-    "s3d": "Üye acenteler sizi filtreleyip bulur; isterseniz doping ile listede öne çıkın.",
+    "s2d": "Tourism Partner ekibi bilgileri kontrol eder; doğrulanmış tedarikçiler yayına alınır.",
+    "s3t": "Teklif almaya başlayın",
+    "s3d": "Acenteler sizi arama ve filtrelerle bulur, uygun talepler için doğrudan teklif ister.",
     "faqEyebrow": "SSS",
     "faqTitle": "Sık sorulan sorular",
+    "faqLead": "Aklınıza takılan başka bir şey varsa ekibimize yazın, hızlıca dönüş yapalım.",
     "q1": "Üyelik ücretli mi?",
     "a1": "Listelenme yıllık üyelik ile alınır. Lansman döneminde ilk 200 acente ücretsizdir; ilk yıl herkese ücretsiz olabilir.",
     "q2": "Doping nedir?",
     "a2": "İşletmenizi listede ve vitrinde öne çıkaran tercihe bağlı bir yükseltmedir. İlk 24 saatte kaydolan işletmeler 1 günlük hediye doping kazanır.",
     "q3": "Detayları neden göremiyorum?",
-    "a3": "Tüm tedarikçi listesi ve iletişim/konum detayları üyelere özeldir. Ücretsiz üye olarak tüm verilere erişebilirsiniz."
+    "a3": "Tüm tedarikçi listesi ve iletişim/konum detayları üyelere özeldir. Ücretsiz üye olarak tüm verilere erişebilirsiniz.",
+    "q4": "İlanım ne zaman yayına girer?",
+    "a4": "Kaydınız admin onayından geçtikten sonra yayına alınır; doğrulanmış ilanlar arama sonuçlarında listelenir.",
+    "q5": "Hangi belgeler gerekiyor?",
+    "a5": "Kategorinize göre değişir; örneğin acenteler için TÜRSAB belgesi, transfer firmaları için D2 belgesi gibi resmi evraklar istenir.",
+    "q6": "Teklif sistemi nasıl çalışır?",
+    "a6": "Acenteler bölge bazlı talep oluşturur; ilgili tedarikçiler bu talebe sistem üzerinden doğrudan özel teklif gönderir."
   },
   "cta": {
     "title": "İşletmenizi bugün listeleyin",
     "sub": "İlk 200 acente ücretsiz. İlk 24 saatte kaydolan işletmeler 1 günlük hediye doping kazanır.",
-    "button": "+ Firma Ekle"
+    "button": "+ Firma Ekle",
+    "secondary": "Üye girişi"
   },
   "footer": {
     "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",

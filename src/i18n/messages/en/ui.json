@@ -6,6 +6,8 @@
     "quote": "Get Quotes",
     "faq": "FAQ",
     "login": "Log In",
+    "agencyLogin": "Agency Login",
+    "supplierLogin": "Supplier Login",
     "addBusiness": "+ List Business"
   },
   "common": {
@@ -15,7 +17,8 @@
     "ad": "Sponsored",
     "reviews": "reviews",
     "viewAll": "View all →",
-    "detailLogin": "Log in for details"
+    "detailLogin": "Log in for details",
+    "categoriesEyebrow": "Supplier types"
   },
   "cat": {
     "konaklama": "Accommodation",

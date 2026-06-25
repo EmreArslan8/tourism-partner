@@ -3,7 +3,7 @@ import FilterSelects from "./FilterSelects";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
-export default function FilterBar({
+const FilterBar = ({
   businesses,
   country,
   city,
@@ -39,7 +39,7 @@ export default function FilterBar({
   onPick: (s: Suggestion) => void;
   onVerified: (v: boolean) => void;
   onMinRating: (v: number) => void;
-}) {
+}) => {
   return (
     <div className={styles.bar}>
       <FilterSelects
@@ -62,4 +62,6 @@ export default function FilterBar({
       </div>
     </div>
   );
-}
+};
+
+export default FilterBar;

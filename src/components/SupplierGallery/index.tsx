@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import Image from "next/image";
 
-export default function SupplierGallery({
+const SupplierGallery = ({
   images,
   title,
   eyebrow,
@@ -15,7 +15,7 @@ export default function SupplierGallery({
   eyebrow: string;
   adLabel: string;
   sponsored: boolean;
-}) {
+}) => {
   const [active, setActive] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const hasMultiple = images.length > 1;
@@ -128,4 +128,6 @@ export default function SupplierGallery({
       )}
     </section>
   );
-}
+};
+
+export default SupplierGallery;

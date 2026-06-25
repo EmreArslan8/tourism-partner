@@ -4,36 +4,40 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import Logo from "@/components/Logo";
 import MobileMenu from "@/components/MobileMenu";
+import MobileSearch from "@/components/MobileSearch";
 import LangSwitcher from "@/components/LocaleSwitcher";
-import { s } from "./styles";
+import styles from "./styles";
 
-export default function SiteHeader() {
+
+const Header = () => {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
   const links = [
-    { href: "/", label: t("home") },
-    { href: "/kesfet", label: t("explore") },
-    { href: "/#nasil", label: t("how") },
-    { href: "/teklif", label: t("quote") },
-    { href: "/#sss", label: t("faq") },
-  ];
+    { href: { pathname: "/" }, label: t("home") },
+    { href: { pathname: "/explore" }, label: t("explore") },
+    { href: { pathname: "/", hash: "nasil" }, label: t("how") },
+    { href: { pathname: "/quote" }, label: t("quote") },
+    { href: { pathname: "/", hash: "sss" }, label: t("faq") },
+  ] as const;
 
   return (
-    <header className={s.header}>
-      <div className={s.inner}>
-        <div className={s.left}>
-          <Logo href="/" height={60} priority />
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <div className={styles.left}>
+          <Logo href="/" height={60} variant="light" priority />
         </div>
 
-        <nav className={s.nav}>
+        <nav className={styles.nav}>
           {links.map((link) => {
-            const isActive = pathname === link.href;
+            const hrefObj = link.href as any;
+            const isActive = pathname === hrefObj.pathname && !hrefObj.hash;
+            
             return (
               <Link
-                key={link.href}
-                href={link.href}
-                className={`${s.navLink} ${isActive ? s.navLinkActive : ""}`}
+                key={hrefObj.pathname + (hrefObj.hash || "")}
+                href={link.href as any}
+                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
               >
                 {link.label}
               </Link>
@@ -41,15 +45,22 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        <div className="col-start-3 flex items-center justify-self-end">
-          <div className={s.actions}>
-            <LangSwitcher />
-            <div className={s.separator} />
-            <Link href="/giris" className="text-[14px] font-semibold text-muted hover:text-ink transition-colors">
-              {t("login")}
+        <div className="col-start-3 flex items-center justify-self-end gap-1">
+          <MobileSearch />
+          <div className={styles.actions}>
+            <LangSwitcher light />
+            <div className={styles.separator} />
+            <Link
+              href={{ pathname: "/login" } as any}
+              className="text-[15px] font-semibold text-white/90 hover:text-white transition-colors"
+            >
+              {t("agencyLogin")}
             </Link>
-            <Link href="/kayit" className="btn btn-solid btn-sm !rounded-xl">
-              {t("addBusiness")}
+            <Link
+              href={{ pathname: "/login" } as any}
+              className="rounded-[10px] bg-white px-4 py-2.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream"
+            >
+              {t("supplierLogin")}
             </Link>
           </div>
           <MobileMenu />
@@ -57,4 +68,6 @@ export default function SiteHeader() {
       </div>
     </header>
   );
-}
+};
+
+export default Header;

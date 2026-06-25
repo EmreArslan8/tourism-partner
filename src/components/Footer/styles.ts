@@ -1,6 +1,6 @@
 /* SiteFooter — Tailwind sınıf token'ları */
-export const styles= {
-  footer: "mt-10 bg-pine text-cream/[.78]",
+ const styles= {
+  footer: "bg-sapphire-deep mt-10 text-cream/[.78]",
   inner:
     "container-px grid grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-7 py-12 pb-8 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1",
   logo: "w-fit",
@@ -12,3 +12,5 @@ export const styles= {
   base:
     "container-px flex flex-wrap justify-between gap-3 border-t border-white/10 py-[18px] text-[12.5px] text-cream/55",
 } as const;
+
+export default styles;

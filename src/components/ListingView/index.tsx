@@ -11,10 +11,8 @@ import { cn } from "@/lib/utils";
 import {
   facetCounts,
   filterAndSortBusinesses,
-  type ListingFilters,
-  type Sort,
 } from "@/lib/listing";
-import type { Business, GroupKey } from "@/lib/types";
+import type { Business, GroupKey, ListingFilters, Sort } from "@/lib/types";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
@@ -38,7 +36,7 @@ const MapPanel = dynamic(() => import("@/components/MapPanel"), {
 const PAGE_SIZE = 9;
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
 
-export default function ListingView({
+const ListingView = ({
   businesses = [],
   initialGroups = [],
   initialTypes = [],
@@ -62,7 +60,7 @@ export default function ListingView({
   initialMinRating?: number;
   initialSort?: Sort;
   initialAttrs?: string[];
-}) {
+}) => {
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
   const tCommon = useTranslations("common");
@@ -170,7 +168,10 @@ export default function ListingView({
   function handlePick(s: Suggestion) {
     if (s.kind === "business") {
       const business = businesses.find((b) => b.id === s.id);
-      router.push(`/tedarikci/${business ? businessSlug(business) : s.id}`);
+      router.push({
+        pathname: "/supplier/[id]",
+        params: { id: business ? businessSlug(business) : s.id.toString() }
+      });
       return;
     }
     setQ("");
@@ -216,7 +217,10 @@ export default function ListingView({
     if (sort !== "featured") p.set("sort", sort);
     const qs = p.toString();
     if (qs !== (searchParams?.toString() ?? "")) {
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      router.replace(
+        { pathname: pathname as any, query: Object.fromEntries(p) },
+        { scroll: false }
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
@@ -261,8 +265,18 @@ export default function ListingView({
         <div className={gridClass}>
           {pageItems.map((b) => (
             <SupplierCard key={b.id} business={b} flag={b.sponsored ? tCommon("ad") : null} showStars>
-              <Link href={`/tedarikci/${businessSlug(b)}`} className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("detail")}</Link>
-              <Link href={`/teklif?s=${b.id}`} className="btn btn-solid btn-sm !px-3.5 !py-2 !text-[12.5px]">{tCommon("requestQuote")}</Link>
+              <Link 
+                href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} 
+                className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]"
+              >
+                {tCommon("detail")}
+              </Link>
+              <Link 
+                href={{ pathname: "/quote", query: { s: b.id.toString() } }} 
+                className="btn btn-solid btn-sm !px-3.5 !py-2 !text-[12.5px]"
+              >
+                {tCommon("requestQuote")}
+              </Link>
             </SupplierCard>
           ))}
         </div>
@@ -457,4 +471,6 @@ export default function ListingView({
       </BottomSheet>
     </div>
   );
-}
+};
+
+export default ListingView;

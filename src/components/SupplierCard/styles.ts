@@ -1,5 +1,5 @@
 /* SupplierCard — tedarikçi kartı ortak görünümü (vitrin + listeleme). */
-export const styles= {
+ const styles= {
   card:
     "group flex animate-card-in flex-col overflow-hidden rounded-[12px] border border-line bg-paper shadow-[0_18px_54px_-42px_rgba(7,9,42,.66)] " +
     "transition-all duration-300 ease-brand hover:-translate-y-[3px] hover:border-terra/35 hover:shadow-[0_28px_72px_-50px_rgba(7,9,42,.85)]",
@@ -27,3 +27,5 @@ export const styles= {
     "[&_.btn-outline]:border-[1.5px] [&_.btn-outline]:bg-white [&_.btn-outline]:text-ink " +
     "[&_.btn-solid]:min-w-[116px] [&_.btn-solid]:shadow-[0_14px_28px_-19px_rgba(53,66,238,.95)]",
 } as const;
+
+export default styles;

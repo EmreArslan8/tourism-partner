@@ -1,9 +1,10 @@
 "use client";
 
 import { useLocale } from "next-intl";
+import { useParams } from "next/navigation";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useState, useRef, useEffect } from "react";
-import { styles } from "./styles";
+import styles from "./styles";
 
 type Locale = "tr" | "en";
 
@@ -11,10 +12,11 @@ type Locale = "tr" | "en";
  * Dropdown dil seçici bileşeni.
  * next-intl navigation yardımcılarını kullanarak locale değiştirir.
  */
-export default function LocaleSwitcher() {
+const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+  const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -26,7 +28,12 @@ export default function LocaleSwitcher() {
   const currentLocale = locales.find((l) => l.code === locale) || locales[0];
 
   const handleLocaleChange = (newLocale: Locale) => {
-    router.replace(pathname, { locale: newLocale });
+    router.replace(
+      // @ts-expect-error -- next-intl resmî kalıbı: pathname ve params çalışma anında
+      // her zaman eşleşir; TS dinamik rotalar için bu eşleşmeyi statik doğrulayamaz.
+      { pathname, params },
+      { locale: newLocale }
+    );
     setIsOpen(false);
   };
 
@@ -44,7 +51,7 @@ export default function LocaleSwitcher() {
     <div className={styles.wrapper} ref={dropdownRef}>
       <button
         type="button"
-        className={styles.button}
+        className={light ? styles.buttonLight : styles.button}
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
@@ -83,4 +90,6 @@ export default function LocaleSwitcher() {
       )}
     </div>
   );
-}
+};
+
+export default LocaleSwitcher;

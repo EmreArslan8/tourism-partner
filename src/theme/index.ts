@@ -2,4 +2,4 @@
 export { palette, groupPalette, tailwindColors } from "./palette";
 export type { PaletteKey, GroupColorKey } from "./palette";
 export { fontFamily } from "./typography";
-export { borderRadius, boxShadow, easing, keyframes, animation } from "./tokens";
+export { borderRadius, boxShadow, easing, keyframes, animation, letterSpacing } from "./tokens";

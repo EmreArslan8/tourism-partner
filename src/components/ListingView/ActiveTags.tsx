@@ -5,7 +5,7 @@ import styles from "./styles";
 
 export type FilterTag = { kind: string; value: string; label: string };
 
-export default function ActiveTags({
+const ActiveTags =({
   tags,
   onRemove,
   onClear,
@@ -13,7 +13,7 @@ export default function ActiveTags({
   tags: FilterTag[];
   onRemove: (kind: string, value: string) => void;
   onClear: () => void;
-}) {
+}) => {
   const t = useTranslations("listing");
   if (tags.length === 0) return null;
   return (
@@ -27,4 +27,6 @@ export default function ActiveTags({
       <button type="button" className={styles.clearTag} onClick={onClear}>{t("clearAll")}</button>
     </div>
   );
-}
+};
+
+export default ActiveTags;

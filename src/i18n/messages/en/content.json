@@ -1,10 +1,10 @@
 {
   "hero": {
     "eyebrow": "B2B Travel Supplier Network",
-    "titlePre": "Find travel suppliers ",
+    "titlePre": "Find travel partners",
     "titleEm": "in one place",
-    "titlePost": ".",
-    "sub": "Filter accommodation, agency, guide, activity and health-tourism suppliers. Member agencies get the full list and details.",
+    "titlePost": "faster.",
+    "sub": "Search, compare and request quotes from hotels, agencies, guides, transfers, activities and health-tourism providers in one workflow.",
     "popularLabel": "Popular:",
     "pop1": "Istanbul hotels",
     "pop2": "Cappadocia tours",
@@ -32,6 +32,19 @@
     "title": "Browse by category",
     "count": "{count} suppliers"
   },
+  "ads": {
+    "label": "Sponsored",
+    "cta": "View"
+  },
+  "partners": {
+    "label": "In the same network as leading Turkish & global tourism brands"
+  },
+  "regions": {
+    "eyebrow": "Regions",
+    "title": "Popular regions",
+    "sub": "Quickly reach suppliers in the region where you run operations.",
+    "count": "{count} suppliers"
+  },
   "showcase": {
     "eyebrow": "Showcase",
     "title": "Featured partners",
@@ -40,10 +53,11 @@
   "how": {
     "eyebrow": "How It Works",
     "title": "Partnership in three steps",
-    "lead": "Set up your supplier profile, pass the team review, and appear when agencies search for a real operation need. The flow keeps control, quality, and discovery in one place.",
+    "lead": "Add your business, pass verification, and become visible when travel agencies search for real supplier needs.",
     "primaryCta": "List business",
     "secondaryCta": "Find suppliers",
     "visualKicker": "Active step",
+    "visualSummary": "Profile, verification, and quote flow come together in one panel.",
     "visual1": "Agencies and suppliers join the same network",
     "visual2": "Profile, category, and quality details get prepared for publishing",
     "visual3": "You appear in the right search and the quote flow begins",
@@ -51,25 +65,33 @@
     "strip1": "Profile gets clear",
     "strip2": "Quality gets approved",
     "strip3": "Agencies can find you",
-    "s1t": "Sign up",
-    "s1d": "Add your business under accommodation, agency, guide, activity or health. First 200 agencies free.",
+    "s1t": "Create your profile",
+    "s1d": "Add your business type, location, services, and contact details.",
     "s2t": "Get approved",
-    "s2d": "Your listing goes through verification and approval before going live — quality stays high.",
-    "s3t": "Get discovered",
-    "s3d": "Member agencies filter and find you; boost your listing to stand out if you wish.",
+    "s2d": "The Tourism Partner team reviews the details; verified suppliers are published.",
+    "s3t": "Start receiving quotes",
+    "s3d": "Agencies find you through search and filters, then request quotes for matching needs.",
     "faqEyebrow": "FAQ",
     "faqTitle": "Frequently asked questions",
+    "faqLead": "Got another question? Reach out to our team and we'll get back to you quickly.",
     "q1": "Is membership paid?",
     "a1": "Listing is via an annual membership. At launch the first 200 agencies are free; the first year may be free for everyone.",
     "q2": "What is a boost?",
     "a2": "An optional upgrade that highlights your business in the list and showcase. Businesses registering in the first 24 hours get a 1-day gift boost.",
     "q3": "Why can't I see the details?",
-    "a3": "The full supplier list and contact/location details are members-only. Sign up free to access all data."
+    "a3": "The full supplier list and contact/location details are members-only. Sign up free to access all data.",
+    "q4": "When does my listing go live?",
+    "a4": "Once your registration passes admin approval; verified listings appear in search results.",
+    "q5": "Which documents are required?",
+    "a5": "It depends on your category — e.g. TÜRSAB certificate for agencies, D2 license for transfer companies, and other official documents.",
+    "q6": "How does the quote system work?",
+    "a6": "Agencies create region-based requests; relevant suppliers send private quotes directly through the system."
   },
   "cta": {
     "title": "List your business today",
     "sub": "First 200 agencies free. Businesses registering in the first 24 hours get a 1-day gift boost.",
-    "button": "+ List Business"
+    "button": "+ List Business",
+    "secondary": "Member login"
   },
   "footer": {
     "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",

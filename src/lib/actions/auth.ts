@@ -4,8 +4,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
-import type { GroupKey } from "@/lib/types";
-import type { ActionState } from "./application";
+import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
 /** Alt kategori slug'ından ana grup + tür etiketini çözer. */
@@ -18,7 +17,7 @@ function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } |
 }
 
 /* E-posta + şifre ile giriş (tek kimlik = Supabase Auth).
-   Rol bazlı yönlendirme: admin → /admin, diğerleri → /panel. */
+   Rol bazlı yönlendirme: admin → /admin, diğerleri → /dashboard. */
 export async function signIn(
   _prev: ActionState,
   formData: FormData
@@ -44,7 +43,7 @@ export async function signIn(
   }
 
   const locale = await getLocale();
-  redirect({ href: role === "admin" ? "/admin" : "/panel", locale });
+  redirect({ href: role === "admin" ? "/admin" : "/dashboard", locale });
   return { ok: true };
 }
 
@@ -104,7 +103,7 @@ export async function signUp(
       status: "pending",
     });
     const locale = await getLocale();
-    redirect({ href: "/panel", locale });
+    redirect({ href: "/dashboard", locale });
   }
 
   // E-posta onayı gerekiyor.

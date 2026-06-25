@@ -3,18 +3,18 @@
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { styles } from "./styles";
+import styles from "./styles";
 
-const AUTOPLAY_MS = 3600;
+const AUTOPLAY_MS = 5600;
 
-export default function HowItWorks() {
+const HowItWorks = () => {
   const t = useTranslations("how");
   const [active, setActive] = useState(0);
   const steps = useMemo(
     () => [
-      { n: "1", t: t("s1t"), d: t("s1d"), image: "/assets/cards/agency-1.jpg", caption: t("visual1") },
-      { n: "2", t: t("s2t"), d: t("s2d"), image: "/assets/cards/hotel-1.jpg", caption: t("visual2") },
-      { n: "3", t: t("s3t"), d: t("s3d"), image: "/assets/cards/balloon-1.jpg", caption: t("visual3") },
+      { n: "1", t: t("s1t"), d: t("s1d"), image: "/assets/how-step-1-profile.png", caption: t("visual1") },
+      { n: "2", t: t("s2t"), d: t("s2d"), image: "/assets/how-step-2-verify.png", caption: t("visual2") },
+      { n: "3", t: t("s3t"), d: t("s3d"), image: "/assets/how-step-3-quotes.png", caption: t("visual3") },
     ],
     [t]
   );
@@ -22,6 +22,9 @@ export default function HowItWorks() {
     { q: t("q1"), a: t("a1") },
     { q: t("q2"), a: t("a2") },
     { q: t("q3"), a: t("a3") },
+    { q: t("q4"), a: t("a4") },
+    { q: t("q5"), a: t("a5") },
+    { q: t("q6"), a: t("a6") },
   ];
 
   useEffect(() => {
@@ -30,8 +33,6 @@ export default function HowItWorks() {
     }, AUTOPLAY_MS);
     return () => window.clearInterval(timer);
   }, [steps.length]);
-
-  const activeStep = steps[active];
 
   return (
     <>
@@ -42,25 +43,6 @@ export default function HowItWorks() {
         </div>
 
         <div className={styles.stage}>
-          <div className={styles.visual}>
-            {steps.map((step, index) => (
-              <Image
-                key={step.image}
-                src={step.image}
-                alt={step.caption}
-                fill
-                sizes="(max-width: 920px) 100vw, 48vw"
-                loading="lazy"
-                className={index === active ? styles.imageActive : styles.image}
-              />
-            ))}
-            <div className={styles.visualWash} />
-            <div className={styles.visualCard}>
-              <span className={styles.visualKicker}>{t("visualKicker")}</span>
-              <strong className={styles.visualTitle}>{activeStep.caption}</strong>
-            </div>
-          </div>
-
           <div className={styles.steps} role="tablist" aria-label={t("stripLabel")}>
             {steps.map((step, index) => {
               const isActive = index === active;
@@ -83,22 +65,43 @@ export default function HowItWorks() {
               );
             })}
           </div>
+
+          <div className={styles.visual}>
+            {steps.map((step, index) => (
+              <Image
+                key={step.image}
+                src={step.image}
+                alt={step.caption}
+                fill
+                sizes="(max-width: 920px) 100vw, 48vw"
+                loading="lazy"
+                className={index === active ? styles.imageActive : styles.image}
+              />
+            ))}
+            <div className={styles.visualWash} />
+          </div>
         </div>
       </section>
 
       <section className={styles.section} id="sss">
-        <div className={styles.head}>
-          <h2 className={styles.headTitle}>{t("faqTitle")}</h2>
-        </div>
-        <div className={styles.faqList}>
-          {faq.map((f) => (
-            <details className={styles.faqItem} key={f.q}>
-              <summary className={styles.faqSummary}>{f.q}</summary>
-              <p className={styles.faqText}>{f.a}</p>
-            </details>
-          ))}
+        <div className={styles.faqWrap}>
+          <aside className={styles.faqAside}>
+            <h2 className={styles.headTitle}>{t("faqTitle")}</h2>
+            <p className={styles.faqLead}>{t("faqLead")}</p>
+          </aside>
+
+          <div className={styles.faqList}>
+            {faq.map((f) => (
+              <details className={styles.faqItem} key={f.q}>
+                <summary className={styles.faqSummary}>{f.q}</summary>
+                <p className={styles.faqText}>{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
     </>
   );
-}
+};
+
+export default HowItWorks;

@@ -1,9 +1,13 @@
-/* tokens.ts — renk/font dışındaki ortak tasarım token'ları:
-   yarıçap, gölge, easing ve animasyonlar. Tailwind config'e beslenir. */
-
 export const borderRadius = {
   card: "14px",
   pill: "999px",
+} as const;
+
+/* Başlık letter-spacing — ortak token (-%2 … -%4 arası daraltma). */
+export const letterSpacing = {
+  "heading": "-0.03em",        // varsayılan başlık (-%3)
+  "heading-soft": "-0.02em",   // küçük başlık (-%2)
+  "heading-tight": "-0.04em",  // büyük display başlık (-%4)
 } as const;
 
 export const boxShadow = {
