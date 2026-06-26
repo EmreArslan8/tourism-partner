@@ -1,8 +1,8 @@
 const styles = {
   main: "container-px mx-auto w-full max-w-[1080px] pb-16 pt-[104px]",
   header: "mb-6 flex flex-wrap items-center justify-between gap-3",
-  title: "text-[28px]",
-  email: "mt-1 text-[13.5px] text-muted",
+  title: "heading-panel text-ink",
+  email: "body-small mt-1",
   actions: "flex items-center gap-2",
   statusStrip:
     "mb-6 flex flex-wrap items-center gap-2 rounded-[14px] border border-line bg-cream px-5 py-3.5 text-[13.5px]",
@@ -17,8 +17,8 @@ const styles = {
   pendingHint: "text-muted",
   grid: "grid grid-cols-[minmax(0,1fr)_minmax(0,400px)] items-start gap-7 max-[860px]:grid-cols-1",
   section: "rounded-[16px] border border-line bg-paper p-6 shadow-card",
-  sectionTitle: "mb-1 text-[20px]",
-  sectionSub: "mb-4 text-[13px] text-muted",
+  sectionTitle: "heading-subsection mb-1 text-ink",
+  sectionSub: "meta-text mb-4",
   form: "flex flex-col gap-4",
   fieldCls: "field h-[44px] font-normal",
   labelCls: "flex flex-col gap-1 text-[12.5px] font-semibold text-muted",

@@ -7,12 +7,13 @@ import SiteFooter from "@/components/Footer";
 const SiteChrome = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const isAdmin = /^\/(tr|en)\/admin(?:\/|$)/.test(pathname);
+  const isHome = /^\/(tr|en)\/?$/.test(pathname);
 
   if (isAdmin) return <>{children}</>;
 
   return (
     <>
-      <SiteHeader />
+      {!isHome && <SiteHeader />}
       {children}
       <SiteFooter />
     </>

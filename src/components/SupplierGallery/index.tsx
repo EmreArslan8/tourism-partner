@@ -94,7 +94,7 @@ const SupplierGallery = ({
           <span className="inline-flex rounded-pill border border-white/25 bg-black/25 px-3 py-1 text-[12px] font-bold uppercase tracking-[.08em] backdrop-blur-sm">
             {eyebrow}
           </span>
-          <h1 className="mt-3 max-w-[980px] text-[clamp(32px,5vw,62px)] leading-[.98] text-white drop-shadow-[0_14px_35px_rgba(0,0,0,.45)]">
+          <h1 className="heading-hero mt-3 max-w-[980px] text-white drop-shadow-[0_14px_35px_rgba(0,0,0,.45)]">
             {title}
           </h1>
         </div>

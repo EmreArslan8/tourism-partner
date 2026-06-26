@@ -1,20 +1,19 @@
 /* Hero — koyu uzay/glob görseli + sola hizalı içerik + degrade + grain. */
  const styles= {
-  section: "relative isolate overflow-hidden bg-pine",
+  section: "relative isolate h-full w-full overflow-hidden bg-pine",
   picture: "absolute inset-0 -z-10 block",
   image: "h-full w-full object-cover object-center",
   overlay:
     "pointer-events-none absolute inset-0 -z-10 " +
     "bg-[linear-gradient(90deg,rgba(5,8,30,.82)_0%,rgba(5,8,30,.42)_42%,rgba(5,8,30,.05)_72%,rgba(5,8,30,0)_100%)]",
   inner:
-    "container-px flex h-[720px] flex-col items-start justify-center pt-[104px] text-left " +
-    "max-[900px]:h-auto max-[900px]:min-h-[560px] " +
-    "max-[640px]:min-h-[520px] max-[640px]:justify-center max-[640px]:pt-[92px] max-[640px]:pb-14",
+    "container-px flex h-full min-h-[520px] flex-col items-start justify-center pt-[150px] text-left " +
+    "max-[640px]:justify-center max-[640px]:pt-[124px] max-[640px]:pb-14",
   title:
-    "max-w-[18ch] text-[clamp(36px,4.7vw,64px)] font-semibold leading-[1.16] tracking-heading-tight text-white " +
-    "[text-shadow:0_2px_28px_rgba(5,8,30,.55)] [&_em]:not-italic [&_em]:text-[#d8def2]",
-  sub: "mt-6 max-w-[50ch] text-[15px] font-medium leading-[1.65] !text-[#f4f7ff] sm:text-[18px] [text-shadow:0_2px_18px_rgba(0,0,0,.75)]",
-  searchWrap: "mt-9 w-full max-w-[760px] max-[640px]:hidden",
+    "heading-hero max-w-[18ch] text-white " +
+    "[text-shadow:0_2px_28px_rgba(5,8,30,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
+  sub: "body-lead mt-6 max-w-[50ch] font-medium !text-[#f4f7ff] [text-shadow:0_2px_18px_rgba(0,0,0,.75)]",
+  searchWrap: "mt-9 w-full max-w-[700px] max-[640px]:hidden",
   mobileCtas: "mt-9 hidden w-full gap-3 max-[640px]:flex",
   mobileCtaPrimary:
     "flex flex-1 items-center justify-center rounded-2xl bg-white px-4 py-4 text-[15.5px] font-bold text-brand " +

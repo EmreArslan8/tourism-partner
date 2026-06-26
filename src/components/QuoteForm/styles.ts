@@ -1,6 +1,6 @@
 /* QuoteForm — Tailwind sınıf token'ları */
  const styles= {
-  card: "mx-auto max-w-[640px] rounded-[18px] border border-line bg-paper p-7 shadow-card",
+  card: "mx-auto max-w-[640px] rounded-card-lg border border-line bg-paper p-7 shadow-card",
   supplier: "mb-5 flex items-center gap-3 rounded-[12px] border border-line bg-cream p-3.5",
   supplierMono: "grid h-12 w-12 shrink-0 place-items-center rounded-[10px] font-display text-[20px] italic text-white/90",
   supplierName: "text-[16px] font-semibold text-ink",

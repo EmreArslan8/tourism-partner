@@ -1,5 +1,7 @@
 export const borderRadius = {
-  card: "14px",
+  button: "12px",
+  card: "12px",       // standart kart yüzeyi — tüm projede rounded-card ile kullanılır
+  "card-lg": "16px",  // büyük/vitrin kartları (Showcase paneli, Categories ilk kart)
   pill: "999px",
 } as const;
 

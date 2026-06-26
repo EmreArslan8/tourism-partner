@@ -1,7 +1,7 @@
 /* SupplierCard — tedarikçi kartı ortak görünümü (vitrin + listeleme). */
  const styles= {
   card:
-    "group flex animate-card-in flex-col overflow-hidden rounded-[12px] border border-line bg-paper shadow-[0_18px_54px_-42px_rgba(7,9,42,.66)] " +
+    "group flex animate-card-in flex-col overflow-hidden rounded-card border border-line bg-paper shadow-[0_18px_54px_-42px_rgba(7,9,42,.66)] " +
     "transition-all duration-300 ease-brand hover:-translate-y-[3px] hover:border-terra/35 hover:shadow-[0_28px_72px_-50px_rgba(7,9,42,.85)]",
   flag:
     "absolute right-3 top-3 z-[3] rounded-[999px] bg-gold px-2.5 py-1 text-[10px] " +

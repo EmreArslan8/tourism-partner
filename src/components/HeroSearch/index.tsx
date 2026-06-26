@@ -67,10 +67,13 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
       <div className={`hs-field ${styles.field}`}>
         <label htmlFor="heroCountry" className={styles.label}>{t("countryLabel")}</label>
         <span className={styles.selectShell}>
+          <svg className={styles.selectIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" />
+          </svg>
           <select
             id="heroCountry"
             aria-label={t("countryLabel")}
-            className={styles.select}
+            className={`${styles.select} ${styles.selectPad}`}
             value={country}
             onChange={(e) => {
               setCountry(e.target.value);
@@ -92,10 +95,13 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
       <div className={`hs-field ${styles.field} ${cityDisabled ? styles.hiddenStep : ""}`}>
         <label htmlFor="heroCity" className={styles.label}>{t("cityLabel")}</label>
         <span className={styles.selectShell}>
+          <svg className={styles.selectIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10Z" /><circle cx="12" cy="11" r="2.5" />
+          </svg>
           <select
             id="heroCity"
             aria-label={t("cityLabel")}
-            className={styles.select}
+            className={`${styles.select} ${styles.selectPad}`}
             value={city}
             disabled={cityDisabled}
             onChange={(e) => {

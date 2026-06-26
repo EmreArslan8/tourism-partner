@@ -30,7 +30,23 @@
   "categories": {
     "eyebrow": "Keşfet",
     "title": "Kategoriye göz atın",
-    "count": "{count} tedarikçi"
+    "lead": "İhtiyacınıza uygun tedarikçiyi kategoriye göre hızlıca bulun.",
+    "count": "{count} tedarikçi",
+    "summaryLabel": "Kategori özeti",
+    "suppliersShort": "tedarikçi",
+    "citiesShort": "şehir",
+    "verifiedShort": "onaylı",
+    "spotlightKicker": "Popüler arama rotaları",
+    "spotlightTitle": "En sık aranan tedarikçi başlıkları.",
+    "quoteCta": "Talebe göre teklif oluştur",
+    "subtypeShort": "alt tür",
+    "intentTitle": "Popüler arama niyetleri",
+    "intentSub": "Acentelerin en sık aradığı iş ortaklığı başlıklarına hızlı geçin.",
+    "intentIstanbulHotels": "İstanbul otelleri",
+    "intentCappadociaGuides": "Kapadokya rehberleri",
+    "intentAntalyaAgencies": "Antalya acenteleri",
+    "intentHealthClinics": "Sağlık turizmi klinikleri",
+    "intentActivities": "Aktivite ve deneyim sağlayıcıları"
   },
   "ads": {
     "label": "Sponsorlu",
@@ -88,8 +104,8 @@
     "a6": "Acenteler bölge bazlı talep oluşturur; ilgili tedarikçiler bu talebe sistem üzerinden doğrudan özel teklif gönderir."
   },
   "cta": {
-    "title": "İşletmenizi bugün listeleyin",
-    "sub": "İlk 200 acente ücretsiz. İlk 24 saatte kaydolan işletmeler 1 günlük hediye doping kazanır.",
+    "title": "Talep alan vitrinde yerinizi alın",
+    "sub": "Firmanızı yayınlayın, doğru acentelerin aramalarında görünün ve teklif fırsatlarını kaçırmayın.",
     "button": "+ Firma Ekle",
     "secondary": "Üye girişi"
   },

@@ -5,27 +5,69 @@ import Regions from "@/components/Regions";
 import Categories from "@/components/Categories";
 import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
+import Faq from "@/components/Faq";
+import ReelDeck from "@/components/ReelDeck";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
+/*
+ * Anasayfa = Reels tarzı tam-sayfa panel destesi (ReelDeck).
+ * Her doğrudan child = bir 100dvh panel. Sıra:
+ * 1) Hero + Partners  2) Vitrin + CTA  3) Bölgeler
+ * 4) Tedarikçi türleri 5) Üç adımda iş birliği  6) SSS
+ * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
+ */
 const HomeView = ({ businesses }: { businesses: Business[] }) => {
   return (
-    <main className={styles.main}>
-      <Hero businesses={businesses} />
-      <Partners />
-
-      <div className={styles.container}>
-        <Showcase businesses={businesses} />
+    <ReelDeck>
+      {/* 1 — Hero (tam-bleed) + alt marka şeridi */}
+      <div className={styles.panelDark}>
+        <div className={styles.heroFill}>
+          <Hero businesses={businesses} />
+        </div>
+        <div className={styles.brandStrip}>
+          <Partners />
+        </div>
       </div>
 
-      <Cta />
-
-      <div className={styles.container}>
-        <Regions businesses={businesses} />
-        <Categories businesses={businesses} />
-        <HowItWorks />
+      {/* 2 — Vitrin + CTA */}
+      <div className={styles.panelStack}>
+        <div className={styles.inner}>
+          <Showcase businesses={businesses} />
+        </div>
+        <div className={styles.inner}>
+          <Cta />
+        </div>
       </div>
-    </main>
+
+      {/* 3 — Öne çıkan bölgeler */}
+      <div className={styles.panelRegions}>
+        <div className={`${styles.inner} max-[560px]:flex max-[560px]:min-h-0 max-[560px]:flex-1 max-[560px]:flex-col`}>
+          <Regions businesses={businesses} />
+        </div>
+      </div>
+
+      {/* 4 — Tedarikçi türleri */}
+      <div className={styles.panelCategories}>
+        <div className={styles.innerWide}>
+          <Categories />
+        </div>
+      </div>
+
+      {/* 5 — Üç adımda iş birliği */}
+      <div className={styles.panelLight}>
+        <div className={styles.inner}>
+          <HowItWorks />
+        </div>
+      </div>
+
+      {/* 6 — Sık sorulan sorular */}
+      <div className={styles.panelFaq}>
+        <div className={styles.inner}>
+          <Faq />
+        </div>
+      </div>
+    </ReelDeck>
   );
 };
 

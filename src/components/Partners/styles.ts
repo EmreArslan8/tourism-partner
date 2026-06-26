@@ -1,6 +1,6 @@
 /* Partners — modern güvenilen markalar şeridi (kenar fade maskeli marquee). */
 const styles = {
-  section: "flex flex-col items-center gap-6 overflow-hidden py-10 max-[640px]:py-8",
+  section: "flex flex-col items-center gap-6 overflow-hidden py-6 max-[640px]:py-5",
   label:
     "px-6 text-center text-[12.5px] font-semibold uppercase tracking-[.16em] text-muted max-[560px]:text-[11px]",
   viewport:

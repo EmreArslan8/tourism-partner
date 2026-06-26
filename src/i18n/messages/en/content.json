@@ -30,7 +30,23 @@
   "categories": {
     "eyebrow": "Explore",
     "title": "Browse by category",
-    "count": "{count} suppliers"
+    "lead": "Quickly find the right supplier by category.",
+    "count": "{count} suppliers",
+    "summaryLabel": "Category summary",
+    "suppliersShort": "suppliers",
+    "citiesShort": "cities",
+    "verifiedShort": "verified",
+    "spotlightKicker": "Popular search routes",
+    "spotlightTitle": "The most searched supplier briefs.",
+    "quoteCta": "Create a request by need",
+    "subtypeShort": "subtypes",
+    "intentTitle": "Popular search intents",
+    "intentSub": "Jump into the partner searches agencies request most often.",
+    "intentIstanbulHotels": "Istanbul hotels",
+    "intentCappadociaGuides": "Cappadocia guides",
+    "intentAntalyaAgencies": "Antalya agencies",
+    "intentHealthClinics": "Health tourism clinics",
+    "intentActivities": "Activity and experience providers"
   },
   "ads": {
     "label": "Sponsored",
@@ -88,8 +104,8 @@
     "a6": "Agencies create region-based requests; relevant suppliers send private quotes directly through the system."
   },
   "cta": {
-    "title": "List your business today",
-    "sub": "First 200 agencies free. Businesses registering in the first 24 hours get a 1-day gift boost.",
+    "title": "Claim your place in the demand feed",
+    "sub": "Publish your business, appear in agency searches and stop missing quote opportunities.",
     "button": "+ List Business",
     "secondary": "Member login"
   },

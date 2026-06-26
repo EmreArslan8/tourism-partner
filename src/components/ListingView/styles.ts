@@ -2,10 +2,9 @@
    Kart görünümü SupplierCard'da; burada yalnız filtre/sonuç/harita düzeni. */
 const styles= {
   head: "mb-5 max-w-[760px]",
-  eyebrow:
-    "mb-2 text-[11.5px] font-extrabold uppercase tracking-[.11em] text-terra-deep",
-  title: "text-[36px] tracking-[-.02em] max-[560px]:text-[29px]",
-  sub: "mt-1.5 max-w-[620px] text-[14px] leading-6 text-muted",
+  eyebrow: "eyebrow mb-2 text-terra-deep",
+  title: "heading-section text-ink max-[560px]:text-[29px]",
+  sub: "body-muted mt-1.5 max-w-[620px]",
 
   bar:
     "sticky top-[86px] z-30 grid grid-cols-[minmax(126px,.75fr)_minmax(126px,.75fr)_minmax(126px,.75fr)_minmax(142px,.8fr)_auto_minmax(310px,1.7fr)] " +
