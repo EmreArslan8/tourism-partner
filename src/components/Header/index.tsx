@@ -37,6 +37,7 @@ const Header = () => {
               <Link
                 key={hrefObj.pathname + (hrefObj.hash || "")}
                 href={link.href as any}
+                scroll={!hrefObj.hash}
                 className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
               >
                 {link.label}

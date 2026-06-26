@@ -32,7 +32,7 @@ const {
   props: { srcSet: mobileSrcSet, ...imageProps },
 } = getImageProps({
   ...commonImageProps,
-  src: "/assets/hero-2-mobile.webp",
+  src: "/assets/hero-mobile.webp",
   width: 1086,
   height: 1448,
   quality: 85,

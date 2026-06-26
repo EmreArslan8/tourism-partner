@@ -40,7 +40,7 @@ const MobileMenu = () => {
         <div className={styles.panel}>
           <nav className={styles.list}>
             {links.map((l) => (
-              <Link key={l.label} href={l.href} className={styles.link} onClick={() => setOpen(false)}>
+              <Link key={l.label} href={l.href} scroll={!("hash" in l.href)} className={styles.link} onClick={() => setOpen(false)}>
                 {l.label}
               </Link>
             ))}

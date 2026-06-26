@@ -23,7 +23,7 @@ const Footer = () => {
         </div>
         <div>
           <h4 className={styles.colTitle}>{t("platform")}</h4>
-          <Link href={{ pathname: "/", hash: "nasil" }} className={styles.colLink}>{t("howShort")}</Link>
+          <Link href={{ pathname: "/", hash: "nasil" }} scroll={false} className={styles.colLink}>{t("howShort")}</Link>
           <Link href={{ pathname: "/register" }} className={styles.colLink}>{t("addCompany")}</Link>
           <Link href={{ pathname: "/login" }} className={styles.colLink}>{t("login")}</Link>
         </div>

@@ -8,9 +8,9 @@
     "bg-[linear-gradient(90deg,rgba(5,8,30,.82)_0%,rgba(5,8,30,.42)_42%,rgba(5,8,30,.05)_72%,rgba(5,8,30,0)_100%)]",
   inner:
     "container-px flex h-full min-h-[520px] flex-col items-start justify-center pt-[150px] text-left " +
-    "max-[640px]:justify-center max-[640px]:pt-[124px] max-[640px]:pb-14",
+    "max-[640px]:justify-start max-[640px]:pt-[164px] max-[640px]:pb-14",
   title:
-    "heading-hero max-w-[18ch] text-white " +
+    "heading-hero max-w-[18ch] text-white max-[640px]:text-[56px] " +
     "[text-shadow:0_2px_28px_rgba(5,8,30,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
   sub: "body-lead mt-6 max-w-[50ch] font-medium !text-[#f4f7ff] [text-shadow:0_2px_18px_rgba(0,0,0,.75)]",
   searchWrap: "mt-9 w-full max-w-[700px] max-[640px]:hidden",

@@ -106,7 +106,7 @@ export const PageHeader = ({
     <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[#d8ded7] pb-5">
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-terra">{eyebrow}</p>
-        <h2 className="mt-1 text-[clamp(28px,3vw,40px)]">{title}</h2>
+        <h2 className="mt-1 text-page">{title}</h2>
         <p className="mt-2 max-w-[760px] text-[14px] text-muted">{description}</p>
       </div>
       {action}

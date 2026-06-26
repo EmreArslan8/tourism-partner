@@ -1,7 +1,7 @@
 /* Categories — görsel kapaklı modern kartlar ("Kategoriye göz atın"). */
 const styles = {
   section:
-    "relative flex h-full min-h-0 w-full flex-col justify-center gap-8 py-0 max-[900px]:h-auto max-[900px]:justify-start max-[640px]:gap-3 max-[640px]:py-0",
+    "relative flex h-full min-h-0 w-full flex-col justify-center gap-8 py-0 max-[900px]:h-auto max-[900px]:justify-start max-[640px]:gap-8 max-[640px]:py-0",
   topGroup: "flex min-h-0 flex-col gap-5 max-[640px]:gap-4",
   head: "flex items-end justify-between gap-5",
   headCopy: "max-w-[680px]",

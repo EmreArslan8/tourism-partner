@@ -147,5 +147,46 @@ export function useReelDeck(count: number) {
     };
   }, [atBoundary, coversViewport, go]);
 
+  // Hash → panel senkronu: header/footer'daki #nasil, #sss gibi linkler deck
+  // transform tabanlı olduğu için native scroll ile çalışmaz; hedef id'nin
+  // hangi panelde olduğunu bulup o panele geçeriz.
+  useEffect(() => {
+    const panelIndexForId = (id: string) => {
+      if (!id) return -1;
+      const target = document.getElementById(id);
+      const track = rootRef.current?.firstElementChild;
+      if (!target || !track) return -1;
+      return Array.from(track.children).findIndex((p) => p.contains(target));
+    };
+
+    const goToHash = () => {
+      const idx = panelIndexForId(window.location.hash.slice(1));
+      if (idx >= 0) go(idx);
+    };
+
+    // Next.js Link hash navigasyonu history.pushState ile çalışır ve hashchange
+    // event'i tetiklemez; bu yüzden deck içi hedefe giden tıklamaları yakalarız.
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.("a[href]");
+      if (!a) return;
+      const href = a.getAttribute("href");
+      if (!href || !href.includes("#")) return;
+      let url: URL;
+      try { url = new URL(href, window.location.href); } catch { return; }
+      const idx = panelIndexForId(url.hash.slice(1));
+      if (idx >= 0) requestAnimationFrame(() => go(idx));
+    };
+
+    goToHash(); // doğrudan /#sss ile açılış
+    window.addEventListener("hashchange", goToHash); // tarayıcı geri/ileri
+    window.addEventListener("popstate", goToHash);
+    document.addEventListener("click", onClick);
+    return () => {
+      window.removeEventListener("hashchange", goToHash);
+      window.removeEventListener("popstate", goToHash);
+      document.removeEventListener("click", onClick);
+    };
+  }, [go]);
+
   return { index, reduced, rootRef };
 }

@@ -17,7 +17,6 @@ const Faq = () => {
     <section className={styles.section} id="sss">
       <div className={styles.wrap}>
         <aside className={styles.aside}>
-          <span className={styles.eyebrow}>SSS</span>
           <h2 className={styles.title}>{t("faqTitle")}</h2>
           <p className={styles.lead}>{t("faqLead")}</p>
         </aside>
