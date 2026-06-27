@@ -1,14 +1,17 @@
 /* FAQ — sık sorulan sorular akordeonu (native <details>). */
 const styles = {
-  section: "container-px w-full",
-  wrap: "mx-auto flex w-full max-w-[1100px] flex-col gap-7",
+  section: "w-full",
+  // Masaüstü: solda başlık/açıklama, sağda akordeon. Mobil: alt alta.
+  wrap:
+    "grid w-full grid-cols-[minmax(0,380px)_1fr] items-start gap-x-16 " +
+    "max-[860px]:grid-cols-1 max-[860px]:gap-y-7",
   aside: "max-w-[720px]",
   eyebrow:
     "mb-2.5 inline-flex rounded-[8px] border border-line bg-paper px-2.5 py-1 " +
     "text-[11px] font-black text-pine shadow-[0_10px_30px_-24px_rgba(7,9,42,.6)]",
   title: "heading-section text-ink",
   lead: "body-muted mt-4 max-w-[58ch]",
-  list: "flex w-full flex-col gap-2 max-[860px]:max-h-[46dvh] max-[860px]:overflow-y-auto",
+  list: "flex w-full flex-col gap-2 max-[860px]:max-h-[46dvh] max-[860px]:overflow-y-auto max-[640px]:max-h-[34dvh]",
   item:
     "group border-b border-line transition-colors first:border-t last:border-b " +
     "open:[&_summary]:text-terra",

@@ -4,7 +4,7 @@ const styles = {
   head: "mb-7 max-[560px]:mb-4 max-[560px]:shrink-0",
   eyebrow: "eyebrow mb-2",
   title: "heading-section text-ink",
-  sub: "body-muted mt-2 max-w-[60ch]",
+  sub: "section-desc max-w-[60ch]",
   grid:
     "grid grid-cols-4 gap-4 max-[900px]:grid-cols-3 max-[560px]:grid-cols-2 max-[560px]:gap-2.5 " +
     "max-[560px]:min-h-0 max-[560px]:flex-1 max-[560px]:grid-rows-4",

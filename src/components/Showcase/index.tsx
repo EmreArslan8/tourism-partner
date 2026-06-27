@@ -98,7 +98,7 @@ const Slide = ({ business }: { business: Business }) => {
           )}
 
           <div className={styles.foot}>
-            <Button href="/login" variant="solid" size="sm">{tv("detailLogin")}</Button>
+            <Button href="/login" variant="solid" size="sm" className="btn-compact-sm">{tv("detailLogin")}</Button>
             <Link href={{ pathname: "/quote" }} className={styles.quote}>{tv("requestQuote")}</Link>
           </div>
         </div>
@@ -119,9 +119,10 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
   return (
     <section id="vitrin">
       <div className={styles.head}>
-        <div>
+        <div className={styles.copy}>
           <span className={styles.eyebrow}>{t("eyebrow")}</span>
           <h2 className={styles.title}>{t("title")}</h2>
+          <p className={styles.sub}>{t("sub")}</p>
         </div>
         <div className={styles.nav}>
           <button type="button" aria-label="Önceki" className={styles.arrow} onClick={() => go(-1)}>

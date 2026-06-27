@@ -14,10 +14,10 @@ const Cta = () => {
         </div>
 
         <div className={styles.actions}>
-          <Button href={{ pathname: "/register" } as any} variant="prominent" size="lg">
+          <Button href={{ pathname: "/register" } as any} variant="prominent" size="lg" className="btn-compact-sm">
             {t("button")}
           </Button>
-          <Button href={{ pathname: "/login" } as any} variant="secondary" size="lg">
+          <Button href={{ pathname: "/login" } as any} variant="secondary" size="lg" className="btn-compact-sm">
             {t("secondary")}
           </Button>
         </div>

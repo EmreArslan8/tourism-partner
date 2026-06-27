@@ -6,6 +6,7 @@ import Categories from "@/components/Categories";
 import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
+import Trust from "@/components/Trust";
 import ReelDeck from "@/components/ReelDeck";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
@@ -61,10 +62,11 @@ const HomeView = ({ businesses }: { businesses: Business[] }) => {
         </div>
       </div>
 
-      {/* 6 — Sık sorulan sorular */}
+      {/* 6 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
       <div className={styles.panelFaq}>
-        <div className={styles.inner}>
+        <div className={styles.faqStack}>
           <Faq />
+          <Trust />
         </div>
       </div>
     </ReelDeck>

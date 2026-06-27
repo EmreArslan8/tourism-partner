@@ -46,7 +46,7 @@
     background-image: linear-gradient(160deg, theme("colors.sapphire") 0%, theme("colors.brand") 55%, theme("colors.brand-deep") 100%);
   }
   .eyebrow {
-    @apply block text-[12px] font-bold uppercase tracking-[.16em] text-muted;
+    @apply block text-eyebrow font-bold uppercase text-muted;
   }
   .heading-hero {
     @apply font-display text-hero font-semibold;
@@ -66,17 +66,48 @@
   .heading-card {
     @apply font-display text-card font-semibold;
   }
+  .title-on-image {
+    @apply font-display text-title-on-image font-semibold text-white;
+  }
   .body-lead {
     @apply text-lead text-muted;
   }
   .body-muted {
     @apply text-body-base text-muted;
   }
+  .section-copy {
+    @apply text-left;
+  }
+  .section-desc {
+    @apply mt-2 text-body-base text-muted;
+  }
   .body-small {
-    @apply text-[13.5px] leading-relaxed text-muted;
+    @apply text-small text-muted;
   }
   .meta-text {
-    @apply text-[13px] leading-relaxed text-muted;
+    @apply text-meta text-muted;
+  }
+  .label-pill {
+    @apply text-label-pill font-bold uppercase;
+  }
+  .step-number-text {
+    @apply text-step-number font-black leading-none tracking-[-.02em];
+  }
+  .step-title-text {
+    @apply text-step-title font-semibold text-current;
+  }
+  .step-desc-text {
+    @apply text-step-desc text-current opacity-90;
+  }
+  .inline-action-text {
+    @apply text-[14px] font-semibold;
+  }
+  .rating-star-text {
+    @apply text-rating-star;
+  }
+  .btn-compact-sm,
+  .btn-compact-lg {
+    /* Responsive button size modifiers. Base size still comes from Button's size prop. */
   }
   .btn {
     @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button
@@ -117,6 +148,57 @@
   .field {
     @apply rounded-[11px] border-[1.5px] border-line bg-cream px-3.5 text-[14.5px] transition-colors
            focus:border-terra focus:outline-none disabled:cursor-not-allowed disabled:opacity-55;
+  }
+
+  @media (max-width: 560px) {
+    .eyebrow {
+      @apply text-eyebrow-compact;
+    }
+    .heading-section {
+      @apply text-section-compact;
+    }
+    .heading-panel {
+      @apply text-panel-compact;
+    }
+    .heading-card {
+      @apply text-card-compact;
+    }
+    .title-on-image {
+      @apply text-title-on-image-mobile;
+    }
+    .body-muted {
+      @apply text-body-compact;
+    }
+    .section-desc {
+      @apply text-body-compact;
+    }
+    .meta-text {
+      @apply text-meta-compact;
+    }
+    .label-pill {
+      @apply text-label-pill-compact;
+    }
+    .step-number-text {
+      @apply text-step-number-compact;
+    }
+    .step-title-text {
+      @apply text-step-title-compact;
+    }
+    .step-desc-text {
+      @apply text-step-desc-compact;
+    }
+    .inline-action-text {
+      @apply text-[11.2px];
+    }
+    .rating-star-text {
+      @apply text-rating-star-compact;
+    }
+    .btn-compact-sm {
+      @apply gap-[6.4px] px-[12.8px] py-[7.2px] text-[10.8px];
+    }
+    .btn-compact-lg {
+      @apply gap-[6.4px] px-[18px] py-[10px] text-[12.8px];
+    }
   }
 }
 
