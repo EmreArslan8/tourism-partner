@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -33,6 +33,21 @@ const Slide = ({ business }: { business: Business }) => {
   const ts = useTranslations("supplier");
   const imgs = galleryFor(business);
   const [act, setAct] = useState(0);
+  const touchX = useRef<number | null>(null);
+
+  /* Mobilde galeriyi yatay kaydırarak görsel değiştir (thumbnail'e basmaya gerek yok). */
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) {
+      const n = imgs.length;
+      setAct((p) => (dx < 0 ? (p + 1) % n : (p - 1 + n) % n));
+    }
+    touchX.current = null;
+  };
   const services = (business.attributes ?? [])
     .map((s) => FACET_LABEL.get(s))
     .filter(Boolean)
@@ -42,8 +57,14 @@ const Slide = ({ business }: { business: Business }) => {
     <div className={styles.slide}>
       <div className={styles.panel}>
         {/* SOL — galeri */}
-        <div className={styles.gallery} style={{ backgroundColor: GROUP_COLORS[business.group] }}>
+        <div
+          className={styles.gallery}
+          style={{ backgroundColor: GROUP_COLORS[business.group] }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
+          {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
           <div className={styles.thumbs}>
             {imgs.map((src, i) => (
               <button
@@ -55,6 +76,12 @@ const Slide = ({ business }: { business: Business }) => {
               >
                 <Image src={src} alt="" fill sizes="80px" className="object-cover" />
               </button>
+            ))}
+          </div>
+          {/* Mobil: kaydırma göstergesi (nokta) */}
+          <div className={styles.galleryDots} aria-hidden>
+            {imgs.map((_, i) => (
+              <span key={i} className={i === act ? styles.galleryDotActive : styles.galleryDot} />
             ))}
           </div>
         </div>

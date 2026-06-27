@@ -4,7 +4,8 @@ const styles = {
   panel:
     "flex w-full flex-col gap-5 border-y border-line/80 py-6 " +
     "md:flex-row md:items-center md:justify-between " +
-    "max-[560px]:gap-[12.8px] max-[560px]:px-[12.8px] max-[560px]:py-4",
+    "max-[560px]:gap-[12.8px] max-[560px]:px-[12.8px] max-[560px]:py-4 " +
+    "[@media(max-height:720px)]:py-3 [@media(max-height:720px)]:gap-[9.6px]",
   content: "section-copy min-w-0 max-w-3xl",
   title: "heading-panel text-brand",
   sub: "section-desc max-w-[62ch] max-[560px]:mt-[6.4px]",

@@ -14,7 +14,7 @@ const styles = {
   panelRegions: `${panelBase} max-[640px]:justify-start`,
   panelCategories: panelBase,
   panelFaq: `${panelBase} max-[640px]:justify-start`,
-  panelStack: `${panelBase} gap-5`,
+  panelStack: `${panelBase} gap-5 max-[640px]:gap-[12.8px]`,
   // İçerik container-px kutusunu doldurur — Hero/Header/Footer ile aynı sol/sağ hizada kalır.
   inner: "w-full",
   innerWide: "h-full min-h-0 w-full",

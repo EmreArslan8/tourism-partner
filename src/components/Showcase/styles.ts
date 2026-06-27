@@ -1,10 +1,11 @@
 /* Showcase — tam genişlikte tek-tek kayan carousel (sol galeri / sağ bilgi). */
 const styles = {
-  head: "mb-4 flex items-end justify-between gap-4 max-[560px]:mb-[12.8px] max-[560px]:gap-[12.8px]",
+  head: "mb-4 flex items-end justify-between gap-4 max-[560px]:mb-[9.6px] max-[560px]:gap-[12.8px] [@media(max-height:720px)]:mb-2.5",
   copy: "section-copy",
-  eyebrow: "eyebrow mb-2 text-muted max-[560px]:mb-[6.4px]",
-  title: "heading-section text-ink",
-  sub: "section-desc max-w-[52ch]",
+  eyebrow: "eyebrow mb-2 text-muted max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
+  title: "heading-section text-ink [@media(max-height:720px)]:text-[20px]",
+  // Kısa ekranlarda alt açıklamayı gizle — galeriye yer açar.
+  sub: "section-desc max-w-[52ch] [@media(max-height:720px)]:hidden",
   nav: "flex items-center gap-2 max-[560px]:gap-[6.4px]",
   arrow:
     "grid h-10 w-10 place-items-center rounded-full border border-line bg-paper text-ink " +
@@ -19,13 +20,19 @@ const styles = {
     "max-[860px]:grid-cols-1 max-[860px]:gap-0 max-[860px]:overflow-hidden max-[860px]:rounded-card-lg " +
     "max-[860px]:border max-[860px]:border-line max-[860px]:shadow-card",
 
-  /* SOL — galeri (mobilde üst kısım, birleşik) */
+  /* SOL — galeri (mobilde sabit ~3/2 oran ≈ %58 → kart her yükseklikte tutarlı ~60/40) */
   gallery:
     "relative min-h-[360px] overflow-hidden rounded-card-lg shadow-card " +
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
-    "max-[560px]:min-h-0 max-[560px]:aspect-[20/9]",
+    "max-[640px]:min-h-0 max-[640px]:aspect-[3/2]",
   galleryImg: "object-cover",
-  thumbs: "absolute inset-x-0 bottom-0 flex gap-2 p-3 max-[560px]:gap-[6.4px] max-[560px]:p-[9.6px]",
+  thumbs: "absolute inset-x-0 bottom-0 flex gap-2 p-3 max-[640px]:hidden",
+  // Mobil: galeri swipe nokta göstergesi
+  galleryDots:
+    "pointer-events-none absolute inset-x-0 bottom-0 hidden items-center justify-center gap-1.5 p-3 " +
+    "max-[640px]:flex",
+  galleryDot: "h-1.5 w-1.5 rounded-full bg-white/50 transition-all",
+  galleryDotActive: "h-1.5 w-4 rounded-full bg-white transition-all",
   thumb:
     "relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 border-white/60 opacity-80 " +
     "transition hover:opacity-100 max-[560px]:h-[35.2px] max-[560px]:w-[51.2px]",
@@ -36,7 +43,7 @@ const styles = {
   /* SAĞ — bilgiler (ayrı box) */
   info:
     "flex flex-col gap-3 rounded-card-lg border border-line bg-paper p-7 shadow-card " +
-    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-2 max-[560px]:p-[12.8px]",
+    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-[6.4px] max-[560px]:p-[11.2px]",
   infoTop: "flex flex-wrap items-center gap-2.5 max-[560px]:gap-[4.8px]",
   cat: "label-pill rounded-full bg-cream-deep px-3 py-1 text-brand max-[560px]:px-2 max-[560px]:py-[3.2px]",
   verified:
@@ -57,7 +64,7 @@ const styles = {
   chip: "meta-text rounded-lg border border-line bg-cream px-2.5 py-1 font-semibold text-ink/75",
   foot:
     "mt-auto flex items-center gap-4 border-t border-line pt-4 " +
-    "max-[560px]:justify-between max-[560px]:gap-[9.6px] max-[560px]:pt-[11.2px]",
+    "max-[560px]:justify-between max-[560px]:gap-[9.6px] max-[560px]:pt-[9.6px]",
   quote:
     "inline-flex items-center justify-center rounded-button border border-line px-4 py-[9px] text-[13.5px] font-semibold text-terra " +
     "transition-colors hover:border-terra hover:text-terra-deep " +
