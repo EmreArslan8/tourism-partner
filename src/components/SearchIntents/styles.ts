@@ -4,7 +4,7 @@
 const styles = {
   section:
     "flex shrink-0 flex-col gap-4 rounded-card-lg border border-line bg-cream/60 p-5 " +
-    "max-[900px]:p-4 " +
+    "max-[900px]:p-4 max-[640px]:hidden " +
     "min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between min-[901px]:gap-6",
 
   copy: "min-w-0 max-[900px]:shrink-0",

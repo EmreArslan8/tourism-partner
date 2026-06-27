@@ -44,14 +44,14 @@ const HomeView = ({ businesses }: { businesses: Business[] }) => {
 
       {/* 3 — Öne çıkan bölgeler */}
       <div className={styles.panelRegions}>
-        <div className={`${styles.inner} max-[1024px]:flex max-[1024px]:min-h-0 max-[1024px]:flex-1 max-[1024px]:flex-col`}>
+        <div className={`${styles.inner} flex min-h-0 flex-1 flex-col`}>
           <Regions businesses={businesses} />
         </div>
       </div>
 
       {/* 4 — Tedarikçi türleri */}
       <div className={styles.panelCategories}>
-        <div className={`${styles.innerWide} flex flex-col justify-center gap-10 max-[1024px]:gap-8 max-[640px]:gap-6`}>
+        <div className={`${styles.innerWide} flex flex-col justify-center gap-10 max-[1024px]:gap-8 max-[640px]:justify-start max-[640px]:gap-6`}>
           <Categories />
           <SearchIntents />
         </div>

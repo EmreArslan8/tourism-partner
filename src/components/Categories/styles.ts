@@ -23,7 +23,7 @@ const styles = {
     "flex flex-wrap justify-center gap-5 " +
     "max-[1024px]:gap-4 " +
     "max-[640px]:flex-nowrap max-[640px]:justify-start max-[640px]:snap-x max-[640px]:snap-mandatory max-[640px]:gap-3.5 " +
-    "max-[640px]:-mx-4 max-[640px]:overflow-x-auto max-[640px]:px-4 max-[640px]:pb-1 " +
+    "max-[640px]:-mx-0 max-[640px]:overflow-x-auto max-[640px]:px-4 max-[640px]:pb-1 " +
     "max-[640px]:[scrollbar-width:none] max-[640px]:[&::-webkit-scrollbar]:hidden",
 
   // 4 kart yerleşimi: ≥1025 → tek sıra 4'lü (basis ¼), 641-1024 → 2×2 (basis ½, dikey alana yayılır),
@@ -34,12 +34,10 @@ const styles = {
     "min-[641px]:shrink-0 min-[641px]:grow-0 " +
     "min-[641px]:max-[1024px]:[flex-basis:calc((100%-1.2rem)/2)] " +
     "min-[1025px]:[flex-basis:calc((100%-4rem)/4)] " +
-    "max-[640px]:aspect-[4/5] max-[640px]:w-[78%] max-[640px]:shrink-0 max-[640px]:snap-start",
+    "max-[640px]:w-[80%] max-[640px]:shrink-0 max-[640px]:snap-start",
 
-  // Görsel: grid'de sabit yükseklik, mobilde kartın 3/5'i (flex-[3]).
-  media:
-    "relative w-full h-44 overflow-hidden max-[1024px]:h-40 " +
-    "max-[640px]:h-auto max-[640px]:flex-[3] max-[640px]:min-h-0",
+  // Görsel: her boyutta sabit yükseklik; mobilde gövde doğal yükseklikte (açıklama kesilmez).
+  media: "relative w-full h-44 overflow-hidden max-[1024px]:h-40 max-[640px]:h-48",
   img: "object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.06]",
   badge:
     "absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full " +
@@ -48,14 +46,14 @@ const styles = {
   badgeDot: "h-1.5 w-1.5 rounded-full bg-white",
 
   // Grid'de doğal yükseklik, mobilde kartın 2/5'i (flex-[2]). Ferah iç boşluk.
-  body: "flex min-h-0 flex-1 flex-col gap-2.5 p-5 max-[640px]:flex-[2] max-[640px]:gap-2 max-[640px]:p-4",
+  body: "flex min-h-0 flex-1 flex-col gap-2.5 p-5 max-[640px]:gap-2.5 max-[640px]:p-4",
   titleRow: "flex items-center gap-2",
   icon: "shrink-0 text-brand",
   // text-card token'ı (≤2rem) kart için fazla büyük; burada daha dengeli, çoğunlukla tek satıra sığan ölçek.
   name: "heading-card text-ink !text-[1.25rem] !leading-[1.15] max-[1280px]:!text-[1.15rem] max-[640px]:!text-[1.05rem]",
   desc:
     "section-desc !mt-0 min-h-0 overflow-hidden text-muted [display:-webkit-box] [-webkit-box-orient:vertical] " +
-    "[-webkit-line-clamp:2] max-[640px]:[-webkit-line-clamp:3]",
+    "[-webkit-line-clamp:2] max-[640px]:[-webkit-line-clamp:none] max-[640px]:overflow-visible",
 
   cta:
     "btn btn-sm btn-block mt-auto pt-2.5 bg-ink text-white hover:-translate-y-px hover:bg-brand " +
