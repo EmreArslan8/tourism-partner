@@ -47,8 +47,8 @@ const MobileMenu = () => {
           </nav>
           <div className={styles.actions}>
             <LangSwitcher />
-            <Link href={{ pathname: "/login" }} className="btn btn-outline" onClick={() => setOpen(false)}>{t("agencyLogin")}</Link>
-            <Link href={{ pathname: "/login" }} className="btn btn-outline" onClick={() => setOpen(false)}>{t("supplierLogin")}</Link>
+            <Link href={{ pathname: "/login" }} className="btn btn-outline" onClick={() => setOpen(false)}>{t("login")}</Link>
+            <Link href={{ pathname: "/register" }} className="btn btn-solid" onClick={() => setOpen(false)}>{t("addBusiness")}</Link>
           </div>
         </div>
       )}

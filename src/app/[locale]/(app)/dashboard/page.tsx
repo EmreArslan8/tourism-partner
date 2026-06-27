@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
-import DashboardView, { PanelBusiness, PanelQuote } from "./view";
+import DashboardView, { PanelBusiness, PanelMembership, PanelQuote } from "./view";
 
 const DashboardPage = async ({ params }: { params: Promise<{ locale: string }> }) => {
   const { locale } = await params;
@@ -33,13 +33,24 @@ async function PanelData({ locale }: { locale: string }) {
     .maybeSingle();
 
   let quotes: PanelQuote[] = [];
+  let membership: PanelMembership | null = null;
   if (biz) {
-    const { data: q } = await supabase
+    const [{ data: q }, { data: m }] = await Promise.all([
+      supabase
       .from("quotes")
       .select("id,name,company,email,service,date_range,people,message,status,created_at")
       .eq("business_id", biz.id)
-      .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("business_memberships")
+        .select("id,plan,status,starts_at,ends_at")
+        .eq("business_id", biz.id)
+        .order("ends_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
     quotes = (q as PanelQuote[]) ?? [];
+    membership = (m as PanelMembership | null) ?? null;
   }
 
   const meta = (user!.user_metadata ?? {}) as Record<string, string>;
@@ -49,6 +60,7 @@ async function PanelData({ locale }: { locale: string }) {
     <DashboardView
       business={biz as PanelBusiness | null}
       quotes={quotes}
+      membership={membership}
       email={user!.email ?? ""}
       userId={user!.id}
       group={group}

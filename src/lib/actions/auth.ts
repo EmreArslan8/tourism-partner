@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "@/i18n/navigation";
+import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
@@ -67,11 +68,17 @@ export async function signUp(
   const cat = resolveCategory(category);
   if (!cat) return { ok: false, error: "category" };
 
+  const locale = await getLocale();
+  const headerStore = await headers();
+  const origin = headerStore.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const loginPath = locale === "tr" ? "/tr/giris" : "/en/login";
+
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
+      emailRedirectTo: origin ? `${origin}${loginPath}` : undefined,
       data: {
         full_name: name,
         firm_name: name,
@@ -102,7 +109,6 @@ export async function signUp(
       district: "",
       status: "pending",
     });
-    const locale = await getLocale();
     redirect({ href: "/dashboard", locale });
   }
 

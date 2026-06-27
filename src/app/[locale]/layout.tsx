@@ -5,7 +5,6 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import "../globals.css";
-import SiteChrome from "@/components/SiteChrome";
 
 const display = Inter({
   subsets: ["latin", "latin-ext"],
@@ -43,9 +42,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
       <body>
-        <NextIntlClientProvider>
-          <SiteChrome>{children}</SiteChrome>
-        </NextIntlClientProvider>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

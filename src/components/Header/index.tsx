@@ -1,50 +1,45 @@
-"use client";
-
-import { useTranslations } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
+import type { Href } from "@/i18n/navigation";
 import Logo from "@/components/Logo";
 import MobileMenu from "@/components/MobileMenu";
 import MobileSearch from "@/components/MobileSearch";
 import LangSwitcher from "@/components/LocaleSwitcher";
+import NavLinks from "./NavLinks";
 import styles from "./styles";
 
+/*
+ * Header — server component. Statik yapı sunucuda render edilir; etkileşim parçaları
+ * (NavLinks, MobileMenu, MobileSearch, LocaleSwitcher) birer "use client" adasıdır.
+ * variant="glass": anasayfa hero görseli üstünde camsı; varsayılan iç sayfalarda opak sapphire.
+ */
+type HeaderVariant = "glass" | "solid";
 
-const Header = () => {
-  const t = useTranslations("nav");
-  const pathname = usePathname();
+type HeaderProps = {
+  variant?: HeaderVariant;
+  /** @deprecated Use variant="glass" instead. */
+  transparent?: boolean;
+};
 
-  const links = [
-    { href: { pathname: "/" }, label: t("home") },
+const Header = async ({ variant = "solid", transparent = false }: HeaderProps) => {
+  const t = await getTranslations("nav");
+  const resolvedVariant: HeaderVariant = transparent ? "glass" : variant;
+
+  const links: { href: Href; label: string }[] = [
     { href: { pathname: "/explore" }, label: t("explore") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
     { href: { pathname: "/quote" }, label: t("quote") },
     { href: { pathname: "/", hash: "sss" }, label: t("faq") },
-  ] as const;
+  ];
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${resolvedVariant === "glass" ? styles.headerGlass : styles.headerSolid}`}>
       <div className={styles.inner}>
         <div className={styles.left}>
           <Logo href="/" height={60} variant="light" priority />
         </div>
 
-        <nav className={styles.nav}>
-          {links.map((link) => {
-            const hrefObj = link.href as any;
-            const isActive = pathname === hrefObj.pathname && !hrefObj.hash;
-            
-            return (
-              <Link
-                key={hrefObj.pathname + (hrefObj.hash || "")}
-                href={link.href as any}
-                scroll={!hrefObj.hash}
-                className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        <NavLinks links={links} />
 
         <div className="col-start-3 flex items-center justify-self-end gap-1">
           <MobileSearch />
@@ -55,13 +50,13 @@ const Header = () => {
               href={{ pathname: "/login" } as any}
               className="text-[15px] font-semibold text-white/90 hover:text-white transition-colors"
             >
-              {t("agencyLogin")}
+              {t("login")}
             </Link>
             <Link
-              href={{ pathname: "/login" } as any}
+              href={{ pathname: "/register" } as any}
               className="rounded-[10px] bg-white px-4 py-2.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream"
             >
-              {t("supplierLogin")}
+              {t("addBusiness")}
             </Link>
           </div>
           <MobileMenu />

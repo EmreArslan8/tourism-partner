@@ -7,6 +7,7 @@ import type {
   AdminQuote,
   ContentPage,
   AdminData,
+  BusinessLifecycleStatus,
 } from "@/lib/types";
 import { cache } from "react";
 
@@ -28,7 +29,7 @@ type AdminBusinessRow = {
   sponsored: boolean;
   image: string | null;
   attributes: string[] | null;
-  status: "pending" | "approved" | "rejected";
+  status: BusinessLifecycleStatus;
   seo_title: string | null;
   seo_description: string | null;
   seo_keywords: string[] | null;
@@ -68,11 +69,19 @@ function rowToAdminBusiness(r: AdminBusinessRow): AdminBusiness {
   };
 }
 
+function applicationStatus(value: unknown): "pending" | "approved" | "rejected" {
+  return value === "approved" || value === "rejected" ? value : "pending";
+}
+
 const EMPTY = {
   businesses: [] as AdminBusiness[],
   applications: [] as AdminApplication[],
   quotes: [] as AdminQuote[],
   pages: [] as ContentPage[],
+  memberships: [],
+  pageViews: [],
+  lastBackup: null,
+  auditLogs: [],
 };
 
 export const getAdminData = cache(async (): Promise<AdminData> => {
@@ -107,7 +116,18 @@ async function getSupabaseAdminData(
   userEmail: string | undefined,
   supabase: Awaited<ReturnType<typeof createClient>>
 ): Promise<AdminData> {
-  const [businessesRes, applicationsRes, quotesRes, pagesRes] = await Promise.all([
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    businessesRes,
+    applicationsRes,
+    quotesRes,
+    pagesRes,
+    membershipsRes,
+    pageViewsRes,
+    backupsRes,
+    auditLogsRes,
+  ] = await Promise.all([
     supabase
       .from("businesses")
       .select(
@@ -129,7 +149,46 @@ async function getSupabaseAdminData(
         "id,slug,locale,title,excerpt,body,seo_title,seo_description,seo_keywords,canonical_path,og_image,status,updated_at"
       )
       .order("updated_at", { ascending: false }),
+    supabase
+      .from("business_memberships")
+      .select("id,business_id,plan,status,starts_at,ends_at")
+      .order("ends_at", { ascending: true })
+      .limit(200),
+    supabase
+      .from("page_views")
+      .select("id,entity_type,entity_id,viewed_at")
+      .gte("viewed_at", sevenDaysAgo)
+      .order("viewed_at", { ascending: false })
+      .limit(10000),
+    supabase
+      .from("system_backups")
+      .select("id,status,completed_at,created_at")
+      .order("created_at", { ascending: false })
+      .limit(1),
+    supabase
+      .from("audit_logs")
+      .select("id,action,entity_type,entity_id,created_at")
+      .order("created_at", { ascending: false })
+      .limit(8),
   ]);
+
+  const memberships = (membershipsRes.data ?? []).map((row) => ({
+    id: Number(row.id),
+    businessId: Number(row.business_id),
+    plan: String(row.plan ?? "standard"),
+    status: row.status ?? "active",
+    startsAt: row.starts_at,
+    endsAt: row.ends_at,
+  }));
+
+  const pageViews = (pageViewsRes.data ?? []).map((row) => ({
+    id: Number(row.id),
+    entityType: String(row.entity_type),
+    entityId: row.entity_id === null ? null : Number(row.entity_id),
+    viewedAt: row.viewed_at,
+  }));
+
+  const lastBackupRow = backupsRes.data?.[0];
 
   return {
     mode: "supabase",
@@ -142,7 +201,7 @@ async function getSupabaseAdminData(
       email: String(row.email),
       group: row.group as GroupKey | null,
       categoryLabel: row.category_label,
-      status: row.status,
+      status: applicationStatus(row.status),
       createdAt: row.created_at,
     })),
     quotes: (quotesRes.data ?? []).map((row) => ({
@@ -173,6 +232,23 @@ async function getSupabaseAdminData(
       ogImage: row.og_image,
       status: row.status,
       updatedAt: row.updated_at,
+    })),
+    memberships,
+    pageViews,
+    lastBackup: lastBackupRow
+      ? {
+          id: Number(lastBackupRow.id),
+          status: lastBackupRow.status,
+          completedAt: lastBackupRow.completed_at,
+          createdAt: lastBackupRow.created_at,
+        }
+      : null,
+    auditLogs: (auditLogsRes.data ?? []).map((row) => ({
+      id: Number(row.id),
+      action: String(row.action),
+      entityType: row.entity_type,
+      entityId: row.entity_id,
+      createdAt: row.created_at,
     })),
   };
 }

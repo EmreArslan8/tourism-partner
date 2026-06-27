@@ -25,10 +25,18 @@ export type PanelBusiness = {
   image: string | null;
   images: string[] | null;
   attributes: string[] | null;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "active" | "expired" | "blacklisted" | "suspended";
   verified: boolean;
   sponsored: boolean;
   created_at: string;
+};
+
+export type PanelMembership = {
+  id: number;
+  plan: string;
+  status: "trial" | "active" | "expired" | "cancelled";
+  starts_at: string;
+  ends_at: string;
 };
 
 export type PanelQuote = {
@@ -70,6 +78,7 @@ async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise
 const DashboardView = ({
   business,
   quotes,
+  membership,
   email,
   userId,
   group,
@@ -77,6 +86,7 @@ const DashboardView = ({
 }: {
   business: PanelBusiness | null;
   quotes: PanelQuote[];
+  membership: PanelMembership | null;
   email: string;
   userId: string;
   group: string;
@@ -86,7 +96,12 @@ const DashboardView = ({
   const [state, action, pending] = useActionState(saveMyBusiness, { ok: false });
 
   const b = business;
+  const isAgency = group === "acente";
+  const isGuide = group === "rehber";
   const statusKey = b?.status ?? "pending";
+  const visibleStatusKey =
+    statusKey === "active" ? "approved" : statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" ? "rejected" : statusKey;
+  const isRestricted = statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" || statusKey === "rejected";
 
   const [cover, setCover] = useState<string>(b?.image ?? "");
   const [gallery, setGallery] = useState<string[]>(b?.images ?? []);
@@ -97,6 +112,9 @@ const DashboardView = ({
 
   const facets = visibleFacets([group as GroupKey]);
   const selectedAttrs = new Set(b?.attributes ?? []);
+  const profileScore = getProfileScore(b, cover);
+  const newQuoteCount = quotes.filter((quote) => quote.status === "new").length;
+  const membershipDays = membership ? daysUntil(membership.ends_at) : null;
 
   async function upload(file: File): Promise<string | null> {
     const supabase = createClient();
@@ -144,10 +162,17 @@ const DashboardView = ({
     <main className={styles.main}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>{t("title")}</h1>
-          <p className={styles.email}>{email}</p>
+          <h1 className={styles.title}>{isAgency ? t("agencyTitle") : t("supplierTitle")}</h1>
+          <p className={styles.email}>
+            {b?.name || meta.firm_name || email} · {isAgency ? t("agencyMode") : isGuide ? t("guideMode") : t("supplierMode")}
+          </p>
         </div>
         <div className={styles.actions}>
+          {isAgency && (
+            <a href="/explore" className="btn btn-outline btn-sm">
+              {t("searchSuppliers")}
+            </a>
+          )}
           {b && (
             <a href={`/supplier/${businessSlug(b)}`} target="_blank" className="btn btn-outline btn-sm">
               {t("preview")}
@@ -159,19 +184,58 @@ const DashboardView = ({
         </div>
       </div>
 
-      <div className={styles.statusStrip}>
-        <span className={styles.statusLabel}>{t("statusLabel")}:</span>
-        <span className={cn(styles.statusBadge, styles.statusColors[statusKey])}>
-          {t(`status_${statusKey}`)}
-        </span>
-        {b?.verified && <span className={styles.verified}>✓ {t("verified")}</span>}
-        {statusKey === "pending" && <span className={styles.pendingHint}>— {t("pendingHint")}</span>}
-      </div>
+      <section className={styles.hero}>
+        <div>
+          <span className={styles.eyebrow}>{t("overview")}</span>
+          <h2 className={styles.heroTitle}>
+            {isAgency ? t("agencyHero") : b ? t("panelReady") : t("panelSetup")}
+          </h2>
+          <p className={styles.heroText}>
+            {isAgency ? t("agencyHeroSub") : b ? t("panelReadySub") : t("panelSetupSub")}
+          </p>
+          <div className={styles.quickActions}>
+            <a href="/quote" className="btn btn-solid btn-sm">
+              {isAgency ? t("createRequest") : t("viewRequests")}
+            </a>
+            <a href="#profile" className="btn btn-outline btn-sm">
+              {isAgency ? t("completeCompany") : t("completeProfile")}
+            </a>
+          </div>
+        </div>
+        <div className={styles.statusBox}>
+          <span className={styles.statusLabel}>{t("statusLabel")}</span>
+          <span className={cn(styles.statusBadge, styles.statusColors[visibleStatusKey])}>
+            {t(`status_${visibleStatusKey}`)}
+          </span>
+          {b?.verified && <span className={styles.verified}>{t("verified")}</span>}
+        </div>
+      </section>
+
+      {(statusKey === "pending" || isRestricted) && (
+        <section className={cn(styles.notice, isRestricted && styles.noticeDanger)}>
+          <b>{statusKey === "pending" ? t("pendingNoticeTitle") : t("restrictedNoticeTitle")}</b>
+          <span>{statusKey === "pending" ? t("pendingNoticeText") : t("restrictedNoticeText")}</span>
+        </section>
+      )}
+
+      <section className={styles.statsGrid}>
+        <MetricCard label={t("profileScore")} value={`${profileScore}%`} detail={t("profileScoreSub")} />
+        <MetricCard
+          label={isAgency ? t("openRequests") : t("newQuotes")}
+          value={isAgency ? 0 : newQuoteCount}
+          detail={isAgency ? t("openRequestsSub") : t("quotesSub", { count: quotes.length })}
+        />
+        <MetricCard
+          label={t("membership")}
+          value={membership ? t(`membership_${membership.status}`) : t("membership_none")}
+          detail={membershipDays === null ? t("membershipNoDate") : membershipDays < 0 ? t("membershipExpired") : t("membershipDays", { count: membershipDays })}
+        />
+      </section>
 
       <div className={styles.grid}>
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("editTitle")}</h2>
-          <p className={styles.sectionSub}>{t("editSub")}</p>
+        <section className={styles.section} id="profile">
+          <h2 className={styles.sectionTitle}>{isAgency ? t("agencyProfileTitle") : t("editTitle")}</h2>
+          <p className={styles.sectionSub}>{isAgency ? t("agencyProfileSub") : t("editSub")}</p>
 
           <form action={action} className={styles.form}>
             {b && <input type="hidden" name="id" value={b.id} />}
@@ -249,7 +313,7 @@ const DashboardView = ({
             </label>
 
             <div className={styles.checklist}>
-              <span className={styles.labelCls}>{t("services")}</span>
+              <span className={styles.labelCls}>{isAgency ? t("agencyServices") : t("services")}</span>
               {facets.map((f) => (
                 <div key={f.key}>
                   <p className={styles.checkGroup}>{f.label}</p>
@@ -265,6 +329,20 @@ const DashboardView = ({
               ))}
             </div>
 
+            {isGuide && (
+              <div className={styles.guideBox}>
+                <h3>{t("guideFieldsTitle")}</h3>
+                <p>{t("guideFieldsSub")}</p>
+                <div className={styles.guideTags}>
+                  <span>{t("guideFieldId")}</span>
+                  <span>{t("guideFieldLicense")}</span>
+                  <span>{t("guideFieldRegions")}</span>
+                  <span>{t("guideFieldLanguages")}</span>
+                  <span>{t("guideFieldExpertise")}</span>
+                </div>
+              </div>
+            )}
+
             {state.ok && <p className={styles.success}>{t("saved")}</p>}
             {state.error && <p className={styles.error}>{t("error")}</p>}
 
@@ -274,11 +352,46 @@ const DashboardView = ({
           </form>
         </section>
 
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t("quotesTitle")}</h2>
-          <p className={styles.sectionSub}>{t("quotesSub", { count: quotes.length })}</p>
+        <aside className={styles.sideStack}>
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{isAgency ? t("agencyWorkTitle") : t("supplierWorkTitle")}</h2>
+            <p className={styles.sectionSub}>{isAgency ? t("agencyWorkSub") : t("supplierWorkSub")}</p>
+            <div className={styles.workflowList}>
+              {(isAgency ? ["agencyStep1", "agencyStep2", "agencyStep3"] : ["supplierStep1", "supplierStep2", "supplierStep3"]).map((key) => (
+                <div key={key} className={styles.workflowItem}>
+                  <span />
+                  <p>{t(key)}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
-          {quotes.length === 0 ? (
+          <section className={styles.section}>
+            <h2 className={styles.sectionTitle}>{t("membershipTitle")}</h2>
+            <p className={styles.sectionSub}>{t("membershipSub")}</p>
+            <div className={styles.membershipBox}>
+              <span>{membership ? membership.plan : t("membership_none")}</span>
+              <b>{membership ? t(`membership_${membership.status}`) : "-"}</b>
+              <small>
+                {membership
+                  ? `${new Date(membership.ends_at).toLocaleDateString("tr-TR")} ${t("membershipEnd")}`
+                  : t("membershipNoDate")}
+              </small>
+            </div>
+          </section>
+
+          <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>{isAgency ? t("agencyRequestsTitle") : t("quotesTitle")}</h2>
+          <p className={styles.sectionSub}>{isAgency ? t("agencyRequestsSub") : t("quotesSub", { count: quotes.length })}</p>
+
+          {isAgency ? (
+            <div className={styles.requestBoard}>
+              <p className={styles.emptyQuotes}>{t("noAgencyRequests")}</p>
+              <a href="/quote" className="btn btn-solid btn-sm">
+                {t("createRequest")}
+              </a>
+            </div>
+          ) : quotes.length === 0 ? (
             <p className={styles.emptyQuotes}>{t("noQuotes")}</p>
           ) : (
             <ul className={styles.quoteList}>
@@ -303,10 +416,43 @@ const DashboardView = ({
               ))}
             </ul>
           )}
-        </section>
+          </section>
+        </aside>
       </div>
     </main>
   );
 };
+
+const MetricCard = ({ label, value, detail }: { label: string; value: string | number; detail: string }) => (
+  <div className={styles.metricCard}>
+    <span>{label}</span>
+    <strong>{value}</strong>
+    <small>{detail}</small>
+  </div>
+);
+
+function getProfileScore(b: PanelBusiness | null, cover: string) {
+  const checks = [
+    b?.name,
+    b?.type,
+    b?.country,
+    b?.city,
+    b?.district,
+    b?.description,
+    b?.phone,
+    b?.website,
+    cover,
+    b?.attributes?.length,
+  ];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+}
+
+function daysUntil(value: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return Math.ceil((date.getTime() - today.getTime()) / 86_400_000);
+}
 
 export default DashboardView;

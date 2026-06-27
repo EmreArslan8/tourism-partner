@@ -68,8 +68,17 @@ export interface ListingFilters {
 export type ActionState = { ok: boolean; error?: string };
 
 // --- Admin Types ---
+export type BusinessLifecycleStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "active"
+  | "expired"
+  | "blacklisted"
+  | "suspended";
+
 export type AdminBusiness = Business & {
-  status: "pending" | "approved" | "rejected";
+  status: BusinessLifecycleStatus;
   createdAt?: string;
 };
 
@@ -114,6 +123,37 @@ export type ContentPage = {
   updatedAt: string;
 };
 
+export type AdminMembership = {
+  id: number;
+  businessId: number;
+  plan: string;
+  status: "trial" | "active" | "expired" | "cancelled";
+  startsAt: string;
+  endsAt: string;
+};
+
+export type AdminPageView = {
+  id: number;
+  entityType: string;
+  entityId: number | null;
+  viewedAt: string;
+};
+
+export type AdminSystemBackup = {
+  id: number;
+  status: "pending" | "running" | "completed" | "failed";
+  completedAt: string | null;
+  createdAt: string;
+};
+
+export type AdminAuditLog = {
+  id: number;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  createdAt: string;
+};
+
 export type AdminData = {
   mode: "supabase" | "demo";
   userEmail?: string;
@@ -122,4 +162,8 @@ export type AdminData = {
   applications: AdminApplication[];
   quotes: AdminQuote[];
   pages: ContentPage[];
+  memberships: AdminMembership[];
+  pageViews: AdminPageView[];
+  lastBackup: AdminSystemBackup | null;
+  auditLogs: AdminAuditLog[];
 };

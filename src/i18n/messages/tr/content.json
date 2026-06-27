@@ -40,6 +40,31 @@
     "spotlightTitle": "En sık aranan tedarikçi başlıkları.",
     "quoteCta": "Talebe göre teklif oluştur",
     "subtypeShort": "alt tür",
+    "cta": "İncele",
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "cards": {
+      "konaklama": {
+        "badge": "12.400+ Tesis",
+        "desc": "Lüks resort'lardan butik şehir otellerine geniş envanter. Anlık müsaitlik ve dinamik fiyatlandırma API entegrasyonu."
+      },
+      "acente": {
+        "badge": "850+ Acente",
+        "desc": "Yerel pazar uzmanı acenteler, tur operatörleri ve DMC'ler ile uçtan uca operasyon çözümleri."
+      },
+      "rehber": {
+        "badge": "45+ Dil Seçeneği",
+        "desc": "Lisanslı yerel uzmanlar, tarihçiler ve çok dilli profesyoneller. Özel rotalar ve tematik tur liderliği."
+      },
+      "eglence": {
+        "badge": "320+ Aktivite",
+        "desc": "Balon turundan tekne kiralamaya, adrenalin sporlarından özel deneyimlere geniş aktivite yelpazesi."
+      },
+      "saglik": {
+        "badge": "Özel Çözümler",
+        "desc": "MICE operasyonları, medikal turizm ve özel jet kiralama gibi spesifik lojistik için uzman sağlayıcılar."
+      }
+    },
     "intentTitle": "Popüler arama niyetleri",
     "intentSub": "Acentelerin en sık aradığı iş ortaklığı başlıklarına hızlı geçin.",
     "intentIstanbulHotels": "İstanbul otelleri",

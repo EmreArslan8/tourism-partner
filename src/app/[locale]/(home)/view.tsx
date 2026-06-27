@@ -3,6 +3,7 @@ import Partners from "@/components/Partners";
 import Showcase from "@/components/Showcase";
 import Regions from "@/components/Regions";
 import Categories from "@/components/Categories";
+import SearchIntents from "@/components/SearchIntents";
 import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
@@ -43,15 +44,16 @@ const HomeView = ({ businesses }: { businesses: Business[] }) => {
 
       {/* 3 — Öne çıkan bölgeler */}
       <div className={styles.panelRegions}>
-        <div className={`${styles.inner} max-[560px]:flex max-[560px]:min-h-0 max-[560px]:flex-1 max-[560px]:flex-col`}>
+        <div className={`${styles.inner} max-[1024px]:flex max-[1024px]:min-h-0 max-[1024px]:flex-1 max-[1024px]:flex-col`}>
           <Regions businesses={businesses} />
         </div>
       </div>
 
       {/* 4 — Tedarikçi türleri */}
       <div className={styles.panelCategories}>
-        <div className={styles.innerWide}>
+        <div className={`${styles.innerWide} flex flex-col justify-center gap-10 max-[1024px]:gap-8 max-[640px]:gap-6`}>
           <Categories />
+          <SearchIntents />
         </div>
       </div>
 

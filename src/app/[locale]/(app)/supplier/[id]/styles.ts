@@ -1,5 +1,5 @@
  const styles = {
-  main: "container-px pb-8 pt-[100px]",
+  main: "container-px pb-8 pt-6",
   nav: "mb-4 flex flex-wrap items-center gap-2 text-[13px] text-muted",
   navLink: "hover:text-ink",
   navStrong: "text-ink",

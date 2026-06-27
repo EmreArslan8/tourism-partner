@@ -1,5 +1,8 @@
 const styles = {
-  header: "absolute inset-x-0 top-0 z-50 w-full border-b border-white/20 bg-pine/60 shadow-[0_18px_55px_-36px_rgba(12,38,34,.75)] backdrop-blur-2xl supports-[backdrop-filter]:bg-pine/40",
+  header: "inset-x-0 top-0 z-50 w-full border-b shadow-[0_18px_55px_-36px_rgba(12,38,34,.75)]",
+  // Anasayfa (hero görseli üstü): yarı saydam cam. İç sayfalar: footer ile aynı opak sapphire.
+  headerGlass: "absolute border-white/20 bg-pine/60 backdrop-blur-2xl supports-[backdrop-filter]:bg-pine/40",
+  headerSolid: "sticky border-white/10 bg-sapphire-deep",
   inner: "mx-auto grid h-[96px] w-full max-w-[1480px] grid-cols-[auto_1fr_auto] items-center gap-4 px-8 max-[640px]:h-[72px] max-[560px]:px-5",
   left: "flex items-center justify-self-start",
   logo: "group flex shrink-0 items-center transition-transform duration-200 hover:-translate-y-px",

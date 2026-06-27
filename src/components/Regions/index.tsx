@@ -29,7 +29,7 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
   const top = Object.entries(counts)
     .filter(([city]) => CITY_IMG[city])
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 8);
+    .slice(0, 6);
 
   if (top.length === 0) return null;
 

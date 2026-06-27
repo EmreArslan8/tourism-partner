@@ -1,7 +1,7 @@
 import { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import SiteHeader from "@/components/Header";
+import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
@@ -43,7 +43,7 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
   const tn = useTranslations("nav");
   return (
     <section className={styles.section}>
-      <SiteHeader />
+      <Header variant="glass" />
       <picture className={styles.picture}>
         <source media="(max-width: 640px)" srcSet={mobileSrcSet} />
         <source media="(min-width: 641px)" srcSet={desktopSrcSet} />

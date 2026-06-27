@@ -1,5 +1,5 @@
 import { Link, type Href } from "@/i18n/navigation";
-import { BusinessTable, Metric, PageHeader, panel, seoScore } from "./_components";
+import { Metric, PageHeader } from "./_components";
 import styles from "./styles";
 import type { AdminData } from "@/lib/types";
 
@@ -11,72 +11,92 @@ const AdminView = ({ data }: Props) => {
   const pendingBusinesses = data.businesses.filter((b) => b.status === "pending");
   const pendingApplications = data.applications.filter((a) => a.status === "pending");
   const newQuotes = data.quotes.filter((q) => q.status === "new");
-  const missingSeo = data.businesses.filter((b) => !b.seoTitle || !b.seoDescription);
+  const activeBusinesses = data.businesses.filter((b) => b.status === "approved" || b.status === "active");
+  const expiringMemberships = data.memberships.filter((membership) => {
+    const now = startOfToday();
+    const endsAt = new Date(membership.endsAt);
+    const limit = new Date(now);
+    limit.setDate(limit.getDate() + 14);
+    return membership.status !== "expired" && endsAt >= now && endsAt <= limit;
+  });
+  const expiredMemberships = data.memberships.filter((membership) =>
+    membership.status === "expired" || new Date(membership.endsAt) < startOfToday()
+  );
+  const approvalCount = pendingApplications.length + pendingBusinesses.length;
 
   return (
     <>
       <PageHeader
         eyebrow="Dashboard"
-        title="Operasyon özeti"
-        description="Yayındaki tedarikçiler, bekleyen onaylar, teklif akışı ve SEO sağlığı için hızlı kontrol ekranı."
-        action={<Link href="/admin/tedarikciler" className="btn btn-solid btn-sm">Tedarikçi ekle</Link>}
+        title="Bugünün işleri"
+        description="Sadece müdahale gerektiren başlıklar. Detaylar ilgili modül sayfalarında."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/tedarikciler" className="btn btn-solid btn-sm">+ Yeni işletme</Link>
+            <Link href="/admin/onay" className="btn btn-outline btn-sm">Onay kuyruğu</Link>
+          </div>
+        }
       />
 
       <section className={styles.statsGrid}>
-        <Metric title="Tedarikçi" value={data.businesses.length} hint={`${pendingBusinesses.length} beklemede`} />
-        <Metric title="Başvuru" value={pendingApplications.length} hint="onay bekleyen" />
-        <Metric title="Teklif" value={newQuotes.length} hint="yeni RFQ" />
-        <Metric title="İçerik" value={data.pages.length} hint="sayfa kaydı" />
-        <Metric title="SEO" value={seoScore(data.businesses)} hint={`${missingSeo.length} eksik`} />
+        <Metric title="Aktif firma" value={activeBusinesses.length} hint={`${data.businesses.length} toplam kayıt`} />
+        <Metric title="Onay bekleyen" value={approvalCount} hint="başvuru ve firma" />
+        <Metric title="Yeni talep" value={newQuotes.length} hint="işlem bekliyor" />
+        <Metric title="Üyelik uyarısı" value={expiringMemberships.length + expiredMemberships.length} hint="biten veya yaklaşan" />
       </section>
 
-      <div className={styles.contentGrid}>
-        <section className={panel}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className={styles.sectionTitle}>Son tedarikçiler</h2>
-              <p className={styles.sectionSub}>Yayın ve SEO durumuna göre hızlı tarama.</p>
-            </div>
-            <Link href="/admin/tedarikciler" className="btn btn-outline btn-sm">Tümü</Link>
-          </div>
-          <BusinessTable businesses={data.businesses.slice(0, 8)} />
-        </section>
-
-        <aside className={styles.aside}>
-          <section className={panel}>
-            <div className="flex items-center justify-between">
-              <h2 className={styles.asideTitle}>Öncelikler</h2>
-              <span className={styles.badge}>Canlı</span>
-            </div>
-            <div className={styles.list}>
-              <QuickLink href="/admin/onay" title="Onay bekleyenler" value={pendingBusinesses.length + pendingApplications.length} />
-              <QuickLink href="/admin/teklifler" title="Yeni teklifler" value={newQuotes.length} />
-              <QuickLink href="/admin/seo" title="SEO eksikleri" value={missingSeo.length} />
-              <QuickLink href="/admin/icerik" title="İçerik sayfaları" value={data.pages.length} />
-            </div>
-          </section>
-
-          <section className={panel}>
-            <h2 className={styles.asideTitle}>Panel kapsamı</h2>
-            <ul className={styles.bullets}>
-              <li>Tedarikçi kayıt ve yayın yönetimi</li>
-              <li>SEO title, description, keywords, canonical ve OG görsel</li>
-              <li>Başvuru onay süreci</li>
-              <li>Teklif talebi durum ve iç not takibi</li>
-              <li>Landing ve özel içerik sayfaları</li>
-            </ul>
-          </section>
-        </aside>
-      </div>
+      <section className={styles.actionGrid}>
+        <ActionCard
+          href="/admin/onay"
+          label="Onay"
+          title="Başvuruları incele"
+          value={approvalCount}
+          detail="Yeni firma ve üyelik başvuruları"
+        />
+        <ActionCard
+          href="/admin/teklifler"
+          label="Talepler"
+          title="Yeni talepleri yönet"
+          value={newQuotes.length}
+          detail="Cevap veya durum güncellemesi bekleyenler"
+        />
+        <ActionCard
+          href="/admin/tedarikciler"
+          label="Üyelik"
+          title="Üyelikleri kontrol et"
+          value={expiringMemberships.length + expiredMemberships.length}
+          detail="Biten veya 14 gün içinde bitecek firmalar"
+        />
+      </section>
     </>
   );
 };
 
-const QuickLink = ({ href, title, value }: { href: Href; title: string; value: number }) => (
-  <Link href={href} className={styles.quickLink}>
-    <span className={styles.quickLinkTitle}>{title}</span>
-    <span className={styles.quickLinkValue}>{value}</span>
+const ActionCard = ({
+  href,
+  label,
+  title,
+  value,
+  detail,
+}: {
+  href: Href;
+  label: string;
+  title: string;
+  value: number;
+  detail: string;
+}) => (
+  <Link href={href} className={styles.actionCard}>
+    <span className={styles.actionLabel}>{label}</span>
+    <strong>{title}</strong>
+    <span>{detail}</span>
+    <b>{value}</b>
   </Link>
 );
+
+function startOfToday() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
 
 export default AdminView;

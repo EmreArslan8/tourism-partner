@@ -5,7 +5,14 @@
    buradan türetilir (bkz. lib/businesses.ts, lib/admin.ts). */
 
 export type BusinessGroup = "konaklama" | "acente" | "rehber" | "eglence" | "saglik";
-export type BusinessStatus = "pending" | "approved" | "rejected";
+export type BusinessStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "active"
+  | "expired"
+  | "blacklisted"
+  | "suspended";
 export type ContentPageStatus = "draft" | "published" | "archived";
 
 type Timestamp = string;
@@ -185,6 +192,98 @@ export interface Database {
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["content_pages"]["Insert"]>;
+        Relationships: [];
+      };
+      business_memberships: {
+        Row: {
+          id: number;
+          business_id: number;
+          plan: string;
+          status: "trial" | "active" | "expired" | "cancelled";
+          starts_at: Timestamp;
+          ends_at: Timestamp;
+          renewed_by_admin_id: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          plan?: string;
+          status?: "trial" | "active" | "expired" | "cancelled";
+          starts_at?: Timestamp;
+          ends_at: Timestamp;
+          renewed_by_admin_id?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_memberships"]["Insert"]>;
+        Relationships: [];
+      };
+      page_views: {
+        Row: {
+          id: number;
+          entity_type: string;
+          entity_id: number | null;
+          visitor_id: string | null;
+          ip_hash: string | null;
+          user_agent: string | null;
+          viewed_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          entity_type: string;
+          entity_id?: number | null;
+          visitor_id?: string | null;
+          ip_hash?: string | null;
+          user_agent?: string | null;
+          viewed_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["page_views"]["Insert"]>;
+        Relationships: [];
+      };
+      system_backups: {
+        Row: {
+          id: number;
+          status: "pending" | "running" | "completed" | "failed";
+          storage_path: string | null;
+          completed_at: Timestamp | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          status?: "pending" | "running" | "completed" | "failed";
+          storage_path?: string | null;
+          completed_at?: Timestamp | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["system_backups"]["Insert"]>;
+        Relationships: [];
+      };
+      audit_logs: {
+        Row: {
+          id: number;
+          admin_id: string | null;
+          action: string;
+          entity_type: string | null;
+          entity_id: string | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          old_value: Record<string, unknown> | null;
+          new_value: Record<string, unknown> | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          admin_id?: string | null;
+          action: string;
+          entity_type?: string | null;
+          entity_id?: string | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          old_value?: Record<string, unknown> | null;
+          new_value?: Record<string, unknown> | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["audit_logs"]["Insert"]>;
         Relationships: [];
       };
     };

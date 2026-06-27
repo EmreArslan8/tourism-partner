@@ -40,6 +40,31 @@
     "spotlightTitle": "The most searched supplier briefs.",
     "quoteCta": "Create a request by need",
     "subtypeShort": "subtypes",
+    "cta": "Explore",
+    "prev": "Previous",
+    "next": "Next",
+    "cards": {
+      "konaklama": {
+        "badge": "12,400+ Properties",
+        "desc": "Broad inventory from luxury resorts to boutique city hotels. Live availability and dynamic pricing API integration."
+      },
+      "acente": {
+        "badge": "850+ Agencies",
+        "desc": "End-to-end operations with local market expert agencies, tour operators and DMCs."
+      },
+      "rehber": {
+        "badge": "45+ Languages",
+        "desc": "Licensed local experts, historians and multilingual professionals. Custom routes and themed tour leadership."
+      },
+      "eglence": {
+        "badge": "320+ Activities",
+        "desc": "A wide range from balloon tours and yacht charters to adrenaline sports and bespoke experiences."
+      },
+      "saglik": {
+        "badge": "Tailored Solutions",
+        "desc": "Expert providers for specialised logistics such as MICE operations, medical tourism and private jet charter."
+      }
+    },
     "intentTitle": "Popular search intents",
     "intentSub": "Jump into the partner searches agencies request most often.",
     "intentIstanbulHotels": "Istanbul hotels",
