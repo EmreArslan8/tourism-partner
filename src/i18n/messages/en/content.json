@@ -95,6 +95,7 @@
     "eyebrow": "How It Works",
     "title": "Partnership in three steps",
     "lead": "Add your business, pass verification, and become visible when travel agencies search for real supplier needs.",
+    "leadMobile": "List your business, get verified, and start receiving agency quote requests.",
     "primaryCta": "List business",
     "secondaryCta": "Find suppliers",
     "visualKicker": "Active step",
@@ -115,7 +116,7 @@
     "faqEyebrow": "FAQ",
     "faqTitle": "Frequently asked questions",
     "faqLead": "Got another question? Reach out to our team and we'll get back to you quickly.",
-    "trustTitle": "Why you're covered",
+    "trustTitle": "How the platform builds trust",
     "trust1t": "Verified suppliers",
     "trust1d": "Every company is manually reviewed and approved.",
     "trust2t": "Secure communication",
@@ -139,7 +140,14 @@
     "title": "Claim your place in the demand feed",
     "sub": "Publish your business, appear in agency searches and stop missing quote opportunities.",
     "button": "+ List Business",
-    "secondary": "Member login"
+    "secondary": "Member login",
+    "kicker": "Showcased partners",
+    "verifiedValue": "Verified",
+    "verifiedLabel": "before publishing",
+    "quoteValue": "Matched",
+    "quoteLabel": "with real demand",
+    "memberValue": "Unlocked",
+    "memberLabel": "for member agencies"
   },
   "footer": {
     "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",

@@ -1,9 +1,11 @@
 /* HowItWorks — "Üç adımda iş birliği" adım şeridi + görsel sahnesi. */
 const styles = {
   section: "py-9 max-[640px]:py-[19.2px]",
-  headline: "section-copy mb-7 max-w-[680px] max-[560px]:mb-[22.4px]",
-  title: "heading-panel text-pine",
-  lead: "section-desc mt-3 max-w-[640px] max-[560px]:mt-[9.6px]",
+  headline: "section-copy mb-7 max-w-[680px] max-[640px]:mb-3",
+  eyebrow: "eyebrow mb-2 max-[640px]:hidden",
+  title: "heading-section text-ink",
+  lead: "section-desc max-w-[60ch] max-[640px]:hidden",
+  leadMobile: "section-desc mt-1 hidden max-[640px]:block",
   stage:
     "grid grid-cols-[minmax(0,0.95fr)_minmax(320px,1.15fr)] items-stretch gap-5 " +
     "max-[980px]:grid-cols-1 max-[980px]:gap-4 max-[560px]:gap-[12.8px]",

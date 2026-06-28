@@ -95,6 +95,7 @@
     "eyebrow": "Nasıl Çalışır",
     "title": "Üç adımda iş birliği",
     "lead": "Firmanızı ekleyin, doğrulama sürecinden geçin ve turizm acentelerinin gerçek taleplerinde görünür olun.",
+    "leadMobile": "Firmanızı ekleyin, onaydan geçin ve acentelerden teklif almaya başlayın.",
     "primaryCta": "Firma ekle",
     "secondaryCta": "Tedarikçi ara",
     "visualKicker": "Aktif adım",
@@ -115,7 +116,7 @@
     "faqEyebrow": "SSS",
     "faqTitle": "Sık sorulan sorular",
     "faqLead": "Aklınıza takılan başka bir şey varsa ekibimize yazın, hızlıca dönüş yapalım.",
-    "trustTitle": "Neden güvendeyiz?",
+    "trustTitle": "Platform güveni nasıl kurar?",
     "trust1t": "Doğrulanmış tedarikçiler",
     "trust1d": "Her firma manuel olarak incelenir ve onaylanır.",
     "trust2t": "Güvenli iletişim",
@@ -136,10 +137,17 @@
     "a6": "Acenteler bölge bazlı talep oluşturur; ilgili tedarikçiler bu talebe sistem üzerinden doğrudan özel teklif gönderir."
   },
   "cta": {
-    "title": "Talep alan vitrinde yerinizi alın",
+    "title": "Vitrinde yerinizi alın",
     "sub": "Firmanızı yayınlayın, doğru acentelerin aramalarında görünün ve teklif fırsatlarını kaçırmayın.",
     "button": "+ Firma Ekle",
-    "secondary": "Üye girişi"
+    "secondary": "Üye girişi",
+    "kicker": "Vitrindeki firmalar",
+    "verifiedValue": "Doğrulanır",
+    "verifiedLabel": "yayına alınmadan",
+    "quoteValue": "Eşleşir",
+    "quoteLabel": "gerçek taleplerle",
+    "memberValue": "Açılır",
+    "memberLabel": "üye acentelere"
   },
   "footer": {
     "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",

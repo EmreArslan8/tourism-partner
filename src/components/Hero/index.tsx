@@ -38,6 +38,16 @@ const {
   quality: 85,
 });
 
+const {
+  props: { srcSet: tabletSrcSet },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/hero-tablet.webp",
+  width: 1086,
+  height: 1448,
+  quality: 85,
+});
+
 const Hero = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
@@ -46,7 +56,8 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
       <Header variant="glass" />
       <picture className={styles.picture}>
         <source media="(max-width: 640px)" srcSet={mobileSrcSet} />
-        <source media="(min-width: 641px)" srcSet={desktopSrcSet} />
+        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={tabletSrcSet} />
+        <source media="(min-width: 1025px)" srcSet={desktopSrcSet} />
         <img {...imageProps} alt="" className={styles.image} fetchPriority="high" loading="eager" decoding="async" />
       </picture>
       <div className={styles.overlay} />

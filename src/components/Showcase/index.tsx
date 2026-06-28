@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import SectionHeader from "@/components/common/SectionHeader";
 import { GROUP_COVER, GROUP_COLORS } from "@/lib/categories";
 import { FACETS } from "@/lib/facets";
 import type { Business } from "@/lib/types";
@@ -16,9 +17,9 @@ FACETS.forEach((f) => f.options.forEach((o) => FACET_LABEL.set(o.slug, o.label))
 
 /* Demo galeri havuzu — gerçekte işletmenin yüklediği galeri gelecek. */
 const POOL = [
-  "/assets/cards/hotel-1.jpg", "/assets/cards/hotel-2.jpg", "/assets/cards/hotel-3.jpg",
-  "/assets/cards/resort-1.jpg", "/assets/cards/yacht-1.jpg", "/assets/cards/balloon-1.jpg",
-  "/assets/cards/agency-1.jpg", "/assets/cards/guide-1.jpg", "/assets/cards/clinic-1.jpg",
+  "/assets/cards/hotel-1.webp", "/assets/cards/hotel-2.webp", "/assets/cards/hotel-3.webp",
+  "/assets/cards/resort-1.webp", "/assets/cards/yacht-1.webp", "/assets/cards/balloon-1.webp",
+  "/assets/cards/agency-1.webp", "/assets/cards/guide-1.webp", "/assets/cards/clinic-1.webp",
 ];
 const galleryFor = (b: Business): string[] => {
   const cover = b.image ?? GROUP_COVER[b.group];
@@ -146,11 +147,15 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
   return (
     <section id="vitrin">
       <div className={styles.head}>
-        <div className={styles.copy}>
-          <span className={styles.eyebrow}>{t("eyebrow")}</span>
-          <h2 className={styles.title}>{t("title")}</h2>
-          <p className={styles.sub}>{t("sub")}</p>
-        </div>
+        <SectionHeader
+          className={styles.copy}
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          desc={t("sub")}
+          eyebrowClassName={styles.eyebrow}
+          titleClassName={styles.title}
+          descClassName={styles.sub}
+        />
         <div className={styles.nav}>
           <button type="button" aria-label="Önceki" className={styles.arrow} onClick={() => go(-1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>

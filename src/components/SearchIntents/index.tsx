@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import SectionHeader from "@/components/common/SectionHeader";
 import styles from "./styles";
 
 /* Hazır arama rotaları — kategori panelinin ikinci bileşeni.
@@ -22,11 +23,16 @@ const SearchIntents = () => {
 
   return (
     <section className={styles.section} aria-label={t("intentTitle")}>
-      <div className={styles.copy}>
-        <span className={styles.eyebrow}>{t("spotlightKicker")}</span>
-        <h3 className={styles.title}>{t("intentTitle")}</h3>
-        <p className={styles.sub}>{t("intentSub")}</p>
-      </div>
+      <SectionHeader
+        className={styles.copy}
+        eyebrow={t("spotlightKicker")}
+        title={t("intentTitle")}
+        desc={t("intentSub")}
+        titleAs="h3"
+        eyebrowClassName={styles.eyebrow}
+        titleClassName={styles.title}
+        descClassName={styles.sub}
+      />
 
       <div className={styles.chips}>
         {INTENTS.map((it) => (

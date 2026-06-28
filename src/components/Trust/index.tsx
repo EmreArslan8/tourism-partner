@@ -36,11 +36,13 @@ const Trust = () => {
     <section className={styles.section} aria-label={t("trustTitle")}>
       <h3 className={styles.title}>{t("trustTitle")}</h3>
       <ul className={styles.list}>
-        {items.map((b) => (
+        {items.map((b, i) => (
           <li className={styles.item} key={b.t}>
+            <span className={styles.glow} aria-hidden />
             <span className={styles.icon}>{b.icon}</span>
             <span className={styles.body}>
               <strong className={styles.itemTitle}>{b.t}</strong>
+              <span className={styles.rule} aria-hidden />
               <span className={styles.itemDesc}>{b.d}</span>
             </span>
           </li>

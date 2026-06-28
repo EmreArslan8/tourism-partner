@@ -18,10 +18,10 @@ type Banner = {
 };
 
 const BANNERS: Banner[] = [
-  { id: "a1", title: "Antalya'da grup konaklama", sub: "Sezon öncesi kontrat fırsatları", href: "/explore?city=Antalya&cat=konaklama", img: "/assets/cards/resort-1.jpg" },
-  { id: "a2", title: "Kapadokya balon & tur", sub: "Acentelere özel toptan teklifler", href: "/explore?city=Nevşehir&cat=eglence", img: "/assets/cards/balloon-1.jpg" },
-  { id: "a3", title: "VIP transfer & acente ağı", sub: "81 il operasyon kapasitesiyle", href: "/explore?cat=acente", img: "/assets/cards/agency-1.jpg" },
-  { id: "a4", title: "Sağlık turizmi klinikleri", sub: "Doğrulanmış, yetki belgeli", href: "/explore?cat=saglik", img: "/assets/cards/clinic-1.jpg" },
+  { id: "a1", title: "Antalya'da grup konaklama", sub: "Sezon öncesi kontrat fırsatları", href: "/explore?city=Antalya&cat=konaklama", img: "/assets/cards/resort-1.webp" },
+  { id: "a2", title: "Kapadokya balon & tur", sub: "Acentelere özel toptan teklifler", href: "/explore?city=Nevşehir&cat=eglence", img: "/assets/cards/balloon-1.webp" },
+  { id: "a3", title: "VIP transfer & acente ağı", sub: "81 il operasyon kapasitesiyle", href: "/explore?cat=acente", img: "/assets/cards/agency-1.webp" },
+  { id: "a4", title: "Sağlık turizmi klinikleri", sub: "Doğrulanmış, yetki belgeli", href: "/explore?cat=saglik", img: "/assets/cards/clinic-1.webp" },
 ];
 
 const shuffle = <T,>(arr: T[]): T[] => {

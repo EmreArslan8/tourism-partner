@@ -14,7 +14,7 @@ const styles = {
 
   viewport: "overflow-hidden",
   track: "flex transition-transform duration-500 ease-brand",
-  slide: "min-w-full px-0.5 py-1 max-[560px]:px-[1.6px] max-[560px]:py-[3.2px]",
+  slide: "min-w-full px-0.5 py-1 max-[560px]:px-[1.6px] max-[560px]:py-0",
   panel:
     "grid grid-cols-[1.1fr_1fr] gap-5 " +
     "max-[860px]:grid-cols-1 max-[860px]:gap-0 max-[860px]:overflow-hidden max-[860px]:rounded-card-lg " +
@@ -43,32 +43,40 @@ const styles = {
   /* SAĞ — bilgiler (ayrı box) */
   info:
     "flex flex-col gap-3 rounded-card-lg border border-line bg-paper p-7 shadow-card " +
-    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-[6.4px] max-[560px]:p-[11.2px]",
-  infoTop: "flex flex-wrap items-center gap-2.5 max-[560px]:gap-[4.8px]",
-  cat: "label-pill rounded-full bg-cream-deep px-3 py-1 text-brand max-[560px]:px-2 max-[560px]:py-[3.2px]",
+    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-2 max-[560px]:p-4",
+  infoTop: "flex flex-wrap items-center gap-2.5 max-[560px]:gap-1.5",
+  cat:
+    "label-pill rounded-full bg-cream-deep px-3 py-1 text-brand " +
+    "max-[560px]:px-2.5 max-[560px]:py-1 max-[560px]:text-[10.5px] max-[560px]:leading-none",
   verified:
     "label-pill inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-600 " +
-    "max-[560px]:gap-[3.2px] max-[560px]:px-2 max-[560px]:py-[3.2px] max-[560px]:[&_svg]:h-[10.4px] max-[560px]:[&_svg]:w-[10.4px]",
-  name: "heading-card text-ink",
-  meta: "meta-text flex flex-wrap items-center gap-3 max-[560px]:gap-[6.4px]",
-  metaItem: "inline-flex items-center gap-1.5 max-[560px]:gap-[4.8px]",
-  metaIcon: "h-4 w-4 text-muted max-[560px]:h-[12.8px] max-[560px]:w-[12.8px]",
+    "max-[560px]:gap-1 max-[560px]:px-2.5 max-[560px]:py-1 max-[560px]:text-[10.5px] max-[560px]:leading-none " +
+    "max-[560px]:[&_svg]:h-3 max-[560px]:[&_svg]:w-3",
+  name: "heading-card text-ink max-[560px]:text-[1.08rem] max-[560px]:leading-[1.18]",
+  meta:
+    "meta-text flex flex-wrap items-center gap-3 " +
+    "max-[560px]:gap-x-2 max-[560px]:gap-y-0.5 max-[560px]:text-[12px] max-[560px]:leading-[1.35]",
+  metaItem: "inline-flex items-center gap-1.5 max-[560px]:gap-1",
+  metaIcon: "h-4 w-4 text-muted max-[560px]:h-3.5 max-[560px]:w-3.5",
   metaDot: "h-1 w-1 rounded-full bg-line max-[560px]:h-[3.2px] max-[560px]:w-[3.2px]",
   stars: "rating-star-text text-gold",
   ratingNum: "font-bold text-ink",
-  reviews: "meta-text text-muted",
-  desc: "body-muted line-clamp-2 text-ink/70 max-[560px]:line-clamp-2",
+  reviews: "meta-text text-muted max-[560px]:text-[12px] max-[560px]:leading-[1.35]",
+  desc:
+    "body-muted line-clamp-2 text-ink/70 " +
+    "max-[560px]:line-clamp-2 max-[560px]:text-[14px] max-[560px]:leading-[1.45]",
   services: "flex flex-col gap-2 max-[560px]:hidden",
   servicesLabel: "eyebrow text-muted",
   chips: "flex flex-wrap gap-2",
   chip: "meta-text rounded-lg border border-line bg-cream px-2.5 py-1 font-semibold text-ink/75",
   foot:
     "mt-auto flex items-center gap-4 border-t border-line pt-4 " +
-    "max-[560px]:justify-between max-[560px]:gap-[9.6px] max-[560px]:pt-[9.6px]",
+    "max-[560px]:grid max-[560px]:grid-cols-[1fr_auto] max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px] " +
+    "max-[560px]:[&_.btn]:min-h-10 max-[560px]:[&_.btn]:px-4 max-[560px]:[&_.btn]:py-2 max-[560px]:[&_.btn]:text-[13px]",
   quote:
     "inline-flex items-center justify-center rounded-button border border-line px-4 py-[9px] text-[13.5px] font-semibold text-terra " +
     "transition-colors hover:border-terra hover:text-terra-deep " +
-    "max-[560px]:px-[12.8px] max-[560px]:py-[7.2px] max-[560px]:text-[10.8px]",
+    "max-[560px]:min-h-10 max-[560px]:px-4 max-[560px]:py-2 max-[560px]:text-[13px]",
 
   dots: "mt-3 flex items-center justify-center gap-2 max-[640px]:hidden",
   dot: "h-2 w-2 rounded-full bg-line transition-colors hover:bg-muted",

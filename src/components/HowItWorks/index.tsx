@@ -12,9 +12,9 @@ const HowItWorks = () => {
   const [active, setActive] = useState(0);
   const steps = useMemo(
     () => [
-      { n: "1", t: t("s1t"), d: t("s1d"), image: "/assets/how-step-1-profile.png", caption: t("visual1") },
-      { n: "2", t: t("s2t"), d: t("s2d"), image: "/assets/how-step-2-verify.png", caption: t("visual2") },
-      { n: "3", t: t("s3t"), d: t("s3d"), image: "/assets/how-step-3-quotes.png", caption: t("visual3") },
+      { n: "1", t: t("s1t"), d: t("s1d"), image: "/assets/how-step-1-profile.webp", caption: t("visual1") },
+      { n: "2", t: t("s2t"), d: t("s2d"), image: "/assets/how-step-2-verify.webp", caption: t("visual2") },
+      { n: "3", t: t("s3t"), d: t("s3d"), image: "/assets/how-step-3-quotes.webp", caption: t("visual3") },
     ],
     [t]
   );
@@ -28,8 +28,10 @@ const HowItWorks = () => {
   return (
     <section className={styles.section} id="nasil">
       <div className={styles.headline}>
+        <span className={styles.eyebrow}>{t("eyebrow")}</span>
         <h2 className={styles.title}>{t("title")}</h2>
         <p className={styles.lead}>{t("lead")}</p>
+        <p className={styles.leadMobile}>{t("leadMobile")}</p>
       </div>
 
       <div className={styles.stage}>

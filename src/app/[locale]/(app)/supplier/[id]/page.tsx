@@ -9,19 +9,19 @@ import SupplierDetailView from "./view";
 
 const GALLERY_BY_GROUP: Record<GroupKey, string[]> = {
   konaklama: [
-    "/assets/cards/hotel-1.jpg",
-    "/assets/cards/hotel-2.jpg",
-    "/assets/cards/hotel-3.jpg",
-    "/assets/cards/resort-1.jpg",
+    "/assets/cards/hotel-1.webp",
+    "/assets/cards/hotel-2.webp",
+    "/assets/cards/hotel-3.webp",
+    "/assets/cards/resort-1.webp",
   ],
-  acente: ["/assets/cards/agency-1.jpg", "/assets/hero-turizm-b2b-v2.png"],
-  rehber: ["/assets/cards/guide-1.jpg", "/assets/cards/hotel-3.jpg"],
+  acente: ["/assets/cards/agency-1.webp", "/assets/cards/agency-1.webp"],
+  rehber: ["/assets/cards/guide-1.webp", "/assets/cards/hotel-3.webp"],
   eglence: [
-    "/assets/cards/balloon-1.jpg",
-    "/assets/cards/yacht-1.jpg",
-    "/assets/cards/resort-1.jpg",
+    "/assets/cards/balloon-1.webp",
+    "/assets/cards/yacht-1.webp",
+    "/assets/cards/resort-1.webp",
   ],
-  saglik: ["/assets/cards/clinic-1.jpg", "/assets/cards/hotel-2.jpg"],
+  saglik: ["/assets/cards/clinic-1.webp", "/assets/cards/hotel-2.webp"],
 };
 
 export async function generateStaticParams() {

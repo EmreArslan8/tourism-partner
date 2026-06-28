@@ -5,17 +5,18 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import SectionHeader from "@/components/common/SectionHeader";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 /* Kategori kapak görselleri. */
 const IMG: Record<GroupKey, string> = {
-  konaklama: "/assets/cards/hotel-1.jpg",
-  acente: "/assets/cards/agency-1.jpg",
-  rehber: "/assets/cards/guide-1.jpg",
-  eglence: "/assets/cards/balloon-1.jpg",
-  saglik: "/assets/cards/clinic-1.jpg",
+  konaklama: "/assets/cards/hotel-1.webp",
+  acente: "/assets/cards/agency-1.webp",
+  rehber: "/assets/cards/guide-1.webp",
+  eglence: "/assets/cards/balloon-1.webp",
+  saglik: "/assets/cards/clinic-1.webp",
 };
 
 const iconProps = {
@@ -79,11 +80,15 @@ const Categories = () => {
   return (
     <section className={styles.section} id="kategoriler">
       <div className={styles.head}>
-        <div className={styles.headCopy}>
-          <span className={styles.eyebrow}>{t("eyebrow")}</span>
-          <h2 className={styles.headTitle}>{t("title")}</h2>
-          <p className={styles.lead}>{t("lead")}</p>
-        </div>
+        <SectionHeader
+          className={styles.headCopy}
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          desc={t("lead")}
+          eyebrowClassName={styles.eyebrow}
+          titleClassName={styles.headTitle}
+          descClassName={styles.lead}
+        />
         <div className={styles.navBtns}>
           <button type="button" aria-label={t("prev")} className={styles.navBtn} onClick={() => scrollByCard(-1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
@@ -111,7 +116,7 @@ const Categories = () => {
                 src={IMG[g.key]}
                 alt=""
                 fill
-                sizes="(max-width:640px) 78vw, (max-width:1024px) 33vw, 20vw"
+                sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"
                 className={styles.img}
               />
               <span className={styles.badge}>
@@ -120,18 +125,26 @@ const Categories = () => {
               </span>
             </div>
 
+            {/* Mobil banner degradesi. */}
+            <div className={styles.shade} aria-hidden="true" />
+
             <div className={styles.body}>
-              <div className={styles.titleRow}>
-                {ICONS[g.key]}
-                <h3 className={styles.name}>{tc(g.key)}</h3>
+              <div className={styles.bodyMain}>
+                <div className={styles.titleRow}>
+                  {ICONS[g.key]}
+                  <h3 className={styles.name}>{tc(g.key)}</h3>
+                </div>
+                <p className={styles.desc}>{t(`cards.${g.key}.desc`)}</p>
               </div>
-              <p className={styles.desc}>{t(`cards.${g.key}.desc`)}</p>
+              {/* Desktop/tablet: İncele butonu. */}
               <span className={styles.cta}>
                 {t("cta")}
                 <svg className={styles.ctaArrow} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </span>
+              {/* Mobil banner: sağ altta kategori istatistiği. */}
+              <span className={styles.countMobile}>{t(`cards.${g.key}.badge`)}</span>
             </div>
           </Link>
         ))}

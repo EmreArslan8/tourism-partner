@@ -55,11 +55,11 @@ export const GROUP_COLORS: Record<GroupKey, string> = groupPalette;
 /** İşletmenin kendi görseli yoksa kart kapağında kullanılan gruba özel
     varsayılan stok görsel (public/assets/cards/). */
 export const GROUP_COVER: Record<GroupKey, string> = {
-  konaklama: "/assets/cards/hotel-1.jpg",
-  acente: "/assets/cards/agency-1.jpg",
-  rehber: "/assets/cards/guide-1.jpg",
-  eglence: "/assets/cards/balloon-1.jpg",
-  saglik: "/assets/cards/clinic-1.jpg",
+  konaklama: "/assets/cards/hotel-1.webp",
+  acente: "/assets/cards/agency-1.webp",
+  rehber: "/assets/cards/guide-1.webp",
+  eglence: "/assets/cards/balloon-1.webp",
+  saglik: "/assets/cards/clinic-1.webp",
 };
 
 export function groupLabel(key: GroupKey): string {

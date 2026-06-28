@@ -199,7 +199,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
       </div>
       <label className={label}>Açıklama<textarea name="description" defaultValue={business?.desc ?? ""} className={textarea} /></label>
       <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-        <label className={label}>Kapak görseli<input name="image" defaultValue={business?.image ?? ""} placeholder="/assets/cards/hotel-1.jpg" className={input} /></label>
+        <label className={label}>Kapak görseli<input name="image" defaultValue={business?.image ?? ""} placeholder="/assets/cards/hotel-1.webp" className={input} /></label>
         <label className={label}>Etiket<input name="tag" defaultValue={business?.tag ?? ""} className={input} /></label>
       </div>
       <label className={label}>Filtre özellikleri<input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={input} /></label>

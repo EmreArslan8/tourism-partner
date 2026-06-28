@@ -15,12 +15,12 @@ const styles = {
   panelRegions: `${panelBase} max-[640px]:justify-start`,
   panelCategories: panelBase,
   panelFaq: `${panelBase} max-[640px]:justify-start`,
-  panelStack: `${panelBase} gap-5 max-[640px]:gap-[12.8px]`,
+  panelStack: `${panelBase} gap-5 max-[640px]:gap-1.5`,
   // İçerik container-px kutusunu doldurur — Hero/Header/Footer ile aynı sol/sağ hizada kalır.
   inner: "w-full",
   innerWide: "h-full min-h-0 w-full",
   // SSS paneli: üstte FAQ, altta güven rozetleri (rozetler kendi aralarında yan yana).
-  faqStack: "flex w-full flex-col gap-8 max-[860px]:gap-6",
+  faqStack: "flex w-full flex-col gap-16 max-[1024px]:gap-14 max-[860px]:gap-8 max-[640px]:gap-5",
 } as const;
 
 export default styles;

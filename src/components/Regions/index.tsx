@@ -1,21 +1,22 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import SectionHeader from "@/components/common/SectionHeader";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
 /* Şehir → kapak görseli (Wikimedia stok, public/assets/regions). */
 const CITY_IMG: Record<string, string> = {
-  "İstanbul": "/assets/regions/istanbul.jpg",
-  "Ankara": "/assets/regions/ankara.jpg",
-  "Nevşehir": "/assets/regions/nevsehir.jpg",
-  "Muğla": "/assets/regions/mugla.jpg",
-  "İzmir": "/assets/regions/izmir.jpg",
-  "Antalya": "/assets/regions/antalya.jpg",
-  "Tiflis": "/assets/regions/tiflis.jpg",
-  "Santorini": "/assets/regions/santorini.jpg",
-  "Denizli": "/assets/regions/denizli.jpg",
-  "Batum": "/assets/regions/batum.jpg",
+  "İstanbul": "/assets/regions/istanbul.webp",
+  "Ankara": "/assets/regions/ankara.webp",
+  "Nevşehir": "/assets/regions/nevsehir.webp",
+  "Muğla": "/assets/regions/mugla.webp",
+  "İzmir": "/assets/regions/izmir.webp",
+  "Antalya": "/assets/regions/antalya.webp",
+  "Tiflis": "/assets/regions/tiflis.webp",
+  "Santorini": "/assets/regions/santorini.webp",
+  "Denizli": "/assets/regions/denizli.webp",
+  "Batum": "/assets/regions/batum.webp",
 };
 
 /* Popüler bölgeler — şehir bazlı yoğunluktan üretilir, görsel kapaklı (SEO + hızlı arama). */
@@ -35,11 +36,15 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
 
   return (
     <section className={styles.section} id="bolgeler">
-      <div className={styles.head}>
-        <span className={styles.eyebrow}>{t("eyebrow")}</span>
-        <h2 className={styles.title}>{t("title")}</h2>
-        <p className={styles.sub}>{t("sub")}</p>
-      </div>
+      <SectionHeader
+        className={styles.head}
+        eyebrow={t("eyebrow")}
+        title={t("title")}
+        desc={t("sub")}
+        eyebrowClassName={styles.eyebrow}
+        titleClassName={styles.title}
+        descClassName={styles.sub}
+      />
 
       <div className={styles.grid}>
         {top.map(([city, count]) => (
