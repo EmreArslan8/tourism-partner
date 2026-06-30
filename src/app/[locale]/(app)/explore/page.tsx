@@ -1,21 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
-import { getBusinesses } from "@/lib/businesses";
-import type { GroupKey } from "@/lib/types";
+import { getExploreData } from "@/lib/explore-data";
+import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
 import ExploreView from "./view";
-
-type ExploreSearchParams = {
-  cat?: string;
-  type?: string;
-  city?: string;
-  country?: string;
-  district?: string;
-  q?: string;
-  verified?: string;
-  rating?: string;
-  attr?: string;
-  sort?: string;
-};
 
 export default async function ExplorePage({
   params,
@@ -37,31 +24,23 @@ export default async function ExplorePage({
 /* searchParams + useSearchParams(ListingView) runtime erişimleri — <Suspense> altında. */
 async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchParams> }) {
   const sp = await searchParams;
-  const groups = (sp.cat?.split(",").filter(Boolean) ?? []) as GroupKey[];
-  const typesArr = sp.type?.split(",").filter(Boolean) ?? [];
-  const city = sp.city ?? "all";
-  const country = sp.country ?? "all";
-  const district = sp.district ?? "all";
-  const q = sp.q ?? "";
-  const verified = sp.verified === "1";
-  const minRating = Number(sp.rating) || 0;
-  const attrsArr = sp.attr?.split(",").filter(Boolean) ?? [];
-  const sort = (sp.sort === "rating" || sp.sort === "az" ? sp.sort : "featured") as "featured" | "rating" | "az";
-  const businesses = await getBusinesses();
+  const filters = parseExploreFilters(sp);
+  const { businesses, gated } = await getExploreData();
 
   return (
     <ListingView
+      gated={gated}
       businesses={businesses}
-      initialGroups={groups}
-      initialTypes={typesArr}
-      initialCountry={country}
-      initialCity={city}
-      initialDistrict={district}
-      initialQ={q}
-      initialVerified={verified}
-      initialMinRating={minRating}
-      initialAttrs={attrsArr}
-      initialSort={sort}
+      initialGroups={filters.groups}
+      initialTypes={filters.types}
+      initialCountry={filters.country}
+      initialCity={filters.city}
+      initialDistrict={filters.district}
+      initialQ={filters.q}
+      initialVerified={filters.verified}
+      initialMinRating={filters.minRating}
+      initialAttrs={filters.attrs}
+      initialSort={filters.sort}
     />
   );
 }

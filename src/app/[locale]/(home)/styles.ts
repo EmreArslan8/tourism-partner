@@ -3,8 +3,8 @@
 // Tüm panellerde ortak taban: container-px hizası + 100dvh + sabit/simetrik dikey ritim.
 // Tek kaynak: dikey boşluğu değiştirmek için yalnızca burayı düzenle.
 const panelBase =
-  "container-px flex h-full w-full flex-col items-center justify-center overflow-hidden bg-paper py-[72px] " +
-  "max-[1120px]:justify-start max-[1120px]:py-10 max-[900px]:py-8 max-[640px]:py-6";
+  "container-px flex h-full w-full flex-col items-center justify-center overflow-hidden bg-paper py-8 " +
+  "max-[1120px]:justify-start max-[900px]:py-6 max-[640px]:py-5";
 
 const styles = {
   panelDark: "flex h-full w-full flex-col bg-pine",

@@ -3,26 +3,8 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import type { PublicAdBanner } from "@/lib/platform-data";
 import styles from "./styles";
-
-/* Sponsorlu banner slider — gelir modeli (landing reklam).
-   Production: her banner admin panelinden yüklenen görsel + URL + tarih aralığı.
-   Brief: sıra sabit değil, her oturumda shuffle (impression dengesi).
-   Aşağıdaki img'ler demo placeholder; gerçekte reklam kreatifi (~1200×300) gelecek. */
-type Banner = {
-  id: string;
-  title: string;
-  sub: string;
-  href: string;
-  img: string;
-};
-
-const BANNERS: Banner[] = [
-  { id: "a1", title: "Antalya'da grup konaklama", sub: "Sezon öncesi kontrat fırsatları", href: "/explore?city=Antalya&cat=konaklama", img: "/assets/cards/resort-1.webp" },
-  { id: "a2", title: "Kapadokya balon & tur", sub: "Acentelere özel toptan teklifler", href: "/explore?city=Nevşehir&cat=eglence", img: "/assets/cards/balloon-1.webp" },
-  { id: "a3", title: "VIP transfer & acente ağı", sub: "81 il operasyon kapasitesiyle", href: "/explore?cat=acente", img: "/assets/cards/agency-1.webp" },
-  { id: "a4", title: "Sağlık turizmi klinikleri", sub: "Doğrulanmış, yetki belgeli", href: "/explore?cat=saglik", img: "/assets/cards/clinic-1.webp" },
-];
 
 const shuffle = <T,>(arr: T[]): T[] => {
   const a = [...arr];
@@ -33,33 +15,37 @@ const shuffle = <T,>(arr: T[]): T[] => {
   return a;
 };
 
-const AdSlider = () => {
+const AdSlider = ({ banners: inputBanners }: { banners: PublicAdBanner[] }) => {
   const t = useTranslations("ads");
-  // SSR ile aynı sırayla render; mount sonrası client'ta shuffle (impression dengesi, hydration-safe).
-  const [banners, setBanners] = useState<Banner[]>(BANNERS);
+  const [banners, setBanners] = useState(inputBanners);
   const [i, setI] = useState(0);
 
   useEffect(() => {
-    setBanners(shuffle(BANNERS));
-  }, []);
+    if (inputBanners.length < 2) return;
+    const id = window.setTimeout(() => setBanners(shuffle(inputBanners)), 0);
+    return () => window.clearTimeout(id);
+  }, [inputBanners]);
 
   useEffect(() => {
+    if (banners.length < 2) return;
     const id = setInterval(() => setI((p) => (p + 1) % banners.length), 5000);
     return () => clearInterval(id);
   }, [banners.length]);
+
+  if (banners.length === 0) return null;
 
   return (
     <section className={styles.section} aria-label="Sponsored">
       <div className={styles.viewport}>
         <div className={styles.track} style={{ transform: `translateX(-${i * 100}%)` }}>
           {banners.map((b) => (
-            <a key={b.id} href={b.href} className={styles.slide}>
-              <Image src={b.img} alt="" fill sizes="100vw" className={styles.img} />
+            <a key={b.id} href={b.target_url} className={styles.slide}>
+              <Image src={b.image_url} alt="" fill sizes="100vw" className={styles.img} />
               <div className={styles.shade} />
               <span className={styles.tag}>{t("label")}</span>
               <div className={styles.body}>
                 <h3 className={styles.title}>{b.title}</h3>
-                <p className={styles.sub}>{b.sub}</p>
+                <p className={styles.sub}>{b.placement}</p>
               </div>
               <span className={styles.cta}>
                 {t("cta")}

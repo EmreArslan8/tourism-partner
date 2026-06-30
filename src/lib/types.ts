@@ -28,10 +28,19 @@ export interface Business {
   reviews: number;
   tag: string;
   verified: boolean;
-  /** Landing vitrininde reklam olarak gösterilsin mi (bizim seçimimiz) */
+  /** Premium Partner dopingi: ücretli, kalıcı öne çıkarma (admin kontrollü). */
   sponsored: boolean;
+  /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
+      Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
+  dopingUntil?: string;
+  /** Kurum (firma) iletişim — profilde herkese açık gösterilir. Yetkili kişi bilgisi
+      ASLA buraya konmaz; o yalnızca panel/başvuru tarafında tutulur. */
+  phone?: string;
+  website?: string;
   /** Kart kapak görseli (public/ altı yol). Yoksa gruba göre varsayılan kullanılır. */
   image?: string;
+  /** İşletmenin kendi galeri görselleri. */
+  images?: string[];
   /** Filtreleme facet slug'ları (hizmet/özellik/ticari şartlar). Bkz. lib/facets.ts */
   attributes?: string[];
   seoTitle?: string;
@@ -69,6 +78,7 @@ export type ActionState = { ok: boolean; error?: string };
 
 // --- Admin Types ---
 export type BusinessLifecycleStatus =
+  | "draft"
   | "pending"
   | "approved"
   | "rejected"
@@ -80,6 +90,18 @@ export type BusinessLifecycleStatus =
 export type AdminBusiness = Business & {
   status: BusinessLifecycleStatus;
   createdAt?: string;
+  /** Onay incelemesi için: panelde yüklenen evraklar + dinamik alanlar. */
+  documents?: { kind: string; url: string; name: string }[];
+  details?: Record<string, string>;
+};
+
+export type AdminApplicationDoc = {
+  /** Belge etiketi, ör. "TÜRSAB Belgesi" */
+  label: string;
+  /** Yüklendi mi; false ise kartta "Eksik" olarak kırmızı gösterilir. */
+  uploaded: boolean;
+  /** Yüklü belgenin görüntüleme URL'i (varsa) */
+  url?: string;
 };
 
 export type AdminApplication = {
@@ -90,6 +112,12 @@ export type AdminApplication = {
   categoryLabel: string | null;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+  /** Aşağıdakiler opsiyoneldir — applications tablosu henüz tutmuyorsa boş geçilir,
+      kart bu alanları yalnızca veri varsa gösterir. */
+  contactPerson?: string;
+  phone?: string;
+  address?: string;
+  documents?: AdminApplicationDoc[];
 };
 
 export type AdminQuote = {
@@ -148,9 +176,12 @@ export type AdminSystemBackup = {
 
 export type AdminAuditLog = {
   id: number;
+  adminId: string | null;
   action: string;
   entityType: string | null;
   entityId: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
   createdAt: string;
 };
 

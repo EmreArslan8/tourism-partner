@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import {
   facetCounts,
   filterAndSortBusinesses,
+  dopingRank,
 } from "@/lib/listing";
 import type { Business, GroupKey, ListingFilters, Sort } from "@/lib/types";
 import dynamic from "next/dynamic";
@@ -29,7 +30,7 @@ import styles from "./styles";
 const MapPanel = dynamic(() => import("@/components/MapPanel"), {
   ssr: false,
   loading: () => (
-    <div className="h-[560px] animate-pulse rounded-[16px] border border-line bg-[#e7ecff] max-[1000px]:h-[360px]" />
+    <div className="h-[560px] animate-pulse rounded-[16px] border border-line bg-cream-deep max-[1000px]:h-[360px]" />
   ),
 });
 
@@ -37,6 +38,7 @@ const PAGE_SIZE = 9;
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
 
 const ListingView = ({
+  gated = false,
   businesses = [],
   initialGroups = [],
   initialTypes = [],
@@ -49,6 +51,7 @@ const ListingView = ({
   initialSort = "featured",
   initialAttrs = [],
 }: {
+  gated?: boolean;
   businesses?: Business[];
   initialGroups?: GroupKey[];
   initialTypes?: string[];
@@ -112,6 +115,10 @@ const ListingView = ({
     () => filterAndSortBusinesses(businesses, filters, deferredQ, sort),
     [businesses, filters, deferredQ, sort]
   );
+
+  // Kelime araması yapılıyorsa ülke seçimi zorunlu (modern "önce konum" akışı):
+  // ülke seçili değilse sonuç yerine ülke seçtiren bir ekran gösterilir.
+  const needsCountry = deferredQ.trim() !== "" && country === "all";
 
   // Facet sayaçları: grup sayımı grup+tür filtresini yok sayar; tür sayımı yalnız tür filtresini yok sayar.
   const groupCounts = useMemo(
@@ -253,6 +260,52 @@ const ListingView = ({
     setPage(1);
   }
 
+  // Hibrit erişim bandı: misafir kullanıcı yalnızca premium/doping işletmeleri
+  // görür (liste zaten sunucuda premium'a indirgenir). Tam liste + filtrelemenin
+  // tamamı için giriş/kayıt'a yönlendirilir.
+  const gateBanner = gated ? (
+    <div className={styles.gate}>
+      <div className={styles.gateBadge} aria-hidden>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="11" width="18" height="10" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      </div>
+      <div className={styles.gateBody}>
+        <h3 className={styles.gateTitle}>{t("gateTitle")}</h3>
+        <p className={styles.gateText}>{t("gateText")}</p>
+      </div>
+      <div className={styles.gateActions}>
+        <Link href="/login" className="btn btn-solid btn-sm">{t("gateLogin")}</Link>
+        <Link href="/register" className="btn btn-outline btn-sm">{t("gateRegister")}</Link>
+      </div>
+    </div>
+  ) : null;
+
+  // Kelime araması var ama ülke seçilmemiş → "önce ülke seç" + popüler ülke çipleri.
+  const countryPrompt = (
+    <div className={styles.countryAsk}>
+      <div className={styles.countryAskIcon} aria-hidden>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.6" />
+        </svg>
+      </div>
+      <h3 className={styles.countryAskTitle}>{t("countryAskTitle")}</h3>
+      <p className={styles.countryAskText}>{t("countryAskText")}</p>
+      <div className={styles.countryAskChips}>
+        {countries.map((c) => (
+          <button
+            key={c}
+            type="button"
+            className={styles.countryChip}
+            onClick={() => { setCountry(c); setCity("all"); setDistrict("all"); setPage(1); }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   const resultsColumn = (gridClass: string) => (
     <div>
       {filtered.length === 0 ? (
@@ -264,7 +317,12 @@ const ListingView = ({
       ) : (
         <div className={gridClass}>
           {pageItems.map((b) => (
-            <SupplierCard key={b.id} business={b} flag={b.sponsored ? tCommon("ad") : null} showStars>
+            <SupplierCard
+              key={b.id}
+              business={b}
+              flag={dopingRank(b) === 2 ? tCommon("ad") : dopingRank(b) === 1 ? tCommon("featured") : null}
+              showStars
+            >
               <Link 
                 href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} 
                 className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]"
@@ -395,6 +453,10 @@ const ListingView = ({
 
           <ActiveTags tags={tags} onRemove={removeTag} onClear={reset} />
 
+          {gateBanner}
+
+          {needsCountry ? countryPrompt : (
+          <>
           <div className={styles.resultsBar}>
         <p className={styles.count}>
           {t.rich("results", { count: filtered.length, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
@@ -452,6 +514,8 @@ const ListingView = ({
             </div>
           ) : (
             resultsColumn(styles.gridWide)
+          )}
+          </>
           )}
         </div>
       </div>

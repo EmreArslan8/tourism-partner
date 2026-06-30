@@ -9,6 +9,8 @@ import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
 import Trust from "@/components/Trust";
 import ReelDeck from "@/components/ReelDeck";
+import AdSlider from "@/components/AdSlider";
+import type { PublicAdBanner } from "@/lib/platform-data";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
@@ -19,7 +21,13 @@ import styles from "./styles";
  * 4) Tedarikçi türleri 5) Üç adımda iş birliği  6) SSS
  * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
  */
-const HomeView = ({ businesses }: { businesses: Business[] }) => {
+const HomeView = ({
+  businesses,
+  adBanners,
+}: {
+  businesses: Business[];
+  adBanners: PublicAdBanner[];
+}) => {
   return (
     <ReelDeck>
       {/* 1 — Hero (tam-bleed) + alt marka şeridi */}
@@ -34,6 +42,11 @@ const HomeView = ({ businesses }: { businesses: Business[] }) => {
 
       {/* 2 — Vitrin + CTA */}
       <div className={styles.panelStack}>
+        {adBanners.length > 0 && (
+          <div className={styles.inner}>
+            <AdSlider banners={adBanners} />
+          </div>
+        )}
         <div className={styles.inner}>
           <Showcase businesses={businesses} />
         </div>

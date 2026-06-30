@@ -1,21 +1,24 @@
 import { ContentForm, ContentTable, PageHeader, panel } from "../_components";
 import styles from "./styles";
+import type { AdminPopupRow, BlogPostRow } from "@/lib/supabase/database.types";
 import type { ContentPage } from "@/lib/types";
 
 interface Props {
   pages: ContentPage[];
+  blogPosts: BlogPostRow[];
+  popups: AdminPopupRow[];
   locale: string;
 }
 
-const AdminContentView = ({ pages, locale }: Props) => {
+const AdminContentView = ({ pages, blogPosts, popups, locale }: Props) => {
   const firstPage = pages[0];
 
   return (
     <>
       <PageHeader
         eyebrow="İçerik"
-        title="Sayfa içerikleri"
-        description="Landing, kategori, özel kampanya veya SEO odaklı içerik sayfalarını metin ve metadata ile yönet."
+        title="İçerik Yönetimi"
+        description="Sayfa içerikleri, blog yayınları ve platform içi pop-up kampanyalarını yönetin."
       />
 
       <div className={styles.grid}>
@@ -35,8 +38,91 @@ const AdminContentView = ({ pages, locale }: Props) => {
           </div>
         </section>
       </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className={panel}>
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className={styles.sectionTitle}>Blog Düzenleme</h2>
+              <p className={styles.sectionSub}>blog_posts tablosundaki yayınlar.</p>
+            </div>
+            <button type="button" className="rounded-[8px] bg-[#0057D9] px-4 py-2 text-[13px] font-extrabold text-white hover:bg-[#0047B8]">
+              Yeni Blog
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-[13px]">
+              <thead className="bg-[#F6F8FC] text-[11px] font-extrabold uppercase tracking-[.08em] text-[#3D4B64]">
+                <tr>
+                  <th className="border-b border-[#D4DCEA] px-4 py-3">Başlık</th>
+                  <th className="border-b border-[#D4DCEA] px-4 py-3">Kategori</th>
+                  <th className="border-b border-[#D4DCEA] px-4 py-3">Dil</th>
+                  <th className="border-b border-[#D4DCEA] px-4 py-3">Durum</th>
+                  <th className="border-b border-[#D4DCEA] px-4 py-3">Güncelleme</th>
+                </tr>
+              </thead>
+              <tbody>
+                {blogPosts.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-10 text-center text-[13px] font-semibold text-[#64748B]">
+                      Henüz blog kaydı yok.
+                    </td>
+                  </tr>
+                )}
+                {blogPosts.map((post) => (
+                  <tr key={post.id} className="hover:bg-[#F8FAFF]">
+                    <td className="border-b border-[#D4DCEA] px-4 py-3 font-extrabold text-[#162238]">{post.title}</td>
+                    <td className="border-b border-[#D4DCEA] px-4 py-3 font-semibold text-[#3D4B64]">{post.category ?? "-"}</td>
+                    <td className="border-b border-[#D4DCEA] px-4 py-3 font-semibold text-[#3D4B64]">{post.locale}</td>
+                    <td className="border-b border-[#D4DCEA] px-4 py-3 font-semibold text-[#3D4B64]">{post.status}</td>
+                    <td className="border-b border-[#D4DCEA] px-4 py-3 font-semibold text-[#64748B]">{fmtDate(post.updated_at)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className={panel}>
+          <h2 className={styles.formTitle}>Pop-up Yönetimi</h2>
+          <p className={styles.formSub}>admin_popups tablosundaki kampanyalar.</p>
+          <div className="mt-4 grid gap-3">
+            {popups.length === 0 ? (
+              <p className="rounded-[8px] border border-dashed border-[#C9D3E5] px-4 py-8 text-center text-[13px] font-semibold text-[#64748B]">
+                Henüz pop-up kaydı yok.
+              </p>
+            ) : (
+              popups.map((popup) => (
+                <article key={popup.id} className="rounded-[8px] border border-[#D4DCEA] bg-[#FBFCFF] p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-[14px] font-extrabold text-[#162238]">{popup.title}</h3>
+                      <p className="mt-1 text-[12px] font-semibold text-[#64748B]">
+                        {popup.target_role} · {popup.frequency} · {popup.status}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[11px] font-extrabold text-[#0057D9]">
+                      {popup.starts_at ? fmtDate(popup.starts_at) : "Hemen"}
+                    </span>
+                  </div>
+                  {popup.cta_url && (
+                    <a href={popup.cta_url} target="_blank" rel="noreferrer" className="mt-2 block truncate text-[12px] font-bold text-[#0057D9] hover:underline">
+                      {popup.cta_label ?? popup.cta_url}
+                    </a>
+                  )}
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </>
   );
 };
+
+function fmtDate(value: string | null) {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(value));
+}
 
 export default AdminContentView;

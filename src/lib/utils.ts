@@ -1,8 +1,11 @@
 /* Küçük ortak yardımcılar. */
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-/** Koşullu className birleştirici. */
-export function cn(...classes: Array<string | false | null | undefined>): string {
-  return classes.filter(Boolean).join(" ");
+/** Koşullu className birleştirici (clsx + tailwind-merge — çakışan Tailwind
+    sınıflarını da doğru birleştirir; shadcn/ui bileşenleri bunu bekler). */
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
 }
 
 /** İsimden baş harf(ler) — kapak monogramları için (ör. "Kaya Palas" → "KP"). */

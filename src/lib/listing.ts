@@ -4,6 +4,35 @@ import type { Business, GroupKey, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
 import { normalizeTr } from "./utils";
 
+/* Doping rütbesi (öne çıkarma) — büyük olan üstte listelenir.
+   2 = Premium Partner (ücretli, kalıcı). 1 = süreli doping (24s hoş geldin veya
+   süreli premium paketi, dopingUntil gelecekte). 0 = normal. */
+export function dopingRank(b: Business): number {
+  if (b.sponsored) return 2;
+  if (b.dopingUntil && new Date(b.dopingUntil).getTime() > Date.now()) return 1;
+  return 0;
+}
+
+/** İşletme şu an öne çıkan (doping aktif) mı? Kart rozetinde kullanılır. */
+export function isDoped(b: Business): boolean {
+  return dopingRank(b) > 0;
+}
+
+/* Profil doluluk skoru (0–8) — dolu profiller arama sonuçlarında üst sırada.
+   Doluluk hem alıcıya daha iyi bilgi verir hem işletmeyi profil tamamlamaya teşvik eder. */
+export function profileScore(b: Business): number {
+  let s = 0;
+  if (b.desc && b.desc.trim().length > 20) s++;
+  if (b.image) s++;
+  if (b.attributes && b.attributes.length > 0) s++;
+  if (b.phone) s++;
+  if (b.website) s++;
+  if (b.tag) s++;
+  if (b.coords && (b.coords[0] !== 0 || b.coords[1] !== 0)) s++;
+  if (b.reviews > 0) s++;
+  return s;
+}
+
 /* Alaka skoru: isimde geçen +3, tür +2, etiket/şehir/ilçe +1. `needle` normalize edilmiş olmalı. */
 export function scoreBusiness(b: Business, needle: string): number {
   if (!needle) return 0;
@@ -49,10 +78,23 @@ export function filterAndSortBusinesses(
 
   if (sort === "rating") items.sort((a, b) => b.b.rating - a.b.rating || b.b.reviews - a.b.reviews);
   else if (sort === "az") items.sort((a, b) => a.b.name.localeCompare(b.b.name, "tr"));
-  // Varsayılan: arama varsa önce alaka skoru, yoksa sponsor + puan.
+  // Varsayılan: arama varsa önce alaka skoru → doping → puan → profil doluluk.
   else if (needle)
-    items.sort((a, b) => b.s - a.s || Number(b.b.sponsored) - Number(a.b.sponsored) || b.b.rating - a.b.rating);
-  else items.sort((a, b) => Number(b.b.sponsored) - Number(a.b.sponsored) || b.b.rating - a.b.rating);
+    items.sort(
+      (a, b) =>
+        b.s - a.s ||
+        dopingRank(b.b) - dopingRank(a.b) ||
+        b.b.rating - a.b.rating ||
+        profileScore(b.b) - profileScore(a.b),
+    );
+  // Aramasız varsayılan: doping → puan → profil doluluk.
+  else
+    items.sort(
+      (a, b) =>
+        dopingRank(b.b) - dopingRank(a.b) ||
+        b.b.rating - a.b.rating ||
+        profileScore(b.b) - profileScore(a.b),
+    );
 
   return items.map(({ b }) => b);
 }

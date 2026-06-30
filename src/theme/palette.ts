@@ -1,8 +1,8 @@
 export const palette = {
   pine: "#07092a",
   pineSoft: "#172178",
-  cream: "#f6f8ff",
-  creamDeep: "#e7ecff",
+  cream: "#fffefd",
+  creamDeep: "#fdfcf9",
   paper: "#ffffff",
   /* Sapphire — resmî palet. Ana: #0F3BB0 · Parlak: #004FE6 · Gece: #0A2472. */
   sapphire: "#0f3bb0",
@@ -17,7 +17,7 @@ export const palette = {
   brandDeep: "#071a52",
   ink: "#0b102f",
   muted: "#66708f",
-  line: "#d8dffc",
+  line: "#efede8",
 } as const;
 
 /* Kategori (ana grup) renkleri — katalog noktaları ve kart kapakları için. */
@@ -59,4 +59,3 @@ export const tailwindColors = {
     saglik: groupPalette.saglik,
   },
 } as const;
-

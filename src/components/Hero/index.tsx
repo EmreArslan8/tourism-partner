@@ -6,13 +6,6 @@ import HeroSearch from "@/components/HeroSearch";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
-const STATS = [
-  { n: "4.700+", key: "statSuppliers" },
-  { n: "18", key: "statCities" },
-  { n: "3", key: "statCountries" },
-  { n: "~4 sa", key: "statResponse" },
-] as const;
-
 const commonImageProps = {
   alt: "",
   sizes: "100vw",
@@ -51,6 +44,13 @@ const {
 const Hero = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
+  const stats = [
+    { n: formatCount(businesses.length), key: "statSuppliers" },
+    { n: String(new Set(businesses.map((business) => business.city).filter(Boolean)).size), key: "statCities" },
+    { n: String(new Set(businesses.map((business) => business.country).filter(Boolean)).size), key: "statCountries" },
+    { n: "~4 sa", key: "statResponse" },
+  ] as const;
+
   return (
     <section className={styles.section}>
       <Header variant="glass" />
@@ -84,7 +84,7 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
         </div>
 
         <div className={styles.stats} aria-label="Stats">
-          {STATS.map((st) => (
+          {stats.map((st) => (
             <div key={st.key} className={styles.stat}>
               <strong className={styles.statNum}>{st.n}</strong>
               <span className={styles.statLabel}>{t(st.key)}</span>
@@ -95,5 +95,10 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
     </section>
   );
 };
+
+function formatCount(value: number): string {
+  if (value >= 1000) return `${Math.floor(value / 100) / 10}K+`;
+  return value.toLocaleString("tr-TR");
+}
 
 export default Hero;

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
+import { supplierPath } from "@/lib/site";
 import { GROUP_COVER } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import SupplierDetailView from "./view";
@@ -34,11 +35,33 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ locale: string; id: string }>;
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { locale, id } = await params;
   const b = await getBusinessBySlug(id);
-  return { title: b ? `${b.name} — Tourism Partner` : "Tourism Partner" };
+  if (!b) return { title: "Tourism Partner" };
+
+  // Public, index'lenebilir profil (Brief §3B): Google deep-link + organik trafik.
+  const title = b.seoTitle || `${b.name} — ${b.city} · Tourism Partner`;
+  const description =
+    b.seoDescription ||
+    (b.desc ? b.desc.slice(0, 160) : `${b.name}, ${b.city}/${b.country} · ${b.type}`);
+  const canonical = supplierPath(locale === "en" ? "en" : "tr", businessSlug(b));
+
+  return {
+    title,
+    description,
+    keywords: b.seoKeywords,
+    alternates: { canonical },
+    robots: { index: true, follow: true },
+    openGraph: {
+      title,
+      description,
+      type: "profile",
+      url: canonical,
+      images: b.ogImage || b.image ? [{ url: b.ogImage || b.image! }] : undefined,
+    },
+  };
 }
 
 export default async function DetailPage({
@@ -60,7 +83,7 @@ export default async function DetailPage({
   
   const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
   const cover = b.image ?? GROUP_COVER[b.group];
-  const gallery = Array.from(new Set([cover, ...GALLERY_BY_GROUP[b.group]]));
+  const gallery = Array.from(new Set([cover, ...(b.images?.length ? b.images : GALLERY_BY_GROUP[b.group])]));
 
   return (
     <SupplierDetailView

@@ -8,7 +8,7 @@
     "login": "Log In",
     "agencyLogin": "Agency Login",
     "supplierLogin": "Supplier Login",
-    "addBusiness": "+ List Business"
+    "addBusiness": "Sign Up"
   },
   "common": {
     "verified": "Verified",
@@ -18,7 +18,8 @@
     "reviews": "reviews",
     "viewAll": "View all →",
     "detailLogin": "Log in for details",
-    "categoriesEyebrow": "Supplier types"
+    "categoriesEyebrow": "Supplier types",
+    "featured": "Featured"
   },
   "cat": {
     "konaklama": "Accommodation",
@@ -64,7 +65,13 @@
     "emptyText": "Broaden your filters and try again.",
     "clearFilters": "Clear Filters",
     "mapLabel": "Map",
-    "mapNote": "Demo map · real OSM tiles on deploy"
+    "mapNote": "Demo map · real OSM tiles on deploy",
+    "gateTitle": "Showing premium partners only",
+    "gateText": "You are in guest view. Sign in to see all suppliers and use the full filtering tools.",
+    "gateLogin": "Sign In",
+    "gateRegister": "Register Free",
+    "countryAskTitle": "Choose a country to start searching",
+    "countryAskText": "For keyword search, please pick a country first to narrow results. Choose one below."
   },
   "supplier": {
     "home": "Home",
@@ -74,7 +81,7 @@
     "svcGroupDiscount": "Group discount",
     "svcTransfer": "Transfer",
     "svcCommission": "Commission-based",
-    "gated": "Location, contact and pricing details are members-only.",
+    "gated": "Authorized contact person and detailed quote discussions are members-only.",
     "loginCta": "Log in",
     "quoteTitle": "Get a quote from this supplier",
     "quoteSub": "Send your request and let the company contact you directly.",
@@ -85,7 +92,11 @@
     "rating": "Rating",
     "verification": "Verification",
     "verifiedDone": "Completed",
-    "verifiedPending": "Pending"
+    "verifiedPending": "Pending",
+    "contactTitle": "Company contact",
+    "phone": "Phone",
+    "website": "Website",
+    "addressLabel": "Address"
   },
   "quote": {
     "eyebrow": "Get Quotes",
@@ -153,6 +164,8 @@
     "title": "Business Panel",
     "agencyTitle": "Agency Dashboard",
     "supplierTitle": "Service Provider Dashboard",
+    "partnerWorkspace": "Partner workspace",
+    "signedInAs": "Signed in",
     "agencyMode": "Demand creator account",
     "supplierMode": "Service provider account",
     "guideMode": "Tour guide account",
@@ -197,6 +210,22 @@
     "verified": "Verified",
     "pendingHint": "Your listing goes live once approved.",
     "preview": "Preview listing",
+    "editListing": "Edit details",
+    "newListing": "New listing",
+    "backToListingDashboard": "Back to listing summary",
+    "mediaSectionTitle": "Media",
+    "basicInfoSectionTitle": "Basic information",
+    "servicesSectionTitle": "Services",
+    "listingDashboardTitle": "Listing management",
+    "listingDashboardPendingSub": "Your listing is under admin review. Track its status and missing items here.",
+    "listingDashboardLiveSub": "Your listing is live. Track requests, membership and profile quality from this workspace.",
+    "listingIdentity": "Listing summary",
+    "listingGallery": "photos",
+    "listingDocuments": "documents",
+    "listingNextPendingTitle": "Next step",
+    "listingNextPendingText": "You can update profile details and media until approval is complete. After approval, the listing becomes visible in search and showcase areas.",
+    "listingNextLiveTitle": "Live listing",
+    "listingNextLiveText": "Keep profile quality high, follow incoming quote requests and monitor membership status.",
     "agencyProfileTitle": "Agency information",
     "agencyProfileSub": "Complete the agency profile suppliers will see when you create requests.",
     "editTitle": "Listing details",
@@ -212,6 +241,11 @@
     "country": "Country",
     "city": "City",
     "district": "District",
+    "countryPlaceholder": "Select country",
+    "cityPlaceholder": "Select city",
+    "districtPlaceholder": "Select district",
+    "countryFirst": "Select country first",
+    "cityFirst": "Select city first",
     "phone": "Phone",
     "website": "Website",
     "description": "Description",
@@ -227,7 +261,9 @@
     "save": "Save",
     "saving": "Saving…",
     "saved": "Saved ✓",
+    "cancel": "Cancel",
     "error": "Could not save, please try again.",
+    "invalidRegion": "Please select a valid country, city and district.",
     "agencyWorkTitle": "Agency workflow",
     "agencyWorkSub": "Request creation and offer collection flow.",
     "agencyStep1": "Create a new request with region, dates, group size and service type.",
@@ -246,6 +282,13 @@
     "noQuotes": "No quote requests yet.",
     "reply": "Reply",
     "replySubject": "About your quote request",
-    "people": "people"
+    "people": "people",
+    "companyFieldsTitle": "Company / legal details",
+    "documentsTitle": "Documents",
+    "documentsSub": "Upload the documents required for your category (PDF or image). Items marked (*) are mandatory.",
+    "docUpload": "Upload",
+    "docReplace": "Replace",
+    "docRemove": "Remove",
+    "select": "Select…"
   }
 }

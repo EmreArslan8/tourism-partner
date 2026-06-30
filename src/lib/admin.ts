@@ -1,6 +1,7 @@
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { BUSINESSES as SEED } from "@/lib/data";
 import type {
-  Business,
   GroupKey,
   AdminBusiness,
   AdminApplication,
@@ -29,6 +30,10 @@ type AdminBusinessRow = {
   sponsored: boolean;
   image: string | null;
   attributes: string[] | null;
+  phone: string | null;
+  website: string | null;
+  documents: { kind: string; url: string; name: string }[] | null;
+  details: Record<string, string> | null;
   status: BusinessLifecycleStatus;
   seo_title: string | null;
   seo_description: string | null;
@@ -59,6 +64,10 @@ function rowToAdminBusiness(r: AdminBusinessRow): AdminBusiness {
     sponsored: r.sponsored,
     image: r.image ?? undefined,
     attributes: r.attributes ?? [],
+    phone: r.phone ?? undefined,
+    website: r.website ?? undefined,
+    documents: Array.isArray(r.documents) ? r.documents : [],
+    details: r.details ?? {},
     status: r.status,
     seoTitle: r.seo_title ?? undefined,
     seoDescription: r.seo_description ?? undefined,
@@ -84,9 +93,105 @@ const EMPTY = {
   auditLogs: [],
 };
 
+/* DEV BYPASS için sahte ama dolu admin verisi — paneli giriş yapmadan görmek için. */
+function demoAdminData(): AdminData {
+  const day = 86_400_000;
+  const businesses: AdminBusiness[] = SEED.map((b, i) => ({
+    ...b,
+    status: i % 7 === 0 ? "pending" : "approved",
+    createdAt: new Date(Date.now() - i * day).toISOString(),
+  }));
+
+  const applications: AdminApplication[] = [
+    {
+      id: 1, name: "Global Horizon Tours", email: "iletisim@globalhorizon.com", group: "acente",
+      categoryLabel: "Seyahat Acentesi", status: "pending", createdAt: new Date(Date.now() - day).toISOString(),
+      contactPerson: "Ahmet Yılmaz", phone: "+90 555 123 4567", address: "İstanbul, Şişli",
+      documents: [
+        { label: "TÜRSAB Belgesi", uploaded: true },
+        { label: "Vergi Levhası", uploaded: true },
+        { label: "İmza Sirküleri", uploaded: true },
+      ],
+    },
+    {
+      id: 2, name: "Anadolu Transfer Hizmetleri", email: "op@anadolutransfer.com", group: "eglence",
+      categoryLabel: "Taşımacılık", status: "pending", createdAt: new Date(Date.now() - 2 * day).toISOString(),
+      contactPerson: "Mehmet Demir", phone: "+90 532 987 6543", address: "Antalya, Muratpaşa",
+      documents: [
+        { label: "D2 Belgesi", uploaded: false },
+        { label: "Vergi Levhası", uploaded: true },
+      ],
+    },
+    {
+      id: 3, name: "Dr. Akın Diş Kliniği", email: "iletisim@akinklinik.com", group: "saglik",
+      categoryLabel: "Diş Kliniği", status: "approved", createdAt: new Date(Date.now() - 5 * day).toISOString(),
+      contactPerson: "Selin Akın", phone: "+90 312 444 1212", address: "Ankara, Çankaya",
+      documents: [
+        { label: "Klinik Açma Belgesi", uploaded: true },
+        { label: "Uzmanlık Belgesi", uploaded: true },
+      ],
+    },
+    {
+      id: 4, name: "Batı Karadeniz Turizm", email: "info@bktur.com", group: "acente",
+      categoryLabel: "Tur Operatörü", status: "rejected", createdAt: new Date(Date.now() - 8 * day).toISOString(),
+      contactPerson: "Canan Şahin", phone: "+90 462 222 3344", address: "Trabzon, Ortahisar",
+      documents: [{ label: "TÜRSAB Belgesi", uploaded: false }],
+    },
+  ];
+
+  const quotes: AdminQuote[] = [
+    { id: 1, businessId: 1, name: "Global Tours A.Ş.", company: "Global Tours A.Ş.", email: "rfq@globaltours.com", service: "Yaz Sezonu Toplu Konaklama", dateRange: "Haziran–Eylül", people: 120, message: "Antalya bölgesi için kontenjan.", status: "new", internalNote: null, createdAt: new Date(Date.now() - day).toISOString() },
+    { id: 2, businessId: 6, name: "Akdeniz VIP", company: "Akdeniz VIP", email: "info@akdenizvip.com", service: "VIP Transfer Talebi", dateRange: "Temmuz", people: 8, message: null, status: "new", internalNote: null, createdAt: new Date(Date.now() - 2 * day).toISOString() },
+    { id: 3, businessId: 4, name: "Ege Konaklama", company: "Ege Konaklama", email: "kontrat@ege.com", service: "Butik Otel Kontrat Yenileme", dateRange: "Yıllık", people: null, message: null, status: "contacted", internalNote: null, createdAt: new Date(Date.now() - 3 * day).toISOString() },
+  ];
+
+  const memberships = [
+    { id: 1, businessId: 3, plan: "standard", status: "active" as const, startsAt: new Date(Date.now() - 351 * day).toISOString(), endsAt: new Date(Date.now() + 3 * day).toISOString() },
+    { id: 2, businessId: 8, plan: "standard", status: "active" as const, startsAt: new Date(Date.now() - 357 * day).toISOString(), endsAt: new Date(Date.now() + 8 * day).toISOString() },
+    { id: 3, businessId: 12, plan: "premium", status: "active" as const, startsAt: new Date(Date.now() - 354 * day).toISOString(), endsAt: new Date(Date.now() + 13 * day).toISOString() },
+  ];
+
+  const pageViews = Array.from({ length: 852 }, (_, i) => ({
+    id: i + 1,
+    entityType: "business",
+    entityId: SEED[i % SEED.length].id,
+    viewedAt: new Date(Date.now() - (i % 7) * day).toISOString(),
+  }));
+
+  return {
+    mode: "demo",
+    userEmail: "demo@admin.local",
+    isAdmin: true,
+    businesses,
+    applications,
+    quotes,
+    pages: [],
+    memberships,
+    pageViews,
+    lastBackup: { id: 1, status: "completed", completedAt: new Date().toISOString(), createdAt: new Date().toISOString() },
+    auditLogs: [],
+  };
+}
+
 export const getAdminData = cache(async (): Promise<AdminData> => {
+  // DEV BYPASS — yalnızca local geliştirme. Gerçek admin girişi DAİMA önceliklidir;
+  // bypass yalnızca giriş yoksa/yetki yoksa tasarım önizlemesi için devreye girer.
+  // Üretimde (NODE_ENV=production) ASLA çalışmaz.
+  const devBypass =
+    process.env.NODE_ENV !== "production" && process.env.ADMIN_DEV_BYPASS === "1";
+
+  async function fallback(real: AdminData): Promise<AdminData> {
+    if (devBypass) {
+      // demoAdminData() Date.now() kullanıyor; Cache Components kuralı gereği önce
+      // request verisi okunmalı. connection() render'ı dinamik işaretler.
+      await connection();
+      return demoAdminData();
+    }
+    return real;
+  }
+
   if (!hasEnv()) {
-    return { mode: "demo", isAdmin: false, ...EMPTY };
+    return fallback({ mode: "demo", isAdmin: false, ...EMPTY });
   }
 
   const supabase = await createClient();
@@ -95,7 +200,7 @@ export const getAdminData = cache(async (): Promise<AdminData> => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { mode: "supabase", isAdmin: false, ...EMPTY };
+    return fallback({ mode: "supabase", isAdmin: false, ...EMPTY });
   }
 
   const { data: profile } = await supabase
@@ -105,10 +210,10 @@ export const getAdminData = cache(async (): Promise<AdminData> => {
     .maybeSingle();
 
   if (profile?.role !== "admin") {
-    return { mode: "supabase", userEmail: user.email ?? undefined, isAdmin: false, ...EMPTY };
+    return fallback({ mode: "supabase", userEmail: user.email ?? undefined, isAdmin: false, ...EMPTY });
   }
 
-  // Admin kendi oturumuyla okur; RLS admin policy'leri tüm satırlara erişim verir.
+  // Gerçek admin: kendi oturumuyla okur; RLS admin policy'leri tüm satırlara erişim verir.
   return getSupabaseAdminData(user.email ?? undefined, supabase);
 });
 
@@ -131,12 +236,12 @@ async function getSupabaseAdminData(
     supabase
       .from("businesses")
       .select(
-        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
+        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,phone,website,documents,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
       )
       .order("created_at", { ascending: false }),
     supabase
       .from("applications")
-      .select("id,name,email,group,category_label,status,created_at")
+      .select("id,name,email,group,category_label,status,created_at,contact_person,phone,address,documents")
       .order("created_at", { ascending: false }),
     supabase
       .from("quotes")
@@ -167,9 +272,9 @@ async function getSupabaseAdminData(
       .limit(1),
     supabase
       .from("audit_logs")
-      .select("id,action,entity_type,entity_id,created_at")
+      .select("id,admin_id,action,entity_type,entity_id,ip_address,user_agent,created_at")
       .order("created_at", { ascending: false })
-      .limit(8),
+      .limit(50),
   ]);
 
   const memberships = (membershipsRes.data ?? []).map((row) => ({
@@ -203,6 +308,10 @@ async function getSupabaseAdminData(
       categoryLabel: row.category_label,
       status: applicationStatus(row.status),
       createdAt: row.created_at,
+      contactPerson: row.contact_person ?? undefined,
+      phone: row.phone ?? undefined,
+      address: row.address ?? undefined,
+      documents: Array.isArray(row.documents) ? row.documents : undefined,
     })),
     quotes: (quotesRes.data ?? []).map((row) => ({
       id: Number(row.id),
@@ -245,9 +354,12 @@ async function getSupabaseAdminData(
       : null,
     auditLogs: (auditLogsRes.data ?? []).map((row) => ({
       id: Number(row.id),
+      adminId: row.admin_id,
       action: String(row.action),
       entityType: row.entity_type,
       entityId: row.entity_id,
+      ipAddress: row.ip_address,
+      userAgent: row.user_agent,
       createdAt: row.created_at,
     })),
   };

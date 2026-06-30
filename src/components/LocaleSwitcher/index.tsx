@@ -21,8 +21,8 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const locales = [
-    { code: "tr", label: "TR", name: "Türkçe", flag: "🇹🇷" },
-    { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
+    { code: "tr", label: "TR", name: "Türkçe", flag: "/assets/flags/tr.svg" },
+    { code: "en", label: "EN", name: "English", flag: "/assets/flags/gb.svg" },
   ];
 
   const currentLocale = locales.find((l) => l.code === locale) || locales[0];
@@ -56,8 +56,8 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        <span className={styles.flag}>{currentLocale.flag}</span>
         <span className={styles.label}>{currentLocale.label}</span>
+        <span className="sr-only">{currentLocale.name}</span>
         <svg
           className={`${styles.icon} transition-transform ${isOpen ? "rotate-180" : ""}`}
           viewBox="0 0 20 20"
@@ -80,7 +80,7 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
               onClick={() => handleLocaleChange(l.code as Locale)}
             >
               <span className={styles.itemLeft}>
-                <span className={styles.flag}>{l.flag}</span>
+                <img src={l.flag} alt="" className={styles.itemFlag} width={22} height={22} />
                 <span className={styles.itemName}>{l.name}</span>
               </span>
               <span className={styles.itemCode}>{l.code.toUpperCase()}</span>

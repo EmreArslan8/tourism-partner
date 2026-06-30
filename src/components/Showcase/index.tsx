@@ -15,7 +15,6 @@ import styles from "./styles";
 const FACET_LABEL = new Map<string, string>();
 FACETS.forEach((f) => f.options.forEach((o) => FACET_LABEL.set(o.slug, o.label)));
 
-/* Demo galeri havuzu — gerçekte işletmenin yüklediği galeri gelecek. */
 const POOL = [
   "/assets/cards/hotel-1.webp", "/assets/cards/hotel-2.webp", "/assets/cards/hotel-3.webp",
   "/assets/cards/resort-1.webp", "/assets/cards/yacht-1.webp", "/assets/cards/balloon-1.webp",
@@ -23,6 +22,7 @@ const POOL = [
 ];
 const galleryFor = (b: Business): string[] => {
   const cover = b.image ?? GROUP_COVER[b.group];
+  if (b.images?.length) return Array.from(new Set([cover, ...b.images])).slice(0, 4);
   const n = POOL.length;
   return [cover, POOL[b.id % n], POOL[(b.id + 3) % n], POOL[(b.id + 6) % n]];
 };

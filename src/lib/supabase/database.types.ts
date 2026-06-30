@@ -6,6 +6,7 @@
 
 export type BusinessGroup = "konaklama" | "acente" | "rehber" | "eglence" | "saglik";
 export type BusinessStatus =
+  | "draft"
   | "pending"
   | "approved"
   | "rejected"
@@ -14,6 +15,10 @@ export type BusinessStatus =
   | "blacklisted"
   | "suspended";
 export type ContentPageStatus = "draft" | "published" | "archived";
+export type B2BRequestStatus = "pending" | "published" | "archived" | "rejected";
+export type AdBannerStatus = "draft" | "active" | "paused" | "archived";
+export type PopupFrequency = "always" | "daily" | "session";
+export type SupportTicketStatus = "new" | "in_progress" | "resolved" | "archived";
 
 type Timestamp = string;
 
@@ -56,9 +61,13 @@ export interface Database {
           tag: string | null;
           verified: boolean;
           sponsored: boolean;
+          doping_until: Timestamp | null;
           image: string | null;
           images: string[];
           attributes: string[];
+          details: Record<string, string>;
+          documents: { kind: string; url: string; name: string }[];
+          reject_reason: string | null;
           phone: string | null;
           website: string | null;
           seo_title: string | null;
@@ -86,9 +95,13 @@ export interface Database {
           tag?: string | null;
           verified?: boolean;
           sponsored?: boolean;
+          doping_until?: Timestamp | null;
           image?: string | null;
           images?: string[];
           attributes?: string[];
+          details?: Record<string, string>;
+          documents?: { kind: string; url: string; name: string }[];
+          reject_reason?: string | null;
           phone?: string | null;
           website?: string | null;
           seo_title?: string | null;
@@ -100,6 +113,32 @@ export interface Database {
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["businesses"]["Insert"]>;
+        Relationships: [];
+      };
+      business_drafts: {
+        Row: {
+          id: string;
+          user_id: string;
+          draft_key: string;
+          group: BusinessGroup;
+          cover_image: string | null;
+          gallery_images: string[];
+          documents: { kind: string; url: string; name: string }[];
+          updated_at: Timestamp;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          draft_key: string;
+          group: BusinessGroup;
+          cover_image?: string | null;
+          gallery_images?: string[];
+          documents?: { kind: string; url: string; name: string }[];
+          updated_at?: Timestamp;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_drafts"]["Insert"]>;
         Relationships: [];
       };
       quotes: {
@@ -142,6 +181,11 @@ export interface Database {
           group: BusinessGroup | null;
           category_slug: string | null;
           category_label: string | null;
+          reject_reason: string | null;
+          contact_person: string | null;
+          phone: string | null;
+          address: string | null;
+          documents: { label: string; uploaded: boolean; url?: string }[];
           status: BusinessStatus;
           created_at: Timestamp;
         };
@@ -152,10 +196,69 @@ export interface Database {
           group?: BusinessGroup | null;
           category_slug?: string | null;
           category_label?: string | null;
+          reject_reason?: string | null;
+          contact_person?: string | null;
+          phone?: string | null;
+          address?: string | null;
+          documents?: { label: string; uploaded: boolean; url?: string }[];
           status?: BusinessStatus;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["applications"]["Insert"]>;
+        Relationships: [];
+      };
+      categories: {
+        Row: {
+          id: number;
+          parent_id: number | null;
+          group_key: BusinessGroup;
+          label: string;
+          slug: string;
+          sort_order: number;
+          is_active: boolean;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          parent_id?: number | null;
+          group_key: BusinessGroup;
+          label: string;
+          slug: string;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["categories"]["Insert"]>;
+        Relationships: [];
+      };
+      b2b_requests: {
+        Row: {
+          id: number;
+          business_id: number | null;
+          title: string;
+          description: string | null;
+          region: string | null;
+          status: B2BRequestStatus;
+          view_count: number;
+          moderation_note: string | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id?: number | null;
+          title: string;
+          description?: string | null;
+          region?: string | null;
+          status?: B2BRequestStatus;
+          view_count?: number;
+          moderation_note?: string | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["b2b_requests"]["Insert"]>;
         Relationships: [];
       };
       content_pages: {
@@ -192,6 +295,154 @@ export interface Database {
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["content_pages"]["Insert"]>;
+        Relationships: [];
+      };
+      ad_banners: {
+        Row: {
+          id: number;
+          title: string;
+          image_url: string;
+          target_url: string;
+          placement: string;
+          status: AdBannerStatus;
+          starts_at: Timestamp | null;
+          ends_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          title: string;
+          image_url: string;
+          target_url: string;
+          placement?: string;
+          status?: AdBannerStatus;
+          starts_at?: Timestamp | null;
+          ends_at?: Timestamp | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["ad_banners"]["Insert"]>;
+        Relationships: [];
+      };
+      blog_posts: {
+        Row: {
+          id: number;
+          locale: string;
+          slug: string;
+          title: string;
+          excerpt: string | null;
+          body: string | null;
+          category: string | null;
+          cover_image: string | null;
+          status: ContentPageStatus;
+          seo_title: string | null;
+          seo_description: string | null;
+          published_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          locale?: string;
+          slug: string;
+          title: string;
+          excerpt?: string | null;
+          body?: string | null;
+          category?: string | null;
+          cover_image?: string | null;
+          status?: ContentPageStatus;
+          seo_title?: string | null;
+          seo_description?: string | null;
+          published_at?: Timestamp | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["blog_posts"]["Insert"]>;
+        Relationships: [];
+      };
+      admin_popups: {
+        Row: {
+          id: number;
+          title: string;
+          body: string | null;
+          image_url: string | null;
+          cta_label: string | null;
+          cta_url: string | null;
+          target_role: string;
+          frequency: PopupFrequency;
+          status: AdBannerStatus;
+          starts_at: Timestamp | null;
+          ends_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          title: string;
+          body?: string | null;
+          image_url?: string | null;
+          cta_label?: string | null;
+          cta_url?: string | null;
+          target_role?: string;
+          frequency?: PopupFrequency;
+          status?: AdBannerStatus;
+          starts_at?: Timestamp | null;
+          ends_at?: Timestamp | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["admin_popups"]["Insert"]>;
+        Relationships: [];
+      };
+      support_tickets: {
+        Row: {
+          id: number;
+          sender_name: string;
+          sender_email: string | null;
+          business_id: number | null;
+          subject: string;
+          message: string;
+          status: SupportTicketStatus;
+          assigned_admin_id: string | null;
+          resolved_at: Timestamp | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          sender_name: string;
+          sender_email?: string | null;
+          business_id?: number | null;
+          subject: string;
+          message: string;
+          status?: SupportTicketStatus;
+          assigned_admin_id?: string | null;
+          resolved_at?: Timestamp | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["support_tickets"]["Insert"]>;
+        Relationships: [];
+      };
+      support_ticket_messages: {
+        Row: {
+          id: number;
+          ticket_id: number;
+          author_id: string | null;
+          author_name: string | null;
+          body: string;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          ticket_id: number;
+          author_id?: string | null;
+          author_name?: string | null;
+          body: string;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["support_ticket_messages"]["Insert"]>;
         Relationships: [];
       };
       business_memberships: {
@@ -303,3 +554,9 @@ export type QuoteRow = Database["public"]["Tables"]["quotes"]["Row"];
 export type ApplicationRow = Database["public"]["Tables"]["applications"]["Row"];
 export type ContentPageRow = Database["public"]["Tables"]["content_pages"]["Row"];
 export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
+export type B2BRequestRow = Database["public"]["Tables"]["b2b_requests"]["Row"];
+export type AdBannerRow = Database["public"]["Tables"]["ad_banners"]["Row"];
+export type BlogPostRow = Database["public"]["Tables"]["blog_posts"]["Row"];
+export type AdminPopupRow = Database["public"]["Tables"]["admin_popups"]["Row"];
+export type SupportTicketRow = Database["public"]["Tables"]["support_tickets"]["Row"];

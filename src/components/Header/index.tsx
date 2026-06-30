@@ -36,7 +36,7 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
     <header className={`${styles.header} ${resolvedVariant === "glass" ? styles.headerGlass : styles.headerSolid}`}>
       <div className={styles.inner}>
         <div className={styles.left}>
-          <Logo href="/" height={60} variant="light" priority />
+          <Logo href="/" height={54} variant="light" priority />
         </div>
 
         <NavLinks links={links} />
@@ -44,20 +44,20 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
         <div className="col-start-3 flex items-center justify-self-end gap-1">
           <MobileSearch />
           <div className={styles.actions}>
-            <LangSwitcher light />
-            <div className={styles.separator} />
             <Link
               href={{ pathname: "/login" } as any}
-              className="text-[15px] font-semibold text-white/90 hover:text-white transition-colors"
+              className="rounded-[10px] border border-white/30 px-4 py-2 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
             >
               {t("login")}
             </Link>
             <Link
               href={{ pathname: "/register" } as any}
-              className="rounded-[10px] bg-white px-4 py-2.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream"
+              className="rounded-[10px] bg-white px-4 py-2 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream"
             >
               {t("addBusiness")}
             </Link>
+            <div className={styles.separator} />
+            <LangSwitcher light />
           </div>
           <MobileMenu />
         </div>

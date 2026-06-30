@@ -11,13 +11,13 @@ export { businessSlug } from "./business-slug";
 
 /* Public listede çekilen kolonlar — Row tipi şemadan türer (drift = derleme hatası). */
 const SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,images,attributes,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 
 type Row = Pick<
   BusinessRow,
   | "id" | "group" | "type" | "name" | "country" | "city" | "district"
   | "lat" | "lng" | "description" | "rating" | "reviews" | "tag"
-  | "verified" | "sponsored" | "image" | "attributes"
+  | "verified" | "sponsored" | "doping_until" | "phone" | "website" | "image" | "images" | "attributes"
   | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
 >;
 
@@ -37,7 +37,11 @@ function rowToBusiness(r: Row): Business {
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
+    dopingUntil: r.doping_until ?? undefined,
+    phone: r.phone ?? undefined,
+    website: r.website ?? undefined,
     image: r.image ?? undefined,
+    images: r.images ?? [],
     attributes: r.attributes ?? [],
     seoTitle: r.seo_title ?? undefined,
     seoDescription: r.seo_description ?? undefined,

@@ -17,7 +17,7 @@ export const fontSize: Record<string, FontSizeValue> = {
   // Başlık ölçeği (display)
   hero: ["clamp(2.25rem, 1.52rem + 3.09vw, 4rem)", { lineHeight: "1.16", letterSpacing: "-0.04em" }],
   page: ["clamp(1.625rem, 1.31rem + 1.33vw, 2.375rem)", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
-  section: ["clamp(1.5rem, 1.19rem + 1.33vw, 2.25rem)", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
+  section: ["clamp(1.5rem, 1.19rem + 1.33vw, 2rem)", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
   panel: ["clamp(1.375rem, 1.12rem + 1.11vw, 2rem)", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
   card: ["clamp(1.375rem, 1.12rem + 1.11vw, 2rem)", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
   subsection: ["1.25rem", { lineHeight: "1.25", letterSpacing: "-0.02em" }],
@@ -46,4 +46,14 @@ export const fontSize: Record<string, FontSizeValue> = {
   "step-desc-compact": ["0.78125rem", { lineHeight: "1.45" }],
   "rating-star": ["0.9375rem", { lineHeight: "1" }],
   "rating-star-compact": ["0.75rem", { lineHeight: "1" }],
+
+  // Partner/admin operasyon ekranları
+  "dashboard-title": ["1.75rem", { lineHeight: "1.2" }],
+  "dashboard-section": ["1.375rem", { lineHeight: "1.28" }],
+  "dashboard-brand": ["1rem", { lineHeight: "1.3" }],
+  "dashboard-caption": ["0.8125rem", { lineHeight: "1.35" }],
+  "dashboard-nav": ["0.9375rem", { lineHeight: "1.45" }],
+  "form-section": ["1rem", { lineHeight: "1.5" }],
+  "form-label": ["0.875rem", { lineHeight: "1.45" }],
+  "form-control": ["0.9375rem", { lineHeight: "1.45" }],
 };

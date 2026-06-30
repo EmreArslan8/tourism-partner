@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
+import RecordView from "@/components/RecordView";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
@@ -16,6 +17,7 @@ interface Props {
 const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => {
   return (
     <main className={styles.main}>
+      <RecordView type="business" id={b.id} />
       <nav className={styles.nav}>
         <Link href="/" className={styles.navLink}>{t("home")}</Link><span>›</span>
         <Link href={{ pathname: "/explore" }} className={styles.navLink}>{t("explore")}</Link><span>›</span>
@@ -69,6 +71,24 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
               {t("requestQuote")}
             </Button>
           </div>
+          {/* Kurum iletişim — herkese açık (yetkili kişi bilgisi BURADA gösterilmez) */}
+          {(b.phone || b.website) && (
+            <div className={styles.card}>
+              <h3 className={cn(styles.cardTitle, "mb-3")}>{t("contactTitle")}</h3>
+              {b.phone && (
+                <Row k={t("phone")} v={b.phone} href={`tel:${b.phone.replace(/\s+/g, "")}`} />
+              )}
+              {b.website && (
+                <Row
+                  k={t("website")}
+                  v={b.website.replace(/^https?:\/\//, "")}
+                  href={b.website.startsWith("http") ? b.website : `https://${b.website}`}
+                />
+              )}
+              <Row k={t("addressLabel")} v={`${b.district}, ${b.city} · ${b.country}`} />
+            </div>
+          )}
+
           <div className={styles.card}>
             <h3 className={cn(styles.cardTitle, "mb-3")}>{t("quickInfo")}</h3>
             <Row k={t("category")} v={`${tc(b.group)} · ${b.type}`} />
@@ -82,10 +102,21 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
   );
 };
 
-const Row = ({ k, v }: { k: string; v: string }) => (
+const Row = ({ k, v, href }: { k: string; v: string; href?: string }) => (
   <div className={styles.row}>
     <span className={styles.rowKey}>{k}</span>
-    <span className={styles.rowVal}>{v}</span>
+    {href ? (
+      <a
+        href={href}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel={href.startsWith("http") ? "noreferrer" : undefined}
+        className={cn(styles.rowVal, "text-terra hover:underline")}
+      >
+        {v}
+      </a>
+    ) : (
+      <span className={styles.rowVal}>{v}</span>
+    )}
   </div>
 );
 

@@ -161,6 +161,29 @@ const styles= {
   grid: "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4",
   gridWide: "grid grid-cols-3 gap-5 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
 
+  // Hibrit erişim bandı (misafir kullanıcı — yalnızca premium gösterilir)
+  gate:
+    "mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-terra/25 " +
+    "bg-[linear-gradient(135deg,rgba(255,255,255,.9),rgba(231,236,255,.6))] px-4 py-3 " +
+    "shadow-[0_18px_54px_-48px_rgba(7,9,42,.72)]",
+  gateBadge: "grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terra/12 text-terra-deep",
+  gateBody: "min-w-[200px] flex-1",
+  gateTitle: "text-[15px] font-extrabold text-ink",
+  gateText: "mt-0.5 text-[13px] text-muted",
+  gateActions: "flex shrink-0 flex-wrap items-center gap-2",
+
+  // Kelime araması için "önce ülke seç" ekranı
+  countryAsk:
+    "flex flex-col items-center rounded-[18px] border border-line bg-[linear-gradient(160deg,rgba(255,255,255,.96),rgba(231,236,255,.5))] " +
+    "px-6 py-14 text-center shadow-[0_24px_70px_-50px_rgba(7,9,42,.7)]",
+  countryAskIcon: "mb-4 grid h-12 w-12 place-items-center rounded-full bg-terra/12 text-terra-deep",
+  countryAskTitle: "heading-section text-[22px] text-ink",
+  countryAskText: "mt-1.5 max-w-[440px] text-[14.5px] text-muted",
+  countryAskChips: "mt-5 flex flex-wrap items-center justify-center gap-2",
+  countryChip:
+    "inline-flex items-center gap-1.5 rounded-pill border-[1.5px] border-line bg-paper px-4 py-2 text-[13.5px] font-bold text-ink " +
+    "transition-all hover:-translate-y-px hover:border-terra hover:text-terra-deep hover:shadow-[0_12px_28px_-24px_rgba(7,9,42,.7)]",
+
   empty: "rounded-[14px] border border-dashed border-line bg-paper px-6 py-14 text-center",
   emptyTitle: "mb-2 text-[22px]",
   emptyText: "mb-4 text-[14.5px] text-muted",

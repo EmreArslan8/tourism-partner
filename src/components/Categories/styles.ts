@@ -34,7 +34,7 @@ const styles = {
 
   // Görsel: grid'de üstte sabit yükseklik; mobilde kartı tamamen kaplar (banner).
   media:
-    "relative w-full h-44 overflow-hidden max-[1024px]:h-40 " +
+    "relative w-full h-52 overflow-hidden max-[1024px]:h-48 " +
     "max-[640px]:absolute max-[640px]:inset-0 max-[640px]:h-full",
   img: "object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.06]",
   // Mobil banner için alttan koyu degrade (yalnız mobil).
@@ -58,10 +58,10 @@ const styles = {
   icon: "shrink-0 text-brand max-[640px]:hidden",
   // text-card token'ı (≤2rem) kart için fazla büyük; burada daha dengeli, çoğunlukla tek satıra sığan ölçek.
   name:
-    "heading-card text-ink !text-[1.25rem] !leading-[1.15] max-[1280px]:!text-[1.15rem] " +
+    "heading-card text-ink !text-[1rem] !leading-[1.25] " +
     "max-[640px]:!text-[1.05rem] max-[640px]:!text-white max-[640px]:[text-shadow:0_1px_10px_rgba(0,0,0,.45)]",
   desc:
-    "section-desc !mt-0 min-h-0 overflow-hidden text-muted [display:-webkit-box] [-webkit-box-orient:vertical] " +
+    "section-desc !mt-0 min-h-0 overflow-hidden !text-[13px] !leading-[1.45] text-muted [display:-webkit-box] [-webkit-box-orient:vertical] " +
     "[-webkit-line-clamp:2] max-[640px]:hidden",
   // Mobil banner: sağ altta kategori istatistiği (rozet metni).
   countMobile:
@@ -69,10 +69,10 @@ const styles = {
     "text-[13px] font-semibold text-white [text-shadow:0_1px_8px_rgba(0,0,0,.55)]",
 
   cta:
-    "btn btn-sm btn-block mt-auto pt-2.5 bg-ink text-white hover:-translate-y-px hover:bg-brand " +
-    "max-[640px]:hidden",
+    "mt-auto inline-flex items-center gap-1.5 pt-3 text-[14.5px] font-semibold text-brand " +
+    "transition-colors group-hover:text-ink max-[640px]:hidden",
   ctaArrow:
-    "transition-transform duration-200 group-hover:translate-x-0.5",
+    "text-brand transition-transform duration-200 group-hover:translate-x-1",
 } as const;
 
 export default styles;

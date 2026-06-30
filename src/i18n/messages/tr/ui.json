@@ -8,7 +8,7 @@
     "login": "Giriş Yap",
     "agencyLogin": "Acente Girişi",
     "supplierLogin": "Firma Girişi",
-    "addBusiness": "+ Firma Ekle"
+    "addBusiness": "Kayıt Ol"
   },
   "common": {
     "verified": "Doğrulanmış",
@@ -18,7 +18,8 @@
     "reviews": "yorum",
     "viewAll": "Tümünü gör →",
     "detailLogin": "Detay için giriş",
-    "categoriesEyebrow": "Tedarikçi türleri"
+    "categoriesEyebrow": "Tedarikçi türleri",
+    "featured": "Öne Çıkan"
   },
   "cat": {
     "konaklama": "Konaklama",
@@ -64,7 +65,13 @@
     "emptyText": "Filtreleri genişleterek tekrar deneyin.",
     "clearFilters": "Filtreleri Temizle",
     "mapLabel": "Harita",
-    "mapNote": "Demo harita · gerçek OSM karoları deploy’da"
+    "mapNote": "Demo harita · gerçek OSM karoları deploy’da",
+    "gateTitle": "Yalnızca premium partnerler gösteriliyor",
+    "gateText": "Misafir görünümündesiniz. Tüm tedarikçileri görmek ve filtrelemenin tamamını kullanmak için giriş yapın.",
+    "gateLogin": "Giriş Yap",
+    "gateRegister": "Ücretsiz Kayıt Ol",
+    "countryAskTitle": "Aramaya başlamak için bir ülke seçin",
+    "countryAskText": "Kelime aramasında sonuçları daraltmak için önce bir ülke seçmelisiniz. Aşağıdan hızlıca seçebilirsiniz."
   },
   "supplier": {
     "home": "Anasayfa",
@@ -74,7 +81,7 @@
     "svcGroupDiscount": "Grup indirimi",
     "svcTransfer": "Transfer",
     "svcCommission": "Komisyonlu çalışma",
-    "gated": "Konum, iletişim ve fiyat detayları üyelere özeldir.",
+    "gated": "Yetkili kişi bilgileri ve detaylı teklif görüşmeleri üyelere özeldir.",
     "loginCta": "Giriş yapın",
     "quoteTitle": "Bu tedarikçiden teklif al",
     "quoteSub": "Talebinizi iletin, firma doğrudan sizinle iletişime geçsin.",
@@ -85,7 +92,11 @@
     "rating": "Puan",
     "verification": "Doğrulama",
     "verifiedDone": "Tamamlandı",
-    "verifiedPending": "Bekliyor"
+    "verifiedPending": "Bekliyor",
+    "contactTitle": "Kurum iletişim",
+    "phone": "Telefon",
+    "website": "Web sitesi",
+    "addressLabel": "Adres"
   },
   "quote": {
     "eyebrow": "Teklif Al",
@@ -153,6 +164,8 @@
     "title": "Firma Paneli",
     "agencyTitle": "Acente Paneli",
     "supplierTitle": "Hizmet Sağlayıcı Paneli",
+    "partnerWorkspace": "Partner çalışma alanı",
+    "signedInAs": "Oturum",
     "agencyMode": "Talep açan hesap",
     "supplierMode": "Hizmet sağlayıcı hesap",
     "guideMode": "Rehber hesabı",
@@ -197,6 +210,22 @@
     "verified": "Doğrulanmış",
     "pendingHint": "İlanın onaylandıktan sonra yayına girecek.",
     "preview": "İlanını önizle",
+    "editListing": "Bilgileri düzenle",
+    "newListing": "Yeni ilan",
+    "backToListingDashboard": "İlan özetine dön",
+    "mediaSectionTitle": "Görseller",
+    "basicInfoSectionTitle": "Temel bilgiler",
+    "servicesSectionTitle": "Hizmetler",
+    "listingDashboardTitle": "İlan yönetimi",
+    "listingDashboardPendingSub": "İlanınız admin onayında. Bu ekranda durumunu ve eksiklerini takip edebilirsiniz.",
+    "listingDashboardLiveSub": "İlanınız yayında. Gelen talepleri, üyeliği ve profil kalitesini buradan takip edin.",
+    "listingIdentity": "İlan özeti",
+    "listingGallery": "foto",
+    "listingDocuments": "evrak",
+    "listingNextPendingTitle": "Sıradaki adım",
+    "listingNextPendingText": "Onay tamamlanana kadar profil bilgilerini ve görselleri düzenleyebilirsiniz. Onaydan sonra ilan arama ve vitrin alanlarında görünür.",
+    "listingNextLiveTitle": "Yayındaki ilan",
+    "listingNextLiveText": "Profil kalitesini yüksek tutun, gelen teklif taleplerini takip edin ve üyelik durumunu kontrol edin.",
     "agencyProfileTitle": "Acente bilgileri",
     "agencyProfileSub": "Talep açarken tedarikçilerin göreceği acente profilini tamamla.",
     "editTitle": "İlan bilgileri",
@@ -212,6 +241,11 @@
     "country": "Ülke",
     "city": "Şehir",
     "district": "İlçe",
+    "countryPlaceholder": "Ülke seçin",
+    "cityPlaceholder": "Şehir seçin",
+    "districtPlaceholder": "İlçe seçin",
+    "countryFirst": "Önce ülke seçin",
+    "cityFirst": "Önce şehir seçin",
     "phone": "Telefon",
     "website": "Web sitesi",
     "description": "Açıklama",
@@ -227,7 +261,9 @@
     "save": "Kaydet",
     "saving": "Kaydediliyor…",
     "saved": "Kaydedildi ✓",
+    "cancel": "Vazgeç",
     "error": "Kaydedilemedi, lütfen tekrar deneyin.",
+    "invalidRegion": "Lütfen geçerli bir ülke, şehir ve ilçe seçin.",
     "agencyWorkTitle": "Acente iş akışı",
     "agencyWorkSub": "Talep açma ve teklif toplama süreci.",
     "agencyStep1": "Yeni talep oluştur: bölge, tarih, kişi sayısı ve hizmet türünü gir.",
@@ -246,6 +282,13 @@
     "noQuotes": "Henüz teklif talebi yok.",
     "reply": "Yanıtla",
     "replySubject": "Teklif talebiniz hakkında",
-    "people": "kişi"
+    "people": "kişi",
+    "companyFieldsTitle": "Şirket / resmi bilgiler",
+    "documentsTitle": "Evraklar",
+    "documentsSub": "Kategorinize göre gereken belgeleri yükleyin (PDF veya görsel). Yıldızlı (*) belgeler zorunludur.",
+    "docUpload": "Yükle",
+    "docReplace": "Değiştir",
+    "docRemove": "Kaldır",
+    "select": "Seçin…"
   }
 }

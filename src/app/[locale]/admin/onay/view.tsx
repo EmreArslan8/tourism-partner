@@ -1,45 +1,21 @@
-import { ApplicationList, BusinessTable, Empty, PageHeader, panel } from "../_components";
-import styles from "./styles";
-import type { AdminApplication, AdminBusiness } from "@/lib/types";
+import { PageHeader } from "../_components";
+import ApprovalBoard from "./ApprovalBoard";
+import type { AdminBusiness } from "@/lib/types";
 
 interface Props {
-  pendingBusinesses: AdminBusiness[];
-  pendingApplications: AdminApplication[];
+  businesses: AdminBusiness[];
   locale: string;
 }
 
-const ApprovalsView = ({ pendingBusinesses, pendingApplications, locale }: Props) => {
+const ApprovalsView = ({ businesses, locale }: Props) => {
   return (
     <>
       <PageHeader
         eyebrow="Onay"
-        title="Onay bekleyenler"
-        description="Yeni firma kayıtları ve kategori başvurularını ayrı ayrı incele, yayın durumunu hızlı güncelle."
+        title="Başvurular (Onay Havuzu)"
+        description="Tedarikçi ve acente kayıtlarını evraklarıyla inceleyin; onaylayın veya reddedin."
       />
-
-      <div className={styles.grid}>
-        <section className={panel}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className={styles.sectionTitle}>Firma kayıtları</h2>
-              <p className={styles.sectionSub}>Business tablosundaki bekleyen tedarikçiler.</p>
-            </div>
-            <span className={styles.badge}>{pendingBusinesses.length}</span>
-          </div>
-          {pendingBusinesses.length > 0 ? <BusinessTable businesses={pendingBusinesses} /> : <Empty text="Bekleyen firma kaydı yok." />}
-        </section>
-
-        <section className={panel}>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <h2 className={styles.sectionTitle}>Başvurular</h2>
-              <p className={styles.sectionSub}>Kayıt formundan gelen başvurular.</p>
-            </div>
-            <span className={styles.badge}>{pendingApplications.length}</span>
-          </div>
-          <ApplicationList applications={pendingApplications} locale={locale} />
-        </section>
-      </div>
+      <ApprovalBoard businesses={businesses} locale={locale} />
     </>
   );
 };

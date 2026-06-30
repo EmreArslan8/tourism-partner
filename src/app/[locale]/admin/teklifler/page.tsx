@@ -11,5 +11,5 @@ export default async function AdminQuotesPage({
   setRequestLocale(locale);
   const data = await getAdminData();
 
-  return <AdminQuotesView quotes={data.quotes} locale={locale} />;
+  return <AdminQuotesView data={data} locale={locale} />;
 }

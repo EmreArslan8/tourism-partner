@@ -1,43 +1,169 @@
-import { Metric, PageHeader, QuoteList, panel } from "../_components";
-import styles from "./styles";
-import type { AdminQuote } from "@/lib/types";
+import { Eye, FilePenLine, ShieldAlert, Trash2 } from "lucide-react";
+import { updateQuoteStatus } from "@/lib/actions/admin";
+import { PageHeader, Card, CardHeader } from "../_components";
+import { DataTable, type Column } from "@/components/common";
+import type { AdminData, AdminQuote } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface Props {
-  quotes: AdminQuote[];
+  data: AdminData;
   locale: string;
 }
 
-const AdminQuotesView = ({ quotes, locale }: Props) => {
-  const newQuotes = quotes.filter((quote) => quote.status === "new");
-  const contacted = quotes.filter((quote) => quote.status === "contacted");
-  const won = quotes.filter((quote) => quote.status === "won");
+const AdminQuotesView = ({ data, locale }: Props) => {
+  const requests = data.quotes;
+  const active = requests.filter((quote) => quote.status !== "lost" && quote.status !== "archived");
+  const flagged = requests.filter((quote) => hasExternalContact(quote.message));
+  const totalViews = requests.reduce((sum, quote) => sum + requestViews(data, quote), 0);
 
   return (
     <>
       <PageHeader
-        eyebrow="Teklifler"
-        title="RFQ takip ekranı"
-        description="Gelen teklif taleplerini durumlandır, iç not ekle ve satış/partner operasyonunu takip et."
+        eyebrow="Talepler"
+        title="B2B İlan Denetimi"
+        description="İşletmeler tarafından oluşturulan talepleri izleyin, görüntülenme metriklerini kontrol edin ve uygunsuz ilanları yayından kaldırın."
       />
 
-      <section className={styles.statsGrid}>
-        <Metric title="Yeni" value={newQuotes.length} hint="ilk temas bekler" />
-        <Metric title="Temasta" value={contacted.length} hint="takipte" />
-        <Metric title="Kazanıldı" value={won.length} hint="pozitif sonuç" />
-        <Metric title="Toplam" value={quotes.length} hint="son 50 kayıt" />
+      <section className="mb-6 grid gap-3 md:grid-cols-4">
+        <MetricCard label="Toplam Talep" value={requests.length} />
+        <MetricCard label="Aktif" value={active.length} tone="emerald" />
+        <MetricCard label="Görüntülenme" value={totalViews.toLocaleString("tr-TR")} />
+        <MetricCard label="Riskli İçerik" value={flagged.length} tone="amber" />
       </section>
 
-      <section className={cn(panel, "mt-6")}>
-        <div className="mb-4">
-          <h2 className={styles.sectionTitle}>Tüm teklif talepleri</h2>
-          <p className={styles.sectionSub}>Durum ve iç not alanları kaydedilebilir.</p>
-        </div>
-        <QuoteList quotes={quotes} locale={locale} />
-      </section>
+      <Card className="overflow-hidden hover:translate-y-0">
+        <CardHeader
+          title="Talepler"
+          tone="blue"
+          icon={<FilePenLine size={18} aria-hidden />}
+          action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">{requests.length} talep</span>}
+        />
+        <DataTable
+          data={requests}
+          getRowKey={(q) => q.id}
+          empty="Henüz denetlenecek talep yok."
+          minWidth={980}
+          columns={[
+            {
+              key: "req",
+              header: "Talep / İlan",
+              cell: (quote) => (
+                <div className="max-w-[280px]">
+                  <p className="text-[13px] font-extrabold leading-5 text-[#162238]">{quote.service || quote.name}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] font-medium leading-5 text-[#64748B]">{quote.message || "Açıklama girilmemiş."}</p>
+                </div>
+              ),
+            },
+            {
+              key: "creator",
+              header: "Oluşturan",
+              cell: (quote) => (
+                <div>
+                  <p className="text-[13px] font-bold text-[#162238]">{quote.company || quote.name}</p>
+                  <p className="mt-1 text-[12px] font-semibold text-[#64748B]">{quote.email}</p>
+                </div>
+              ),
+            },
+            {
+              key: "date",
+              header: "Tarih / Kapasite",
+              cell: (quote) => (
+                <div className="text-[13px] font-semibold leading-5 text-[#162238]">
+                  {quote.dateRange || "Tarih yok"}
+                  <span className="mt-1 block text-[12px] text-[#64748B]">{quote.people ? `${quote.people} kişi` : "Kapasite yok"}</span>
+                </div>
+              ),
+            },
+            {
+              key: "views",
+              header: "Görüntülenme",
+              align: "right",
+              cell: (quote) => <span className="font-extrabold text-[#162238]">{requestViews(data, quote).toLocaleString("tr-TR")}</span>,
+            },
+            { key: "status", header: "Durum", cell: (quote) => <StatusPill value={quote.status} /> },
+            {
+              key: "check",
+              header: "İçerik Kontrolü",
+              cell: (quote) =>
+                hasExternalContact(quote.message) ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-extrabold text-amber-800">
+                    <ShieldAlert size={13} aria-hidden /> Harici iletişim riski
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-extrabold text-emerald-700">
+                    <Eye size={13} aria-hidden /> Temiz
+                  </span>
+                ),
+            },
+            {
+              key: "action",
+              header: "İşlem",
+              align: "right",
+              cell: (quote) => (
+                <div className="flex justify-end gap-2">
+                  <form action={updateQuoteStatus}>
+                    <input type="hidden" name="id" value={quote.id} />
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="status" value="contacted" />
+                    <input type="hidden" name="internalNote" value={quote.internalNote ?? "Admin tarafından incelendi."} />
+                    <button type="submit" className="grid h-8 w-8 place-items-center rounded-[7px] border border-[#D4DCEA] text-[#0057D9] hover:bg-[#EEF4FF]" aria-label="İncelendi olarak işaretle">
+                      <FilePenLine size={15} aria-hidden />
+                    </button>
+                  </form>
+                  <form action={updateQuoteStatus}>
+                    <input type="hidden" name="id" value={quote.id} />
+                    <input type="hidden" name="locale" value={locale} />
+                    <input type="hidden" name="status" value="lost" />
+                    <input type="hidden" name="internalNote" value="Yayından kaldırıldı." />
+                    <button type="submit" className="grid h-8 w-8 place-items-center rounded-[7px] border border-red-200 text-red-600 hover:bg-red-50" aria-label="Yayından kaldır">
+                      <Trash2 size={15} aria-hidden />
+                    </button>
+                  </form>
+                </div>
+              ),
+            },
+          ] satisfies Column<AdminQuote>[]}
+        />
+      </Card>
     </>
   );
 };
 
-import { cn } from "@/lib/utils";
+const MetricCard = ({
+  label,
+  value,
+  tone = "blue",
+}: {
+  label: string;
+  value: number | string;
+  tone?: "blue" | "emerald" | "amber";
+}) => (
+  <div className="rounded-[10px] border border-[#D4DCEA] bg-white p-4 shadow-[0_8px_18px_rgba(15,23,42,.04)]">
+    <p className="text-[11px] font-extrabold uppercase tracking-[.08em] text-[#64748B]">{label}</p>
+    <p className={cn("mt-2 text-[28px] font-black leading-none", tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-amber-600" : "text-[#0057D9]")}>
+      {value}
+    </p>
+  </div>
+);
+
+const StatusPill = ({ value }: { value: string }) => {
+  const archived = value === "lost" || value === "archived";
+  const active = value === "new" || value === "contacted";
+  const label = archived ? "Yayından Kalktı" : active ? "Aktif" : value === "won" ? "Tamamlandı" : value;
+  return (
+    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[11px] font-extrabold", archived ? "bg-red-100 text-red-700" : active ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-700")}>
+      {label}
+    </span>
+  );
+};
+
+const hasExternalContact = (value: string | null) => {
+  if (!value) return false;
+  return /@|(?:\+?\d[\d\s()-]{7,})|whatsapp|telegram|instagram/i.test(value);
+};
+
+const requestViews = (data: AdminData, quote: AdminQuote) => {
+  return data.pageViews.filter((view) => view.entityType === "quote" && view.entityId === quote.id).length;
+};
 
 export default AdminQuotesView;
