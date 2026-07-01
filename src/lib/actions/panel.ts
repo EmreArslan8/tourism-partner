@@ -7,7 +7,7 @@ import { ALL_FACET_SLUGS } from "@/lib/facets";
 import { ALL_DETAIL_KEYS, type BizDocument } from "@/lib/business-fields";
 import { isValidRegion } from "@/lib/regions";
 import type { GroupKey, ActionState } from "@/lib/types";
-import { clean } from "./validate";
+import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
 const BUSINESS_IMAGES_BUCKET = "business-images";
 
@@ -133,7 +133,12 @@ export async function saveMyBusiness(
   try {
     const raw = String(formData.get("images") ?? "[]");
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) images = parsed.filter((s) => typeof s === "string").slice(0, 12);
+    if (Array.isArray(parsed)) {
+      images = parsed
+        .map((s) => (typeof s === "string" ? cleanImageUrl(s, 400) : null))
+        .filter((s): s is string => Boolean(s))
+        .slice(0, 12);
+    }
   } catch {
     images = [];
   }
@@ -155,10 +160,12 @@ export async function saveMyBusiness(
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       documents = parsed
-        .filter(
-          (d) =>
-            d && typeof d.kind === "string" && typeof d.url === "string" && typeof d.name === "string",
-        )
+        .map((d) => {
+          if (!d || typeof d.kind !== "string" || typeof d.url !== "string" || typeof d.name !== "string") return null;
+          const url = cleanHttpUrl(d.url, 500);
+          return url ? { kind: d.kind, url, name: d.name } : null;
+        })
+        .filter((d): d is BizDocument => Boolean(d))
         .slice(0, 20);
     }
   } catch {
@@ -173,8 +180,8 @@ export async function saveMyBusiness(
     district,
     description: clean(formData.get("description"), 2000),
     phone: clean(formData.get("phone"), 40),
-    website: clean(formData.get("website"), 200),
-    image: clean(formData.get("image"), 400),
+    website: cleanHttpUrl(formData.get("website"), 200),
+    image: cleanImageUrl(formData.get("image"), 400),
     images,
     attributes,
     details,

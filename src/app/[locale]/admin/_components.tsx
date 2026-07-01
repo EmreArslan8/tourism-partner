@@ -8,6 +8,7 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import AdminSearch from "./AdminSearch";
+import Logo from "@/components/Logo";
 import {
   Card as UICard,
   CardHeader as UICardHeader,
@@ -90,16 +91,8 @@ export const AdminShell = ({
   return (
     <div className="flex min-h-screen w-full bg-[#F5F8FC] text-[#0B1C30]">
       <aside className="sticky top-0 hidden h-screen w-[256px] shrink-0 flex-col border-r border-[#D9E1EF] bg-[#F7F9FF] md:flex">
-        <div className="flex h-[100px] items-start gap-2.5 px-7 pt-6">
-          <div className="grid h-6 w-6 place-items-center rounded-[7px] bg-[#0057D9] text-white">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <circle cx="12" cy="12" r="10" /><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />
-            </svg>
-          </div>
-          <div className="min-w-0">
-            <h1 className="truncate text-[18px] font-extrabold leading-[1.05] text-[#0057D9]">B2B Turizm</h1>
-            <p className="mt-2 text-[12px] font-medium leading-none text-[#1F2A44]">Yönetim Paneli</p>
-          </div>
+        <div className="flex h-[100px] items-center px-7">
+          <Logo href="/admin" height={46} priority className="max-w-[170px]" />
         </div>
 
         <AdminNav />

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
@@ -72,6 +73,13 @@ export async function submitQuote(
   const email = clean(formData.get("email"), 200);
   if (!name || !email) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
+  const allowed = await checkRateLimit({
+    scope: "quote-submit",
+    limit: 8,
+    windowSeconds: 10 * 60,
+    identity: [email.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
 
   const businessIdRaw = String(formData.get("businessId") ?? "").trim();
   const businessId = businessIdRaw && /^\d+$/.test(businessIdRaw) ? Number(businessIdRaw) : null;

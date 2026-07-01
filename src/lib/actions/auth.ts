@@ -1,10 +1,11 @@
 "use server";
 
 import { redirect } from "@/i18n/navigation";
-import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { SITE_URL } from "@/lib/site";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
@@ -27,6 +28,13 @@ export async function signIn(
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
+  const allowed = await checkRateLimit({
+    scope: "auth-signin",
+    limit: 8,
+    windowSeconds: 10 * 60,
+    identity: [email.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -64,13 +72,18 @@ export async function signUp(
   if (!name || !email || !password || !category) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
   if (password.length < 6) return { ok: false, error: "password" };
+  const allowed = await checkRateLimit({
+    scope: "auth-signup",
+    limit: 5,
+    windowSeconds: 60 * 60,
+    identity: [email.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
 
   const cat = resolveCategory(category);
   if (!cat) return { ok: false, error: "category" };
 
   const locale = await getLocale();
-  const headerStore = await headers();
-  const origin = headerStore.get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const loginPath = locale === "tr" ? "/tr/giris" : "/en/login";
 
   const supabase = await createClient();
@@ -78,7 +91,7 @@ export async function signUp(
     email,
     password,
     options: {
-      emailRedirectTo: origin ? `${origin}${loginPath}` : undefined,
+      emailRedirectTo: `${SITE_URL}${loginPath}`,
       data: {
         full_name: name,
         firm_name: name,

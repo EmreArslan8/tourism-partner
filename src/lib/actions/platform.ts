@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
-import { clean } from "./validate";
+import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
 /* Admin yetki kontrolü — admin'in KENDİ oturumuyla yazar; erişim DB'de RLS
    (admin manage … policy'leri) ile zorlanır. */
@@ -25,8 +25,8 @@ const loc = (formData: FormData) => clean(formData.get("locale"), 8) ?? "tr";
 export async function createAdBanner(formData: FormData): Promise<void> {
   const supabase = await requireAdmin();
   const title = clean(formData.get("title"), 180);
-  const target = clean(formData.get("target_url"), 400);
-  const image = clean(formData.get("image_url"), 400);
+  const target = cleanHttpUrl(formData.get("target_url"), 400);
+  const image = cleanImageUrl(formData.get("image_url"), 400);
   if (!title || !target || !image) throw new Error("Başlık, görsel yolu ve yönlendirme URL zorunlu.");
 
   const { error } = await supabase.from("ad_banners").insert({

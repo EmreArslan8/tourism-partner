@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
@@ -19,6 +20,13 @@ export async function submitApplication(
 
   if (!name || !email || !category) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
+  const allowed = await checkRateLimit({
+    scope: "application-submit",
+    limit: 5,
+    windowSeconds: 60 * 60,
+    identity: [email.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
 
   // Seçilen alt kategori slug'ından ana grup + etiketi çöz.
   let group: GroupKey | null = null;

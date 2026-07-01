@@ -1,7 +1,10 @@
 /* Kanonik site kök URL'i — sitemap, robots ve metadataBase için tek kaynak.
    Üretimde NEXT_PUBLIC_SITE_URL tanımlanmalı (ör. https://tourismpartner.com). */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined) ??
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ??
+  "http://localhost:3000"
 ).replace(/\/$/, "");
 
 export const LOCALES = ["tr", "en"] as const;

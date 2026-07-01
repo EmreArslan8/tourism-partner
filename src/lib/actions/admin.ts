@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
-import { clean } from "./validate";
+import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -146,14 +146,14 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       tag: clean(formData.get("tag"), 80),
       verified: boolValue(formData, "verified"),
       sponsored: boolValue(formData, "sponsored"),
-      image: clean(formData.get("image"), 260),
+      image: cleanImageUrl(formData.get("image"), 260),
       attributes: listValue(formData, "attributes"),
       status: statusValue(formData),
       seo_title: clean(formData.get("seoTitle"), 90),
       seo_description: clean(formData.get("seoDescription"), 180),
       seo_keywords: listValue(formData, "seoKeywords"),
-      canonical_path: clean(formData.get("canonicalPath"), 180),
-      og_image: clean(formData.get("ogImage"), 260),
+      canonical_path: cleanHttpUrl(formData.get("canonicalPath"), 180),
+      og_image: cleanImageUrl(formData.get("ogImage"), 260),
     };
 
     if (!payload.name || !payload.type || !payload.country || !payload.city || !payload.district) {
@@ -274,8 +274,8 @@ export async function saveContentPage(formData: FormData): Promise<void> {
       seo_title: clean(formData.get("seoTitle"), 90),
       seo_description: clean(formData.get("seoDescription"), 180),
       seo_keywords: listValue(formData, "seoKeywords"),
-      canonical_path: clean(formData.get("canonicalPath"), 180),
-      og_image: clean(formData.get("ogImage"), 260),
+      canonical_path: cleanHttpUrl(formData.get("canonicalPath"), 180),
+      og_image: cleanImageUrl(formData.get("ogImage"), 260),
       status: pageStatusValue(formData),
       updated_at: new Date().toISOString(),
     };
