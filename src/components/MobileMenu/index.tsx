@@ -17,6 +17,7 @@ const MobileMenu = () => {
     { href: { pathname: "/explore" }, label: t("explore") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
     { href: { pathname: "/quote" }, label: t("quote") },
+    { href: { pathname: "/blog" }, label: t("blog") },
     { href: { pathname: "/", hash: "sss" }, label: t("faq") },
   ] as const;
 

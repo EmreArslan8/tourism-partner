@@ -9,9 +9,9 @@ const styles = {
     "[-webkit-mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]",
   track: "flex w-max shrink-0 items-center animate-scroll-linear",
   item:
-    "inline-flex items-center whitespace-nowrap text-[28px] font-semibold tracking-tight text-ink/45 " +
-    "transition-colors duration-200 hover:text-terra " +
-    "before:mx-9 before:text-[9px] before:text-terra/40 before:content-['●'] " +
+    "inline-flex items-center whitespace-nowrap text-[28px] font-semibold tracking-tight text-white/55 " +
+    "transition-colors duration-200 hover:text-white " +
+    "before:mx-9 before:text-[9px] before:text-white/35 before:content-['●'] " +
     "max-[640px]:text-[20px] max-[640px]:before:mx-6",
 } as const;
 

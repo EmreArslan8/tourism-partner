@@ -3,13 +3,16 @@
 // Tüm panellerde ortak taban: container-px hizası + 100dvh + sabit/simetrik dikey ritim.
 // Tek kaynak: dikey boşluğu değiştirmek için yalnızca burayı düzenle.
 const panelBase =
-  "container-px flex h-full w-full flex-col items-center justify-center overflow-hidden bg-paper py-8 " +
+  "container-px flex h-full w-full flex-col items-center justify-center overflow-hidden bg-cream py-8 " +
   "max-[1120px]:justify-start max-[900px]:py-6 max-[640px]:py-5";
 
 const styles = {
   panelDark: "flex h-full w-full flex-col bg-pine",
   heroFill: "relative min-h-0 flex-1",
-  brandStrip: "shrink-0 border-t border-white/10 bg-paper",
+  // Camsı mavi şerit — koyu hero'nun altında beyaz yerine tema mavisiyle sürüyor.
+  brandStrip:
+    "shrink-0 border-t border-white/10 " +
+    "bg-[linear-gradient(180deg,rgba(15,59,176,.22),rgba(10,36,114,.40))] backdrop-blur-md",
   panelLight: `${panelBase} max-[640px]:justify-start`,
   // Bölgeler: mobilde üste yaslı (uzun içerik), ≥641'de ortalı.
   panelRegions: `${panelBase} max-[640px]:justify-start`,

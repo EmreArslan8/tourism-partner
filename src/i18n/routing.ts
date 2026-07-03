@@ -21,6 +21,8 @@ export const routing = defineRouting({
       tr: "/teklif",
       en: "/quote",
     },
+    "/blog": "/blog",
+    "/blog/[slug]": "/blog/[slug]",
     "/dashboard": {
       tr: "/panel",
       en: "/dashboard",

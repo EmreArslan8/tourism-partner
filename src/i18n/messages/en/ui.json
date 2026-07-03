@@ -4,11 +4,23 @@
     "explore": "Explore",
     "how": "How It Works",
     "quote": "Get Quotes",
+    "blog": "Blog",
     "faq": "FAQ",
     "login": "Log In",
     "agencyLogin": "Agency Login",
     "supplierLogin": "Supplier Login",
     "addBusiness": "Sign Up"
+  },
+  "blog": {
+    "eyebrow": "Blog",
+    "title": "Tourism partnership guide",
+    "subtitle": "Industry insights, collaboration tips and platform news.",
+    "metaTitle": "Blog · Tourism Partner",
+    "metaDescription": "Articles on the tourism B2B marketplace, partnerships and industry insights.",
+    "readMore": "Read more",
+    "back": "Back to blog",
+    "emptyTitle": "No posts yet",
+    "emptyText": "The first blog posts will be published soon."
   },
   "common": {
     "verified": "Verified",

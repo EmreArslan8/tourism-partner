@@ -4,11 +4,23 @@
     "explore": "Keşfet",
     "how": "Nasıl Çalışır",
     "quote": "Teklif Al",
+    "blog": "Blog",
     "faq": "SSS",
     "login": "Giriş Yap",
     "agencyLogin": "Acente Girişi",
     "supplierLogin": "Firma Girişi",
     "addBusiness": "Kayıt Ol"
+  },
+  "blog": {
+    "eyebrow": "Blog",
+    "title": "Turizm iş ortaklığı rehberi",
+    "subtitle": "Sektörel içgörüler, iş birliği ipuçları ve platform haberleri.",
+    "metaTitle": "Blog · Tourism Partner",
+    "metaDescription": "Turizm B2B pazaryeri, iş birliği ve sektörel içgörüler üzerine yazılar.",
+    "readMore": "Devamını oku",
+    "back": "Bloga dön",
+    "emptyTitle": "Henüz yazı yok",
+    "emptyText": "İlk blog yazıları yakında yayınlanacak."
   },
   "common": {
     "verified": "Doğrulanmış",

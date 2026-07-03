@@ -1,8 +1,10 @@
 export const palette = {
   pine: "#07092a",
   pineSoft: "#172178",
-  cream: "#fffefd",
-  creamDeep: "#fdfcf9",
+  /* İç sayfa zemini — marka rengi sapphire'in (#0f3bb0) açık "wash"ı. Landing hero + butonlarla
+     aynı mavi aileden; kartlar `paper` (beyaz) kaldığı için zeminin üstünde net öne çıkar. */
+  cream: "#dbe3f5",
+  creamDeep: "#c9d5ef",
   paper: "#ffffff",
   /* Sapphire — resmî palet. Ana: #0F3BB0 · Parlak: #004FE6 · Gece: #0A2472. */
   sapphire: "#0f3bb0",
@@ -16,8 +18,8 @@ export const palette = {
   brand: "#0a2472",
   brandDeep: "#071a52",
   ink: "#0b102f",
-  muted: "#66708f",
-  line: "#efede8",
+  muted: "#5c6684",
+  line: "#c6d2ec",
 } as const;
 
 /* Kategori (ana grup) renkleri — katalog noktaları ve kart kapakları için. */

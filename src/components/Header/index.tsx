@@ -26,9 +26,11 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
   const resolvedVariant: HeaderVariant = transparent ? "glass" : variant;
 
   const links: { href: Href; label: string }[] = [
+    { href: { pathname: "/" }, label: t("home") },
     { href: { pathname: "/explore" }, label: t("explore") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
     { href: { pathname: "/quote" }, label: t("quote") },
+    { href: { pathname: "/blog" }, label: t("blog") },
     { href: { pathname: "/", hash: "sss" }, label: t("faq") },
   ];
 
