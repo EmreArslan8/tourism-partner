@@ -117,9 +117,11 @@ const Card = ({ b, locale, lang }: { b: AdminBusiness; locale: string; lang: "tr
                     <Svg size={16}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm0 0v6h6" /></Svg>
                     <span className="truncate">{d.label}</span>
                   </span>
-                  <a href={d.doc.url} target="_blank" rel="noreferrer" className="text-[#64748B] hover:text-[#2563EB]" aria-label="Görüntüle">
-                    <Svg size={16}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></Svg>
-                  </a>
+                  {d.doc.url && (
+                    <a href={d.doc.url} target="_blank" rel="noreferrer" className="text-[#64748B] hover:text-[#2563EB]" aria-label="Görüntüle">
+                      <Svg size={16}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></Svg>
+                    </a>
+                  )}
                 </div>
               ) : (
                 <div key={i} className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-[13px] font-medium text-red-600">

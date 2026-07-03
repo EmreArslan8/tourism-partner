@@ -40,19 +40,22 @@ export async function signIn(
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: error.message };
 
-  // Rolü oku → admin ise admin paneline, değilse firma paneline.
+  // Rolü + üye tipini oku → admin: /admin, alıcı: /explore, tedarikçi: /dashboard.
   let role = "partner";
+  let accountType = "supplier";
   if (data.user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role")
+      .select("role, account_type")
       .eq("id", data.user.id)
       .maybeSingle();
     if (profile?.role) role = profile.role;
+    if (profile?.account_type) accountType = profile.account_type;
   }
 
   const locale = await getLocale();
-  redirect({ href: role === "admin" ? "/admin" : "/dashboard", locale });
+  const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
+  redirect({ href, locale });
   return { ok: true };
 }
 
@@ -68,8 +71,14 @@ export async function signUp(
   const email = clean(formData.get("email"), 200);
   const password = String(formData.get("password") ?? "");
   const category = clean(formData.get("category"), 80);
+  // Üye tipi: 'buyer' = sadece arayan/kullanan firma (listelenmez, kategori istemez).
+  const accountType = clean(formData.get("accountType"), 20) === "buyer" ? "buyer" : "supplier";
+  // Alıcı için opsiyonel sektör (analitik). Tedarikçide yok sayılır.
+  const sector = accountType === "buyer" ? clean(formData.get("sector"), 40) : "";
 
-  if (!name || !email || !password || !category) return { ok: false, error: "missing" };
+  if (!name || !email || !password) return { ok: false, error: "missing" };
+  // Kategori yalnızca tedarikçi (listelenecek) kayıtta zorunlu.
+  if (accountType === "supplier" && !category) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
   if (password.length < 6) return { ok: false, error: "password" };
   const allowed = await checkRateLimit({
@@ -80,24 +89,25 @@ export async function signUp(
   });
   if (!allowed) return { ok: false, error: "rate" };
 
-  const cat = resolveCategory(category);
-  if (!cat) return { ok: false, error: "category" };
+  // Tedarikçi ise kategori çöz; alıcı ise kategori yok.
+  const cat = accountType === "supplier" ? resolveCategory(category!) : null;
+  if (accountType === "supplier" && !cat) return { ok: false, error: "category" };
 
   const locale = await getLocale();
-  const loginPath = locale === "tr" ? "/tr/giris" : "/en/login";
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${SITE_URL}${loginPath}`,
+      // Doğrulama linki callback'e döner → oturumu kurup direkt panele atar.
+      emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}`,
       data: {
         full_name: name,
         firm_name: name,
-        biz_group: cat.group,
-        biz_type: cat.typeLabel,
-        category_slug: category,
+        account_type: accountType,
+        ...(sector ? { sector } : {}),
+        ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category } : {}),
       },
     },
   });
@@ -110,22 +120,48 @@ export async function signUp(
     return { ok: false, error: "generic" };
   }
 
-  // Oturum hemen açıldıysa (e-posta onayı kapalı) firma kaydını oluştur ve panele git.
+  // Oturum hemen açıldıysa (e-posta onayı kapalı): tedarikçi ise firma kaydı oluştur,
+  // alıcı ise kayıt oluşturmadan keşfete yönlendir.
   if (data.session && data.user) {
-    await supabase.from("businesses").insert({
-      owner_id: data.user.id,
-      group: cat.group,
-      type: cat.typeLabel,
-      name,
-      country: "",
-      city: "",
-      district: "",
-      status: "pending",
-    });
-    redirect({ href: "/dashboard", locale });
+    if (cat) {
+      await supabase.from("businesses").insert({
+        owner_id: data.user.id,
+        group: cat.group,
+        type: cat.typeLabel,
+        name,
+        country: "",
+        city: "",
+        district: "",
+        status: "pending",
+      });
+    }
+    redirect({ href: accountType === "buyer" ? "/explore" : "/dashboard", locale });
   }
 
   // E-posta onayı gerekiyor.
+  return { ok: true };
+}
+
+/* Doğrulama e-postasını yeniden gönder (verify ekranındaki "tekrar gönder"). */
+export async function resendSignupEmail(email: string): Promise<{ ok: boolean; error?: string }> {
+  const clean = email.trim();
+  if (!isEmail(clean)) return { ok: false, error: "email" };
+  const allowed = await checkRateLimit({
+    scope: "auth-resend",
+    limit: 3,
+    windowSeconds: 10 * 60,
+    identity: [clean.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
+
+  const locale = await getLocale();
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: clean,
+    options: { emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}` },
+  });
+  if (error) return { ok: false, error: "generic" };
   return { ok: true };
 }
 

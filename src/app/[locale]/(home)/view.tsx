@@ -64,7 +64,7 @@ const HomeView = ({
 
       {/* 4 — Tedarikçi türleri */}
       <div className={styles.panelCategories}>
-        <div className={`${styles.innerWide} flex flex-col justify-center gap-10 max-[1024px]:gap-8 max-[640px]:justify-start max-[640px]:gap-6`}>
+        <div className="flex w-full flex-col justify-start gap-6 max-[1024px]:gap-5 max-[640px]:gap-6">
           <Categories />
           <SearchIntents />
         </div>

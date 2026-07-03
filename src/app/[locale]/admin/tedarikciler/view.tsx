@@ -64,8 +64,9 @@ const AdminSuppliersView = ({
               <option value="all">Tüm Kategoriler</option>
               <option value="konaklama">Konaklama</option>
               <option value="acente">Acente</option>
+              <option value="ulasim">Ulaşım</option>
               <option value="rehber">Rehber</option>
-              <option value="eglence">Deneyim / Transfer</option>
+              <option value="aktivite">Aktivite / Deneyim</option>
               <option value="saglik">Sağlık</option>
             </select>
             <select name="city" defaultValue={filters.city} className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238]">

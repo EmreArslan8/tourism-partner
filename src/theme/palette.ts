@@ -24,8 +24,9 @@ export const palette = {
 export const groupPalette = {
   konaklama: "#3542ee",
   acente: "#172178",
+  ulasim: "#0a56c2",
   rehber: "#5b6cff",
-  eglence: "#0e75cf",
+  aktivite: "#0e75cf",
   saglik: "#0891b2",
 } as const;
 
@@ -54,8 +55,9 @@ export const tailwindColors = {
   group: {
     konaklama: groupPalette.konaklama,
     acente: groupPalette.acente,
+    ulasim: groupPalette.ulasim,
     rehber: groupPalette.rehber,
-    eglence: groupPalette.eglence,
+    aktivite: groupPalette.aktivite,
     saglik: groupPalette.saglik,
   },
 } as const;

@@ -13,7 +13,10 @@ const styles = {
   panelLight: `${panelBase} max-[640px]:justify-start`,
   // Bölgeler: mobilde üste yaslı (uzun içerik), ≥641'de ortalı.
   panelRegions: `${panelBase} max-[640px]:justify-start`,
-  panelCategories: panelBase,
+  panelCategories:
+    `${panelBase} justify-start pt-[clamp(24px,5vh,64px)] pb-6 ` +
+    "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:justify-center " +
+    "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:py-6",
   panelFaq: `${panelBase} max-[640px]:justify-start`,
   panelStack: `${panelBase} gap-5 max-[640px]:gap-1.5`,
   // İçerik container-px kutusunu doldurur — Hero/Header/Footer ile aynı sol/sağ hizada kalır.

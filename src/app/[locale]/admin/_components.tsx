@@ -247,10 +247,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
         <Field label="Yorum"><input name="reviews" defaultValue={business?.reviews ?? 0} className={input} /></Field>
       </div>
       <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={textarea} /></Field>
-      <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-        <Field label="Kapak görseli"><input name="image" defaultValue={business?.image ?? ""} placeholder="/assets/cards/hotel-1.webp" className={input} /></Field>
-        <Field label="Etiket"><input name="tag" defaultValue={business?.tag ?? ""} className={input} /></Field>
-      </div>
+      <Field label="Etiket"><input name="tag" defaultValue={business?.tag ?? ""} className={input} /></Field>
       <Field label="Filtre özellikleri" hint="virgülle ayır"><input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={input} /></Field>
       <div className="grid grid-cols-2 gap-3 max-[560px]:grid-cols-1">
         <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="verified" defaultChecked={business?.verified ?? false} /> Doğrulanmış</label>
@@ -264,7 +261,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={input} /></Field>
           <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
             <Field label="Canonical path"><input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/supplier/kaya-palas-hotel" className={input} /></Field>
-            <Field label="OG görsel"><input name="ogImage" defaultValue={business?.ogImage ?? business?.image ?? ""} className={input} /></Field>
+            <Field label="OG görsel"><input name="ogImage" defaultValue={business?.ogImage ?? ""} className={input} /></Field>
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
-import { BarChart3, MapPinned, TrendingUp } from "lucide-react";
+import { Eye, MousePointerClick, TrendingUp, Users } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
-import { Card, CardContent } from "@/components/common/Card";
+import { Card, CardContent } from "@/components/common";
+
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -9,7 +10,15 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
   const data = await getAdminData();
   const topCities = countBy(data.businesses.map((business) => business.city)).slice(0, 6);
   const topGroups = countBy(data.businesses.map((business) => business.group)).slice(0, 6);
-  const totalViews = data.pageViews.length;
+
+  // Görüntülenme metrikleri (son 7 gün penceresi — admin.ts sorgusu böyle sınırlıyor).
+  // Çoğul = toplam olay; Tekil = distinct visitor_id (bot trafiği recordView'de zaten elenmiş).
+  const totalViews = data.pageViews.length; // çoğul
+  const uniqueVisitors = new Set(
+    data.pageViews.map((view) => view.visitorId).filter((id): id is string => !!id),
+  ).size; // tekil
+  const impressions = data.pageViews.filter((view) => view.entityType === "impression").length;
+  const detailViews = data.pageViews.filter((view) => view.entityType === "business").length;
 
   return (
     <>
@@ -17,14 +26,15 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2563EB]">Raporlar</p>
         <h2 className="mt-1 text-[30px] font-extrabold leading-tight text-[#0B1C30]">Veri Analitiği</h2>
         <p className="mt-1.5 max-w-[760px] text-[14px] font-medium leading-6 text-[#64748B]">
-          Görüntülenme, bölge yoğunluğu ve kategori performansını takip edin.
+          Görüntülenme, bölge yoğunluğu ve kategori performansını takip edin. Son 7 gün.
         </p>
       </header>
 
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
-        <ReportCard icon={<TrendingUp size={20} aria-hidden />} label="Son 7 Gün Görüntülenme" value={totalViews} />
-        <ReportCard icon={<MapPinned size={20} aria-hidden />} label="Aktif Şehir" value={topCities.length} />
-        <ReportCard icon={<BarChart3 size={20} aria-hidden />} label="Kategori Kırılımı" value={topGroups.length} />
+      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <ReportCard icon={<TrendingUp size={20} aria-hidden />} label="Çoğul Görüntülenme" value={totalViews} hint="Toplam olay (impression + detay)" />
+        <ReportCard icon={<Users size={20} aria-hidden />} label="Tekil Ziyaretçi" value={uniqueVisitors} hint="Distinct ziyaretçi (bot hariç)" />
+        <ReportCard icon={<Eye size={20} aria-hidden />} label="Kart Impression" value={impressions} hint="Kart ekrana geldi" />
+        <ReportCard icon={<MousePointerClick size={20} aria-hidden />} label="Detay Ziyareti" value={detailViews} hint="Profil sayfası açıldı" />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -58,12 +68,23 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
 }
 
 /* common/Card (composition) ile beslenen metric kartı. */
-const ReportCard = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) => (
+const ReportCard = ({
+  icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  hint?: string;
+}) => (
   <Card interactive>
     <CardContent>
       <div className="mb-4 grid h-10 w-10 place-items-center rounded-[8px] bg-[#EEF4FF] text-[#0057D9]">{icon}</div>
       <p className="text-[12px] font-extrabold uppercase tracking-[.08em] text-[#64748B]">{label}</p>
       <p className="mt-2 text-[30px] font-black leading-none text-[#0B1C30]">{value.toLocaleString("tr-TR")}</p>
+      {hint && <p className="mt-1.5 text-[11.5px] font-medium text-[#94A3B8]">{hint}</p>}
     </CardContent>
   </Card>
 );

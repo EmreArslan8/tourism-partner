@@ -109,13 +109,32 @@ export const FACETS: Facet[] = [
     ],
   },
 
-  // ——— EĞLENCE ———
+  // ——— ULAŞIM ———
   {
-    key: "lisans", label: "Lisans / güvenlik", scope: ["eglence"],
+    key: "tasima-belge", label: "Taşıma belgesi", scope: ["ulasim"],
+    options: [
+      { slug: "d2-belgesi", label: "D2 belgesi" },
+      { slug: "kabis-kaydi", label: "KABİS kaydı" },
+      { slug: "yetkili-transfer", label: "Yetkili transfer" },
+    ],
+  },
+  {
+    key: "arac-tipi", label: "Araç tipi", scope: ["ulasim"],
+    options: [
+      { slug: "vip-arac", label: "VIP araç" },
+      { slug: "minibus", label: "Minibüs" },
+      { slug: "otobus", label: "Otobüs" },
+      { slug: "rent-a-car", label: "Rent A Car" },
+    ],
+  },
+
+  // ——— AKTİVİTE & DENEYİM ———
+  {
+    key: "lisans", label: "Lisans / güvenlik", scope: ["aktivite"],
     options: [{ slug: "lisansli", label: "Lisanslı işletme" }],
   },
   {
-    key: "eglence-satis", label: "Satış modeli", scope: ["eglence"],
+    key: "aktivite-satis", label: "Satış modeli", scope: ["aktivite"],
     options: [
       { slug: "blok-satis", label: "Blok satış" },
       { slug: "gunluk-operasyon", label: "Günlük operasyon" },

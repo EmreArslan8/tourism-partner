@@ -1,13 +1,12 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { Business } from "./types";
-import { BUSINESSES as SEED } from "./data";
+import type { Business, GroupKey } from "./types";
 import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
 import { businessSlug } from "./business-slug";
 export { businessSlug } from "./business-slug";
 
-/* Firma veri erişim katmanı (server). Supabase'den okur; env yoksa veya
-   sorgu hata verirse statik seed'e (lib/data.ts) düşer — site her durumda çalışır. */
+/* Firma veri erişim katmanı (server). Supabase'den okur.
+   Seed fallback kapalı: local/dev/prod aynı gerçek DB davranışını görür. */
 
 /* Public listede çekilen kolonlar — Row tipi şemadan türer (drift = derleme hatası). */
 const SELECT_COLUMNS =
@@ -24,7 +23,7 @@ type Row = Pick<
 function rowToBusiness(r: Row): Business {
   return {
     id: r.id,
-    group: r.group,
+    group: normalizeBusinessGroup(r.group),
     type: r.type,
     name: r.name,
     country: r.country,
@@ -51,13 +50,18 @@ function rowToBusiness(r: Row): Business {
   };
 }
 
+function normalizeBusinessGroup(group: string): GroupKey {
+  if (group === "eglence") return "aktivite";
+  if (group === "ulasim") return "ulasim";
+  if (group === "acente" || group === "rehber" || group === "aktivite" || group === "saglik") return group;
+  return "konaklama";
+}
+
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-/* Seed'e düşüş sessiz kalmasın — prod'da DB sorunu görünür olsun.
-   (İleride Sentry/log servisine bağlanabilir.) */
-function reportFallback(where: string, detail: unknown) {
-  console.error(`[businesses] DB okuma başarısız, SEED'e düşülüyor (${where}):`, detail);
+function reportMissingEnv(where: string) {
+  console.error(`[businesses] Supabase env eksik (${where}); seed fallback kapalı, boş sonuç dönülüyor.`);
 }
 
 /* Çerezsiz public client + 'use cache': oturumdan bağımsız, herkese açık liste.
@@ -67,47 +71,43 @@ export async function getBusinesses(): Promise<Business[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("businesses");
-  if (!hasEnv()) return SEED;
-  try {
-    const supabase = createPublicClient();
-    const { data, error } = await supabase
-      .from("businesses")
-      .select(SELECT_COLUMNS)
-      .eq("status", "approved")
-      .order("id");
-    if (error || !data) {
-      reportFallback("getBusinesses", error ?? "veri yok");
-      return SEED;
-    }
-    return (data as Row[]).map(rowToBusiness);
-  } catch (e) {
-    reportFallback("getBusinesses", e);
-    return SEED;
+  if (!hasEnv()) {
+    reportMissingEnv("getBusinesses");
+    return [];
   }
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("businesses")
+    .select(SELECT_COLUMNS)
+    .eq("status", "approved")
+    .order("id");
+  if (error) {
+    console.error(`[businesses] getBusinesses DB hatası; seed fallback kapalı, boş sonuç dönülüyor: ${error.message}`);
+    return [];
+  }
+  return ((data ?? []) as Row[]).map(rowToBusiness);
 }
 
 export async function getBusinessById(id: number | string): Promise<Business | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("businesses");
-  if (!hasEnv()) return SEED.find((b) => b.id === Number(id)) ?? null;
-  try {
-    const supabase = createPublicClient();
-    const { data, error } = await supabase
-      .from("businesses")
-      .select(SELECT_COLUMNS)
-      .eq("id", Number(id))
-      .maybeSingle();
-    if (error) {
-      reportFallback("getBusinessById", error);
-      return SEED.find((b) => b.id === Number(id)) ?? null;
-    }
-    if (!data) return null;
-    return rowToBusiness(data as Row);
-  } catch (e) {
-    reportFallback("getBusinessById", e);
-    return SEED.find((b) => b.id === Number(id)) ?? null;
+  if (!hasEnv()) {
+    reportMissingEnv("getBusinessById");
+    return null;
   }
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("businesses")
+    .select(SELECT_COLUMNS)
+    .eq("id", Number(id))
+    .maybeSingle();
+  if (error) {
+    console.error(`[businesses] getBusinessById DB hatası; seed fallback kapalı, null dönülüyor: ${error.message}`);
+    return null;
+  }
+  if (!data) return null;
+  return rowToBusiness(data as Row);
 }
 
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {

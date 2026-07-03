@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 const hasEnv = () =>
@@ -12,14 +11,7 @@ export type AdminAccess = {
 };
 
 export const getAdminAccess = cache(async (): Promise<AdminAccess> => {
-  const devBypass =
-    process.env.NODE_ENV !== "production" && process.env.ADMIN_DEV_BYPASS === "1";
-
   if (!hasEnv()) {
-    if (devBypass) {
-      await connection();
-      return { mode: "demo", userEmail: "demo@admin.local", isAdmin: true };
-    }
     return { mode: "demo", isAdmin: false };
   }
 
@@ -29,10 +21,6 @@ export const getAdminAccess = cache(async (): Promise<AdminAccess> => {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    if (devBypass) {
-      await connection();
-      return { mode: "demo", userEmail: "demo@admin.local", isAdmin: true };
-    }
     return { mode: "supabase", isAdmin: false };
   }
 
@@ -43,10 +31,6 @@ export const getAdminAccess = cache(async (): Promise<AdminAccess> => {
     .maybeSingle();
 
   if (profile?.role !== "admin") {
-    if (devBypass) {
-      await connection();
-      return { mode: "demo", userEmail: "demo@admin.local", isAdmin: true };
-    }
     return { mode: "supabase", userEmail: user.email ?? undefined, isAdmin: false };
   }
 

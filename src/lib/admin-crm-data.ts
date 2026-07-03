@@ -1,10 +1,9 @@
 import { cache } from "react";
-import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { BUSINESSES as SEED } from "@/lib/data";
+import { getAdminAccess } from "@/lib/admin-auth";
 import type { AdminAuditLog, AdminBusiness, AdminMembership, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
-import { businessesToCsv, filterBusinesses } from "@/lib/admin-crm";
+import { businessesToCsv } from "@/lib/admin-crm";
 
 const BUSINESS_SELECT =
   "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
@@ -59,11 +58,24 @@ export type CrmBusinessDetailData = {
   auditLogs: AdminAuditLog[];
 };
 
+const EMPTY_CRM_LIST: CrmListData = {
+  businesses: [],
+  total: 0,
+  memberships: [],
+  expiringBusinesses: [],
+  expiringMemberships: [],
+  cities: [],
+  activeHotels: 0,
+  activeAgencies: 0,
+};
+
 export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmListData> => {
   if (!hasEnv()) {
-    await connection();
-    return demoListData(filters);
+    console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş CRM listesi dönülüyor.");
+    return EMPTY_CRM_LIST;
   }
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return EMPTY_CRM_LIST;
 
   const supabase = await createClient();
   const offset = (filters.page - 1) * filters.limit;
@@ -129,9 +141,11 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
 
 export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusinessDetailData> => {
   if (!hasEnv()) {
-    await connection();
-    return demoDetailData(id);
+    console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş CRM detayı dönülüyor.");
+    return { business: null, membership: null, auditLogs: [] };
   }
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return { business: null, membership: null, auditLogs: [] };
 
   const supabase = await createClient();
   const [businessRes, membershipRes, auditRes] = await Promise.all([
@@ -165,11 +179,11 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
 
 export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportColumn[], ids: number[] = []): Promise<string> {
   if (!hasEnv()) {
-    await connection();
-    const demo = demoListData({ ...filters, page: 1, limit: 10_000 });
-    const businesses = ids.length > 0 ? demo.businesses.filter((business) => ids.includes(business.id)) : demo.businesses;
-    return businessesToCsv(businesses, demo.memberships, columns);
+    console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş export dönülüyor.");
+    return businessesToCsv([], [], columns);
   }
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return businessesToCsv([], [], columns);
 
   const supabase = await createClient();
   const query = applyBusinessFilters(supabase.from("businesses").select(BUSINESS_SELECT), filters)
@@ -301,46 +315,4 @@ function mapAuditLogs(rows: AuditRow[]): AdminAuditLog[] {
     userAgent: row.user_agent,
     createdAt: row.created_at,
   }));
-}
-
-function demoBusinesses(): AdminBusiness[] {
-  const day = 86_400_000;
-  return SEED.map((business, index) => ({
-    ...business,
-    status: index % 7 === 0 ? "pending" : "approved",
-    createdAt: new Date(Date.now() - index * day).toISOString(),
-  }));
-}
-
-function demoMemberships(): AdminMembership[] {
-  const day = 86_400_000;
-  return [
-    { id: 1, businessId: 3, plan: "standard", status: "active", startsAt: new Date(Date.now() - 351 * day).toISOString(), endsAt: new Date(Date.now() + 3 * day).toISOString() },
-    { id: 2, businessId: 8, plan: "standard", status: "active", startsAt: new Date(Date.now() - 357 * day).toISOString(), endsAt: new Date(Date.now() + 8 * day).toISOString() },
-    { id: 3, businessId: 12, plan: "premium", status: "active", startsAt: new Date(Date.now() - 354 * day).toISOString(), endsAt: new Date(Date.now() + 13 * day).toISOString() },
-  ];
-}
-
-function demoListData(filters: CrmFilters): CrmListData {
-  const allBusinesses = demoBusinesses();
-  const filtered = filterBusinesses(allBusinesses, filters);
-  const offset = (filters.page - 1) * filters.limit;
-  const businesses = filtered.slice(offset, offset + filters.limit);
-  const memberships = demoMemberships();
-  return {
-    businesses,
-    total: filtered.length,
-    memberships,
-    expiringBusinesses: allBusinesses.filter((business) => memberships.some((membership) => membership.businessId === business.id)).slice(0, 4),
-    expiringMemberships: memberships,
-    cities: Array.from(new Set(allBusinesses.map((business) => business.city))).sort((a, b) => a.localeCompare(b, "tr")),
-    activeHotels: allBusinesses.filter((business) => business.group === "konaklama" && business.status === "approved").length,
-    activeAgencies: allBusinesses.filter((business) => business.group === "acente" && business.status === "approved").length,
-  };
-}
-
-function demoDetailData(id: number): CrmBusinessDetailData {
-  const business = demoBusinesses().find((item) => item.id === id) ?? null;
-  const membership = demoMemberships().find((item) => item.businessId === id) ?? null;
-  return { business, membership, auditLogs: [] };
 }

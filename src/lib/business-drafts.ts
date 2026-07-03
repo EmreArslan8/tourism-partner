@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/client";
-import type { BizDocument } from "@/lib/business-fields";
+import type { BusinessDocument } from "@/lib/types";
+import { persistableDocuments } from "@/lib/business-document-shape";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
 
 export type PanelDraftMedia = {
   cover: string;
   gallery: string[];
-  documents: BizDocument[];
+  documents: BusinessDocument[];
 };
 
 export async function upsertPanelDraftMedia(
@@ -22,7 +23,7 @@ export async function upsertPanelDraftMedia(
       group,
       cover_image: media.cover || null,
       gallery_images: media.gallery.slice(0, 12),
-      documents: media.documents.slice(0, 20),
+      documents: persistableDocuments(media.documents),
     },
     { onConflict: "user_id,draft_key" }
   );

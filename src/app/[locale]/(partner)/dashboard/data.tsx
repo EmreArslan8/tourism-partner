@@ -1,5 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { withSignedDocumentUrls } from "@/lib/business-documents";
 import DashboardView, { PanelBusiness, PanelDraft, PanelMembership, PanelQuote } from "./view";
 
 export type DashboardMode = "overview" | "listings" | "edit";
@@ -19,6 +20,14 @@ export async function PanelData({
   } = await supabase.auth.getUser();
   const userId = user?.id ?? "";
   if (!userId) redirect({ href: "/login", locale });
+
+  // Alıcı-üye (listelenmeyen firma) tedarikçi panelini kullanmaz → keşfete yönlendir.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_type")
+    .eq("id", userId)
+    .maybeSingle();
+  if (profile?.account_type === "buyer") redirect({ href: "/explore", locale });
 
   const { data: biz } = await supabase
     .from("businesses")
@@ -69,11 +78,17 @@ export async function PanelData({
 
   const meta = (user!.user_metadata ?? {}) as Record<string, string>;
   const group = (biz?.group as string) || meta.biz_group || "konaklama";
+  const business = biz
+    ? { ...biz, documents: await withSignedDocumentUrls(supabase, biz.documents) }
+    : null;
+  const signedDraftDocuments = draft
+    ? await withSignedDocumentUrls(supabase, draft.documents)
+    : [];
 
   return (
     <DashboardView
       mode={mode}
-      business={biz as PanelBusiness | null}
+      business={business as PanelBusiness | null}
       quotes={quotes}
       membership={membership}
       email={user!.email ?? ""}
@@ -87,7 +102,7 @@ export async function PanelData({
               group: draft.group,
               cover: draft.cover_image ?? "",
               gallery: draft.gallery_images ?? [],
-              documents: (draft.documents as PanelDraft["documents"]) ?? [],
+              documents: signedDraftDocuments as PanelDraft["documents"],
             }
           : null
       }

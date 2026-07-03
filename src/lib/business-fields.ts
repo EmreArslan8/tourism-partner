@@ -1,7 +1,7 @@
 /* Kategori-bazlı dinamik kayıt/profil alanları (Brief §5 / El Kitabı §3 / Quick Ref §2).
    Firma paneli, seçilen ana gruba (GroupKey) göre buradan beslenen alanları render eder.
    Değerler businesses.details (jsonb) içinde detail_<key> olarak; evraklar
-   businesses.documents (jsonb) içinde { kind, url, name } olarak saklanır.
+   businesses.documents (jsonb) içinde private storage path'iyle saklanır.
 
    Etiketler iki dillidir (panel client'ı useLocale ile seçer); böylece ayrıca
    onlarca i18n anahtarı eklemeye gerek kalmaz. */
@@ -113,8 +113,29 @@ export const GROUP_FIELDS: Record<GroupKey, BizField[]> = {
     },
   ],
   acente: [],
+  ulasim: [
+    {
+      key: "fleet_size",
+      type: "number",
+      label: { tr: "Filo Araç Sayısı", en: "Fleet Size" },
+    },
+    {
+      key: "vehicle_capacity",
+      type: "number",
+      label: { tr: "Toplam Yolcu Kapasitesi", en: "Total Passenger Capacity" },
+    },
+    {
+      key: "kabis_status",
+      type: "select",
+      label: { tr: "KABİS Beyanı", en: "KABIS Declaration" },
+      options: [
+        { value: "var", label: { tr: "KABİS kaydı var", en: "KABIS registered" } },
+        { value: "yok", label: { tr: "KABİS kaydı yok", en: "Not registered" } },
+      ],
+    },
+  ],
   rehber: [], // rehber alanları GUIDE_FIELDS'ten gelir
-  eglence: [
+  aktivite: [
     {
       key: "capacity",
       type: "number",
@@ -133,10 +154,15 @@ export const GROUP_DOCS: Record<GroupKey, BizDocField[]> = {
     { kind: "tursab", label: { tr: "TÜRSAB Belgesi", en: "TÜRSAB Certificate" }, required: true },
     { kind: "saglik_yetki", label: { tr: "Uluslararası Sağlık Turizmi Yetki Belgesi (sağlık turizmi yapıyorsanız)", en: "Health Tourism Authorization (if applicable)" } },
   ],
+  ulasim: [
+    { kind: "faaliyet_belgesi", label: { tr: "Şirket Faaliyet Belgesi", en: "Company Activity Certificate" }, required: true },
+    { kind: "d2_belgesi", label: { tr: "D2 Belgesi (transfer/taşımacılık için)", en: "D2 Certificate (for transport/transfer)" } },
+    { kind: "kabis_beyani", label: { tr: "KABİS Beyanı (Rent A Car için)", en: "KABIS Declaration (for Rent A Car)" } },
+  ],
   rehber: [
     { kind: "dil_sertifikasi", label: { tr: "Dil Sertifikası", en: "Language Certificate" } },
   ],
-  eglence: [
+  aktivite: [
     { kind: "faaliyet_belgesi", label: { tr: "Resmi Faaliyet / Acente Evrakı", en: "Activity / Agency Document" }, required: true },
   ],
   saglik: [
@@ -165,5 +191,3 @@ export const ALL_DETAIL_KEYS: Set<string> = new Set(
     ...Object.values(GROUP_FIELDS).flat(),
   ].map((f) => f.key),
 );
-
-export type BizDocument = { kind: string; url: string; name: string };

@@ -1,4 +1,4 @@
-/* HowItWorks — "Üç adımda iş birliği" adım şeridi + görsel sahnesi. */
+/* HowItWorks — "Üç adımda iş birliği" adım şeridi + statik görsel sahnesi. */
 const styles = {
   section: "py-9 max-[640px]:py-[19.2px]",
   headline: "section-copy mb-7 max-w-[680px] max-[640px]:mb-3",

@@ -5,7 +5,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
-import { GROUP_COVER, GROUP_COLORS } from "@/lib/categories";
+import { GROUP_COLORS } from "@/lib/categories";
+import { realBusinessImages } from "@/lib/business-images";
 import { FACETS } from "@/lib/facets";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
@@ -15,17 +16,7 @@ import styles from "./styles";
 const FACET_LABEL = new Map<string, string>();
 FACETS.forEach((f) => f.options.forEach((o) => FACET_LABEL.set(o.slug, o.label)));
 
-const POOL = [
-  "/assets/cards/hotel-1.webp", "/assets/cards/hotel-2.webp", "/assets/cards/hotel-3.webp",
-  "/assets/cards/resort-1.webp", "/assets/cards/yacht-1.webp", "/assets/cards/balloon-1.webp",
-  "/assets/cards/agency-1.webp", "/assets/cards/guide-1.webp", "/assets/cards/clinic-1.webp",
-];
-const galleryFor = (b: Business): string[] => {
-  const cover = b.image ?? GROUP_COVER[b.group];
-  if (b.images?.length) return Array.from(new Set([cover, ...b.images])).slice(0, 4);
-  const n = POOL.length;
-  return [cover, POOL[b.id % n], POOL[(b.id + 3) % n], POOL[(b.id + 6) % n]];
-};
+const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
 
 /* Tek slide: solda galeri (kendi aktif görsel state'i), sağda bilgiler. */
 const Slide = ({ business }: { business: Business }) => {
@@ -64,7 +55,11 @@ const Slide = ({ business }: { business: Business }) => {
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
-          <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
+          {imgs[act] ? (
+            <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
+          ) : (
+            <div className={styles.placeholder}>Görsel bekleniyor</div>
+          )}
           {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
           <div className={styles.thumbs}>
             {imgs.map((src, i) => (
@@ -138,7 +133,7 @@ const Slide = ({ business }: { business: Business }) => {
 /* Öne çıkan iş ortakları — tam genişlikte, tek tek kayan carousel. */
 const Showcase = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("showcase");
-  const items = businesses.filter((b) => b.sponsored).slice(0, 5);
+  const items = businesses.filter((b) => b.sponsored && galleryFor(b).length > 0).slice(0, 5);
   const [i, setI] = useState(0);
 
   if (items.length === 0) return null;

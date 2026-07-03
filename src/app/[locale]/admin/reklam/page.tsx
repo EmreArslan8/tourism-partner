@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
               <Field label="Yönlendirme URL" required><input name="target_url" required className={input} placeholder="https://..." /></Field>
               <Field label="Başlangıç tarihi"><input name="starts_at" type="date" className={input} /></Field>
               <Field label="Bitiş tarihi"><input name="ends_at" type="date" className={input} /></Field>
-              <Field label="Görsel yolu" required className="md:col-span-2"><input name="image_url" required className={input} placeholder="/assets/banner.webp" /></Field>
+              <Field label="Görsel yolu" required className="md:col-span-2"><input name="image_url" required className={input} placeholder="https://...supabase.co/storage/v1/object/public/business-images/..." /></Field>
             </div>
             <button type="submit" className="mt-4 h-10 rounded-lg bg-[#0057D9] px-5 text-[13px] font-extrabold text-white hover:bg-[#0047B8]">
               Banner Kaydet

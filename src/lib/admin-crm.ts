@@ -43,7 +43,7 @@ const STATUS_VALUES: BusinessLifecycleStatus[] = [
   "suspended",
 ];
 
-const GROUP_VALUES: GroupKey[] = ["konaklama", "acente", "rehber", "eglence", "saglik"];
+const GROUP_VALUES: GroupKey[] = ["konaklama", "acente", "ulasim", "rehber", "aktivite", "saglik"];
 
 export function parseCrmFilters(input: Record<string, string | string[] | undefined>): CrmFilters {
   const group = scalar(input.group);

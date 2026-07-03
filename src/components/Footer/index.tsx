@@ -18,7 +18,7 @@ const Footer = () => {
           <h4 className={styles.colTitle}>{t("categories")}</h4>
           <Link href={{ pathname: "/explore", query: { cat: "konaklama" } }} className={styles.colLink}>{tc("konaklama")}</Link>
           <Link href={{ pathname: "/explore", query: { cat: "acente" } }} className={styles.colLink}>{tc("acente")}</Link>
-          <Link href={{ pathname: "/explore", query: { cat: "eglence" } }} className={styles.colLink}>{tc("eglence")}</Link>
+          <Link href={{ pathname: "/explore", query: { cat: "aktivite" } }} className={styles.colLink}>{tc("aktivite")}</Link>
           <Link href={{ pathname: "/explore", query: { cat: "saglik" } }} className={styles.colLink}>{tc("saglik")}</Link>
         </div>
         <div>

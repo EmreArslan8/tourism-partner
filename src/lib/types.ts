@@ -1,6 +1,7 @@
 /* Ortak tip tanımları — Faz 1 (seed veri). İleride Supabase şemasıyla eşlenecek. */
 
-export type GroupKey = "konaklama" | "acente" | "rehber" | "eglence" | "saglik";
+export type GroupKey = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik";
+export type BusinessLegalType = "company" | "individual";
 
 export interface CategoryNode {
   slug: string;
@@ -16,6 +17,7 @@ export interface CategoryGroup {
 export interface Business {
   id: number;
   group: GroupKey;
+  legalType?: BusinessLegalType;
   /** Alt kategori / tür etiketi, ör. "Otel", "Villa", "Diş Kliniği" */
   type: string;
   name: string;
@@ -76,6 +78,15 @@ export interface ListingFilters {
 // --- Action Types ---
 export type ActionState = { ok: boolean; error?: string };
 
+export type BusinessDocument = {
+  kind: string;
+  name: string;
+  /** Permanent private storage path for new document records. */
+  path?: string;
+  /** Signed URL for display, or legacy public URL. Not stored as the canonical value. */
+  url?: string;
+};
+
 // --- Admin Types ---
 export type BusinessLifecycleStatus =
   | "draft"
@@ -91,7 +102,7 @@ export type AdminBusiness = Business & {
   status: BusinessLifecycleStatus;
   createdAt?: string;
   /** Onay incelemesi için: panelde yüklenen evraklar + dinamik alanlar. */
-  documents?: { kind: string; url: string; name: string }[];
+  documents?: BusinessDocument[];
   details?: Record<string, string>;
 };
 
@@ -164,6 +175,7 @@ export type AdminPageView = {
   id: number;
   entityType: string;
   entityId: number | null;
+  visitorId: string | null;
   viewedAt: string;
 };
 

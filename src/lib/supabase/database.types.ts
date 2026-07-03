@@ -4,7 +4,7 @@
    şema değişikliklerinde elle güncellenmeli; Row tipleri uygulama genelinde
    buradan türetilir (bkz. lib/businesses.ts, lib/admin.ts). */
 
-export type BusinessGroup = "konaklama" | "acente" | "rehber" | "eglence" | "saglik";
+export type BusinessGroup = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik";
 export type BusinessStatus =
   | "draft"
   | "pending"
@@ -31,6 +31,8 @@ export interface Database {
           full_name: string | null;
           phone: string | null;
           role: string;
+          account_type: string;
+          sector: string | null;
           created_at: Timestamp;
         };
         Insert: {
@@ -38,6 +40,8 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           role?: string;
+          account_type?: string;
+          sector?: string | null;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
@@ -66,7 +70,7 @@ export interface Database {
           images: string[];
           attributes: string[];
           details: Record<string, string>;
-          documents: { kind: string; url: string; name: string }[];
+          documents: { kind: string; name: string; path?: string; url?: string }[];
           reject_reason: string | null;
           phone: string | null;
           website: string | null;
@@ -100,7 +104,7 @@ export interface Database {
           images?: string[];
           attributes?: string[];
           details?: Record<string, string>;
-          documents?: { kind: string; url: string; name: string }[];
+          documents?: { kind: string; name: string; path?: string; url?: string }[];
           reject_reason?: string | null;
           phone?: string | null;
           website?: string | null;
@@ -123,7 +127,7 @@ export interface Database {
           group: BusinessGroup;
           cover_image: string | null;
           gallery_images: string[];
-          documents: { kind: string; url: string; name: string }[];
+          documents: { kind: string; name: string; path?: string; url?: string }[];
           updated_at: Timestamp;
           created_at: Timestamp;
         };
@@ -134,7 +138,7 @@ export interface Database {
           group: BusinessGroup;
           cover_image?: string | null;
           gallery_images?: string[];
-          documents?: { kind: string; url: string; name: string }[];
+          documents?: { kind: string; name: string; path?: string; url?: string }[];
           updated_at?: Timestamp;
           created_at?: Timestamp;
         };

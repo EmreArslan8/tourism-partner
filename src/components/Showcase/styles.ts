@@ -26,6 +26,9 @@ const styles = {
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
     "max-[640px]:min-h-0 max-[640px]:aspect-[3/2]",
   galleryImg: "object-cover",
+  placeholder:
+    "grid h-full min-h-[360px] place-items-center text-[13px] font-bold text-white/90 " +
+    "max-[860px]:min-h-[300px] max-[640px]:min-h-0 max-[640px]:aspect-[3/2]",
   thumbs: "absolute inset-x-0 bottom-0 flex gap-2 p-3 max-[640px]:hidden",
   // Mobil: galeri swipe nokta göstergesi
   galleryDots:

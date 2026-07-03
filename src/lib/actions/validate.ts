@@ -34,7 +34,7 @@ export function cleanHttpUrl(v: FormDataEntryValue | null, max = 400): string | 
 export function cleanImageUrl(v: FormDataEntryValue | null, max = 400): string | null {
   const url = cleanHttpUrl(v, max);
   if (!url) return null;
-  if (url.startsWith("/")) return url.startsWith("/assets/") ? url : null;
+  if (url.startsWith("/")) return null;
   try {
     const parsed = new URL(url);
     return parsed.hostname.endsWith(".supabase.co") && parsed.pathname.startsWith("/storage/v1/object/public/")

@@ -7,23 +7,23 @@ const styles= {
   sub: "body-muted mt-1.5 max-w-[620px]",
 
   bar:
-    "sticky top-[86px] z-30 grid grid-cols-[minmax(126px,.75fr)_minmax(126px,.75fr)_minmax(126px,.75fr)_minmax(142px,.8fr)_auto_minmax(310px,1.7fr)] " +
-    "items-center gap-2 rounded-[15px] border border-line/80 bg-paper/92 p-2 shadow-[0_18px_54px_-48px_rgba(7,9,42,.72)] backdrop-blur-xl " +
-    "max-[1280px]:grid-cols-[repeat(4,minmax(128px,1fr))_minmax(160px,.8fr)] max-[1280px]:[&>*:last-child]:col-span-5",
-  field: "field h-[42px]",
+    "sticky top-[86px] z-30 grid grid-cols-[minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)_auto_minmax(320px,1.7fr)] " +
+    "items-center gap-2.5 rounded-[16px] border border-line/80 bg-paper/95 p-2.5 shadow-[0_18px_54px_-48px_rgba(7,9,42,.72)] backdrop-blur-xl " +
+    "max-[1280px]:grid-cols-[repeat(4,minmax(132px,1fr))_minmax(160px,.8fr)] max-[1280px]:[&>*:last-child]:col-span-5",
+  field: "field h-[44px]",
   selectWrap: "relative block min-w-0",
   selectControl:
-    "w-full appearance-none !rounded-[11px] !border-line/90 !bg-white !pl-3.5 !pr-9 text-[13px] font-bold " +
+    "w-full appearance-none !rounded-[12px] !border-line/90 !bg-white !pl-3.5 !pr-9 text-[14px] font-semibold " +
     "text-ink shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] hover:!border-terra/45 focus:!border-terra",
-  selectChevron: "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/75",
+  selectChevron: "pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/70",
   selectField: "w-full",
   barSearch: "min-w-0 [&>div]:w-full [&_input]:w-full",
 
   acWrap: "relative min-w-0",
-  acIconBtn: "field grid h-[42px] w-[42px] shrink-0 place-items-center !px-0 text-muted transition-colors hover:border-terra hover:text-ink",
+  acIconBtn: "field grid h-[44px] w-[44px] shrink-0 place-items-center !px-0 text-muted transition-colors hover:border-terra hover:text-ink",
   acInput:
-    "field h-[42px] w-[360px] !rounded-[11px] !border-line/90 !bg-white pl-10 text-[14px] font-semibold " +
-    "shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] placeholder:text-muted/60 hover:!border-terra/45 max-[1120px]:w-full",
+    "field h-[44px] w-[360px] !rounded-[12px] !border-line/90 !bg-white pl-10 text-[14.5px] font-medium " +
+    "shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] placeholder:text-muted/55 hover:!border-terra/45 max-[1120px]:w-full",
   acSearchIcon: "pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted",
   acPanel:
     "absolute left-0 right-0 z-30 mt-1.5 overflow-hidden rounded-[12px] border border-line bg-paper " +
@@ -38,8 +38,8 @@ const styles= {
   acEmpty: "px-3 py-3 text-[13px] text-muted",
 
   toggle:
-    "inline-flex h-[42px] items-center justify-center gap-2 rounded-[11px] border-[1.5px] border-line/90 bg-white px-3.5 " +
-    "text-[13px] font-extrabold text-ink shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] transition-all hover:border-terra/45 max-[640px]:shrink-0",
+    "inline-flex h-[44px] items-center justify-center gap-2 rounded-[12px] border-[1.5px] border-line/90 bg-white px-4 " +
+    "text-[13.5px] font-semibold text-ink shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] transition-all hover:border-terra/45 max-[640px]:shrink-0",
   toggleActive: "!border-terra !bg-terra !text-white",
   toggleBox: "grid h-4 w-4 place-items-center rounded-full border-[1.5px] border-current text-white",
 
@@ -58,25 +58,25 @@ const styles= {
   // Kategori kartının içine gömülü (aynı stack) hâli — kart yok, sadece bölüm
   facetBare: "mt-1 flex flex-col border-t border-line/70 pt-2",
   facetHead:
-    "mb-1 flex items-center gap-2 px-2.5 py-2 text-[11.5px] font-bold uppercase tracking-[.04em] text-muted",
-  facetHeadIcon: "h-3.5 w-3.5 text-terra",
+    "mb-1.5 flex items-center gap-2 px-2.5 py-2 text-[14px] font-bold tracking-normal text-ink",
+  facetHeadIcon: "h-[18px] w-[18px] text-terra",
   facetClear:
-    "ml-auto rounded-pill border border-line bg-paper px-2 py-0.5 text-[10.5px] font-semibold normal-case " +
+    "ml-auto rounded-pill border border-line bg-paper px-2.5 py-1 text-[12px] font-semibold normal-case " +
     "text-muted transition-colors hover:border-terra hover:text-terra-deep",
-  facetGroups: "flex flex-col gap-3 px-2.5 pb-1 pt-0.5",
-  facetRow: "flex flex-col gap-1.5",
-  facetRowLabel: "text-[11.5px] font-bold uppercase tracking-[.05em] text-muted",
-  facetChips: "flex flex-wrap items-center gap-1.5",
+  facetGroups: "flex flex-col gap-3.5 px-2.5 pb-1 pt-0.5",
+  facetRow: "flex flex-col gap-2",
+  facetRowLabel: "text-[12.5px] font-semibold tracking-normal text-[#5B6472]",
+  facetChips: "flex flex-wrap items-center gap-2",
   facetChip:
-    "inline-flex cursor-pointer select-none items-center rounded-pill border-[1.5px] border-line bg-paper px-3 py-1 " +
-    "text-[12.5px] font-semibold text-ink transition-colors hover:border-terra",
+    "inline-flex cursor-pointer select-none items-center rounded-pill border-[1.5px] border-line bg-paper px-3.5 py-1.5 " +
+    "text-[13.5px] font-medium text-ink transition-colors hover:border-terra",
   facetChipActive: "!border-terra !bg-terra/10 !text-terra-deep",
   // Checkbox listesi (chip yerine)
   facetCheckList: "flex flex-col gap-0.5",
   facetCheck:
-    "flex cursor-pointer select-none items-center gap-2 rounded-[8px] px-1.5 py-[5px] text-[12.5px] font-medium text-ink hover:bg-cream",
+    "flex cursor-pointer select-none items-center gap-2.5 rounded-[9px] px-2 py-[8px] text-[14px] font-medium text-ink hover:bg-cream",
   facetCheckActive: "text-terra-deep",
-  facetCheckbox: "h-[15px] w-[15px] shrink-0 accent-terra",
+  facetCheckbox: "h-[17px] w-[17px] shrink-0 accent-terra",
 
   resultsBar: "mb-4 mt-4 flex flex-wrap items-center justify-between gap-3 px-[10px] py-1",
   count: "text-[14px] font-semibold text-muted",
@@ -161,7 +161,7 @@ const styles= {
   grid: "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4",
   gridWide: "grid grid-cols-3 gap-5 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
 
-  // Hibrit erişim bandı (misafir kullanıcı — yalnızca premium gösterilir)
+  // Hibrit erişim bandı (misafir kullanıcı — toplu kartlar kapalı, yalnız sayı açık)
   gate:
     "mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-terra/25 " +
     "bg-[linear-gradient(135deg,rgba(255,255,255,.9),rgba(231,236,255,.6))] px-4 py-3 " +
@@ -171,6 +171,40 @@ const styles= {
   gateTitle: "text-[15px] font-extrabold text-ink",
   gateText: "mt-0.5 text-[13px] text-muted",
   gateActions: "flex shrink-0 flex-wrap items-center gap-2",
+
+  // Misafir bilgilendirme şeridi (yalnız dopingli/premium işletmeler gösterilir)
+  guestBanner:
+    "mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-terra/25 " +
+    "bg-[linear-gradient(135deg,rgba(255,255,255,.9),rgba(231,236,255,.6))] px-4 py-3 " +
+    "shadow-[0_18px_54px_-48px_rgba(7,9,42,.72)]",
+  guestBannerIcon: "grid h-9 w-9 shrink-0 place-items-center rounded-full bg-terra/12 text-terra-deep",
+  guestBannerText: "min-w-[200px] flex-1",
+  guestBannerTitle: "text-[14.5px] font-extrabold text-ink",
+  guestBannerSub: "mt-0.5 text-[13px] text-muted",
+  guestBannerActions: "flex shrink-0 flex-wrap items-center gap-2",
+  lockedShell:
+    "relative min-h-[460px] overflow-hidden rounded-[18px] border border-line bg-[#f8faff] shadow-[0_22px_70px_-54px_rgba(7,9,42,.8)]",
+  lockedPreview:
+    "grid grid-cols-3 gap-5 p-5 saturate-[.9] opacity-100 select-none pointer-events-none " +
+    "max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
+  lockedPreviewCard:
+    "overflow-hidden rounded-[14px] border border-[#d9e0ef] bg-white shadow-[0_18px_42px_-28px_rgba(7,9,42,.48)]",
+  lockedPreviewMedia:
+    "h-[152px] bg-[linear-gradient(135deg,rgba(15,59,176,.34),rgba(142,162,255,.42),rgba(226,232,255,.86))]",
+  lockedPreviewBody: "space-y-3 p-4 blur-[3px]",
+  lockedPreviewLineWide: "block h-4 w-4/5 rounded-full bg-ink/36",
+  lockedPreviewLine: "block h-3 w-2/3 rounded-full bg-ink/24",
+  lockedPreviewLineShort: "block h-3 w-1/2 rounded-full bg-ink/20",
+  lockedPreviewActions: "flex gap-2 pt-2 [&>span]:h-9 [&>span]:flex-1 [&>span]:rounded-[10px] [&>span]:bg-sapphire/30",
+  lockedOverlay:
+    "absolute inset-0 grid place-items-center bg-[radial-gradient(circle_at_center,rgba(248,250,255,.78)_0%,rgba(248,250,255,.52)_42%,rgba(248,250,255,.2)_100%)] px-6 py-10 text-center",
+  lockedIcon: "mx-auto mb-4 grid h-14 w-14 place-items-center rounded-[16px] bg-cream-deep text-terra-deep",
+  lockedEyebrow: "eyebrow mb-2 text-terra-deep",
+  lockedTitle: "max-w-[560px] text-[30px] font-extrabold leading-[1.12] text-ink max-[560px]:text-[24px]",
+  lockedText: "mt-3 max-w-[560px] text-[15px] leading-7 text-muted",
+  lockedActions: "mt-5 flex flex-wrap justify-center gap-2.5",
+  lockedPanel:
+    "w-full max-w-[560px] rounded-[18px] border border-white/80 bg-white/88 px-6 py-7 text-center shadow-[0_28px_80px_-34px_rgba(7,9,42,.58)] backdrop-blur-md",
 
   // Kelime araması için "önce ülke seç" ekranı
   countryAsk:

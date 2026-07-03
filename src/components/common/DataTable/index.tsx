@@ -2,11 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type Column<T> = {
-  /** Benzersiz kolon anahtarı */
   key: string;
   header: ReactNode;
   align?: "left" | "right" | "center";
-  /** Hücre içeriği */
   cell: (row: T) => ReactNode;
   className?: string;
   headerClassName?: string;
@@ -48,7 +46,7 @@ export default function DataTable<T>({
             {columns.map((c) => (
               <th
                 key={c.key}
-                className={cn("px-6 py-4 text-[13.5px] font-semibold text-muted", alignCls(c.align), c.headerClassName)}
+                className={cn("px-5 py-3 text-[13px] font-semibold text-muted", alignCls(c.align), c.headerClassName)}
               >
                 {c.header}
               </th>
@@ -57,9 +55,9 @@ export default function DataTable<T>({
         </thead>
         <tbody>
           {data.map((row, i) => (
-            <tr key={getRowKey(row, i)} className="min-h-[72px] border-b border-line/70 last:border-0 hover:bg-[#F8FAFC]">
+            <tr key={getRowKey(row, i)} className="h-[52px] border-b border-line/70 last:border-0 hover:bg-[#F8FAFC]">
               {columns.map((c) => (
-                <td key={c.key} className={cn("px-6 py-4 text-[15px] leading-6 text-ink", alignCls(c.align), c.className)}>
+                <td key={c.key} className={cn("px-5 py-2 text-[14px] text-ink", alignCls(c.align), c.className)}>
                   {c.cell(row)}
                 </td>
               ))}

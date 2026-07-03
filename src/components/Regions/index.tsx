@@ -5,21 +5,25 @@ import SectionHeader from "@/components/common/SectionHeader";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
-/* Şehir → kapak görseli (Wikimedia stok, public/assets/regions). */
-const CITY_IMG: Record<string, string> = {
-  "İstanbul": "/assets/regions/istanbul.webp",
-  "Ankara": "/assets/regions/ankara.webp",
-  "Nevşehir": "/assets/regions/nevsehir.webp",
-  "Muğla": "/assets/regions/mugla.webp",
-  "İzmir": "/assets/regions/izmir.webp",
-  "Antalya": "/assets/regions/antalya.webp",
-  "Tiflis": "/assets/regions/tiflis.webp",
-  "Santorini": "/assets/regions/santorini.webp",
-  "Denizli": "/assets/regions/denizli.webp",
-  "Batum": "/assets/regions/batum.webp",
+const REGION_IMAGES: Record<string, string> = {
+  ankara: "/assets/regions/ankara.webp",
+  antalya: "/assets/regions/antalya.webp",
+  batum: "/assets/regions/batum.webp",
+  denizli: "/assets/regions/denizli.webp",
+  istanbul: "/assets/regions/istanbul.webp",
+  izmir: "/assets/regions/izmir.webp",
+  mugla: "/assets/regions/mugla.webp",
+  muğla: "/assets/regions/mugla.webp",
+  nevsehir: "/assets/regions/nevsehir.webp",
+  nevşehir: "/assets/regions/nevsehir.webp",
+  santorini: "/assets/regions/santorini.webp",
+  tiflis: "/assets/regions/tiflis.webp",
 };
 
-/* Popüler bölgeler — şehir bazlı yoğunluktan üretilir, görsel kapaklı (SEO + hızlı arama). */
+const regionImage = (city: string) =>
+  REGION_IMAGES[city.trim().toLocaleLowerCase("tr-TR")];
+
+/* Popüler bölgeler — şehir bazlı yoğunluktan üretilir. */
 const Regions = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("regions");
 
@@ -28,7 +32,6 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
     return acc;
   }, {});
   const top = Object.entries(counts)
-    .filter(([city]) => CITY_IMG[city])
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
 
@@ -47,26 +50,34 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
       />
 
       <div className={styles.grid}>
-        {top.map(([city, count]) => (
-          <Link
-            key={city}
-            href={{ pathname: "/explore", query: { city } }}
-            className={styles.card}
-          >
-            <Image
-              src={CITY_IMG[city]}
-              alt={city}
-              fill
-              sizes="(max-width:560px) 50vw, (max-width:900px) 33vw, 25vw"
-              className={styles.img}
-            />
-            <div className={styles.shade} />
-            <div className={styles.body}>
-              <h3 className={styles.city}>{city}</h3>
-              <p className={styles.count}>{t("count", { count })}</p>
-            </div>
-          </Link>
-        ))}
+        {top.map(([city, count]) => {
+          const image = regionImage(city);
+
+          return (
+            <Link
+              key={city}
+              href={{ pathname: "/explore", query: { city } }}
+              className={styles.card}
+            >
+              {image ? (
+                <Image
+                  src={image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 560px) 50vw, (max-width: 1024px) 50vw, 33vw"
+                  className={styles.img}
+                />
+              ) : (
+                <div className={styles.regionMark} aria-hidden>{city.slice(0, 2).toLocaleUpperCase("tr-TR")}</div>
+              )}
+              <div className={styles.shade} />
+              <div className={styles.body}>
+                <h3 className={styles.city}>{city}</h3>
+                <p className={styles.count}>{t("count", { count })}</p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

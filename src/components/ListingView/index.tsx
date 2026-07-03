@@ -3,7 +3,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { businessSlug } from "@/lib/business-slug";
 import { facetLabel } from "@/lib/facets";
@@ -38,7 +38,7 @@ const PAGE_SIZE = 9;
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
 
 const ListingView = ({
-  gated = false,
+  isGuest = false,
   businesses = [],
   initialGroups = [],
   initialTypes = [],
@@ -51,7 +51,7 @@ const ListingView = ({
   initialSort = "featured",
   initialAttrs = [],
 }: {
-  gated?: boolean;
+  isGuest?: boolean;
   businesses?: Business[];
   initialGroups?: GroupKey[];
   initialTypes?: string[];
@@ -68,7 +68,6 @@ const ListingView = ({
   const tc = useTranslations("cat");
   const tCommon = useTranslations("common");
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set(initialGroups));
@@ -225,7 +224,7 @@ const ListingView = ({
     const qs = p.toString();
     if (qs !== (searchParams?.toString() ?? "")) {
       router.replace(
-        { pathname: pathname as any, query: Object.fromEntries(p) },
+        { pathname: "/explore", query: Object.fromEntries(p) },
         { scroll: false }
       );
     }
@@ -260,21 +259,24 @@ const ListingView = ({
     setPage(1);
   }
 
-  // Hibrit erişim bandı: misafir kullanıcı yalnızca premium/doping işletmeleri
-  // görür (liste zaten sunucuda premium'a indirgenir). Tam liste + filtrelemenin
-  // tamamı için giriş/kayıt'a yönlendirilir.
-  const gateBanner = gated ? (
-    <div className={styles.gate}>
-      <div className={styles.gateBadge} aria-hidden>
+  const visibleCount = filtered.length;
+  const hasNoDatabaseResults = !isGuest && businesses.length === 0;
+
+  // Misafir bilgilendirme şeridi: yalnızca dopingli/premium işletmeler gösterilir,
+  // tüm tedarikçileri görmek için giriş/kayıt. (Kart listesi normal render edilir.)
+  const guestBanner = isGuest ? (
+    <div className={styles.guestBanner}>
+      <div className={styles.guestBannerIcon} aria-hidden>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="10" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          <rect x="3" y="11" width="18" height="10" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
         </svg>
       </div>
-      <div className={styles.gateBody}>
-        <h3 className={styles.gateTitle}>{t("gateTitle")}</h3>
-        <p className={styles.gateText}>{t("gateText")}</p>
+      <div className={styles.guestBannerText}>
+        <p className={styles.guestBannerTitle}>{t("guestBannerTitle")}</p>
+        <p className={styles.guestBannerSub}>{t("guestBannerText")}</p>
       </div>
-      <div className={styles.gateActions}>
+      <div className={styles.guestBannerActions}>
         <Link href="/login" className="btn btn-solid btn-sm">{t("gateLogin")}</Link>
         <Link href="/register" className="btn btn-outline btn-sm">{t("gateRegister")}</Link>
       </div>
@@ -310,9 +312,13 @@ const ListingView = ({
     <div>
       {filtered.length === 0 ? (
         <div className={styles.empty}>
-          <h3 className={styles.emptyTitle}>{t("emptyTitle")}</h3>
-          <p className={styles.emptyText}>{t("emptyText")}</p>
-          <button type="button" className="btn btn-solid" onClick={reset}>{t("clearFilters")}</button>
+          <h3 className={styles.emptyTitle}>{hasNoDatabaseResults ? "DB verisi görünmüyor" : t("emptyTitle")}</h3>
+          <p className={styles.emptyText}>
+            {hasNoDatabaseResults
+              ? "Seed fallback kapalı. Supabase bağlantısı yoksa veya businesses tablosunda approved kayıt bulunmuyorsa liste boş görünür."
+              : t("emptyText")}
+          </p>
+          {!hasNoDatabaseResults && <button type="button" className="btn btn-solid" onClick={reset}>{t("clearFilters")}</button>}
         </div>
       ) : (
         <div className={gridClass}>
@@ -320,6 +326,7 @@ const ListingView = ({
             <SupplierCard
               key={b.id}
               business={b}
+              impressionId={b.id}
               flag={dopingRank(b) === 2 ? tCommon("ad") : dopingRank(b) === 1 ? tCommon("featured") : null}
               showStars
             >
@@ -453,16 +460,15 @@ const ListingView = ({
 
           <ActiveTags tags={tags} onRemove={removeTag} onClear={reset} />
 
-          {gateBanner}
-
           {needsCountry ? countryPrompt : (
           <>
+          {guestBanner}
           <div className={styles.resultsBar}>
         <p className={styles.count}>
-          {t.rich("results", { count: filtered.length, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
+          {t.rich("results", { count: visibleCount, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
           {city !== "all" ? ` · ${city}` : ""}
         </p>
-        <div className={styles.barRight}>
+        {<div className={styles.barRight}>
           <div className={styles.viewToggle} role="tablist" aria-label="View">
             <button
               type="button"
@@ -502,7 +508,7 @@ const ListingView = ({
               </svg>
             </span>
           </div>
-        </div>
+        </div>}
       </div>
 
           {view === "map" ? (

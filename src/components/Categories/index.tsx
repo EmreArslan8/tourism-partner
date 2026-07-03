@@ -10,12 +10,12 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
-/* Kategori kapak görselleri. */
 const IMG: Record<GroupKey, string> = {
   konaklama: "/assets/cards/hotel-1.webp",
   acente: "/assets/cards/agency-1.webp",
+  ulasim: "/assets/cards/agency-1.webp",
   rehber: "/assets/cards/guide-1.webp",
-  eglence: "/assets/cards/balloon-1.webp",
+  aktivite: "/assets/cards/balloon-1.webp",
   saglik: "/assets/cards/clinic-1.webp",
 };
 
@@ -43,13 +43,19 @@ const ICONS: Record<GroupKey, ReactNode> = {
       <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M2 13h20" />
     </svg>
   ),
+  ulasim: (
+    <svg {...iconProps} className={styles.icon}>
+      <path d="M6 17h12M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4ZM17 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" />
+      <path d="M5 17V8a3 3 0 0 1 3-3h6l5 5v7M14 5v5h5" />
+    </svg>
+  ),
   rehber: (
     <svg {...iconProps} className={styles.icon}>
       <path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM3 20a6 6 0 0 1 12 0" />
       <path d="M17 6a4 4 0 0 1 0 8M19 4a7 7 0 0 1 0 12" />
     </svg>
   ),
-  eglence: (
+  aktivite: (
     <svg {...iconProps} className={styles.icon}>
       <path d="M12 14a6 6 0 0 0 6-6 6 6 0 1 0-12 0 6 6 0 0 0 6 6ZM10.5 14l-1 3.5h5l-1-3.5M9 21h6" />
     </svg>
@@ -105,18 +111,18 @@ const Categories = () => {
 
       <div ref={trackRef} className={styles.track}>
         {/* Ana sayfada 4 kart gösterilir; Sağlık Turizmi'ne alttaki arama rotaları chip'inden erişilir. */}
-        {CATEGORY_GROUPS.filter((g) => g.key !== "saglik").map((g) => (
+        {CATEGORY_GROUPS.filter((g) => g.key !== "saglik").map((g, index) => (
           <Link
             key={g.key}
             href={{ pathname: "/explore", query: { cat: g.key } }}
-            className={styles.card}
+            className={index === 0 ? `${styles.card} ${styles.cardFeatured}` : styles.card}
           >
             <div className={styles.media}>
               <Image
                 src={IMG[g.key]}
                 alt=""
                 fill
-                sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"
+                sizes="(max-width:640px) 100vw, (max-width:1100px) 33vw, 28vw"
                 className={styles.img}
               />
               <span className={styles.badge}>

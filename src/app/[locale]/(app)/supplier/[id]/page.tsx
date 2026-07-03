@@ -4,26 +4,8 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
 import { supplierPath } from "@/lib/site";
-import { GROUP_COVER } from "@/lib/categories";
-import type { GroupKey } from "@/lib/types";
+import { realBusinessImages } from "@/lib/business-images";
 import SupplierDetailView from "./view";
-
-const GALLERY_BY_GROUP: Record<GroupKey, string[]> = {
-  konaklama: [
-    "/assets/cards/hotel-1.webp",
-    "/assets/cards/hotel-2.webp",
-    "/assets/cards/hotel-3.webp",
-    "/assets/cards/resort-1.webp",
-  ],
-  acente: ["/assets/cards/agency-1.webp", "/assets/cards/agency-1.webp"],
-  rehber: ["/assets/cards/guide-1.webp", "/assets/cards/hotel-3.webp"],
-  eglence: [
-    "/assets/cards/balloon-1.webp",
-    "/assets/cards/yacht-1.webp",
-    "/assets/cards/resort-1.webp",
-  ],
-  saglik: ["/assets/cards/clinic-1.webp", "/assets/cards/hotel-2.webp"],
-};
 
 export async function generateStaticParams() {
   const businesses = await getBusinesses();
@@ -82,8 +64,7 @@ export default async function DetailPage({
   if (!b) notFound();
   
   const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
-  const cover = b.image ?? GROUP_COVER[b.group];
-  const gallery = Array.from(new Set([cover, ...(b.images?.length ? b.images : GALLERY_BY_GROUP[b.group])]));
+  const gallery = realBusinessImages(b.image, b.images);
 
   return (
     <SupplierDetailView

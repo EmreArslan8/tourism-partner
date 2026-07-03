@@ -30,8 +30,18 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
     children: [{ slug: "tur-rehberi", label: "Tur Rehberi" }],
   },
   {
-    key: "eglence",
-    label: "Eğlence",
+    key: "ulasim",
+    label: "Ulaşım",
+    children: [
+      { slug: "havalimani-transfer", label: "Havalimanı Transfer" },
+      { slug: "sehirlerarasi-transfer", label: "Şehirlerarası Transfer" },
+      { slug: "vip-transfer", label: "VIP / Lüks Transfer" },
+      { slug: "rent-a-car", label: "Rent A Car" },
+    ],
+  },
+  {
+    key: "aktivite",
+    label: "Aktivite & Deneyim",
     children: [
       { slug: "balon-turu", label: "Balon Turu" },
       { slug: "tekne-yat", label: "Tekne / Yat" },
@@ -51,16 +61,6 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
 ];
 
 export const GROUP_COLORS: Record<GroupKey, string> = groupPalette;
-
-/** İşletmenin kendi görseli yoksa kart kapağında kullanılan gruba özel
-    varsayılan stok görsel (public/assets/cards/). */
-export const GROUP_COVER: Record<GroupKey, string> = {
-  konaklama: "/assets/cards/hotel-1.webp",
-  acente: "/assets/cards/agency-1.webp",
-  rehber: "/assets/cards/guide-1.webp",
-  eglence: "/assets/cards/balloon-1.webp",
-  saglik: "/assets/cards/clinic-1.webp",
-};
 
 export function groupLabel(key: GroupKey): string {
   return CATEGORY_GROUPS.find((g) => g.key === key)?.label ?? key;

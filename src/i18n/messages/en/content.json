@@ -52,17 +52,21 @@
         "badge": "850+ Agencies",
         "desc": "End-to-end operations with local market expert agencies, tour operators and DMCs."
       },
+      "ulasim": {
+        "badge": "Transfers & Fleet",
+        "desc": "Airport transfers, intercity transport, VIP vehicles and rent a car suppliers."
+      },
       "rehber": {
         "badge": "45+ Languages",
         "desc": "Licensed local experts, historians and multilingual professionals. Custom routes and themed tour leadership."
       },
-      "eglence": {
+      "aktivite": {
         "badge": "320+ Activities",
         "desc": "A wide range from balloon tours and yacht charters to adrenaline sports and bespoke experiences."
       },
       "saglik": {
         "badge": "Tailored Solutions",
-        "desc": "Expert providers for specialised logistics such as MICE operations, medical tourism and private jet charter."
+        "desc": "B2B patient referral network with clinics, hospitals and authorised health tourism providers."
       }
     },
     "intentTitle": "Popular search intents",

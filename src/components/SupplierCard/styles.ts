@@ -8,6 +8,8 @@
     "font-extrabold text-pine shadow-[0_8px_18px_-10px_rgba(0,0,0,.5)]",
   cover: "relative flex h-[178px] items-center justify-center overflow-hidden max-[1180px]:h-[168px] max-[640px]:h-[190px]",
   coverImg: "object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.045]",
+  placeholder:
+    "relative z-[1] inline-flex rounded-full border border-white/25 bg-white/18 px-3 py-1.5 text-[12px] font-bold text-white/90 backdrop-blur-sm",
   coverGrad: "absolute inset-0 z-[1] bg-gradient-to-t from-black/45 via-black/5 to-transparent",
   coverRating:
     "absolute left-3 top-3 z-[2] inline-flex items-center gap-1 rounded-[999px] bg-black/45 px-2.5 py-1 " +

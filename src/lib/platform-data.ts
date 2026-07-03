@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { getAdminAccess } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import type {
@@ -73,6 +74,8 @@ export async function getActiveAdBanners(placement = "home"): Promise<PublicAdBa
 
 export async function getAdminAdData(): Promise<AdminAdData> {
   if (!hasEnv()) return { banners: [], activeBanners: [] };
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return { banners: [], activeBanners: [] };
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -91,6 +94,8 @@ export async function getAdminAdData(): Promise<AdminAdData> {
 
 export async function getAdminSupportTickets(): Promise<AdminSupportTicket[]> {
   if (!hasEnv()) return [];
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return [];
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -107,6 +112,8 @@ export async function getAdminSupportTickets(): Promise<AdminSupportTicket[]> {
 
 export async function getAdminContentExtras(): Promise<AdminContentExtras> {
   if (!hasEnv()) return { blogPosts: [], popups: [] };
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return { blogPosts: [], popups: [] };
 
   const supabase = await createClient();
   const [blogRes, popupRes] = await Promise.all([
@@ -160,6 +167,8 @@ export type AdminCategoryGroup = { key: GroupKey; label: string; children: Admin
 export async function getAdminCategoryGroups(): Promise<AdminCategoryGroup[]> {
   const base = CATEGORY_GROUPS.map((g) => ({ key: g.key, label: g.label, children: [] as AdminCategoryChild[] }));
   if (!hasEnv()) return base;
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return base;
 
   const supabase = await createClient();
   const { data, error } = await supabase

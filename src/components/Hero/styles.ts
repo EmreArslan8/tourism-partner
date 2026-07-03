@@ -1,4 +1,4 @@
-/* Hero — koyu uzay/glob görseli + sola hizalı içerik + degrade + grain. */
+/* Hero — statik marketing görseli + sola hizalı içerik. */
  const styles= {
   section: "relative isolate h-full w-full overflow-hidden bg-pine",
   picture: "absolute inset-0 -z-10 block",

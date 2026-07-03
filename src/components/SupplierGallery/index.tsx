@@ -18,10 +18,12 @@ const SupplierGallery = ({
 }) => {
   const [active, setActive] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const hasImages = images.length > 0;
   const hasMultiple = images.length > 1;
 
   const goTo = useCallback(
     (nextIndex: number) => {
+      if (!images.length) return;
       setActive((nextIndex + images.length) % images.length);
     },
     [images.length]
@@ -45,21 +47,29 @@ const SupplierGallery = ({
           className="flex transition-transform duration-500 ease-brand"
           style={{ transform: `translateX(-${active * 100}%)` }}
         >
-          {images.map((src, index) => (
-            <figure
-              key={src}
-              className="relative h-[min(60vw,560px)] min-h-[320px] w-full shrink-0"
-            >
-              <Image
-                src={src}
-                alt={index === 0 ? title : `${title} görsel ${index + 1}`}
-                fill
-                priority={index === 0}
-                sizes="(max-width: 900px) 100vw, 1480px"
-                className="object-contain"
-              />
+          {hasImages ? (
+            images.map((src, index) => (
+              <figure
+                key={src}
+                className="relative h-[min(60vw,560px)] min-h-[320px] w-full shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={index === 0 ? title : `${title} görsel ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 900px) 100vw, 1480px"
+                  className="object-contain"
+                />
+              </figure>
+            ))
+          ) : (
+            <figure className="grid h-[min(60vw,560px)] min-h-[320px] w-full shrink-0 place-items-center bg-[#EEF2F7]">
+              <span className="rounded-full border border-[#CBD5E1] bg-white px-4 py-2 text-[13px] font-semibold text-[#64748B]">
+                Görsel bekleniyor
+              </span>
             </figure>
-          ))}
+          )}
         </div>
 
         <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/20 to-transparent" aria-hidden />

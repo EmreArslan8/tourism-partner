@@ -52,17 +52,21 @@
         "badge": "850+ Acente",
         "desc": "Yerel pazar uzmanı acenteler, tur operatörleri ve DMC'ler ile uçtan uca operasyon çözümleri."
       },
+      "ulasim": {
+        "badge": "Transfer & Araç",
+        "desc": "Havalimanı transferi, şehirlerarası taşıma, VIP araç ve rent a car sağlayıcıları."
+      },
       "rehber": {
         "badge": "45+ Dil Seçeneği",
         "desc": "Lisanslı yerel uzmanlar, tarihçiler ve çok dilli profesyoneller. Özel rotalar ve tematik tur liderliği."
       },
-      "eglence": {
+      "aktivite": {
         "badge": "320+ Aktivite",
         "desc": "Balon turundan tekne kiralamaya, adrenalin sporlarından özel deneyimlere geniş aktivite yelpazesi."
       },
       "saglik": {
         "badge": "Özel Çözümler",
-        "desc": "MICE operasyonları, medikal turizm ve özel jet kiralama gibi spesifik lojistik için uzman sağlayıcılar."
+        "desc": "Klinik, hastane ve sağlık turizmi yetki belgeli sağlayıcılarla B2B hasta yönlendirme ağı."
       }
     },
     "intentTitle": "Popüler arama niyetleri",

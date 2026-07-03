@@ -4,36 +4,18 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
-import { ALL_DETAIL_KEYS, type BizDocument } from "@/lib/business-fields";
+import { ALL_DETAIL_KEYS } from "@/lib/business-fields";
+import { BUSINESS_DOCUMENTS_BUCKET, persistableDocuments } from "@/lib/business-document-shape";
+import { BUSINESS_IMAGES_BUCKET, storagePathFromBusinessImage } from "@/lib/business-images";
 import { isValidRegion } from "@/lib/regions";
-import type { GroupKey, ActionState } from "@/lib/types";
-import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
-
-const BUSINESS_IMAGES_BUCKET = "business-images";
+import { businessSlug } from "@/lib/business-slug";
+import type { GroupKey, ActionState, BusinessDocument } from "@/lib/types";
+import { clean, cleanHttpUrl } from "./validate";
 
 function groupFromMetadata(value: unknown): GroupKey {
   return typeof value === "string" && CATEGORY_GROUPS.some((group) => group.key === value)
     ? (value as GroupKey)
     : "konaklama";
-}
-
-function storagePathFromPublicUrl(value: string): string | null {
-  if (!value.includes("/storage/v1/")) return null;
-  const markers = [
-    `/object/public/${BUSINESS_IMAGES_BUCKET}/`,
-    `/render/image/public/${BUSINESS_IMAGES_BUCKET}/`,
-  ];
-  const marker = markers.find((item) => value.includes(item));
-  if (!marker) return null;
-  const raw = value.split(marker)[1]?.split("?")[0];
-  return raw ? decodeURIComponent(raw) : null;
-}
-
-function publicUrlForPath(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  path: string
-) {
-  return supabase.storage.from(BUSINESS_IMAGES_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
 function fileExt(path: string) {
@@ -43,19 +25,32 @@ function fileExt(path: string) {
   return ext && /^[a-z0-9]{1,8}$/i.test(ext) ? ext.toLowerCase() : "jpg";
 }
 
+function cleanStoragePath(value: unknown, userId: string): string | null {
+  if (typeof value !== "string") return null;
+  const path = value.trim();
+  if (!path || path.includes("..") || path.startsWith("/") || path.includes("\\")) return null;
+  return path.startsWith(`${userId}/`) ? path : null;
+}
+
+function businessMediaFolder(businessId: number, businessName: string) {
+  const slug = businessSlug({ name: businessName }) || `business-${businessId}`;
+  return `${businessId}-${slug}`;
+}
+
 async function moveBusinessImage(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  sourceUrl: string | null | undefined,
+  source: string | null | undefined,
   userId: string,
   businessId: number,
+  businessName: string,
   folder: "cover" | "gallery" | `documents/${string}`,
 ) {
-  if (!sourceUrl) return "";
-  const sourcePath = storagePathFromPublicUrl(sourceUrl);
-  if (!sourcePath) return sourceUrl;
+  if (!source) return "";
+  const sourcePath = storagePathFromBusinessImage(source);
+  if (!sourcePath || !sourcePath.startsWith(`${userId}/`)) return "";
 
-  const finalPrefix = `${userId}/businesses/${businessId}/`;
-  if (sourcePath.startsWith(finalPrefix)) return sourceUrl;
+  const finalPrefix = `${userId}/businesses/${businessMediaFolder(businessId, businessName)}/`;
+  if (sourcePath.startsWith(finalPrefix)) return sourcePath;
 
   const destinationPath = `${finalPrefix}${folder}/${crypto.randomUUID()}.${fileExt(sourcePath)}`;
   const { error } = await supabase
@@ -63,40 +58,57 @@ async function moveBusinessImage(
     .from(BUSINESS_IMAGES_BUCKET)
     .move(sourcePath, destinationPath);
   if (error) throw new Error(error.message);
-  return publicUrlForPath(supabase, destinationPath);
+  return destinationPath;
+}
+
+async function moveBusinessDocument(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  document: BusinessDocument,
+  userId: string,
+  businessId: number,
+) {
+  if (!document.path) return document.url ? { kind: document.kind, name: document.name, url: document.url } : null;
+
+  const finalPrefix = `${userId}/businesses/${businessId}/documents/${document.kind}/`;
+  if (document.path.startsWith(finalPrefix)) {
+    return { kind: document.kind, name: document.name, path: document.path };
+  }
+
+  const destinationPath = `${finalPrefix}${crypto.randomUUID()}.${fileExt(document.path)}`;
+  const { error } = await supabase
+    .storage
+    .from(BUSINESS_DOCUMENTS_BUCKET)
+    .move(document.path, destinationPath);
+  if (error) throw new Error(error.message);
+  return { kind: document.kind, name: document.name, path: destinationPath };
 }
 
 async function finalizeBusinessMedia(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   businessId: number,
+  businessName: string,
   cover: string | null,
   gallery: string[],
-  documents: BizDocument[],
+  documents: BusinessDocument[],
 ) {
-  const finalCover = await moveBusinessImage(supabase, cover, userId, businessId, "cover");
+  const finalCover = await moveBusinessImage(supabase, cover, userId, businessId, businessName, "cover");
   const finalGallery: string[] = [];
   for (const url of gallery) {
-    const next = await moveBusinessImage(supabase, url, userId, businessId, "gallery");
+    const next = await moveBusinessImage(supabase, url, userId, businessId, businessName, "gallery");
     if (next) finalGallery.push(next);
   }
 
-  const finalDocuments: BizDocument[] = [];
+  const finalDocuments: BusinessDocument[] = [];
   for (const document of documents) {
-    const next = await moveBusinessImage(
-      supabase,
-      document.url,
-      userId,
-      businessId,
-      `documents/${document.kind}`
-    );
-    finalDocuments.push({ ...document, url: next || document.url });
+    const next = await moveBusinessDocument(supabase, document, userId, businessId);
+    if (next) finalDocuments.push(next);
   }
 
   return {
-    image: finalCover || cover,
+    image: finalCover || null,
     images: finalGallery,
-    documents: finalDocuments,
+    documents: persistableDocuments(finalDocuments),
   };
 }
 
@@ -135,8 +147,8 @@ export async function saveMyBusiness(
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       images = parsed
-        .map((s) => (typeof s === "string" ? cleanImageUrl(s, 400) : null))
-        .filter((s): s is string => Boolean(s))
+        .map((s) => storagePathFromBusinessImage(typeof s === "string" ? s : null))
+        .filter((s): s is string => Boolean(s?.startsWith(`${user.id}/`)))
         .slice(0, 12);
     }
   } catch {
@@ -153,19 +165,21 @@ export async function saveMyBusiness(
     if (val) details[key] = val;
   }
 
-  // Evraklar: gizli "documents" alanı JSON dizi { kind, url, name } olarak gelir.
-  let documents: BizDocument[] = [];
+  // Evraklar: gizli "documents" alanı JSON dizi { kind, path, name } olarak gelir.
+  let documents: BusinessDocument[] = [];
   try {
     const raw = String(formData.get("documents") ?? "[]");
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
       documents = parsed
-        .map((d) => {
-          if (!d || typeof d.kind !== "string" || typeof d.url !== "string" || typeof d.name !== "string") return null;
+        .map((d): BusinessDocument | null => {
+          if (!d || typeof d.kind !== "string" || typeof d.name !== "string") return null;
+          const path = cleanStoragePath(d.path, user.id);
+          if (path) return { kind: d.kind, path, name: d.name };
           const url = cleanHttpUrl(d.url, 500);
           return url ? { kind: d.kind, url, name: d.name } : null;
         })
-        .filter((d): d is BizDocument => Boolean(d))
+        .filter((d): d is BusinessDocument => Boolean(d))
         .slice(0, 20);
     }
   } catch {
@@ -181,7 +195,7 @@ export async function saveMyBusiness(
     description: clean(formData.get("description"), 2000),
     phone: clean(formData.get("phone"), 40),
     website: cleanHttpUrl(formData.get("website"), 200),
-    image: cleanImageUrl(formData.get("image"), 400),
+    image: cleanStoragePath(storagePathFromBusinessImage(String(formData.get("image") ?? "")), user.id),
     images,
     attributes,
     details,
@@ -198,6 +212,7 @@ export async function saveMyBusiness(
         supabase,
         user.id,
         businessId,
+        payload.name,
         payload.image,
         payload.images,
         payload.documents,
@@ -225,6 +240,7 @@ export async function saveMyBusiness(
         supabase,
         user.id,
         data.id,
+        payload.name,
         payload.image,
         payload.images,
         payload.documents,

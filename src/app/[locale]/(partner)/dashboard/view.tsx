@@ -9,9 +9,11 @@ import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
 import { cn } from "@/lib/utils";
 import { getCityOptions, getCountryOptions, getDistrictOptions } from "@/lib/regions";
-import type { GroupKey } from "@/lib/types";
+import type { GroupKey, BusinessDocument } from "@/lib/types";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
-import { fieldsForGroup, docsForGroup, type BizDocument } from "@/lib/business-fields";
+import { fieldsForGroup, docsForGroup } from "@/lib/business-fields";
+import { BUSINESS_DOCUMENTS_BUCKET } from "@/lib/business-document-shape";
+import { businessImageUrl, BUSINESS_IMAGES_BUCKET } from "@/lib/business-images";
 import { upsertPanelDraftMedia } from "@/lib/business-drafts";
 import styles from "./styles";
 import { saveMyBusiness } from "@/lib/actions/panel";
@@ -31,7 +33,7 @@ export type PanelBusiness = {
   images: string[] | null;
   attributes: string[] | null;
   details: Record<string, string> | null;
-  documents: BizDocument[] | null;
+  documents: BusinessDocument[] | null;
   status: "pending" | "approved" | "rejected" | "active" | "expired" | "blacklisted" | "suspended";
   verified: boolean;
   sponsored: boolean;
@@ -51,7 +53,7 @@ export type PanelDraft = {
   group: string;
   cover: string;
   gallery: string[];
-  documents: BizDocument[];
+  documents: BusinessDocument[];
 };
 
 export type PanelQuote = {
@@ -66,8 +68,6 @@ export type PanelQuote = {
   status: string;
   created_at: string;
 };
-
-const BUCKET = "business-images";
 
 async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
@@ -131,7 +131,7 @@ const DashboardView = ({
   const [draftKey, setDraftKey] = useState(draft?.draftKey ?? "");
   const [cover, setCover] = useState<string>(b?.image ?? draft?.cover ?? "");
   const [gallery, setGallery] = useState<string[]>(b?.images ?? draft?.gallery ?? []);
-  const [documents, setDocuments] = useState<BizDocument[]>(b?.documents ?? draft?.documents ?? []);
+  const [documents, setDocuments] = useState<BusinessDocument[]>(b?.documents ?? draft?.documents ?? []);
   const countryOptions = getCountryOptions();
   const defaultCountry = countryOptions.includes(b?.country ?? "") ? b?.country ?? "" : "Türkiye";
   const defaultCityOptions = getCityOptions(defaultCountry);
@@ -215,7 +215,7 @@ const DashboardView = ({
     return next;
   }
 
-  async function persistDraft(nextCover: string, nextGallery: string[], nextDocuments: BizDocument[]) {
+  async function persistDraft(nextCover: string, nextGallery: string[], nextDocuments: BusinessDocument[]) {
     if (b?.id) return;
     const key = ensureDraftKey();
     try {
@@ -229,19 +229,36 @@ const DashboardView = ({
     }
   }
 
-  async function upload(file: File, folder: "cover" | "gallery" | `documents/${string}`): Promise<string | null> {
+  async function uploadImage(file: File, folder: "cover" | "gallery"): Promise<string | null> {
     const supabase = createClient();
     const blob = await compressImage(file);
     const isJpeg = blob.type === "image/jpeg" || blob !== file;
     const ext = isJpeg ? "jpg" : file.name.split(".").pop()?.toLowerCase() || "jpg";
-    const scope = b?.id ? `business-${b.id}` : `drafts/${ensureDraftKey()}`;
+    const scope = b?.id ? `businesses/${b.id}-${businessSlug(b) || `business-${b.id}`}` : `drafts/${ensureDraftKey()}`;
     const path = `${userId}/${scope}/${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, blob, {
+    const { error } = await supabase.storage.from(BUSINESS_IMAGES_BUCKET).upload(path, blob, {
       contentType: blob.type || "image/jpeg",
       upsert: false,
     });
     if (error) return null;
-    return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    return path;
+  }
+
+  async function uploadDocument(file: File, kind: string): Promise<BusinessDocument | null> {
+    const supabase = createClient();
+    const blob = await compressImage(file);
+    const isJpeg = blob.type === "image/jpeg" || blob !== file;
+    const ext = isJpeg ? "jpg" : file.name.split(".").pop()?.toLowerCase() || "bin";
+    const scope = b?.id ? `business-${b.id}` : `drafts/${ensureDraftKey()}`;
+    const path = `${userId}/${scope}/documents/${kind}/${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from(BUSINESS_DOCUMENTS_BUCKET).upload(path, blob, {
+      contentType: blob.type || file.type || "application/octet-stream",
+      upsert: false,
+    });
+    if (error) return null;
+    const signed = await supabase.storage.from(BUSINESS_DOCUMENTS_BUCKET).createSignedUrl(path, 60 * 60);
+    if (signed.error || !signed.data?.signedUrl) return null;
+    return { kind, name: file.name, path, url: signed.data.signedUrl };
   }
 
   async function onCoverPick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -249,7 +266,7 @@ const DashboardView = ({
     if (!file) return;
     setUploading(true);
     setUploadErr(false);
-    const url = await upload(file, "cover");
+    const url = await uploadImage(file, "cover");
     setUploading(false);
     if (url) {
       setCover(url);
@@ -266,7 +283,7 @@ const DashboardView = ({
     setUploadErr(false);
     const urls: string[] = [];
     for (const f of files) {
-      const u = await upload(f, "gallery");
+      const u = await uploadImage(f, "gallery");
       if (u) urls.push(u);
       else setUploadErr(true);
     }
@@ -287,10 +304,10 @@ const DashboardView = ({
     if (!file || !docKind) return;
     setUploading(true);
     setUploadErr(false);
-    const url = await upload(file, `documents/${docKind}`); // PDF'leri sıkıştırmadan, görselleri sıkıştırarak yükler
+    const uploaded = await uploadDocument(file, docKind);
     setUploading(false);
-    if (url) {
-      const next = [...documents.filter((x) => x.kind !== docKind), { kind: docKind, url, name: file.name }];
+    if (uploaded) {
+      const next = [...documents.filter((x) => x.kind !== docKind), uploaded];
       setDocuments(next);
       void persistDraft(cover, gallery, next);
     } else {
@@ -491,7 +508,7 @@ const DashboardView = ({
                 >
                   {cover ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={cover} alt="" className="h-full w-full object-cover" />
+                    <img src={businessImageUrl(cover) ?? ""} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <span className="grid h-full place-items-center px-2 text-center">{t("addCover")}</span>
                   )}
@@ -501,7 +518,7 @@ const DashboardView = ({
                 {gallery.map((url, i) => (
                   <div key={url} className={styles.photoItem}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <img src={businessImageUrl(url) ?? ""} alt="" className="h-full w-full object-cover" />
                     <button
                       type="button"
                       onClick={() => {
@@ -688,7 +705,7 @@ const DashboardView = ({
                             {d.label[lang]}
                             {d.required && <em className={styles.docReq}> *</em>}
                           </span>
-                          {uploaded && (
+                          {uploaded?.url && (
                             <a href={uploaded.url} target="_blank" rel="noreferrer" className={styles.docFile}>
                               {uploaded.name}
                             </a>
@@ -915,10 +932,11 @@ const OverviewDashboard = ({
 
 const SafeCoverImage = ({ src, fallback }: { src: string; fallback: string }) => {
   const [failed, setFailed] = useState(false);
-  if (!src || failed) return <span>{fallback}</span>;
+  const url = businessImageUrl(src);
+  if (!url || failed) return <span>{fallback}</span>;
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt="" className="h-full w-full object-cover" onError={() => setFailed(true)} />
+    <img src={url} alt="" className="h-full w-full object-cover" onError={() => setFailed(true)} />
   );
 };
 
@@ -960,9 +978,9 @@ const ListingDashboard = ({
 
     <div className={styles.listingSummary}>
       <div className={styles.listingCover}>
-        {cover ? (
+        {businessImageUrl(cover) ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt="" className="h-full w-full object-cover" />
+          <img src={businessImageUrl(cover) ?? ""} alt="" className="h-full w-full object-cover" />
         ) : (
           <span>{t("addCover")}</span>
         )}

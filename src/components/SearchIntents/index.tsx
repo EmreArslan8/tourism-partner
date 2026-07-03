@@ -14,8 +14,7 @@ const INTENTS: Intent[] = [
   { key: "intentIstanbulHotels", query: { cat: "konaklama", city: "İstanbul" } },
   { key: "intentCappadociaGuides", query: { cat: "rehber", city: "Nevşehir" } },
   { key: "intentAntalyaAgencies", query: { cat: "acente", city: "Antalya" } },
-  { key: "intentHealthClinics", query: { cat: "saglik" } },
-  { key: "intentActivities", query: { cat: "eglence" } },
+  { key: "intentActivities", query: { cat: "aktivite" } },
 ];
 
 const SearchIntents = () => {
@@ -41,7 +40,7 @@ const SearchIntents = () => {
             href={{ pathname: "/explore", query: it.query }}
             className={styles.chip}
           >
-            {t(it.key)}
+            <span>{t(it.key)}</span>
             <svg className={styles.chipArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>

@@ -64,7 +64,14 @@ const SelectableSuppliersTable = ({
       <DataTable
         data={businesses}
         getRowKey={(b) => b.id}
-        empty="Henüz kayıtlı işletme yok."
+        empty={
+          <div>
+            <p className="font-semibold text-[#162238]">DB verisi görünmüyor.</p>
+            <p className="mt-1 text-[13px] text-[#64748B]">
+              Seed/demo fallback kapalı. Supabase bağlantısı yoksa veya businesses tablosunda kayıt yoksa bu tablo boş kalır.
+            </p>
+          </div>
+        }
         minWidth={760}
         columns={[
           ...(selectionMode ? [{
@@ -254,8 +261,9 @@ const BusinessStatusButton = ({
 const CATEGORY_TONES: Record<GroupKey, string> = {
   konaklama: "bg-[#DDEBFF] text-[#0057D9]",
   acente: "bg-[#E1E7FA] text-[#4A5C8A]",
+  ulasim: "bg-[#EAF1FF] text-[#0F3BB0]",
   rehber: "bg-[#EDE9FE] text-[#6D28D9]",
-  eglence: "bg-[#EAF1FF] text-[#1D4ED8]",
+  aktivite: "bg-[#EAF1FF] text-[#1D4ED8]",
   saglik: "bg-[#F1F5F9] text-[#475569]",
 };
 
