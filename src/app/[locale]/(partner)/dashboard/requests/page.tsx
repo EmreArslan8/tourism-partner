@@ -2,7 +2,12 @@ import { setRequestLocale } from "next-intl/server";
 import { ArrowLeft, Megaphone, Inbox, Send, Eye } from "lucide-react";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { CATEGORY_GROUPS } from "@/lib/categories";
+import type { GroupKey } from "@/lib/types";
 import { createB2bRequest, submitB2bOffer, closeMyB2bRequest } from "@/lib/actions/b2b";
+import B2bViewTracker from "@/components/B2bViewTracker";
+
+const groupLabel = (g: string | null) => CATEGORY_GROUPS.find((c) => c.key === g)?.label ?? null;
 
 const fmt = (v: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(v));
 const bizName = (r: { name: string } | { name: string }[] | null) =>
@@ -20,7 +25,7 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 
   const { data: biz } = await supabase
     .from("businesses")
-    .select("id,name")
+    .select("id,name,group,city,country")
     .eq("owner_id", user!.id)
     .order("id")
     .limit(1)
@@ -42,7 +47,7 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 
   const [{ data: myReqRaw }, { data: openReqRaw }, { data: myOffersRaw }] = await Promise.all([
     supabase.from("b2b_requests").select("id,title,description,region,status,view_count,created_at").eq("business_id", biz.id).order("created_at", { ascending: false }),
-    supabase.from("b2b_requests").select("id,title,description,region,status,view_count,created_at,business_id,businesses(name)").eq("status", "published").neq("business_id", biz.id).order("created_at", { ascending: false }).limit(50),
+    supabase.from("b2b_requests").select("id,title,description,region,target_group,status,view_count,created_at,business_id,businesses(name)").eq("status", "published").neq("business_id", biz.id).order("created_at", { ascending: false }).limit(80),
     supabase.from("b2b_offers").select("request_id").eq("business_id", biz.id),
   ]);
 
@@ -58,6 +63,19 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
     (offersByReq.get(o.request_id) ?? offersByReq.set(o.request_id, []).get(o.request_id)!).push(o);
   }
   const offered = new Set(((myOffersRaw ?? []) as { request_id: number }[]).map((o) => o.request_id));
+
+  // Açık ilanları tedarikçiye göre filtrele (Brief §7: "ilgili bölgedeki işletmeler"):
+  // hedef kategori boş veya benim grubumla eşleşmeli; bölge boş veya şehrim/ülkemle örtüşmeli.
+  type OpenReq = Req & { target_group: GroupKey | null; business_id: number; businesses: { name: string } | { name: string }[] | null };
+  const myGroup = biz.group as GroupKey;
+  const myCity = (biz.city ?? "").toLocaleLowerCase("tr");
+  const myCountry = (biz.country ?? "").toLocaleLowerCase("tr");
+  const openReq = ((openReqRaw ?? []) as unknown as OpenReq[]).filter((r) => {
+    const groupOk = !r.target_group || r.target_group === myGroup;
+    const reg = (r.region ?? "").toLocaleLowerCase("tr");
+    const regionOk = !reg || (!!myCity && (reg.includes(myCity) || myCity.includes(reg))) || (!!myCountry && reg.includes(myCountry));
+    return groupOk && regionOk;
+  });
 
   return (
     <main className="container-px mx-auto w-full max-w-[1080px] py-10 max-[640px]:py-6">
@@ -77,7 +95,15 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
             <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-extrabold text-ink"><Megaphone size={17} className="text-terra" aria-hidden /> Yeni talep aç</h2>
             <form action={createB2bRequest} className="grid gap-2.5">
               <input name="title" required maxLength={160} placeholder="Örn. GAP turu için Şanlıurfa 3 gece otel talebi" className="field h-11 w-full" />
-              <input name="region" maxLength={120} placeholder="Bölge (örn. Şanlıurfa)" className="field h-11 w-full" />
+              <div className="grid grid-cols-2 gap-2.5 max-[420px]:grid-cols-1">
+                <input name="region" maxLength={120} placeholder="Bölge (örn. Şanlıurfa)" className="field h-11 w-full" />
+                <select name="target_group" defaultValue="" className="field h-11 w-full">
+                  <option value="">Tüm kategoriler</option>
+                  {CATEGORY_GROUPS.map((g) => (
+                    <option key={g.key} value={g.key}>{g.label}</option>
+                  ))}
+                </select>
+              </div>
               <textarea name="description" rows={3} maxLength={2000} placeholder="Detaylar: tarih, kişi sayısı, konsept…" className="field w-full py-2.5" />
               <button type="submit" className="btn btn-solid btn-sm w-fit">Talebi Yayınla →</button>
             </form>
@@ -127,14 +153,20 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 
         {/* SAĞ — Açık ilanlar (teklif ver) */}
         <section className="rounded-[16px] border border-line bg-paper p-5 shadow-[0_18px_54px_-48px_rgba(7,9,42,.6)]">
-          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-extrabold text-ink"><Send size={17} className="text-terra" aria-hidden /> Açık ilanlar</h2>
-          {(openReqRaw ?? []).length === 0 ? (
-            <p className="text-[13px] text-muted">Şu an açık ilan yok.</p>
+          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-extrabold text-ink"><Send size={17} className="text-terra" aria-hidden /> Size uygun açık ilanlar</h2>
+          {openReq.length === 0 ? (
+            <p className="text-[13px] text-muted">Bölgeniz/kategorinizde şu an açık ilan yok.</p>
           ) : (
             <ul className="grid gap-3">
-              {((openReqRaw ?? []) as (Req & { business_id: number; businesses: { name: string } | { name: string }[] | null })[]).map((r) => (
-                <li key={r.id} className="rounded-[12px] border border-line/80 bg-cream/40 p-3.5">
-                  <p className="text-[14px] font-bold text-ink">{r.title}</p>
+              {openReq.map((r) => (
+                <li key={r.id} className="relative rounded-[12px] border border-line/80 bg-cream/40 p-3.5">
+                  <B2bViewTracker id={r.id} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[14px] font-bold text-ink">{r.title}</p>
+                    {groupLabel(r.target_group) && (
+                      <span className="rounded-pill bg-terra/10 px-2 py-0.5 text-[10.5px] font-bold text-terra-deep">{groupLabel(r.target_group)}</span>
+                    )}
+                  </div>
                   <p className="mt-0.5 text-[12px] font-medium text-muted">{bizName(r.businesses)} · {r.region ?? "—"} · {fmt(r.created_at)}</p>
                   {r.description && <p className="mt-1.5 text-[13px] leading-5 text-ink/80">{r.description}</p>}
                   {offered.has(r.id) ? (

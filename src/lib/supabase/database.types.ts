@@ -298,6 +298,7 @@ export interface Database {
           title: string;
           description: string | null;
           region: string | null;
+          target_group: BusinessGroup | null;
           status: B2BRequestStatus;
           view_count: number;
           moderation_note: string | null;
@@ -310,6 +311,7 @@ export interface Database {
           title: string;
           description?: string | null;
           region?: string | null;
+          target_group?: BusinessGroup | null;
           status?: B2BRequestStatus;
           view_count?: number;
           moderation_note?: string | null;
@@ -597,7 +599,12 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      increment_b2b_view: {
+        Args: { rid: number };
+        Returns: undefined;
+      };
+    };
     Enums: {
       business_group: BusinessGroup;
       business_status: BusinessStatus;

@@ -4,7 +4,14 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
+import { CATEGORY_GROUPS } from "@/lib/categories";
+import type { GroupKey } from "@/lib/types";
 import { clean } from "./validate";
+
+function groupOrNull(value: FormDataEntryValue | null): GroupKey | null {
+  const v = String(value ?? "");
+  return CATEGORY_GROUPS.some((g) => g.key === v) ? (v as GroupKey) : null;
+}
 
 /* Brief §7/§8 "Talep & Teklif Sistemi": giriş yapmış işletme (acente) bölge için
    talep/ilan açar; ilgili tedarikçiler bu ilana teklif sunar; talep sahibine
@@ -72,6 +79,7 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
   const title = clean(formData.get("title"), 160);
   const description = clean(formData.get("description"), 2000);
   const region = clean(formData.get("region"), 120);
+  const targetGroup = groupOrNull(formData.get("target_group"));
   if (!title) return;
 
   await supabase.from("b2b_requests").insert({
@@ -79,9 +87,22 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
     title,
     description,
     region,
+    target_group: targetGroup,
     status: "published",
   });
   revalidatePath("/[locale]/dashboard/requests", "page");
+}
+
+/* İlan görüntülenme sayacı (+1) — teklif verecek tedarikçi ilanı görünce.
+   security-definer RPC ile artar (b2b_requests UPDATE RLS sahibe kısıtlı). */
+export async function recordB2bRequestView(id: number): Promise<void> {
+  if (!Number.isInteger(id)) return;
+  try {
+    const supabase = await createClient();
+    await supabase.rpc("increment_b2b_view", { rid: id });
+  } catch {
+    // sessizce yut
+  }
 }
 
 /* Tedarikçi bir talebe teklif sunar → talep sahibine e-posta. */
