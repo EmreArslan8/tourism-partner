@@ -1,4 +1,4 @@
-import type { GroupKey, Facet, FacetOption } from "./types";
+import type { Business, GroupKey, Facet } from "./types";
 
 /* Filtreleme motoru — facet (öznitelik) kayıt defteri.
    Tüm çok-seçim facet'ler `business.attributes` slug'ları üzerinden çalışır.
@@ -98,14 +98,24 @@ export const FACETS: Facet[] = [
     ],
   },
 
-  // ——— REHBER ———
+  // ——— REHBER (Brief §6 Rehber Özel Matrisi) ———
   {
     key: "uzmanlik-rehber", label: "Uzmanlık", scope: ["rehber"],
     options: [
-      { slug: "uz-tarihi", label: "Tarihi / arkeoloji" },
-      { slug: "uz-doga", label: "Doğa / trekking" },
-      { slug: "uz-kruvaziyer", label: "Kruvaziyer" },
-      { slug: "uz-muze", label: "Müze" },
+      { slug: "uz-tarihi", label: "Kültür ve Arkeoloji" },
+      { slug: "uz-gastronomi", label: "Gastronomi" },
+      { slug: "uz-doga", label: "Doğa, Macera & Trekking" },
+      { slug: "uz-inanc", label: "İnanç & Mitoloji" },
+      { slug: "uz-lifestyle", label: "Lifestyle" },
+    ],
+  },
+  {
+    key: "rehber-hizmet", label: "Hizmet şekli", scope: ["rehber"],
+    options: [
+      { slug: "rh-paket-tur", label: "Paket tur" },
+      { slug: "rh-munferit", label: "Münferit" },
+      { slug: "rh-gunubirlik", label: "Günübirlik" },
+      { slug: "rh-mice", label: "MICE" },
     ],
   },
 
@@ -175,7 +185,9 @@ export const FACETS: Facet[] = [
 // slug → facet key ve slug → etiket eşlemeleri (gruplama ve aktif etiketler için)
 const SLUG_TO_FACET: Record<string, string> = {};
 const SLUG_TO_LABEL: Record<string, string> = {};
+const FACET_ORDER: Record<string, number> = {};
 for (const f of FACETS) {
+  FACET_ORDER[f.key] = FACET_ORDER[f.key] ?? Object.keys(FACET_ORDER).length;
   for (const o of f.options) {
     SLUG_TO_FACET[o.slug] = f.key;
     SLUG_TO_LABEL[o.slug] = o.label;
@@ -202,4 +214,36 @@ export function attrsPass(businessAttrs: string[] | undefined, selected: Set<str
     (byFacet[k] ??= []).push(slug);
   }
   return Object.values(byFacet).every((slugs) => slugs.some((s) => has.has(s)));
+}
+
+export type FeaturedFacetTag = { slug: string; label: string };
+
+/**
+ * İşletme detayında / vitrin kartında gösterilecek öne çıkan çipler.
+ * Kaynak: `business.attributes` slug'ları.
+ * Sıralama: önce ortak facet'ler, sonra grup facet'leri; aynı facet içinde admin sırası korunur.
+ */
+export function featuredFacetTags(
+  business: Pick<Business, "group" | "attributes">,
+  limit = 6
+): FeaturedFacetTag[] {
+  const attrs = business.attributes ?? [];
+  const visibleFacetKeys = new Set(visibleFacets([business.group]).map((f) => f.key));
+  const seen = new Set<string>();
+  const tags = attrs.flatMap((slug, index) => {
+    const facetKey = SLUG_TO_FACET[slug];
+    if (!facetKey || !visibleFacetKeys.has(facetKey) || seen.has(slug)) return [];
+    seen.add(slug);
+    return [{
+      slug,
+      label: SLUG_TO_LABEL[slug] ?? slug,
+      facetOrder: FACET_ORDER[facetKey] ?? Number.MAX_SAFE_INTEGER,
+      index,
+    }];
+  });
+
+  return tags
+    .sort((a, b) => a.facetOrder - b.facetOrder || a.index - b.index)
+    .slice(0, limit)
+    .map(({ slug, label }) => ({ slug, label }));
 }

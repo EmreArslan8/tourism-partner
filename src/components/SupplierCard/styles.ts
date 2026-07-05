@@ -1,12 +1,13 @@
 /* SupplierCard — tedarikçi kartı ortak görünümü (vitrin + listeleme). */
  const styles= {
   card:
-    "group flex animate-card-in flex-col overflow-hidden rounded-card border border-line bg-paper shadow-[0_18px_54px_-42px_rgba(7,9,42,.66)] " +
+    "group flex h-[520px] animate-card-in flex-col overflow-hidden rounded-card border border-line bg-paper shadow-[0_18px_54px_-42px_rgba(7,9,42,.66)] " +
+    "max-[640px]:h-[480px] " +
     "transition-all duration-300 ease-brand hover:-translate-y-[3px] hover:border-terra/35 hover:shadow-[0_28px_72px_-50px_rgba(7,9,42,.85)]",
   flag:
     "absolute right-3 top-3 z-[3] rounded-[999px] bg-gold px-2.5 py-1 text-[10px] " +
     "font-extrabold text-pine shadow-[0_8px_18px_-10px_rgba(0,0,0,.5)]",
-  cover: "relative flex h-[178px] items-center justify-center overflow-hidden max-[1180px]:h-[168px] max-[640px]:h-[190px]",
+  cover: "relative flex h-[312px] shrink-0 items-center justify-center overflow-hidden max-[640px]:h-[285px]",
   coverImg: "object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.045]",
   placeholder:
     "relative z-[1] inline-flex rounded-full border border-white/25 bg-white/18 px-3 py-1.5 text-[12px] font-bold text-white/90 backdrop-blur-sm",
@@ -14,15 +15,15 @@
   coverRating:
     "absolute left-3 top-3 z-[2] inline-flex items-center gap-1 rounded-[999px] bg-black/45 px-2.5 py-1 " +
     "text-[11px] font-extrabold text-white backdrop-blur-sm",
-  body: "flex flex-1 flex-col gap-2.5 p-4",
+  body: "flex min-h-0 flex-1 flex-col gap-2.5 p-4",
   tags: "flex min-w-0 flex-wrap items-center gap-2",
   badge:
-    "max-w-full truncate rounded-[999px] border border-line bg-cream/60 px-2.5 py-[4px] text-[10.5px] font-extrabold uppercase tracking-[.04em] text-muted",
+    "max-w-full truncate rounded-[999px] border border-line bg-[#eef3ff] px-2.5 py-[4px] text-[10.5px] font-extrabold uppercase tracking-[.04em] text-[#24304a]",
   verified: "inline-flex shrink-0 items-center gap-1 text-[11px] font-extrabold text-terra-deep",
-  name: "line-clamp-1 text-[19px] leading-tight tracking-[-.015em]",
-  loc: "line-clamp-1 text-[13px] font-medium text-muted",
+  name: "line-clamp-1 text-[19px] leading-tight tracking-[-.015em] text-ink",
+  loc: "line-clamp-1 text-[13px] font-bold text-ink/66",
   stars: "inline-flex text-[14px] text-gold",
-  desc: "line-clamp-2 min-h-[42px] text-[14px] leading-relaxed text-muted",
+  desc: "line-clamp-2 min-h-[42px] text-[14px] font-medium leading-relaxed text-[#33415f]",
   foot:
     "mt-auto flex items-center justify-between gap-3 border-t border-line/80 pt-3 " +
     "[&_.btn]:h-10 [&_.btn]:rounded-[9px] [&_.btn]:px-4 [&_.btn]:font-extrabold " +

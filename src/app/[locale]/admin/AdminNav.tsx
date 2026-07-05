@@ -6,6 +6,7 @@ import {
   BarChart3,
   BellDot,
   BookOpenText,
+  ClipboardList,
   FolderTree,
   HelpCircle,
   LayoutDashboard,
@@ -20,7 +21,8 @@ const ITEMS: Item[] = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={17} aria-hidden /> },
   { href: "/admin/tedarikciler", label: "İşletmeler (CRM)", icon: <Store size={17} aria-hidden /> },
   { href: "/admin/onay", label: "Başvurular", icon: <ShieldCheck size={17} aria-hidden /> },
-  { href: "/admin/teklifler", label: "Talepler", icon: <BellDot size={17} aria-hidden /> },
+  { href: "/admin/talepler", label: "Talepler (B2B ilan)", icon: <ClipboardList size={17} aria-hidden /> },
+  { href: "/admin/teklifler", label: "Teklifler", icon: <BellDot size={17} aria-hidden /> },
   { href: "/admin/kategoriler", label: "Kategoriler", icon: <FolderTree size={17} aria-hidden /> },
   { href: "/admin/raporlar", label: "Raporlar", icon: <BarChart3 size={17} aria-hidden /> },
   { href: "/admin/reklam", label: "Reklam", icon: <Megaphone size={17} aria-hidden /> },
@@ -44,8 +46,8 @@ const AdminNav = () => {
             className={cn(
               "flex items-center gap-3 rounded-[7px] border-l-[3px] px-3 py-2.5 text-[13px] font-semibold transition-colors",
               active
-                ? "border-[#2563EB] bg-[#DAE2FD] text-[#3D4B64]"
-                : "border-transparent text-[#566178] hover:bg-[#EFF4FF] hover:text-[#0057D9]",
+                ? "border-terra bg-cream text-ink"
+                : "border-transparent text-[#475569] hover:bg-cream hover:text-terra",
             )}
           >
             {item.icon}

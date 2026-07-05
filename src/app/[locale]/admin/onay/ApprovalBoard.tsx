@@ -58,7 +58,7 @@ const ApprovalBoard = ({ businesses, locale }: { businesses: AdminBusiness[]; lo
 };
 
 const Card = ({ b, locale, lang }: { b: AdminBusiness; locale: string; lang: "tr" | "en" }) => {
-  const reqDocs = docsForGroup(b.group);
+  const reqDocs = docsForGroup(b.group, b.type);
   const uploaded = new Map((b.documents ?? []).map((d) => [d.kind, d]));
   const hasMissingRequired = reqDocs.some((d) => d.required && !uploaded.has(d.kind));
 

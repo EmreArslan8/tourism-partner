@@ -18,14 +18,14 @@ export default function AdminSearch() {
 
   return (
     <form onSubmit={submit} className="relative flex min-w-0 flex-1 items-center">
-      <Search className="pointer-events-none absolute left-3.5 h-[18px] w-[18px] text-[#64748B]" aria-hidden />
+      <Search className="pointer-events-none absolute left-3.5 h-[18px] w-[18px] text-[#475569]" aria-hidden />
       <input
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         placeholder="İşletme adı, VKN veya ID ile ara…"
         aria-label="Ara"
-        className="h-10 w-full rounded-full border border-[#C9D3E5] bg-white pl-10 pr-4 text-[14px] font-medium text-[#0B1C30] placeholder:text-[#94A3B8] focus:border-[#0057D9] focus:outline-none focus:ring-2 focus:ring-[#0057D9]/15"
+        className="h-10 w-full rounded-full border border-line bg-paper pl-10 pr-4 text-[14px] font-medium text-ink placeholder:text-muted/65 focus:border-terra focus:outline-none focus:ring-2 focus:ring-terra/15"
       />
     </form>
   );

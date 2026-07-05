@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
@@ -17,6 +17,7 @@ const IMG: Record<GroupKey, string> = {
   rehber: "/assets/cards/guide-1.webp",
   aktivite: "/assets/cards/balloon-1.webp",
   saglik: "/assets/cards/clinic-1.webp",
+  gastronomi: "/assets/cards/resort-1.webp",
 };
 
 const iconProps = {
@@ -65,6 +66,11 @@ const ICONS: Record<GroupKey, ReactNode> = {
       <path d="M3 12h4l2-5 4 10 2-5h6" />
     </svg>
   ),
+  gastronomi: (
+    <svg {...iconProps} className={styles.icon}>
+      <path d="M3 3v7a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3M5 3v18M18 3c-1.7 0-3 2-3 5s1.3 4 3 4v9" />
+    </svg>
+  ),
 };
 
 /* Ana sayfa kategori girişi — görsel + rozet + ikon + açıklama + İncele.
@@ -72,19 +78,12 @@ const ICONS: Record<GroupKey, ReactNode> = {
 const Categories = () => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
-  const trackRef = useRef<HTMLDivElement>(null);
-
-  /* Mobil yatay karuselini bir kart kadar kaydır. */
-  const scrollByCard = (dir: 1 | -1) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.firstElementChild as HTMLElement | null;
-    const step = card ? card.offsetWidth + 14 : track.clientWidth * 0.8;
-    track.scrollBy({ left: dir * step, behavior: "smooth" });
-  };
+  const groups = CATEGORY_GROUPS.filter((g) => g.key !== "saglik");
+  const [activeKey, setActiveKey] = useState<GroupKey>(groups[0].key);
+  const activeGroup = groups.find((g) => g.key === activeKey) ?? groups[0];
 
   return (
-    <section className={styles.section} id="kategoriler">
+    <section className={styles.section} id="kategoriler" data-tour="supplier-categories">
       <div className={styles.head}>
         <SectionHeader
           className={styles.headCopy}
@@ -95,64 +94,68 @@ const Categories = () => {
           titleClassName={styles.headTitle}
           descClassName={styles.lead}
         />
-        <div className={styles.navBtns}>
-          <button type="button" aria-label={t("prev")} className={styles.navBtn} onClick={() => scrollByCard(-1)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg>
-          </button>
-          <button type="button" aria-label={t("next")} className={styles.navBtn} onClick={() => scrollByCard(1)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
-          </button>
-        </div>
       </div>
 
-      <div ref={trackRef} className={styles.track}>
-        {/* Ana sayfada 4 kart gösterilir; Sağlık Turizmi'ne alttaki arama rotaları chip'inden erişilir. */}
-        {CATEGORY_GROUPS.filter((g) => g.key !== "saglik").map((g, index) => (
-          <Link
-            key={g.key}
-            href={{ pathname: "/explore", query: { cat: g.key } }}
-            className={index === 0 ? `${styles.card} ${styles.cardFeatured}` : styles.card}
-          >
-            <div className={styles.media}>
-              <Image
-                src={IMG[g.key]}
-                alt=""
-                fill
-                sizes="(max-width:640px) 100vw, (max-width:1100px) 33vw, 28vw"
-                className={styles.img}
-              />
-              <span className={styles.badge}>
-                <span className={styles.badgeDot} aria-hidden="true" />
-                {t(`cards.${g.key}.badge`)}
-              </span>
-            </div>
+      <div className={styles.panel}>
+        <div className={styles.list} role="list" aria-label={t("summaryLabel")}>
+          {groups.map((g, index) => {
+            const active = g.key === activeKey;
 
-            {/* Mobil banner degradesi. */}
-            <div className={styles.shade} aria-hidden="true" />
+            return (
+              <Link
+                key={g.key}
+                href={{ pathname: "/explore", query: { cat: g.key } }}
+                className={active ? `${styles.item} ${styles.itemActive}` : styles.item}
+                role="listitem"
+                onMouseEnter={() => setActiveKey(g.key)}
+                onFocus={() => setActiveKey(g.key)}
+                aria-current={active ? "true" : undefined}
+              >
+                <span className={styles.mobileMedia} aria-hidden="true">
+                  <Image src={IMG[g.key]} alt="" fill sizes="50vw" className={styles.img} />
+                </span>
+                <span className={styles.index}>{String(index + 1).padStart(2, "0")}</span>
+                <span className={styles.itemCopy}>
+                  <span className={styles.titleRow}>
+                    <span className={styles.name}>{tc(g.key)}</span>
+                    <span className={styles.badge}>{t(`cards.${g.key}.badge`)}</span>
+                  </span>
+                  <span className={styles.desc}>{t(`cards.${g.key}.desc`)}</span>
+                </span>
+              </Link>
+            );
+          })}
+        </div>
 
-            <div className={styles.body}>
-              <div className={styles.bodyMain}>
-                <div className={styles.titleRow}>
-                  {ICONS[g.key]}
-                  <h3 className={styles.name}>{tc(g.key)}</h3>
-                </div>
-                <p className={styles.desc}>{t(`cards.${g.key}.desc`)}</p>
-              </div>
-              {/* Desktop/tablet: İncele butonu. */}
-              <span className={styles.cta}>
-                {t("cta")}
-                <svg className={styles.ctaArrow} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
-              {/* Mobil banner: sağ altta kategori istatistiği. */}
-              <span className={styles.countMobile}>{t(`cards.${g.key}.badge`)}</span>
-            </div>
-          </Link>
+        <Link href={{ pathname: "/explore", query: { cat: activeGroup.key } }} className={styles.visual} aria-label={`${tc(activeGroup.key)} ${t("cta")}`}>
+          <Image
+            key={activeGroup.key}
+            src={IMG[activeGroup.key]}
+            alt=""
+            fill
+            sizes="(max-width: 760px) 100vw, (max-width: 1200px) 48vw, 560px"
+            className={styles.img}
+            priority
+          />
+          <span className={styles.visualShade} aria-hidden="true" />
+          <span className={styles.visualBadge}>
+            <span className={styles.badgeDot} aria-hidden="true" />
+            {t(`cards.${activeGroup.key}.badge`)}
+          </span>
+          <span className={styles.visualCta}>
+            {t("cta")}
+            <svg className={styles.ctaArrow} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </Link>
+      </div>
+
+      <div className={styles.mobileIcons} aria-hidden="true">
+        {groups.map((g) => (
+          <span key={g.key} className={g.key === activeKey ? `${styles.mobileIcon} ${styles.mobileIconActive}` : styles.mobileIcon}>
+            {ICONS[g.key]}
+          </span>
         ))}
       </div>
     </section>

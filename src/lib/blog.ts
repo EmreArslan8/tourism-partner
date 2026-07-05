@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { createPublicClient } from "./supabase/public";
+import { sanitizePublicHtml } from "./sanitize-public-html";
 
 /* Blog veri erişim katmanı (public/SEO). Yayınlanan yazıları çerezsiz anon client ile
    okur; 'use cache' + 'blog' tag'i ile cache'lenir (admin mutasyonu revalidateTag ile tazeler).
@@ -43,7 +44,7 @@ function toPost(r: Row): BlogPost {
     locale: r.locale,
     title: r.title,
     excerpt: r.excerpt,
-    body: r.body,
+    body: sanitizePublicHtml(r.body),
     category: r.category,
     coverImage: r.cover_image,
     seoTitle: r.seo_title,

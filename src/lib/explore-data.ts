@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getBusinesses } from "@/lib/businesses";
+import { getBusinesses, toListingBusiness } from "@/lib/businesses";
 import { isDoped } from "@/lib/listing";
 import type { Business } from "@/lib/types";
 
@@ -18,10 +18,9 @@ export type ExploreData = {
    /supplier/[slug] detay sayfası herkese açıktır (deep-link / SEO). */
 export async function getExploreData(): Promise<ExploreData> {
   const [businesses, isGuest] = await Promise.all([getBusinesses(), getIsGuest()]);
-  return {
-    isGuest,
-    businesses: isGuest ? businesses.filter(isDoped) : businesses,
-  };
+  const visible = isGuest ? businesses.filter(isDoped) : businesses;
+  // İletişim alanları liste payload'ından çıkarılır — telefon/website yalnız detayda (Brief §6A).
+  return { isGuest, businesses: visible.map(toListingBusiness) };
 }
 
 async function getIsGuest(): Promise<boolean> {

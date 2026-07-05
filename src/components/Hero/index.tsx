@@ -62,6 +62,10 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
       </picture>
       <div className={styles.overlay} />
 
+      {/* NOT: Etkileşimli 3D küre (Hero/Globe.tsx, three-globe) şimdilik devre dışı —
+          görsel ayarı yapılamadan sayfayı bozuyordu. Geri açmak için: Globe import'u +
+          styles.globeWrap bloğunu buraya ekle (git geçmişinde hazır). */}
+
       <div className={styles.inner}>
         <h1 className={styles.title}>
           {t("titlePre").trim()}<br />

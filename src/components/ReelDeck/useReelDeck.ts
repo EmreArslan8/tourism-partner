@@ -133,17 +133,24 @@ export function useReelDeck(count: number) {
       if (!atBoundary(dir) && !lockRef.current) go(indexRef.current + dir);
     };
 
+    const onTourGo = (e: Event) => {
+      const detail = (e as CustomEvent<{ index?: number }>).detail;
+      if (typeof detail?.index === "number") go(detail.index);
+    };
+
     el.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("tp:reel-go", onTourGo);
     return () => {
       el.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKey);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("tp:reel-go", onTourGo);
     };
   }, [atBoundary, coversViewport, go]);
 

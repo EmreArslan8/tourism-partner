@@ -30,13 +30,13 @@ const TONES: Record<Tone, { active: string; idle: string; badgeOn: string; badge
     active: "border-terra text-terra-deep",
     idle: "border-transparent text-muted hover:text-ink",
     badgeOn: "bg-terra/10 text-terra-deep",
-    badgeOff: "bg-cream-deep text-muted",
+    badgeOff: "bg-white text-[#4b5875]",
   },
   blue: {
     active: "border-[#2563EB] text-[#2563EB]",
     idle: "border-transparent text-[#64748B] hover:text-[#0B1C30]",
     badgeOn: "bg-[#DAE2FD] text-[#1E3A8A]",
-    badgeOff: "bg-[#EEF2F7] text-[#64748B]",
+    badgeOff: "bg-white text-[#4b5875]",
   },
 };
 

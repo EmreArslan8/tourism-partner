@@ -9,7 +9,6 @@ import { businessSlug } from "@/lib/business-slug";
 import { facetLabel } from "@/lib/facets";
 import { cn } from "@/lib/utils";
 import {
-  facetCounts,
   filterAndSortBusinesses,
   dopingRank,
 } from "@/lib/listing";
@@ -46,7 +45,6 @@ const ListingView = ({
   initialCity = "all",
   initialDistrict = "all",
   initialQ = "",
-  initialVerified = false,
   initialMinRating = 0,
   initialSort = "featured",
   initialAttrs = [],
@@ -59,7 +57,6 @@ const ListingView = ({
   initialCity?: string;
   initialDistrict?: string;
   initialQ?: string;
-  initialVerified?: boolean;
   initialMinRating?: number;
   initialSort?: Sort;
   initialAttrs?: string[];
@@ -76,7 +73,6 @@ const ListingView = ({
   const [city, setCity] = useState(initialCity);
   const [district, setDistrict] = useState(initialDistrict);
   const [q, setQ] = useState(initialQ);
-  const [verifiedOnly, setVerifiedOnly] = useState(initialVerified);
   const [minRating, setMinRating] = useState(initialMinRating);
   const [attrs, setAttrs] = useState<Set<string>>(new Set(initialAttrs));
   const [sort, setSort] = useState<Sort>(initialSort);
@@ -106,8 +102,8 @@ const ListingView = ({
 
   // Saf süzme/sıralama/skor mantığı lib/listing.ts'te; burada yalnız state → filtre nesnesi.
   const filters: ListingFilters = useMemo(
-    () => ({ groups, types, country, city, district, verifiedOnly, minRating, attrs }),
-    [groups, types, country, city, district, verifiedOnly, minRating, attrs]
+    () => ({ groups, types, country, city, district, minRating, attrs }),
+    [groups, types, country, city, district, minRating, attrs]
   );
 
   const filtered = useMemo(
@@ -118,17 +114,6 @@ const ListingView = ({
   // Kelime araması yapılıyorsa ülke seçimi zorunlu (modern "önce konum" akışı):
   // ülke seçili değilse sonuç yerine ülke seçtiren bir ekran gösterilir.
   const needsCountry = deferredQ.trim() !== "" && country === "all";
-
-  // Facet sayaçları: grup sayımı grup+tür filtresini yok sayar; tür sayımı yalnız tür filtresini yok sayar.
-  const groupCounts = useMemo(
-    () => facetCounts(businesses, filters, deferredQ, "group"),
-    [businesses, filters, deferredQ]
-  );
-
-  const typeCounts = useMemo(
-    () => facetCounts(businesses, filters, deferredQ, "type"),
-    [businesses, filters, deferredQ]
-  );
 
   const maxPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, maxPage);
@@ -201,7 +186,6 @@ const ListingView = ({
     setCity("all");
     setDistrict("all");
     setQ("");
-    setVerifiedOnly(false);
     setMinRating(0);
     setAttrs(new Set());
     setSort("featured");
@@ -217,7 +201,6 @@ const ListingView = ({
     if (city !== "all") p.set("city", city);
     if (district !== "all") p.set("district", district);
     if (deferredQ.trim()) p.set("q", deferredQ.trim());
-    if (verifiedOnly) p.set("verified", "1");
     if (minRating > 0) p.set("rating", String(minRating));
     if (attrs.size) p.set("attr", [...attrs].join(","));
     if (sort !== "featured") p.set("sort", sort);
@@ -229,7 +212,7 @@ const ListingView = ({
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, verifiedOnly, minRating, attrs, sort]);
+  }, [groups, types, country, city, district, deferredQ, minRating, attrs, sort]);
 
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
@@ -237,7 +220,6 @@ const ListingView = ({
   if (country !== "all") tags.push({ kind: "country", value: country, label: country });
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
-  if (verifiedOnly) tags.push({ kind: "verified", value: "", label: `✓ ${t("verifiedOnly")}` });
   if (minRating > 0) tags.push({ kind: "rating", value: "", label: `★ ${minRating}+` });
   attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: facetLabel(slug) }));
   if (q.trim()) tags.push({ kind: "q", value: "", label: `“${q.trim()}”` });
@@ -252,7 +234,6 @@ const ListingView = ({
     }
     else if (kind === "city") pickCity("all");
     else if (kind === "district") setDistrict("all");
-    else if (kind === "verified") setVerifiedOnly(false);
     else if (kind === "rating") setMinRating(0);
     else if (kind === "attr") toggleAttr(value);
     else if (kind === "q") setQ("");
@@ -354,26 +335,22 @@ const ListingView = ({
     <CategoryCatalog
       groups={groups}
       types={types}
-      groupCounts={groupCounts}
-      typeCounts={typeCounts}
       onToggleGroup={toggleGroup}
       onToggleType={toggleType}
     />
   );
 
-  // Mobil "Filtreler" rozeti için aktif konum/puan/doğrulama sayısı.
+  // Mobil "Filtreler" rozeti için aktif konum/puan sayısı.
   const activeRefine =
     (country !== "all" ? 1 : 0) +
     (city !== "all" ? 1 : 0) +
     (district !== "all" ? 1 : 0) +
-    (minRating > 0 ? 1 : 0) +
-    (verifiedOnly ? 1 : 0);
+    (minRating > 0 ? 1 : 0);
 
   const selectProps = {
     country,
     city,
     district,
-    verifiedOnly,
     minRating,
     countries,
     cities,
@@ -381,7 +358,6 @@ const ListingView = ({
     onCountry: (v: string) => { setCountry(v); setCity("all"); setDistrict("all"); setPage(1); },
     onCity: pickCity,
     onDistrict: (v: string) => { setDistrict(v); setPage(1); },
-    onVerified: (v: boolean) => { setVerifiedOnly(v); setPage(1); },
     onMinRating: (v: number) => { setMinRating(v); setPage(1); },
   };
 
@@ -399,8 +375,6 @@ const ListingView = ({
           <CategoryCatalog
             groups={groups}
             types={types}
-            groupCounts={groupCounts}
-            typeCounts={typeCounts}
             onToggleGroup={toggleGroup}
             onToggleType={toggleType}
           >
@@ -443,7 +417,6 @@ const ListingView = ({
               city={city}
               district={district}
               q={q}
-              verifiedOnly={verifiedOnly}
               minRating={minRating}
               countries={countries}
               cities={cities}
@@ -453,7 +426,6 @@ const ListingView = ({
               onDistrict={selectProps.onDistrict}
               onQ={(v) => { setQ(v); setPage(1); }}
               onPick={handlePick}
-              onVerified={selectProps.onVerified}
               onMinRating={selectProps.onMinRating}
             />
           </div>

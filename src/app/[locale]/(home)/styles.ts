@@ -7,12 +7,16 @@ const panelBase =
   "max-[1120px]:justify-start max-[900px]:py-6 max-[640px]:py-5";
 
 const styles = {
-  panelDark: "flex h-full w-full flex-col bg-pine",
+  panelDark: "relative flex h-full w-full flex-col bg-pine",
   heroFill: "relative min-h-0 flex-1",
-  // Camsı mavi şerit — koyu hero'nun altında beyaz yerine tema mavisiyle sürüyor.
+  // Marka şeridi hero fotoğrafının ÜZERİNE biner (ayrı zemin yok → renk dikişi imkânsız).
+  // Okunabilirlik için alttan yukarı şeffaflaşan yumuşak karartma; kenar çizgisi yok.
+  // Üstte içerikten ayıran ince çizgi (hairline) — ortada belirgin, kenarlara doğru erir.
   brandStrip:
-    "shrink-0 border-t border-white/10 " +
-    "bg-[linear-gradient(180deg,rgba(15,59,176,.22),rgba(10,36,114,.40))] backdrop-blur-md",
+    "absolute inset-x-0 bottom-0 z-10 " +
+    "bg-[linear-gradient(180deg,rgba(5,8,30,0)_0%,rgba(5,8,30,.55)_45%,rgba(5,8,30,.88)_100%)] " +
+    "before:absolute before:inset-x-0 before:top-0 before:h-px before:content-[''] " +
+    "before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.22)_18%,rgba(255,255,255,.22)_82%,transparent)]",
   panelLight: `${panelBase} max-[640px]:justify-start`,
   // Bölgeler: mobilde üste yaslı (uzun içerik), ≥641'de ortalı.
   panelRegions: `${panelBase} max-[640px]:justify-start`,
@@ -20,6 +24,7 @@ const styles = {
     `${panelBase} justify-start pt-[clamp(24px,5vh,64px)] pb-6 ` +
     "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:justify-center " +
     "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:py-6",
+  panelTour: `${panelBase} bg-[#F6F8FC]`,
   panelFaq: `${panelBase} max-[640px]:justify-start`,
   panelStack: `${panelBase} gap-5 max-[640px]:gap-1.5`,
   // İçerik container-px kutusunu doldurur — Hero/Header/Footer ile aynı sol/sağ hizada kalır.

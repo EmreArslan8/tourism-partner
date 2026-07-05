@@ -58,6 +58,15 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
       { slug: "dis-klinigi", label: "Diş Kliniği" },
     ],
   },
+  {
+    key: "gastronomi",
+    label: "Gastronomi",
+    children: [
+      { slug: "restoran", label: "Restoran" },
+      { slug: "gurme-deneyim", label: "Gurme Deneyim" },
+      { slug: "yerel-lezzet-noktasi", label: "Yerel Lezzet Noktası" },
+    ],
+  },
 ];
 
 export const GROUP_COLORS: Record<GroupKey, string> = groupPalette;

@@ -3,7 +3,6 @@ import Partners from "@/components/Partners";
 import Showcase from "@/components/Showcase";
 import Regions from "@/components/Regions";
 import Categories from "@/components/Categories";
-import SearchIntents from "@/components/SearchIntents";
 import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
@@ -18,7 +17,7 @@ import styles from "./styles";
  * Anasayfa = Reels tarzı tam-sayfa panel destesi (ReelDeck).
  * Her doğrudan child = bir 100dvh panel. Sıra:
  * 1) Hero + Partners  2) Vitrin + CTA  3) Bölgeler
- * 4) Tedarikçi türleri 5) Üç adımda iş birliği  6) SSS
+ * 4) Tedarikçi türleri 5) Platform turu 6) Üç adımda iş birliği  7) SSS
  * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
  */
 const HomeView = ({
@@ -66,18 +65,18 @@ const HomeView = ({
       <div className={styles.panelCategories}>
         <div className="flex w-full flex-col justify-start gap-6 max-[1024px]:gap-5 max-[640px]:gap-6">
           <Categories />
-          <SearchIntents />
         </div>
       </div>
 
-      {/* 5 — Üç adımda iş birliği */}
+
+      {/* 6 — Üç adımda iş birliği */}
       <div className={styles.panelLight}>
         <div className={styles.inner}>
           <HowItWorks />
         </div>
       </div>
 
-      {/* 6 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
+      {/* 7 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
       <div className={styles.panelFaq}>
         <div className={styles.faqStack}>
           <Faq />

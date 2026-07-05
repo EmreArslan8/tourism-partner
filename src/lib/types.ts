@@ -1,6 +1,6 @@
 /* Ortak tip tanımları — Faz 1 (seed veri). İleride Supabase şemasıyla eşlenecek. */
 
-export type GroupKey = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik";
+export type GroupKey = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik" | "gastronomi";
 export type BusinessLegalType = "company" | "individual";
 
 export interface CategoryNode {
@@ -35,16 +35,23 @@ export interface Business {
   /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
       Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
   dopingUntil?: string;
-  /** Kurum (firma) iletişim — profilde herkese açık gösterilir. Yetkili kişi bilgisi
-      ASLA buraya konmaz; o yalnızca panel/başvuru tarafında tutulur. */
+  /** Kurum (firma) iletişim — YALNIZCA detay sayfasında gösterilir (Brief §6A).
+      Liste/istemci payload'ına gönderilmez (bkz. toListingBusiness) — aksi halde
+      telefonlar listeden toplu kazınabilir. Yetkili kişi bilgisi ASLA buraya konmaz. */
   phone?: string;
   website?: string;
+  /** Sunucuda önceden hesaplanan profil doluluk skoru (0–8). Liste payload'ında
+      phone/website çıkarıldığı için skor sunucuda hesaplanıp taşınır. */
+  completeness?: number;
   /** Kart kapak görseli (public/ altı yol). Yoksa gruba göre varsayılan kullanılır. */
   image?: string;
   /** İşletmenin kendi galeri görselleri. */
   images?: string[];
   /** Filtreleme facet slug'ları (hizmet/özellik/ticari şartlar). Bkz. lib/facets.ts */
   attributes?: string[];
+  /** Rehber çalışma bölgeleri (şehir adları) — acente araması bu şehirlerle de eşleşir.
+      Yalnızca rehber kategorisinde dolu; details.work_regions'tan türetilir. */
+  workRegions?: string[];
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
@@ -70,7 +77,6 @@ export interface ListingFilters {
   country: string;
   city: string;
   district: string;
-  verifiedOnly: boolean;
   minRating: number;
   attrs: Set<string>;
 }
@@ -137,7 +143,13 @@ export type AdminQuote = {
   name: string;
   company: string | null;
   email: string;
+  phone: string | null;
   service: string | null;
+  categoryGroup: string | null;
+  categoryType: string | null;
+  country: string | null;
+  city: string | null;
+  district: string | null;
   dateRange: string | null;
   people: number | null;
   message: string | null;

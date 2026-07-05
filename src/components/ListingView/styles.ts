@@ -1,15 +1,15 @@
 /* ListingView — Tailwind sınıf token'ları (filtreleme + düzen).
    Kart görünümü SupplierCard'da; burada yalnız filtre/sonuç/harita düzeni. */
 const styles= {
-  head: "mb-5 max-w-[760px]",
-  eyebrow: "eyebrow mb-2 text-terra-deep",
-  title: "heading-section text-ink max-[560px]:text-[29px]",
-  sub: "body-muted mt-1.5 max-w-[620px]",
+  head: "mb-5 max-w-[760px] max-[1120px]:mb-3 max-[640px]:mb-2.5",
+  eyebrow: "eyebrow mb-2 text-terra-deep max-[640px]:hidden",
+  title: "heading-section text-ink max-[640px]:text-[24px] max-[640px]:leading-[1.08]",
+  sub: "mt-1.5 max-w-[620px] text-[15px] font-medium leading-7 text-[#4b5875] max-[640px]:mt-1 max-[640px]:max-w-[28ch] max-[640px]:text-[13.5px] max-[640px]:leading-5",
 
   bar:
-    "sticky top-[86px] z-30 grid grid-cols-[minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)_auto_minmax(320px,1.7fr)] " +
+    "sticky top-[86px] z-30 grid grid-cols-[minmax(320px,1.8fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)] " +
     "items-center gap-2.5 rounded-[16px] border border-line/80 bg-paper/95 p-2.5 shadow-[0_18px_54px_-48px_rgba(7,9,42,.72)] backdrop-blur-xl " +
-    "max-[1280px]:grid-cols-[repeat(4,minmax(132px,1fr))_minmax(160px,.8fr)] max-[1280px]:[&>*:last-child]:col-span-5",
+    "max-[1280px]:grid-cols-[minmax(260px,1.4fr)_repeat(4,minmax(132px,1fr))]",
   field: "field h-[44px]",
   selectWrap: "relative block min-w-0",
   selectControl:
@@ -22,19 +22,20 @@ const styles= {
   acWrap: "relative min-w-0",
   acIconBtn: "field grid h-[44px] w-[44px] shrink-0 place-items-center !px-0 text-muted transition-colors hover:border-terra hover:text-ink",
   acInput:
-    "field h-[44px] w-[360px] !rounded-[12px] !border-line/90 !bg-white pl-10 text-[14.5px] font-medium " +
-    "shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] placeholder:text-muted/55 hover:!border-terra/45 max-[1120px]:w-full",
-  acSearchIcon: "pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted",
+    "field h-[44px] w-full !rounded-[12px] !border-line/90 !bg-white pl-10 text-[14.5px] font-medium " +
+    "!text-ink shadow-[0_10px_24px_-22px_rgba(7,9,42,.5)] placeholder:font-semibold placeholder:text-[#3f4b67] hover:!border-terra/45 " +
+    "max-[1120px]:h-[42px] max-[640px]:h-[40px] max-[640px]:rounded-[11px] max-[640px]:pl-9 max-[640px]:text-[14px]",
+  acSearchIcon: "pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-[#3f4b67] max-[640px]:left-3 max-[640px]:h-4 max-[640px]:w-4",
   acPanel:
     "absolute left-0 right-0 z-30 mt-1.5 overflow-hidden rounded-[12px] border border-line bg-paper " +
     "shadow-[0_24px_60px_-24px_rgba(7,9,42,.45)]",
-  acGroup: "px-3 pb-1 pt-2.5 text-[11px] font-bold uppercase tracking-[0.08em] text-muted/70",
+  acGroup: "px-3 pb-1 pt-2.5 text-[12px] font-extrabold uppercase tracking-[0.08em] text-ink",
   acItem: "flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-[13.5px] text-ink",
   acItemActive: "bg-terra/10",
   acItemMain: "min-w-0 flex-1 truncate font-medium",
   acItemSub: "shrink-0 text-[12px] font-medium text-muted",
   acDot: "h-2 w-2 shrink-0 rounded-full",
-  acIcon: "h-3.5 w-3.5 shrink-0 text-muted",
+  acIcon: "h-4 w-4 shrink-0 text-[#0b102f]",
   acEmpty: "px-3 py-3 text-[13px] text-muted",
 
   toggle:
@@ -44,54 +45,60 @@ const styles= {
   toggleBox: "grid h-4 w-4 place-items-center rounded-full border-[1.5px] border-current text-white",
 
   active: "mt-3.5 flex flex-wrap items-center gap-2",
-  activeLabel: "text-[12.5px] font-semibold text-muted",
+  activeLabel: "text-[12.5px] font-semibold text-[#4b5875]",
   tag:
     "inline-flex items-center gap-1.5 rounded-pill border-[1.5px] border-terra/30 bg-terra/10 " +
     "px-2.5 py-1 text-[12.5px] font-semibold text-terra-deep transition-colors hover:bg-terra/20",
   tagX: "text-[14px] leading-none opacity-70",
   clearTag:
-    "rounded-pill border-[1.5px] border-line bg-transparent px-2.5 py-1 text-[12.5px] " +
-    "font-semibold text-muted transition-colors hover:border-terra hover:text-terra-deep",
+    "rounded-pill border-[1.5px] border-[#9fb1d8] bg-white px-2.5 py-1 text-[12.5px] " +
+    "font-bold text-[#0b102f] transition-colors hover:border-terra hover:text-terra-deep",
 
   // Hizmet/koşul facet paneli (sol kenar — filtreleme motoru)
   facetWrap: "mt-3 flex flex-col rounded-[14px] border border-line bg-paper p-2 shadow-card",
   // Kategori kartının içine gömülü (aynı stack) hâli — kart yok, sadece bölüm
-  facetBare: "mt-1 flex flex-col border-t border-line/70 pt-2",
-  facetHead:
-    "mb-1.5 flex items-center gap-2 px-2.5 py-2 text-[14px] font-bold tracking-normal text-ink",
+  facetBare: "mt-0 flex flex-col pt-0",
+  facetHead: "hidden",
   facetHeadIcon: "h-[18px] w-[18px] text-terra",
+  facetCollapse:
+    "flex min-w-0 flex-1 items-center justify-between gap-2 text-left text-[14px] font-bold text-ink transition-colors hover:text-terra-deep",
+  facetChevron: "h-4 w-4 shrink-0 text-terra transition-transform duration-200",
+  facetChevronOpen: "rotate-180",
   facetClear:
-    "ml-auto rounded-pill border border-line bg-paper px-2.5 py-1 text-[12px] font-semibold normal-case " +
+    "rounded-pill border border-line bg-paper px-2 py-0.5 text-[11px] font-semibold normal-case " +
     "text-muted transition-colors hover:border-terra hover:text-terra-deep",
-  facetGroups: "flex flex-col gap-3.5 px-2.5 pb-1 pt-0.5",
-  facetRow: "flex flex-col gap-2",
-  facetRowLabel: "text-[12.5px] font-semibold tracking-normal text-[#5B6472]",
+  facetGroups: "flex flex-col pb-0 pt-0",
+  facetRow: "flex flex-col border-b border-[#e1e5ee] last:border-b-0",
+  facetRowHead: "flex min-h-[44px] items-center justify-between gap-2 px-0 py-2",
+  facetRowToggle:
+    "flex min-w-0 flex-1 items-center justify-between gap-2 text-left !text-[14px] !leading-5 transition-colors hover:text-terra-deep",
+  facetRowLabel: "!text-[14px] !leading-5 font-semibold tracking-normal text-[#20263a]",
   facetChips: "flex flex-wrap items-center gap-2",
   facetChip:
     "inline-flex cursor-pointer select-none items-center rounded-pill border-[1.5px] border-line bg-paper px-3.5 py-1.5 " +
     "text-[13.5px] font-medium text-ink transition-colors hover:border-terra",
   facetChipActive: "!border-terra !bg-terra/10 !text-terra-deep",
   // Checkbox listesi (chip yerine)
-  facetCheckList: "flex flex-col gap-0.5",
+  facetCheckList: "flex flex-col pb-2",
   facetCheck:
-    "flex cursor-pointer select-none items-center gap-2.5 rounded-[9px] px-2 py-[8px] text-[14px] font-medium text-ink hover:bg-cream",
+    "flex h-[25px] cursor-pointer select-none items-center gap-2.5 rounded-none px-0 text-[14px] font-medium text-[#444444] hover:text-[#0f3bb0]",
   facetCheckActive: "text-terra-deep",
   facetCheckbox: "h-[17px] w-[17px] shrink-0 accent-terra",
 
-  resultsBar: "mb-4 mt-4 flex flex-wrap items-center justify-between gap-3 px-[10px] py-1",
-  count: "text-[14px] font-semibold text-muted",
+  resultsBar: "mb-4 mt-4 flex flex-wrap items-center justify-between gap-3 px-[10px] py-1 max-[1120px]:mb-3 max-[1120px]:mt-3 max-[1120px]:gap-2 max-[1120px]:px-0 max-[640px]:mb-2.5 max-[640px]:mt-2.5",
+  count: "text-[14px] font-semibold text-[#4b5875]",
   countStrong: "text-ink",
-  barRight: "flex items-center gap-3 max-[560px]:w-full max-[560px]:justify-between",
-  viewToggle: "inline-flex items-center gap-1 rounded-[13px] border border-line bg-cream/80 p-1",
+  barRight: "flex items-center gap-3 max-[560px]:w-full max-[560px]:justify-between max-[560px]:gap-2",
+  viewToggle: "inline-flex items-center gap-1 rounded-[13px] border border-line bg-cream/80 p-1 max-[640px]:rounded-[11px] max-[640px]:p-0.5",
   viewBtn:
-    "inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-[13px] font-bold text-muted transition-colors hover:text-ink",
+    "inline-flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-[13px] font-bold text-[#0b102f] transition-colors hover:bg-white hover:text-terra-deep max-[640px]:gap-1 max-[640px]:px-2.5 max-[640px]:py-1.5 max-[640px]:text-[12px]",
   viewBtnActive: "!bg-terra !text-white shadow-[0_10px_24px_-16px_rgba(53,66,238,.9)] hover:!text-white",
   viewIcon: "h-3.5 w-3.5",
   sortWrap: "flex items-center gap-2.5",
-  sortLabel: "text-[13px] text-muted max-[560px]:hidden",
-  sortSelectWrap: "relative inline-flex w-[106px]",
+  sortLabel: "text-[13px] font-medium text-[#4b5875] max-[560px]:hidden",
+  sortSelectWrap: "relative inline-flex w-[106px] max-[640px]:w-[98px]",
   sortSelect:
-    "h-auto w-full appearance-none rounded-[10px] border-[1.5px] border-line bg-paper py-[7px] pl-2.5 pr-7 text-[13px] font-bold focus:border-terra focus:outline-none",
+    "h-auto w-full appearance-none rounded-[10px] border-[1.5px] border-line bg-paper py-[7px] pl-2.5 pr-7 text-[13px] font-bold focus:border-terra focus:outline-none max-[640px]:py-1.5 max-[640px]:text-[12px]",
   sortChevron: "pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/70",
 
   region:
@@ -109,40 +116,55 @@ const styles= {
   content: "min-w-0",
   catalogAside: "sticky top-[92px] self-start max-h-[calc(100vh-112px)] overflow-y-auto pr-1 max-[1120px]:hidden",
 
-  catalog: "flex flex-col rounded-[16px] border border-line/90 bg-paper/92 p-2 shadow-[0_20px_60px_-46px_rgba(7,9,42,.7)]",
+  catalog:
+    "flex flex-col rounded-[10px] border border-[#d6dce8] bg-white px-3 py-2 shadow-[0_12px_34px_-28px_rgba(7,9,42,.36)]",
   catalogTitle:
-    "mb-1 flex items-center justify-between px-2.5 py-2 text-[11.5px] font-bold uppercase text-muted",
+    "mb-0 flex min-h-[44px] items-center justify-between border-b border-[#e1e5ee] py-2 !text-[14px] font-semibold normal-case tracking-normal text-[#333333]",
   catalogTitleText: "inline-flex min-w-0 items-center gap-2",
   catalogTotal: "grid h-5 min-w-5 place-items-center rounded-full bg-cream-deep px-1.5 text-[11px] font-bold text-muted",
+  catalogCollapse:
+    "flex min-w-0 flex-1 items-center justify-between gap-2 text-left !text-[14px] !leading-5 font-semibold text-[#333333] transition-colors hover:text-terra-deep",
+  catalogChevron: "h-4 w-4 shrink-0 text-terra transition-transform duration-200",
+  catalogChevronOpen: "rotate-180",
+  catalogSearch:
+    "my-2 h-[34px] w-full rounded-[7px] border border-[#d8dce5] bg-[#fafafa] px-2.5 text-[13px] font-medium text-[#333333] " +
+    "placeholder:text-[#6b6b6b] focus:border-[#0f3bb0] focus:bg-white focus:outline-none",
+  catList: "flex flex-col",
+  catBlock: "",
   catHead:
-    "group relative flex w-full items-center gap-2 rounded-[11px] border border-transparent py-2.5 pl-3 pr-1 text-left " +
-    "text-[14px] font-semibold text-ink transition-colors focus-visible:!outline-none " +
+    "group relative flex h-[25px] w-full items-center gap-2.5 rounded-none border-0 bg-transparent px-0 text-left " +
+    "text-[14px] font-medium text-[#333333] transition-colors focus-visible:!outline-none " +
     "before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-transparent " +
-    "hover:bg-cream/80",
-  catHeadActive: "!border-line/90 !bg-cream before:!bg-terra",
+    "hover:text-[#0f3bb0]",
+  catHeadActive: "!bg-transparent !text-[#0f3bb0] before:!bg-transparent",
   catHeadMain:
     "flex min-w-0 flex-1 items-center gap-2.5 rounded-l-[10px] py-2.5 pl-3 pr-1 text-[14px] font-semibold text-ink " +
     "focus-visible:!outline-none",
   catHeadMainActive: "!text-terra-deep",
   catDot: "h-1.5 w-1.5 shrink-0 rounded-full",
   catLabel: "min-w-0 flex-1 truncate text-left",
-  catCount: "shrink-0 rounded-full bg-ink/[.06] px-2 text-[11px] font-bold leading-[20px] text-muted",
-  catChevBtn: "grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted",
+  catCheckbox:
+    "grid h-[20px] w-[20px] shrink-0 place-items-center rounded-[5px] border-2 border-[#d2d2d2] bg-white transition-colors " +
+    "after:hidden after:h-[10px] after:w-[6px] after:rotate-45 after:border-b-2 after:border-r-2 after:border-white after:content-['']",
+  catCheckboxActive: "!border-[#0f3bb0] !bg-[#0f3bb0] after:block",
+  catCount: "shrink-0 rounded-full bg-[#dfe7fb] px-2 text-[11px] font-bold leading-[20px] text-[#24304a]",
+  catChevBtn: "grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#4b5875]",
   catChev: "h-3.5 w-3.5 transition-transform duration-200",
   catChevOpen: "rotate-90",
-  catChildren: "mb-1 ml-[17px] mt-0.5 flex flex-col gap-0.5 border-l border-line pl-3",
+  catChildren: "mb-2 ml-[18px] mt-1 flex flex-col pl-3",
   catChild:
-    "flex items-center gap-2 rounded-[9px] px-3 py-1.5 text-[13px] font-medium text-muted " +
-    "transition-colors hover:bg-cream hover:text-ink focus-visible:!outline-none",
-  catChildActive: "!bg-terra/10 !font-semibold !text-terra-deep",
+    "flex h-[25px] items-center gap-2.5 rounded-none px-0 text-[14px] font-medium text-[#444444] " +
+    "transition-colors hover:text-[#0f3bb0] focus-visible:!outline-none",
+  catChildActive: "!border-[#0f3bb0] !font-semibold !text-terra-deep",
   catChildLabel: "min-w-0 flex-1 truncate text-left",
 
   // Mobil araç çubuğu (arama + kategoriler + filtreler)
-  toolbar: "mb-4 hidden grid-cols-2 gap-2.5 max-[1120px]:grid",
-  toolbarSearch: "col-span-2 min-w-0 [&>div]:w-full",
+  toolbar: "mb-4 hidden grid-cols-2 gap-2.5 max-[1120px]:grid max-[640px]:mb-2.5 max-[640px]:gap-2",
+  toolbarSearch: "col-span-2 min-w-0 [&>div]:w-full max-[640px]:hidden",
   toolBtn:
     "inline-flex h-[44px] min-w-0 flex-1 items-center justify-center gap-2 rounded-[14px] border-[1.5px] border-line " +
-    "bg-paper px-3 text-[13.5px] font-bold text-ink shadow-card transition-colors hover:border-terra",
+    "bg-paper px-3 text-[13.5px] font-bold text-ink shadow-card transition-colors hover:border-terra " +
+    "max-[640px]:h-[38px] max-[640px]:rounded-[12px] max-[640px]:gap-1.5 max-[640px]:text-[12.5px] max-[640px]:shadow-none",
   toolBtnBadge: "grid h-5 min-w-5 place-items-center rounded-full bg-terra px-1 text-[11px] font-bold text-white",
 
   // Alttan açılan panel (bottom sheet)

@@ -31,6 +31,10 @@ export const routing = defineRouting({
       tr: "/panel/ilanlar",
       en: "/dashboard/listings",
     },
+    "/dashboard/requests": {
+      tr: "/panel/talepler",
+      en: "/dashboard/requests",
+    },
     "/dashboard/listings/new": {
       tr: "/panel/ilanlar/yeni",
       en: "/dashboard/listings/new",
@@ -47,6 +51,7 @@ export const routing = defineRouting({
     "/admin/tedarikciler": "/admin/tedarikciler",
     "/admin/tedarikciler/[id]": "/admin/tedarikciler/[id]",
     "/admin/teklifler": "/admin/teklifler",
+    "/admin/talepler": "/admin/talepler",
     "/admin/onay": "/admin/onay",
     "/admin/icerik": "/admin/icerik",
     "/admin/seo": "/admin/seo",

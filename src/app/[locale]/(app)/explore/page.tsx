@@ -41,7 +41,6 @@ async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchPa
         initialCity={filters.city}
         initialDistrict={filters.district}
         initialQ={filters.q}
-        initialVerified={filters.verified}
         initialMinRating={filters.minRating}
         initialAttrs={filters.attrs}
         initialSort={filters.sort}

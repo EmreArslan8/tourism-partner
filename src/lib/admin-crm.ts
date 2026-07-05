@@ -43,7 +43,7 @@ const STATUS_VALUES: BusinessLifecycleStatus[] = [
   "suspended",
 ];
 
-const GROUP_VALUES: GroupKey[] = ["konaklama", "acente", "ulasim", "rehber", "aktivite", "saglik"];
+const GROUP_VALUES: GroupKey[] = ["konaklama", "acente", "ulasim", "rehber", "aktivite", "saglik", "gastronomi"];
 
 export function parseCrmFilters(input: Record<string, string | string[] | undefined>): CrmFilters {
   const group = scalar(input.group);
@@ -148,7 +148,11 @@ function labelForColumn(column: ExportColumn): string {
 }
 
 function csvCell(value: string): string {
-  return `"${value.replaceAll('"', '""')}"`;
+  // CSV formül injection koruması: işletme adı gibi kullanıcı girdisi "=", "+", "-",
+  // "@" veya tab/CR ile başlıyorsa Excel/Sheets hücreyi formül olarak çalıştırır.
+  // Başa tek tırnak eklenir — hücre metin olarak kalır, admin makinesi korunur.
+  const guarded = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+  return `"${guarded.replaceAll('"', '""')}"`;
 }
 
 function scalar(value: string | string[] | undefined): string {

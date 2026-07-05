@@ -63,7 +63,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           title="Mevcut Bannerlar"
           tone="blue"
           icon={<Megaphone size={18} aria-hidden />}
-          action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">{ads.banners.length} banner</span>}
+          action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{ads.banners.length} banner</span>}
         />
         {ads.banners.length === 0 ? (
           <EmptyState className="border-0" title="Henüz banner yok" description="Yukarıdaki formdan ilk banner'ı ekleyin." />
@@ -74,12 +74,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             minWidth={720}
             columns={[
               { key: "title", header: "Başlık", cell: (b) => <span className="font-bold text-[#162238]">{b.title}</span> },
-              { key: "placement", header: "Yerleşim", cell: (b) => <span className="text-muted">{b.placement}</span> },
+              { key: "placement", header: "Yerleşim", cell: (b) => <span className="text-[#475569]">{b.placement}</span> },
               { key: "status", header: "Durum", cell: (b) => <StatusBadge tone={BANNER_TONE[b.status] ?? "neutral"}>{b.status}</StatusBadge> },
               {
                 key: "date",
                 header: "Tarih",
-                cell: (b) => <span className="text-muted">{bannerRange(b.starts_at, b.ends_at)}</span>,
+                cell: (b) => <span className="text-[#475569]">{bannerRange(b.starts_at, b.ends_at)}</span>,
               },
               {
                 key: "action",
@@ -136,10 +136,10 @@ const DopingCard = ({
   empty: string;
 }) => (
   <Card className="hover:translate-y-0">
-    <CardHeader title={title} tone={tone} icon={icon} action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">{items.length}</span>} />
+    <CardHeader title={title} tone={tone} icon={icon} action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{items.length}</span>} />
     <div className="p-4">
       {items.length === 0 ? (
-        <p className="px-1 py-3 text-[13px] font-semibold text-[#64748B]">{empty}</p>
+        <p className="px-1 py-3 text-[13px] font-semibold text-[#475569]">{empty}</p>
       ) : (
         <div className="grid gap-2">
           {items.map((item) => (

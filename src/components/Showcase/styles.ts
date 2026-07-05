@@ -2,10 +2,10 @@
 const styles = {
   head: "mb-4 flex items-end justify-between gap-4 max-[560px]:mb-[9.6px] max-[560px]:gap-[12.8px] [@media(max-height:720px)]:mb-2.5",
   copy: "section-copy",
-  eyebrow: "eyebrow mb-2 text-muted max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
+  eyebrow: "eyebrow mb-2 text-brand/75 max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
   title: "heading-section text-ink [@media(max-height:720px)]:text-[20px]",
   // Kısa ekranlarda alt açıklamayı gizle — galeriye yer açar.
-  sub: "section-desc max-w-[52ch] [@media(max-height:720px)]:hidden",
+  sub: "section-desc max-w-[52ch] text-ink/70 [@media(max-height:720px)]:hidden",
   nav: "flex items-center gap-2 max-[560px]:gap-[6.4px]",
   arrow:
     "grid h-10 w-10 place-items-center rounded-full border border-line bg-paper text-ink " +
@@ -57,21 +57,23 @@ const styles = {
     "max-[560px]:[&_svg]:h-3 max-[560px]:[&_svg]:w-3",
   name: "heading-card text-ink max-[560px]:text-[1.08rem] max-[560px]:leading-[1.18]",
   meta:
-    "meta-text flex flex-wrap items-center gap-3 " +
-    "max-[560px]:gap-x-2 max-[560px]:gap-y-0.5 max-[560px]:text-[12px] max-[560px]:leading-[1.35]",
-  metaItem: "inline-flex items-center gap-1.5 max-[560px]:gap-1",
-  metaIcon: "h-4 w-4 text-muted max-[560px]:h-3.5 max-[560px]:w-3.5",
+    "flex flex-wrap items-center gap-2.5 text-[13px] font-semibold leading-tight text-ink/70 " +
+    "max-[560px]:gap-x-2 max-[560px]:gap-y-0.5 max-[560px]:text-[12px] max-[560px]:leading-[1.3]",
+  metaItem: "inline-flex min-w-0 items-center gap-1.5 max-[560px]:gap-1",
+  metaIcon: "h-4 w-4 shrink-0 text-brand/60 max-[560px]:h-3.5 max-[560px]:w-3.5",
   metaDot: "h-1 w-1 rounded-full bg-line max-[560px]:h-[3.2px] max-[560px]:w-[3.2px]",
   stars: "rating-star-text text-gold",
   ratingNum: "font-bold text-ink",
-  reviews: "meta-text text-muted max-[560px]:text-[12px] max-[560px]:leading-[1.35]",
+  reviews: "text-[12.5px] font-semibold text-ink/58 max-[560px]:text-[11.5px] max-[560px]:leading-[1.3]",
   desc:
     "body-muted line-clamp-2 text-ink/70 " +
     "max-[560px]:line-clamp-2 max-[560px]:text-[14px] max-[560px]:leading-[1.45]",
-  services: "flex flex-col gap-2 max-[560px]:hidden",
-  servicesLabel: "eyebrow text-muted",
-  chips: "flex flex-wrap gap-2",
-  chip: "meta-text rounded-lg border border-line bg-cream px-2.5 py-1 font-semibold text-ink/75",
+  services: "flex flex-col gap-2.5 max-[560px]:hidden",
+  servicesLabel:
+    "text-[12px] font-extrabold leading-none tracking-normal text-ink/72",
+  chips: "flex flex-wrap gap-1.5",
+  chip:
+    "rounded-[8px] border border-line/80 bg-[#f7f9ff] px-2.5 py-1.5 text-[12px] font-bold leading-none text-ink/72",
   foot:
     "mt-auto flex items-center gap-4 border-t border-line pt-4 " +
     "max-[560px]:grid max-[560px]:grid-cols-[1fr_auto] max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px] " +

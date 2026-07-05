@@ -4,7 +4,7 @@
    şema değişikliklerinde elle güncellenmeli; Row tipleri uygulama genelinde
    buradan türetilir (bkz. lib/businesses.ts, lib/admin.ts). */
 
-export type BusinessGroup = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik";
+export type BusinessGroup = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik" | "gastronomi";
 export type BusinessStatus =
   | "draft"
   | "pending"
@@ -145,6 +145,48 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["business_drafts"]["Insert"]>;
         Relationships: [];
       };
+      business_contacts: {
+        Row: {
+          id: number;
+          business_id: number;
+          full_name: string;
+          title: string | null;
+          phone: string | null;
+          email: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          full_name: string;
+          title?: string | null;
+          phone?: string | null;
+          email?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_contacts"]["Insert"]>;
+        Relationships: [];
+      };
+      b2b_offers: {
+        Row: {
+          id: number;
+          request_id: number;
+          business_id: number;
+          message: string;
+          price: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          request_id: number;
+          business_id: number;
+          message: string;
+          price?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["b2b_offers"]["Insert"]>;
+        Relationships: [];
+      };
       quotes: {
         Row: {
           id: number;
@@ -152,7 +194,13 @@ export interface Database {
           name: string;
           company: string | null;
           email: string;
+          phone: string | null;
           service: string | null;
+          category_group: string | null;
+          category_type: string | null;
+          country: string | null;
+          city: string | null;
+          district: string | null;
           date_range: string | null;
           people: number | null;
           message: string | null;
@@ -166,7 +214,13 @@ export interface Database {
           name: string;
           company?: string | null;
           email: string;
+          phone?: string | null;
           service?: string | null;
+          category_group?: string | null;
+          category_type?: string | null;
+          country?: string | null;
+          city?: string | null;
+          district?: string | null;
           date_range?: string | null;
           people?: number | null;
           message?: string | null;
@@ -554,12 +608,14 @@ export interface Database {
 
 /* Kısayol Row tipleri — uygulama genelinde kullanılır. */
 export type BusinessRow = Database["public"]["Tables"]["businesses"]["Row"];
+export type BusinessContactRow = Database["public"]["Tables"]["business_contacts"]["Row"];
 export type QuoteRow = Database["public"]["Tables"]["quotes"]["Row"];
 export type ApplicationRow = Database["public"]["Tables"]["applications"]["Row"];
 export type ContentPageRow = Database["public"]["Tables"]["content_pages"]["Row"];
 export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 export type B2BRequestRow = Database["public"]["Tables"]["b2b_requests"]["Row"];
+export type B2BOfferRow = Database["public"]["Tables"]["b2b_offers"]["Row"];
 export type AdBannerRow = Database["public"]["Tables"]["ad_banners"]["Row"];
 export type BlogPostRow = Database["public"]["Tables"]["blog_posts"]["Row"];
 export type AdminPopupRow = Database["public"]["Tables"]["admin_popups"]["Row"];

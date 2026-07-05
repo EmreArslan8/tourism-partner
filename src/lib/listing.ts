@@ -1,6 +1,6 @@
 /* Keşfet liste mantığı — SAF fonksiyonlar (UI/state'ten bağımsız, test edilebilir).
    ListingView yalnızca state tutar; süzme/sıralama/skor burada yaşar. */
-import type { Business, GroupKey, Sort, ListingFilters } from "./types";
+import type { Business, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
 import { normalizeTr } from "./utils";
 
@@ -19,8 +19,11 @@ export function isDoped(b: Business): boolean {
 }
 
 /* Profil doluluk skoru (0–8) — dolu profiller arama sonuçlarında üst sırada.
-   Doluluk hem alıcıya daha iyi bilgi verir hem işletmeyi profil tamamlamaya teşvik eder. */
+   Doluluk hem alıcıya daha iyi bilgi verir hem işletmeyi profil tamamlamaya teşvik eder.
+   Liste payload'ında phone/website istemciye gönderilmediğinden skor sunucuda önceden
+   hesaplanıp `completeness` olarak taşınır; varsa o kullanılır. */
 export function profileScore(b: Business): number {
+  if (typeof b.completeness === "number") return b.completeness;
   let s = 0;
   if (b.desc && b.desc.trim().length > 20) s++;
   if (b.image) s++;
@@ -55,9 +58,12 @@ export function businessPasses(
   if (!opts.ignoreGroup && f.groups.size && !f.groups.has(b.group)) return false;
   if (!opts.ignoreType && f.types.size && !f.types.has(b.type)) return false;
   if (f.country !== "all" && b.country !== f.country) return false;
-  if (f.city !== "all" && b.city !== f.city) return false;
-  if (f.district !== "all" && b.district !== f.district) return false;
-  if (f.verifiedOnly && !b.verified) return false;
+  // Şehir filtresi: rehber, çalışma bölgeleri arasında aranan şehir varsa da eşleşir
+  // (Brief §2.7: rehber birden çok bölgede hizmet verir, acente ona göre arar).
+  const guideRegionMatch = b.group === "rehber" && f.city !== "all" && !!b.workRegions?.includes(f.city);
+  if (f.city !== "all" && b.city !== f.city && !guideRegionMatch) return false;
+  // Rehber çalışma bölgesiyle eşleştiyse ilçe filtresi uygulanmaz (bölge = şehir düzeyi).
+  if (f.district !== "all" && b.district !== f.district && !guideRegionMatch) return false;
   if (f.minRating > 0 && b.rating < f.minRating) return false;
   if (!attrsPass(b.attributes, f.attrs)) return false;
   if (needle && scoreBusiness(b, needle) === 0) return false;

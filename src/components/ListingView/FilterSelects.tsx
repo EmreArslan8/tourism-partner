@@ -6,7 +6,6 @@ const FilterSelects = ({
   country,
   city,
   district,
-  verifiedOnly,
   minRating,
   countries,
   cities,
@@ -14,14 +13,12 @@ const FilterSelects = ({
   onCountry,
   onCity,
   onDistrict,
-  onVerified,
   onMinRating,
   stack = false,
 }: {
   country: string;
   city: string;
   district: string;
-  verifiedOnly: boolean;
   minRating: number;
   countries: string[];
   cities: string[];
@@ -29,7 +26,6 @@ const FilterSelects = ({
   onCountry: (v: string) => void;
   onCity: (v: string) => void;
   onDistrict: (v: string) => void;
-  onVerified: (v: boolean) => void;
   onMinRating: (v: number) => void;
   stack?: boolean;
 }) => {
@@ -81,21 +77,6 @@ const FilterSelects = ({
         </select>
         {chevron}
       </span>
-      <button
-        type="button"
-        aria-pressed={verifiedOnly}
-        className={cn(styles.toggle, verifiedOnly && styles.toggleActive, stack && "!w-full")}
-        onClick={() => onVerified(!verifiedOnly)}
-      >
-        <span className={styles.toggleBox} style={{ background: verifiedOnly ? "var(--color-terra, #d6633f)" : "transparent" }}>
-          {verifiedOnly && (
-            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </span>
-        {t("verifiedOnly")}
-      </button>
     </>
   );
 

@@ -36,7 +36,7 @@ const config: Config = {
   content: ["./src/**/*.{ts,tsx,mdx}"],
   theme: {
     extend: {
-      colors: tailwindColors,
+      colors: { ...tailwindColors, ...shadcnColors },
       fontFamily: {
         display: [...fontFamily.display],
         body: [...fontFamily.body],
@@ -51,7 +51,7 @@ const config: Config = {
       animation,
     },
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 };
 
 export default config;

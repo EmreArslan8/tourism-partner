@@ -52,10 +52,19 @@ export type CrmListData = {
   activeAgencies: number;
 };
 
+export type CrmContact = {
+  id: number;
+  fullName: string;
+  title: string | null;
+  phone: string | null;
+  email: string | null;
+};
+
 export type CrmBusinessDetailData = {
   business: AdminBusiness | null;
   membership: AdminMembership | null;
   auditLogs: AdminAuditLog[];
+  contacts: CrmContact[];
 };
 
 const EMPTY_CRM_LIST: CrmListData = {
@@ -142,13 +151,13 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
 export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusinessDetailData> => {
   if (!hasEnv()) {
     console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş CRM detayı dönülüyor.");
-    return { business: null, membership: null, auditLogs: [] };
+    return { business: null, membership: null, auditLogs: [], contacts: [] };
   }
   const access = await getAdminAccess();
-  if (!access.isAdmin) return { business: null, membership: null, auditLogs: [] };
+  if (!access.isAdmin) return { business: null, membership: null, auditLogs: [], contacts: [] };
 
   const supabase = await createClient();
-  const [businessRes, membershipRes, auditRes] = await Promise.all([
+  const [businessRes, membershipRes, auditRes, contactsRes] = await Promise.all([
     supabase.from("businesses").select(BUSINESS_SELECT).eq("id", id).maybeSingle(),
     supabase
       .from("business_memberships")
@@ -164,16 +173,29 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .eq("entity_id", String(id))
       .order("created_at", { ascending: false })
       .limit(20),
+    supabase
+      .from("business_contacts")
+      .select("id,full_name,title,phone,email")
+      .eq("business_id", id)
+      .order("id", { ascending: true }),
   ]);
 
   if (businessRes.error) throw new Error(businessRes.error.message);
   if (membershipRes.error) throw new Error(membershipRes.error.message);
   if (auditRes.error) throw new Error(auditRes.error.message);
+  if (contactsRes.error) throw new Error(contactsRes.error.message);
 
   return {
     business: businessRes.data ? rowToAdminBusiness(businessRes.data as BusinessRow) : null,
     membership: membershipRes.data ? mapMembership(membershipRes.data) : null,
     auditLogs: mapAuditLogs(auditRes.data ?? []),
+    contacts: (contactsRes.data ?? []).map((row) => ({
+      id: Number(row.id),
+      fullName: String(row.full_name),
+      title: row.title,
+      phone: row.phone,
+      email: row.email,
+    })),
   };
 });
 

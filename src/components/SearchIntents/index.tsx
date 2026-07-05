@@ -21,7 +21,7 @@ const SearchIntents = () => {
   const t = useTranslations("categories");
 
   return (
-    <section className={styles.section} aria-label={t("intentTitle")}>
+    <section className={styles.section} aria-label={t("intentTitle")} data-tour="search-intents">
       <SectionHeader
         className={styles.copy}
         eyebrow={t("spotlightKicker")}

@@ -24,6 +24,7 @@ export const REGION_TREE: CountryRegion[] = [
       { name: "Mersin", districts: ["Akdeniz", "Erdemli", "Mezitli", "Silifke", "Tarsus", "Yenişehir"] },
       { name: "Muğla", districts: ["Bodrum", "Dalaman", "Datça", "Fethiye", "Köyceğiz", "Marmaris", "Menteşe", "Milas", "Ortaca", "Ula"] },
       { name: "Nevşehir", districts: ["Avanos", "Göreme", "Merkez", "Ürgüp"] },
+      { name: "Sakarya", districts: ["Adapazarı", "Arifiye", "Erenler", "Karasu", "Sapanca", "Serdivan"] },
       { name: "Trabzon", districts: ["Akçaabat", "Ortahisar", "Sürmene", "Uzungöl", "Yomra"] },
     ],
   },

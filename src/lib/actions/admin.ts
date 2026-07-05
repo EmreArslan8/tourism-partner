@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
@@ -269,7 +270,7 @@ export async function saveContentPage(formData: FormData): Promise<void> {
       locale,
       title,
       excerpt: clean(formData.get("excerpt"), 320),
-      body: clean(formData.get("body"), 12000),
+      body: sanitizePublicHtml(clean(formData.get("body"), 12000)),
       seo_title: clean(formData.get("seoTitle"), 90),
       seo_description: clean(formData.get("seoDescription"), 180),
       seo_keywords: listValue(formData, "seoKeywords"),
@@ -280,7 +281,7 @@ export async function saveContentPage(formData: FormData): Promise<void> {
     };
 
     const { error } = await supabase.from("content_pages").upsert(payload, {
-      onConflict: "slug",
+      onConflict: "locale,slug",
     });
 
     if (error) throw new Error(error.message);

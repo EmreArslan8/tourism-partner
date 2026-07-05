@@ -3,7 +3,7 @@
    ≥641: başlık solda, chip'ler sağda akar. ≤640: başlık üstte, chip'ler altta sarar. */
 const styles = {
   section:
-    "flex shrink-0 items-center justify-between gap-4 rounded-card border border-line bg-cream/45 px-4 py-3 " +
+    "flex shrink-0 items-center justify-between gap-4 rounded-card border border-line bg-white px-4 py-3 " +
     "max-[900px]:items-start max-[900px]:gap-3 max-[640px]:hidden",
 
   copy: "min-w-[190px] shrink-0",
@@ -13,7 +13,7 @@ const styles = {
 
   chips: "flex min-w-0 flex-1 flex-nowrap justify-end gap-2 overflow-hidden",
   chip:
-    "group inline-flex min-w-0 shrink items-center gap-1.5 rounded-pill border border-line bg-paper px-3 py-1.5 " +
+    "group inline-flex min-w-0 shrink items-center gap-1.5 rounded-pill border border-line bg-white px-3 py-1.5 " +
     "text-[12.5px] font-semibold text-ink/80 shadow-[0_8px_22px_-18px_rgba(7,9,42,.45)] transition-all duration-200 ease-brand " +
     "hover:-translate-y-px hover:border-brand hover:text-brand hover:shadow-pop " +
     "[&>span]:truncate",

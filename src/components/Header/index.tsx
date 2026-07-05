@@ -25,7 +25,9 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
   const t = await getTranslations("nav");
   const resolvedVariant: HeaderVariant = transparent ? "glass" : variant;
 
-  const links: { href: Href; label: string }[] = [
+  const loginHref: Href = { pathname: "/login" };
+  const registerHref: Href = { pathname: "/register" };
+  const links: { href: Extract<Href, { pathname: string }>; label: string }[] = [
     { href: { pathname: "/" }, label: t("home") },
     { href: { pathname: "/explore" }, label: t("explore") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
@@ -47,13 +49,13 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
           <MobileSearch />
           <div className={styles.actions}>
             <Link
-              href={{ pathname: "/login" } as any}
+              href={loginHref}
               className="rounded-[10px] border border-white/30 px-4 py-2 text-[15px] font-semibold text-white transition-colors hover:bg-white/10"
             >
               {t("login")}
             </Link>
             <Link
-              href={{ pathname: "/register" } as any}
+              href={registerHref}
               className="rounded-[10px] bg-white px-4 py-2 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream"
             >
               {t("addBusiness")}

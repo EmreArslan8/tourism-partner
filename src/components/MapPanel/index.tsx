@@ -28,10 +28,14 @@ const MapPanel = ({ items }: { items: Business[] }) => {
       zoomControl: false,
     }).setView([39, 35], 5); // Türkiye merkezli varsayılan
     L.control.zoom({ position: "topright" }).addTo(map);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
+    // CARTO Positron — temiz/minimal açık basemap (marka temasıyla uyumlu). Raster olduğu
+    // için ekstra JS yok; {r} retina @2x keskinlik verir. Atıf: OSM + CARTO (zorunlu).
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      maxZoom: 20,
+      subdomains: "abcd",
+      detectRetina: true,
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     }).addTo(map);
     layerRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;

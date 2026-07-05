@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       </section>
 
       <Card className="overflow-hidden hover:translate-y-0">
-        <CardHeader title="İşlem Kayıtları" tone="blue" icon={<ScrollText size={18} aria-hidden />} action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">silinemez</span>} />
+        <CardHeader title="İşlem Kayıtları" tone="blue" icon={<ScrollText size={18} aria-hidden />} action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">silinemez</span>} />
         {data.auditLogs.length === 0 ? (
           <EmptyState className="border-0" title="Henüz audit log kaydı yok" description="Admin işlemleri (onay, kara liste, güncelleme…) burada silinemez olarak kaydedilir." />
         ) : (
@@ -37,10 +37,10 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             minWidth={720}
             columns={[
               { key: "action", header: "Aksiyon", cell: (l) => <span className="font-bold text-[#162238]">{l.action}</span> },
-              { key: "entity", header: "Varlık", cell: (l) => <span className="text-muted">{l.entityType ?? "-"}</span> },
-              { key: "id", header: "ID", cell: (l) => <span className="text-muted">{l.entityId ?? "-"}</span> },
-              { key: "ip", header: "IP", cell: (l) => <span className="text-muted">{l.ipAddress ?? "-"}</span> },
-              { key: "date", header: "Tarih", cell: (l) => <span className="text-muted">{fmt(l.createdAt)}</span> },
+              { key: "entity", header: "Varlık", cell: (l) => <span className="text-[#475569]">{l.entityType ?? "-"}</span> },
+              { key: "id", header: "ID", cell: (l) => <span className="text-[#475569]">{l.entityId ?? "-"}</span> },
+              { key: "ip", header: "IP", cell: (l) => <span className="text-[#475569]">{l.ipAddress ?? "-"}</span> },
+              { key: "date", header: "Tarih", cell: (l) => <span className="text-[#475569]">{fmt(l.createdAt)}</span> },
             ] satisfies Column<AdminAuditLog>[]}
           />
         )}
@@ -54,7 +54,7 @@ const InfoCard = ({ icon, title, text }: { icon: React.ReactNode; title: string;
     <div className="p-5">
       <div className="mb-3 grid h-10 w-10 place-items-center rounded-[8px] bg-[#EEF4FF] text-[#0057D9]">{icon}</div>
       <h3 className="text-[16px] font-extrabold text-[#162238]">{title}</h3>
-      <p className="mt-1.5 text-[13px] font-medium leading-5 text-[#64748B]">{text}</p>
+      <p className="mt-1.5 text-[13px] font-medium leading-5 text-[#475569]">{text}</p>
     </div>
   </Card>
 );

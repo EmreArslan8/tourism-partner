@@ -80,6 +80,7 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
               onClick={() => handleLocaleChange(l.code as Locale)}
             >
               <span className={styles.itemLeft}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={l.flag} alt="" className={styles.itemFlag} width={22} height={22} />
                 <span className={styles.itemName}>{l.name}</span>
               </span>

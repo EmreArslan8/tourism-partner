@@ -25,7 +25,6 @@ const SupplierCard = ({
   children: ReactNode;
 }) => {
   const tc = useTranslations("cat");
-  const tv = useTranslations("common");
   const cover = businessImageUrl(business.image);
 
   return (
@@ -50,9 +49,6 @@ const SupplierCard = ({
       <div className={styles.body}>
         <div className={styles.tags}>
           <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
-          {business.verified && (
-            <span className={styles.verified}>✓ {tv("verified")}</span>
-          )}
         </div>
         <h3 className={styles.name}>{business.name}</h3>
         <p className={styles.loc}>

@@ -21,7 +21,6 @@ const AdminSuppliersView = ({
   businesses,
   total,
   expiringBusinesses,
-  expiringMemberships: _expiringMemberships,
   memberships,
   filters,
   cities,
@@ -68,6 +67,7 @@ const AdminSuppliersView = ({
               <option value="rehber">Rehber</option>
               <option value="aktivite">Aktivite / Deneyim</option>
               <option value="saglik">Sağlık</option>
+              <option value="gastronomi">Gastronomi</option>
             </select>
             <select name="city" defaultValue={filters.city} className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238]">
               <option value="">Tüm Şehirler</option>
@@ -103,7 +103,7 @@ const AdminSuppliersView = ({
 
 const CrmMetric = ({ value, label }: { value: number; label: string }) => (
   <section className="rounded-xl border border-[#DDE4EE] bg-white p-4 shadow-[0_10px_30px_-26px_rgba(15,23,42,.2)]">
-    <p className="text-[12px] font-semibold uppercase tracking-[.06em] text-[#64748B]">{label}</p>
+    <p className="text-[12px] font-semibold uppercase tracking-[.06em] text-[#475569]">{label}</p>
     <strong className="mt-2 block text-[28px] font-semibold leading-none text-[#0B1C30]">{value}</strong>
   </section>
 );
@@ -118,7 +118,7 @@ const ExpiringBand = ({ count, businesses }: { count: number; businesses: AdminB
       <span className="rounded-full bg-[#FFE4E0] px-2.5 py-1 text-[12px] font-semibold text-[#B42318]">14 gün</span>
     </div>
     {businesses.length > 0 && (
-      <p className="mt-3 truncate text-[12.5px] font-medium text-[#64748B]">
+      <p className="mt-3 truncate text-[12.5px] font-medium text-[#475569]">
         {businesses.map((business) => business.name).join(", ")}
       </p>
     )}

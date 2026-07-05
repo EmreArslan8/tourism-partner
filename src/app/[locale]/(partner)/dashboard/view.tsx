@@ -48,6 +48,13 @@ export type PanelMembership = {
   ends_at: string;
 };
 
+export type PanelContact = {
+  full_name: string;
+  title: string | null;
+  phone: string | null;
+  email: string | null;
+};
+
 export type PanelDraft = {
   draftKey: string;
   group: string;
@@ -61,7 +68,13 @@ export type PanelQuote = {
   name: string;
   company: string | null;
   email: string;
+  phone: string | null;
   service: string | null;
+  category_group: string | null;
+  category_type: string | null;
+  country: string | null;
+  city: string | null;
+  district: string | null;
   date_range: string | null;
   people: number | null;
   message: string | null;
@@ -90,6 +103,16 @@ async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise
   return blob && blob.size < file.size ? blob : file;
 }
 
+function resolveInitialDraftKey(businessId: number | undefined, draft: PanelDraft | null) {
+  if (businessId) return `business-${businessId}`;
+  if (draft?.draftKey) return draft.draftKey;
+  if (typeof window === "undefined") return "";
+  const stored = window.localStorage.getItem("tp-panel-draft-key");
+  const next = stored || crypto.randomUUID();
+  if (!stored) window.localStorage.setItem("tp-panel-draft-key", next);
+  return next;
+}
+
 const DashboardView = ({
   mode,
   business,
@@ -100,6 +123,7 @@ const DashboardView = ({
   group,
   meta,
   draft,
+  contacts,
 }: {
   mode: "overview" | "listings" | "edit";
   business: PanelBusiness | null;
@@ -110,6 +134,7 @@ const DashboardView = ({
   group: string;
   meta: { firm_name: string; biz_type: string };
   draft: PanelDraft | null;
+  contacts: PanelContact[];
 }) => {
   const t = useTranslations("panel");
   const locale = useLocale();
@@ -119,19 +144,27 @@ const DashboardView = ({
   const b = business;
   const isAgency = group === "acente";
   const isGuide = group === "rehber";
-  const dynFields = fieldsForGroup(group as GroupKey);
-  const docFields = docsForGroup(group as GroupKey);
+  const bizType = b?.type ?? meta.biz_type ?? "";
+  const dynFields = fieldsForGroup(group as GroupKey, bizType);
+  const docFields = docsForGroup(group as GroupKey, bizType);
   const detailValues = b?.details ?? {};
   const statusKey = b?.status ?? "pending";
   const visibleStatusKey =
     statusKey === "active" ? "approved" : statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" ? "rejected" : statusKey;
   const isRestricted = statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" || statusKey === "rejected";
 
-  const draftKeyRef = useRef<string>(draft?.draftKey ?? "");
-  const [draftKey, setDraftKey] = useState(draft?.draftKey ?? "");
+  const [draftKey, setDraftKey] = useState(() => resolveInitialDraftKey(b?.id, draft));
+  const draftKeyRef = useRef<string>(draftKey);
   const [cover, setCover] = useState<string>(b?.image ?? draft?.cover ?? "");
   const [gallery, setGallery] = useState<string[]>(b?.images ?? draft?.gallery ?? []);
   const [documents, setDocuments] = useState<BusinessDocument[]>(b?.documents ?? draft?.documents ?? []);
+  const [contactRows, setContactRows] = useState<PanelContact[]>(contacts ?? []);
+
+  const addContact = () =>
+    setContactRows((rows) => (rows.length >= 10 ? rows : [...rows, { full_name: "", title: "", phone: "", email: "" }]));
+  const removeContact = (index: number) => setContactRows((rows) => rows.filter((_, i) => i !== index));
+  const updateContact = (index: number, key: keyof PanelContact, value: string) =>
+    setContactRows((rows) => rows.map((row, i) => (i === index ? { ...row, [key]: value } : row)));
   const countryOptions = getCountryOptions();
   const defaultCountry = countryOptions.includes(b?.country ?? "") ? b?.country ?? "" : "Türkiye";
   const defaultCityOptions = getCityOptions(defaultCountry);
@@ -141,6 +174,12 @@ const DashboardView = ({
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [selectedCity, setSelectedCity] = useState(defaultCity);
   const [selectedDistrict, setSelectedDistrict] = useState(defaultDistrict);
+  // Rehber çalışma bölgeleri (çoklu şehir) — details.work_regions'a virgülle yazılır.
+  const [workRegions, setWorkRegions] = useState<string[]>(() =>
+    String(detailValues.work_regions ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+  );
+  const toggleWorkRegion = (city: string) =>
+    setWorkRegions((prev) => (prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]));
   const [docKind, setDocKind] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [uploadErr, setUploadErr] = useState(false);
@@ -168,27 +207,8 @@ const DashboardView = ({
     : localizedNewListing;
   const localizedExplore = locale === "tr" ? "/tr/kesfet" : "/en/explore";
   const localizedQuote = locale === "tr" ? "/tr/teklif" : "/en/quote";
+  const localizedRequests = locale === "tr" ? "/tr/panel/talepler" : "/en/dashboard/requests";
   const localizedHome = locale === "tr" ? "/tr" : "/en";
-
-  useEffect(() => {
-    if (b?.id) {
-      const fixed = `business-${b.id}`;
-      draftKeyRef.current = fixed;
-      setDraftKey(fixed);
-      return;
-    }
-    if (draft?.draftKey) {
-      draftKeyRef.current = draft.draftKey;
-      setDraftKey(draft.draftKey);
-      return;
-    }
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("tp-panel-draft-key");
-    const next = stored || crypto.randomUUID();
-    if (!stored) window.localStorage.setItem("tp-panel-draft-key", next);
-    draftKeyRef.current = next;
-    setDraftKey(next);
-  }, [b?.id, draft?.draftKey]);
 
   useEffect(() => {
     if (!state.ok || typeof window === "undefined") return;
@@ -334,9 +354,9 @@ const DashboardView = ({
             <Building2 size={17} aria-hidden />
             {t("listingDashboardTitle")}
           </a>
-          <a href={localizedQuote}>
+          <a href={localizedRequests}>
             <FileText size={17} aria-hidden />
-            {isAgency ? t("createRequest") : t("viewRequests")}
+            Talep &amp; Teklif
           </a>
           <a href={localizedExplore}>
             <Search size={17} aria-hidden />
@@ -495,6 +515,11 @@ const DashboardView = ({
             <input type="hidden" name="image" value={cover} />
             <input type="hidden" name="images" value={JSON.stringify(gallery)} />
             <input type="hidden" name="documents" value={JSON.stringify(documents)} />
+            <input
+              type="hidden"
+              name="contacts"
+              value={JSON.stringify(contactRows.filter((row) => row.full_name.trim()))}
+            />
 
             <div className={styles.formSection}>
               <h3 className={styles.formSectionTitle}>{t("mediaSectionTitle")}</h3>
@@ -617,6 +642,36 @@ const DashboardView = ({
                 </select>
               </label>
             </div>
+
+            {/* Rehber çalışma bölgeleri (Brief §2.7): birden çok şehir; acente araması eşleşir */}
+            {isGuide && (
+              <label className={styles.labelCls}>
+                {t("workRegions")}
+                <span className={styles.dynHint}> · {t("workRegionsHint")}</span>
+                <div className="mt-1.5 flex flex-wrap gap-2">
+                  {getCityOptions(selectedCountry).map((city) => {
+                    const on = workRegions.includes(city);
+                    return (
+                      <button
+                        type="button"
+                        key={city}
+                        aria-pressed={on}
+                        onClick={() => toggleWorkRegion(city)}
+                        className={
+                          on
+                            ? "rounded-pill border-[1.5px] border-terra bg-terra/10 px-3 py-1.5 text-[13px] font-semibold text-terra-deep"
+                            : "rounded-pill border-[1.5px] border-line bg-white px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-terra/50"
+                        }
+                      >
+                        {city}
+                      </button>
+                    );
+                  })}
+                </div>
+                <input type="hidden" name="detail_work_regions" value={workRegions.join(",")} />
+              </label>
+            )}
+
             <div className={styles.twoCol}>
               <label className={styles.labelCls}>{t("phone")}<input name="phone" defaultValue={b?.phone ?? ""} className={styles.fieldCls} placeholder="+90…" /></label>
               <label className={styles.labelCls}>{t("website")}<input name="website" defaultValue={b?.website ?? ""} className={styles.fieldCls} placeholder="https://" /></label>
@@ -656,7 +711,11 @@ const DashboardView = ({
                   {isGuide ? t("guideFieldsTitle") : t("companyFieldsTitle")}
                 </span>
                 <div className={styles.dynGrid}>
-                  {dynFields.map((f) => (
+                  {dynFields.map((f) => {
+                    const fieldError =
+                      (f.key === "tckn" && state.error === "invalidTckn") ||
+                      (f.key === "tax_no" && state.error === "invalidTaxNo");
+                    return (
                     <label key={f.key} className={styles.labelCls}>
                       {f.label[lang]}
                       {f.hint && <span className={styles.dynHint}> · {f.hint[lang]}</span>}
@@ -679,10 +738,17 @@ const DashboardView = ({
                           defaultValue={detailValues[f.key] ?? ""}
                           placeholder={f.placeholder}
                           className={styles.fieldCls}
+                          aria-invalid={fieldError || undefined}
                         />
                       )}
+                      {fieldError && (
+                        <span className={styles.error}>
+                          {f.key === "tckn" ? t("invalidTckn") : t("invalidTaxNo")}
+                        </span>
+                      )}
                     </label>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               </div>
@@ -745,8 +811,79 @@ const DashboardView = ({
               </div>
             )}
 
+            {/* Yetkili kişiler — one-to-many; ASLA public profilde gösterilmez. */}
+            <div className={styles.formSection}>
+              <h3 className={styles.formSectionTitle}>{t("contactsTitle")}</h3>
+              <div className={styles.dynBox}>
+                <span className={styles.labelCls}>{t("contactsTitle")}</span>
+                <p className={styles.sectionSub}>{t("contactsSub")}</p>
+                <div className="grid gap-3">
+                  {contactRows.length === 0 && (
+                    <p className="text-[13px] text-muted">{t("contactsEmpty")}</p>
+                  )}
+                  {contactRows.map((row, i) => (
+                    <div key={i} className="grid gap-2 rounded-[10px] border border-line bg-cream/40 p-3 md:grid-cols-[1.2fr_1fr_1fr_1.2fr_auto] md:items-end">
+                      <label className={styles.labelCls}>
+                        {t("contactName")}
+                        <input
+                          value={row.full_name}
+                          onChange={(e) => updateContact(i, "full_name", e.target.value)}
+                          maxLength={160}
+                          className={styles.fieldCls}
+                        />
+                      </label>
+                      <label className={styles.labelCls}>
+                        {t("contactTitle")}
+                        <input
+                          value={row.title ?? ""}
+                          onChange={(e) => updateContact(i, "title", e.target.value)}
+                          maxLength={120}
+                          className={styles.fieldCls}
+                        />
+                      </label>
+                      <label className={styles.labelCls}>
+                        {t("contactPhone")}
+                        <input
+                          value={row.phone ?? ""}
+                          onChange={(e) => updateContact(i, "phone", e.target.value)}
+                          maxLength={40}
+                          placeholder="+90…"
+                          className={styles.fieldCls}
+                        />
+                      </label>
+                      <label className={styles.labelCls}>
+                        {t("contactEmail")}
+                        <input
+                          type="email"
+                          value={row.email ?? ""}
+                          onChange={(e) => updateContact(i, "email", e.target.value)}
+                          maxLength={200}
+                          className={styles.fieldCls}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => removeContact(i)}
+                        className="btn btn-outline btn-sm"
+                        aria-label={t("contactRemove")}
+                      >
+                        {t("contactRemove")}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {contactRows.length < 10 && (
+                  <button type="button" onClick={addContact} className="btn btn-outline btn-sm mt-2 w-fit">
+                    + {t("contactAdd")}
+                  </button>
+                )}
+              </div>
+            </div>
+
             {state.ok && <p className={styles.success}>{t("saved")}</p>}
-            {state.error && <p className={styles.error}>{state.error === "invalidRegion" ? t("invalidRegion") : t("error")}</p>}
+            {state.error && state.error !== "invalidTckn" && state.error !== "invalidTaxNo" && (
+              <p className={styles.error}>{state.error === "invalidRegion" ? t("invalidRegion") : t("error")}</p>
+            )}
 
             <div className={styles.formActions}>
               {hasListingDashboard && (
@@ -816,9 +953,13 @@ const DashboardView = ({
                   <p className={styles.quoteMeta}>
                     {q.company ? `${q.company} · ` : ""}
                     <a href={`mailto:${q.email}`} className="text-terra hover:underline">{q.email}</a>
+                    {q.phone ? ` · ${q.phone}` : ""}
                   </p>
                   <p className={styles.quoteSvc}>
                     {[q.service, q.date_range, q.people ? `${q.people} ${t("people")}` : null].filter(Boolean).join(" · ")}
+                  </p>
+                  <p className={styles.quoteSvc}>
+                    {[q.category_type, q.country, q.city, q.district].filter(Boolean).join(" · ")}
                   </p>
                   {q.message && <p className={styles.quoteMsg}>{q.message}</p>}
                   <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className="btn btn-outline btn-sm mt-2.5">

@@ -30,6 +30,7 @@ export const groupPalette = {
   rehber: "#5b6cff",
   aktivite: "#0e75cf",
   saglik: "#0891b2",
+  gastronomi: "#2f6fd6",
 } as const;
 
 export type PaletteKey = keyof typeof palette;
@@ -61,5 +62,6 @@ export const tailwindColors = {
     rehber: groupPalette.rehber,
     aktivite: groupPalette.aktivite,
     saglik: groupPalette.saglik,
+    gastronomi: groupPalette.gastronomi,
   },
 } as const;

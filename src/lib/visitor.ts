@@ -1,5 +1,5 @@
 import { cookies, headers } from "next/headers";
-import { createHash, randomUUID } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 
 /* Anonim ziyaretçi kimliği + bot tespiti.
    Amaç: page_views'te "tekil görüntülenme" (distinct visitor_id) hesaplanabilsin ve
@@ -33,7 +33,11 @@ export async function getVisitorContext(): Promise<VisitorContext> {
   const userAgent = (h.get("user-agent") ?? "").slice(0, 400);
   const ipRaw =
     h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
-  const ipHash = createHash("sha256").update(ipRaw).digest("hex").slice(0, 40);
+  /* Tuzsuz sha256 küçük IPv4 uzayında geri çevrilebilir (KVKK riski) — gizli anahtarla
+     HMAC kullanılır. Üretimde VISITOR_HASH_SECRET tanımla; yoksa ADMIN_AUTH_SECRET'a düşer. */
+  const secret =
+    process.env.VISITOR_HASH_SECRET || process.env.ADMIN_AUTH_SECRET || "tp-visitor-dev-fallback";
+  const ipHash = createHmac("sha256", secret).update(ipRaw).digest("hex").slice(0, 40);
 
   const jar = await cookies();
   let visitorId = jar.get(COOKIE)?.value;

@@ -7,14 +7,10 @@ import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { GROUP_COLORS } from "@/lib/categories";
 import { realBusinessImages } from "@/lib/business-images";
-import { FACETS } from "@/lib/facets";
+import { featuredFacetTags } from "@/lib/facets";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
 import styles from "./styles";
-
-/* facet slug → etiket (hizmet/koşul çiplerini göstermek için). */
-const FACET_LABEL = new Map<string, string>();
-FACETS.forEach((f) => f.options.forEach((o) => FACET_LABEL.set(o.slug, o.label)));
 
 const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
 
@@ -40,13 +36,13 @@ const Slide = ({ business }: { business: Business }) => {
     }
     touchX.current = null;
   };
-  const services = (business.attributes ?? [])
-    .map((s) => FACET_LABEL.get(s))
-    .filter(Boolean)
-    .slice(0, 6) as string[];
+  const services = [
+    business.type,
+    ...featuredFacetTags(business, 5).map((tag) => tag.label),
+  ];
 
   return (
-    <div className={styles.slide}>
+    <div className={styles.slide} data-tour="supplier-showcase">
       <div className={styles.panel}>
         {/* SOL — galeri */}
         <div
@@ -115,7 +111,7 @@ const Slide = ({ business }: { business: Business }) => {
             <div className={styles.services}>
               <span className={styles.servicesLabel}>{ts("services")}</span>
               <div className={styles.chips}>
-                {services.map((s) => <span key={s} className={styles.chip}>{s}</span>)}
+                {services.map((s, idx) => <span key={`${s}-${idx}`} className={styles.chip}>{s}</span>)}
               </div>
             </div>
           )}

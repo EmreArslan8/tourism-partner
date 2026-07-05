@@ -32,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                   title={group.label}
                   tone="blue"
                   icon={<FolderTree size={18} aria-hidden />}
-                  action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">{group.children.length} alt kategori</span>}
+                  action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{group.children.length} alt kategori</span>}
                 />
                 <div className="p-5">
                   {group.children.length > 0 ? (
@@ -43,12 +43,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                     </div>
                   ) : (
                     <div>
-                      <p className="mb-2 text-[12px] font-semibold text-[#94A3B8]">
+                      <p className="mb-2 text-[12px] font-semibold text-[#64748B]">
                         DB kaydı yok · varsayılan taksonomi (yönetmek için aşağıdan ekleyin):
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {defaults.map((c) => (
-                          <span key={c.slug} className="rounded-full border border-dashed border-line bg-white px-3 py-1.5 text-[12px] font-medium text-[#94A3B8]">
+                          <span key={c.slug} className="rounded-full border border-dashed border-line bg-paper px-3 py-1.5 text-[12px] font-medium text-[#64748B]">
                             {c.label}
                           </span>
                         ))}

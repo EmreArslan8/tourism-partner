@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import SiteFooter from "@/components/Footer";
+import PopupSlot from "@/components/SitePopup/PopupSlot";
 
 /*
  * Pazarlama (anasayfa/landing) chrome'u: header YOK — Hero kendi glass
@@ -19,6 +21,9 @@ export default async function MarketingLayout({
     <>
       {children}
       <SiteFooter />
+      <Suspense fallback={null}>
+        <PopupSlot />
+      </Suspense>
     </>
   );
 }

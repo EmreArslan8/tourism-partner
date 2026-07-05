@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { getBusinesses } from "@/lib/businesses";
+import { getBusinesses, toListingBusiness } from "@/lib/businesses";
 import { getActiveAdBanners } from "@/lib/platform-data";
 import HomeView from "./view";
 
@@ -11,5 +11,6 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     getActiveAdBanners("home"),
   ]);
 
-  return <HomeView businesses={businesses} adBanners={adBanners} />;
+  // Liste payload'ında iletişim alanları taşınmaz (telefon/website yalnız detay sayfasında).
+  return <HomeView businesses={businesses.map(toListingBusiness)} adBanners={adBanners} />;
 }

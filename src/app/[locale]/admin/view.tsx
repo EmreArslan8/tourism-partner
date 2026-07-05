@@ -71,8 +71,8 @@ const AdminView = ({ data }: Props) => {
             minWidth={420}
             columns={[
               { key: "title", header: "Başlık", cell: (q) => <span className="font-medium text-ink">{q.service || q.name}</span> },
-              { key: "firm", header: "Firma", cell: (q) => <span className="text-muted">{q.company || q.name}</span> },
-              { key: "date", header: "Tarih", cell: (q) => <span className="text-muted">{fmtDate(q.createdAt)}</span> },
+              { key: "firm", header: "Firma", cell: (q) => <span className="text-[#475569]">{q.company || q.name}</span> },
+              { key: "date", header: "Tarih", cell: (q) => <span className="text-[#475569]">{fmtDate(q.createdAt)}</span> },
             ] satisfies Column<AdminQuote>[]}
           />
         </TableCard>
@@ -103,7 +103,7 @@ const AdminView = ({ data }: Props) => {
                 cell: () => (
                   <Link
                     href="/admin/tedarikciler"
-                    className="rounded-lg border border-[#2563EB]/30 px-3 py-1 text-[12px] font-semibold text-[#2563EB] transition-colors hover:bg-[#EFF4FF]"
+                    className="rounded-lg border border-terra/25 px-3 py-1 text-[12px] font-semibold text-terra transition-colors hover:bg-cream"
                   >
                     İletişim
                   </Link>
@@ -115,7 +115,7 @@ const AdminView = ({ data }: Props) => {
       </div>
 
       {/* Yedekleme bilgisi */}
-      <div className="mt-8 flex items-center justify-end gap-1.5 px-2 text-[12px] text-[#94A3B8]">
+      <div className="mt-8 flex items-center justify-end gap-1.5 px-2 text-[12px] text-[#475569]">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3" /></svg>
         Son Yedekleme Tarihi: {data.lastBackup?.completedAt ? fmtDateTime(data.lastBackup.completedAt) : "—"}
       </div>
@@ -145,14 +145,14 @@ const CounterCard = ({
   href?: "/admin/onay";
 }) => {
   const inner = (
-    <div className="flex items-center gap-4 rounded-2xl border border-[#EEF2F8] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,.04),0_12px_26px_-20px_rgba(15,23,42,.16)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#DDE5F0] hover:shadow-[0_6px_18px_-10px_rgba(15,23,42,.12)]">
+    <div className="flex items-center gap-4 rounded-2xl border border-[#EEF2F8] bg-paper p-5 shadow-[0_1px_2px_rgba(15,23,42,.04),0_12px_26px_-20px_rgba(15,23,42,.16)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#DDE5F0] hover:shadow-[0_6px_18px_-10px_rgba(15,23,42,.12)]">
       <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${CHIP[tone]}`}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden>{icon}</svg>
       </span>
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-[#64748B]">{label}</p>
+        <p className="text-[13px] font-medium text-[#475569]">{label}</p>
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-[26px] font-extrabold leading-none tracking-tight text-[#0B1C30]">{value}</span>
+          <span className="text-[26px] font-extrabold leading-none tracking-tight text-ink">{value}</span>
           {detail && <span className="text-[12px] font-semibold text-emerald-600">{detail}</span>}
         </div>
       </div>
@@ -179,7 +179,7 @@ const TableCard = ({
       title={title}
       tone={tone}
       icon={icon && <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden>{icon}</svg>}
-      action={<Link href={link.href} className="shrink-0 text-[12px] font-semibold text-[#0057D9] hover:underline">{link.label}</Link>}
+      action={<Link href={link.href} className="shrink-0 text-[12px] font-semibold text-terra hover:underline">{link.label}</Link>}
     />
     <div className="flex-1 overflow-x-auto">{children}</div>
   </Card>

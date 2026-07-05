@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
 import { supplierPath } from "@/lib/site";
 import { realBusinessImages } from "@/lib/business-images";
+import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
 
 export async function generateStaticParams() {
@@ -63,7 +64,7 @@ export default async function DetailPage({
   
   if (!b) notFound();
   
-  const services = [b.type, t("svcGroupDiscount"), t("svcTransfer"), t("svcCommission")];
+  const services = featuredFacetTags(b).map((tag) => tag.label);
   const gallery = realBusinessImages(b.image, b.images);
 
   return (

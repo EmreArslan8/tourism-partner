@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+// 'unsafe-eval' yalnızca dev'de gerekir (turbopack/HMR); prod CSP'sinden çıkarılır.
+// 'unsafe-inline' Next'in inline runtime script'leri için kalır — nonce'a geçiş ayrı iş.
+const scriptSrc =
+  process.env.NODE_ENV === "development"
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'";
+
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -15,9 +22,9 @@ const securityHeaders = [
       "form-action 'self'",
       "frame-ancestors 'none'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      scriptSrc,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co https://*.tile.openstreetmap.org",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org",
       "font-src 'self' data:",
       "connect-src 'self' https://*.supabase.co",
       "upgrade-insecure-requests",

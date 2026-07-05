@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import SiteHeader from "@/components/Header";
 import SiteFooter from "@/components/Footer";
+import PopupSlot from "@/components/SitePopup/PopupSlot";
 
 /*
  * Uygulama (iç sayfa) chrome'u: opak header (footer ile aynı sapphire) + footer.
@@ -21,6 +23,9 @@ export default async function AppLayout({
       <SiteHeader />
       {children}
       <SiteFooter />
+      <Suspense fallback={null}>
+        <PopupSlot />
+      </Suspense>
     </>
   );
 }

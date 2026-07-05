@@ -1,7 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
-import DashboardView, { PanelBusiness, PanelDraft, PanelMembership, PanelQuote } from "./view";
+import DashboardView, { PanelBusiness, PanelContact, PanelDraft, PanelMembership, PanelQuote } from "./view";
 
 export type DashboardMode = "overview" | "listings" | "edit";
 
@@ -57,11 +57,12 @@ export async function PanelData({
 
   let quotes: PanelQuote[] = [];
   let membership: PanelMembership | null = null;
+  let contacts: PanelContact[] = [];
   if (biz) {
-    const [{ data: q }, { data: m }] = await Promise.all([
+    const [{ data: q }, { data: m }, { data: c }] = await Promise.all([
       supabase
         .from("quotes")
-        .select("id,name,company,email,service,date_range,people,message,status,created_at")
+        .select("id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,created_at")
         .eq("business_id", biz.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -71,9 +72,15 @@ export async function PanelData({
         .order("ends_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabase
+        .from("business_contacts")
+        .select("full_name,title,phone,email")
+        .eq("business_id", biz.id)
+        .order("id", { ascending: true }),
     ]);
     quotes = (q as PanelQuote[]) ?? [];
     membership = (m as PanelMembership | null) ?? null;
+    contacts = (c as PanelContact[]) ?? [];
   }
 
   const meta = (user!.user_metadata ?? {}) as Record<string, string>;
@@ -94,6 +101,7 @@ export async function PanelData({
       email={user!.email ?? ""}
       userId={userId}
       group={group}
+      contacts={contacts}
       meta={{ firm_name: meta.firm_name ?? "", biz_type: meta.biz_type ?? "" }}
       draft={
         !biz && draft

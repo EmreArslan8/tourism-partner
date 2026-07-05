@@ -5,11 +5,13 @@ import RecordView from "@/components/RecordView";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
+type TranslationFn = (key: string) => string;
+
 interface Props {
   b: Business;
-  t: any;
-  tc: any;
-  tCommon: any;
+  t: TranslationFn;
+  tc: TranslationFn;
+  tCommon: TranslationFn;
   services: string[];
   gallery: string[];
 }
@@ -21,9 +23,17 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
       <nav className={styles.nav}>
         <Link href="/" className={styles.navLink}>{t("home")}</Link><span>›</span>
         <Link href={{ pathname: "/explore" }} className={styles.navLink}>{t("explore")}</Link><span>›</span>
-        <Link href={{ pathname: "/explore", query: { cat: b.group } }} className={styles.navLink}>{tc(b.group)}</Link><span>›</span>
-        <strong className={styles.navStrong}>{b.name}</strong>
+        <Link href={{ pathname: "/explore", query: { cat: b.group } }} className={styles.navLink}>{tc(b.group)}</Link>
       </nav>
+
+      <header className={styles.heroHead}>
+        <div>
+          <h1 className={styles.title}>{b.name}</h1>
+          <p className={styles.meta}>
+            {[b.type, b.district, b.city].filter(Boolean).join(" · ")}
+          </p>
+        </div>
+      </header>
 
       <SupplierGallery
         images={gallery}
@@ -35,22 +45,13 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
 
       <div className={styles.grid}>
         <article>
-          <div className={styles.titleWrap}>
-            <h1 className={styles.title}>{b.name}</h1>
-            {b.verified && <span className={styles.verified}>✓ {tCommon("verified")}</span>}
-          </div>
-          <p className={styles.meta}>
-            {tc(b.group)} · {b.type} &nbsp;|&nbsp; {b.district}, {b.city} · {b.country}
-            &nbsp;|&nbsp; <span className={styles.rating}>★ {b.rating.toFixed(1)}</span> ({b.reviews})
-          </p>
-
-          <h2 className={styles.h2}>{t("about")}</h2>
+          <h2 className={cn(styles.h2, "!mt-0")}>{t("about")}</h2>
           <p className={styles.desc}>{b.desc}</p>
 
           <h2 className={styles.h2}>{t("services")}</h2>
           <div className={styles.svcWrap}>
-            {services.map((sv) => (
-              <span key={sv} className={styles.svcTag}>{sv}</span>
+            {services.map((sv, idx) => (
+              <span key={`${sv}-${idx}`} className={styles.svcTag}>{sv}</span>
             ))}
           </div>
 
@@ -94,7 +95,6 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
             <Row k={t("category")} v={`${tc(b.group)} · ${b.type}`} />
             <Row k={t("location")} v={`${b.city}, ${b.country}`} />
             <Row k={t("rating")} v={`★ ${b.rating.toFixed(1)} (${b.reviews})`} />
-            <Row k={t("verification")} v={b.verified ? t("verifiedDone") : t("verifiedPending")} />
           </div>
         </aside>
       </div>

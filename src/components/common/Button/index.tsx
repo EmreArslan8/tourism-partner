@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode, ButtonHTMLAttributes } from "react";
+import type { ReactNode, ButtonHTMLAttributes, ComponentProps } from "react";
 import { Link } from "@/i18n/navigation";
+import type { Href } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import styles from "./styles";
 
@@ -22,10 +23,11 @@ interface CommonProps {
 }
 
 type NativeButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof CommonProps | "aria-label">;
-type NativeAnchorProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof CommonProps | "aria-label">;
+type NativeAnchorProps = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, keyof CommonProps | "aria-label" | "href">;
+type LinkRestProps = Omit<ComponentProps<typeof Link>, "href" | "className" | "aria-label" | "children">;
 
 type ButtonProps = CommonProps & NativeButtonProps & { href?: never };
-type AnchorProps = CommonProps & NativeAnchorProps & { href: any };
+type AnchorProps = CommonProps & NativeAnchorProps & { href: Href | string };
 type Props = ButtonProps | AnchorProps;
 
 const Button = ({
@@ -91,7 +93,7 @@ const Button = ({
     }
 
     return (
-      <Link href={href} aria-label={ariaLabel} className={baseClasses} {...(rest as any)}>
+      <Link href={href as Href} aria-label={ariaLabel} className={baseClasses} {...(rest as LinkRestProps)}>
         {content}
       </Link>
     );

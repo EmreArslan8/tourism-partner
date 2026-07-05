@@ -3,13 +3,28 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
+import { cleanHttpUrl } from "@/lib/actions/validate";
 import type {
   AdBannerRow,
   AdminPopupRow,
+  B2BRequestStatus,
   BlogPostRow,
   CategoryRow,
   SupportTicketRow,
 } from "@/lib/supabase/database.types";
+
+export type AdminB2bRequest = {
+  id: number;
+  businessId: number | null;
+  businessName: string | null;
+  title: string;
+  description: string | null;
+  region: string | null;
+  status: B2BRequestStatus;
+  viewCount: number;
+  moderationNote: string | null;
+  createdAt: string;
+};
 import type { CategoryGroup, GroupKey } from "@/lib/types";
 
 const hasEnv = () =>
@@ -72,6 +87,55 @@ export async function getActiveAdBanners(placement = "home"): Promise<PublicAdBa
   }
 }
 
+export type PublicPopup = Pick<
+  AdminPopupRow,
+  "id" | "title" | "body" | "image_url" | "cta_label" | "cta_url" | "frequency" | "target_role"
+>;
+
+/* Aktif pop-up (çerezsiz public client + 'use cache'). Hedef role: 'all' veya kullanıcının
+   account_type'ı. Zaman penceresi (starts_at/ends_at) burada süzülür; ilk uygun kayıt döner. */
+export async function getActivePopup(accountType?: string): Promise<PublicPopup | null> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("popups");
+
+  if (!hasEnv()) return null;
+
+  const roles = accountType ? ["all", accountType] : ["all"];
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("admin_popups")
+      .select("id,title,body,image_url,cta_label,cta_url,frequency,target_role,starts_at,ends_at")
+      .eq("status", "active")
+      .in("target_role", roles)
+      .order("updated_at", { ascending: false })
+      .limit(20);
+
+    if (error || !data) {
+      if (error) console.error("[platform-data] admin_popups okunamadı:", error.message);
+      return null;
+    }
+
+    const active = data.find((row) => isActiveWindow(row));
+    if (!active) return null;
+    return {
+      id: active.id,
+      title: active.title,
+      body: active.body,
+      image_url: active.image_url,
+      cta_label: active.cta_label,
+      // Admin girdisi olsa da href'e ham basılmaz — javascript: vb. şemalar süzülür.
+      cta_url: cleanHttpUrl(active.cta_url),
+      frequency: active.frequency,
+      target_role: active.target_role,
+    };
+  } catch (error) {
+    console.error("[platform-data] admin_popups okunamadı:", error);
+    return null;
+  }
+}
+
 export async function getAdminAdData(): Promise<AdminAdData> {
   if (!hasEnv()) return { banners: [], activeBanners: [] };
   const access = await getAdminAccess();
@@ -90,6 +154,47 @@ export async function getAdminAdData(): Promise<AdminAdData> {
     banners,
     activeBanners: banners.filter((row) => row.status === "active" && isActiveWindow(row)),
   };
+}
+
+/* B2B Talepler (İlan Denetimi) — acentelerin açtığı talepler + oluşturan işletme adı.
+   Admin izleme/moderasyon için; RLS "admin manage b2b requests" ile korunur. */
+export async function getAdminB2bRequests(): Promise<AdminB2bRequest[]> {
+  if (!hasEnv()) return [];
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return [];
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("b2b_requests")
+    .select("id,business_id,title,description,region,status,view_count,moderation_note,created_at,businesses(name)")
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) throw new Error(error.message);
+
+  type Row = {
+    id: number;
+    business_id: number | null;
+    title: string;
+    description: string | null;
+    region: string | null;
+    status: B2BRequestStatus;
+    view_count: number;
+    moderation_note: string | null;
+    created_at: string;
+    businesses: { name: string } | { name: string }[] | null;
+  };
+  return ((data ?? []) as unknown as Row[]).map((r) => ({
+    id: r.id,
+    businessId: r.business_id,
+    businessName: Array.isArray(r.businesses) ? r.businesses[0]?.name ?? null : r.businesses?.name ?? null,
+    title: r.title,
+    description: r.description,
+    region: r.region,
+    status: r.status,
+    viewCount: r.view_count,
+    moderationNote: r.moderation_note,
+    createdAt: r.created_at,
+  }));
 }
 
 export async function getAdminSupportTickets(): Promise<AdminSupportTicket[]> {

@@ -8,7 +8,6 @@ export type ExploreSearchParams = {
   country?: string;
   district?: string;
   q?: string;
-  verified?: string;
   rating?: string;
   attr?: string;
   sort?: string;
@@ -21,7 +20,6 @@ export type ExploreInitialFilters = {
   country: string;
   district: string;
   q: string;
-  verified: boolean;
   minRating: number;
   attrs: string[];
   sort: Sort;
@@ -42,7 +40,6 @@ export function parseExploreFilters(sp: ExploreSearchParams): ExploreInitialFilt
     country: sp.country || "all",
     district: sp.district || "all",
     q: sp.q || "",
-    verified: sp.verified === "1",
     minRating: Number.isFinite(rating) ? rating : 0,
     attrs: sp.attr?.split(",").filter(Boolean) ?? [],
     sort: sp.sort === "rating" || sp.sort === "az" ? sp.sort : "featured",

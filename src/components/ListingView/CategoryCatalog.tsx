@@ -1,32 +1,28 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
+import { CATEGORY_GROUPS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
-const Chevron = ({ open }: { open: boolean }) => {
-  return (
-    <svg className={cn(styles.catChev, open && styles.catChevOpen)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="m9 6 6 6-6 6" />
-    </svg>
-  );
-};
+const normalize = (value: string) =>
+  value
+    .toLocaleLowerCase("tr-TR")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
 
 const CategoryCatalog = ({
   groups,
   types,
-  groupCounts,
-  typeCounts,
   onToggleGroup,
   onToggleType,
   children,
 }: {
   groups: Set<GroupKey>;
   types: Set<string>;
-  groupCounts: Record<string, number>;
-  typeCounts: Record<string, number>;
   onToggleGroup: (g: GroupKey) => void;
   onToggleType: (t: string) => void;
   /** Aynı kart içinde kategorilerin altında render edilecek ek filtreler (facet'ler). */
@@ -34,41 +30,59 @@ const CategoryCatalog = ({
 }) => {
   const tc = useTranslations("cat");
   const t = useTranslations("listing");
-  const totalCount = CATEGORY_GROUPS.reduce((sum, g) => sum + (groupCounts[g.key] ?? 0), 0);
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(true);
+  const needle = normalize(query.trim());
+  const visibleGroups = useMemo(
+    () =>
+      CATEGORY_GROUPS.map((g) => ({
+        ...g,
+        groupLabel: tc(g.key),
+        children: g.children.filter((c) => !needle || normalize(c.label).includes(needle)),
+      })).filter((g) => !needle || normalize(g.groupLabel).includes(needle) || g.children.length > 0),
+    [needle, tc]
+  );
 
   return (
     <div className={styles.catalog}>
       <div className={styles.catalogTitle}>
-        <span className={styles.catalogTitleText}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M4 7h16M7 12h10M10 17h4" />
-          </svg>
-          {t("suggestCategories")}
-        </span>
-        <span className={styles.catalogTotal}>{totalCount}</span>
+        <button
+          type="button"
+          className={styles.catalogCollapse}
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+        >
+          <span>{t("suggestCategories")}</span>
+          <ChevronDown className={cn(styles.catalogChevron, open && styles.catalogChevronOpen)} aria-hidden />
+        </button>
       </div>
+      {open && (
+        <>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className={styles.catalogSearch}
+            placeholder={t("categorySearch")}
+          />
 
-      {CATEGORY_GROUPS.map((g) => {
+          <div className={styles.catList}>
+          {visibleGroups.map((g) => {
         const active = groups.has(g.key);
-        const open = active || g.children.some((c) => types.has(c.label));
+        const showChildren = active || g.children.some((c) => types.has(c.label)) || Boolean(needle);
         return (
-          <div key={g.key}>
+          <div key={g.key} className={styles.catBlock}>
             <button
               type="button"
               className={cn(styles.catHead, active && styles.catHeadActive)}
               onClick={() => onToggleGroup(g.key)}
               aria-pressed={active}
-              aria-expanded={open}
             >
-              <i className={styles.catDot} style={{ background: GROUP_COLORS[g.key] }} />
-              <span className={styles.catLabel}>{tc(g.key)}</span>
-              <span className={styles.catCount}>{groupCounts[g.key] ?? 0}</span>
-              <span className={styles.catChevBtn} aria-hidden>
-                <Chevron open={open} />
-              </span>
+              <span className={cn(styles.catCheckbox, active && styles.catCheckboxActive)} aria-hidden />
+              <span className={styles.catLabel}>{g.groupLabel}</span>
             </button>
 
-            {open && (
+            {showChildren && (
               <div className={styles.catChildren}>
                 {g.children.map((c) => {
                   const on = types.has(c.label);
@@ -80,8 +94,8 @@ const CategoryCatalog = ({
                       onClick={() => onToggleType(c.label)}
                       aria-pressed={on}
                     >
+                      <span className={cn(styles.catCheckbox, on && styles.catCheckboxActive)} aria-hidden />
                       <span className={styles.catChildLabel}>{c.label}</span>
-                      <span className={styles.catCount}>{typeCounts[c.label] ?? 0}</span>
                     </button>
                   );
                 })}
@@ -90,6 +104,9 @@ const CategoryCatalog = ({
           </div>
         );
       })}
+          </div>
+        </>
+      )}
 
       {children}
     </div>

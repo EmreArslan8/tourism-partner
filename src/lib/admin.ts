@@ -150,7 +150,7 @@ async function getSupabaseAdminData(
       .order("created_at", { ascending: false }),
     supabase
       .from("quotes")
-      .select("id,business_id,name,company,email,service,date_range,people,message,status,internal_note,created_at")
+      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,internal_note,created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     supabase
@@ -230,7 +230,13 @@ async function getSupabaseAdminData(
       name: String(row.name),
       company: row.company,
       email: String(row.email),
+      phone: row.phone,
       service: row.service,
+      categoryGroup: row.category_group,
+      categoryType: row.category_type,
+      country: row.country,
+      city: row.city,
+      district: row.district,
       dateRange: row.date_range,
       people: row.people,
       message: row.message,

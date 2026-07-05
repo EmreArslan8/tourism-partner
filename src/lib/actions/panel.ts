@@ -8,9 +8,39 @@ import { ALL_DETAIL_KEYS } from "@/lib/business-fields";
 import { BUSINESS_DOCUMENTS_BUCKET, persistableDocuments } from "@/lib/business-document-shape";
 import { BUSINESS_IMAGES_BUCKET, storagePathFromBusinessImage } from "@/lib/business-images";
 import { isValidRegion } from "@/lib/regions";
+import { isValidTCKN, isValidVKN } from "@/lib/validators";
 import { businessSlug } from "@/lib/business-slug";
 import type { GroupKey, ActionState, BusinessDocument } from "@/lib/types";
-import { clean, cleanHttpUrl } from "./validate";
+import { clean, cleanHttpUrl, isEmail } from "./validate";
+
+type ContactInput = { full_name: string; title: string | null; phone: string | null; email: string | null };
+
+/** Panelden gelen contacts JSON'ını güvenli parse eder (max 10, alan temizliği). */
+function parseContacts(raw: unknown): ContactInput[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(String(raw ?? "[]"));
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const out: ContactInput[] = [];
+  for (const item of parsed) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    const full_name = clean(rec.full_name as string, 160);
+    if (!full_name) continue;
+    const email = clean(rec.email as string, 200);
+    out.push({
+      full_name,
+      title: clean(rec.title as string, 120),
+      phone: clean(rec.phone as string, 40),
+      email: email && isEmail(email) ? email : null,
+    });
+    if (out.length >= 10) break;
+  }
+  return out;
+}
 
 function groupFromMetadata(value: unknown): GroupKey {
   return typeof value === "string" && CATEGORY_GROUPS.some((group) => group.key === value)
@@ -165,6 +195,10 @@ export async function saveMyBusiness(
     if (val) details[key] = val;
   }
 
+  // TCKN / Vergi No — doluysa biçimsel + algoritmik doğrulama.
+  if (details.tckn && !isValidTCKN(details.tckn)) return { ok: false, error: "invalidTckn" };
+  if (details.tax_no && !isValidVKN(details.tax_no)) return { ok: false, error: "invalidTaxNo" };
+
   // Evraklar: gizli "documents" alanı JSON dizi { kind, path, name } olarak gelir.
   let documents: BusinessDocument[] = [];
   try {
@@ -202,12 +236,16 @@ export async function saveMyBusiness(
     documents,
   };
 
+  const contacts = parseContacts(formData.get("contacts"));
+
   const idRaw = String(formData.get("id") ?? "").trim();
   const draftKey = clean(formData.get("draft_key"), 120) ?? "";
 
   try {
+    let savedBusinessId: number | null = null;
     if (idRaw && /^\d+$/.test(idRaw)) {
       const businessId = Number(idRaw);
+      savedBusinessId = businessId;
       const media = await finalizeBusinessMedia(
         supabase,
         user.id,
@@ -235,6 +273,7 @@ export async function saveMyBusiness(
       }).select("id").single();
       if (error) return { ok: false, error: error.message };
       if (!data?.id) return { ok: false, error: "missingBusinessId" };
+      savedBusinessId = data.id;
 
       const media = await finalizeBusinessMedia(
         supabase,
@@ -252,6 +291,18 @@ export async function saveMyBusiness(
         .eq("owner_id", user.id);
       if (mediaError) return { ok: false, error: mediaError.message };
     }
+
+    // Yetkili kişiler: basit replace stratejisi (delete + insert). RLS owner policy'leriyle korunur.
+    if (savedBusinessId) {
+      await supabase.from("business_contacts").delete().eq("business_id", savedBusinessId);
+      if (contacts.length > 0) {
+        const { error: contactsError } = await supabase.from("business_contacts").insert(
+          contacts.map((c) => ({ business_id: savedBusinessId as number, ...c })),
+        );
+        if (contactsError) return { ok: false, error: contactsError.message };
+      }
+    }
+
     if (draftKey) {
       await supabase
         .from("business_drafts")

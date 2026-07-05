@@ -75,6 +75,27 @@ export default async function AdminBusinessDetailPage({
           </section>
 
           <section className={panel}>
+            <h3 className="text-[18px] font-extrabold text-[#0B1C30]">Yetkili Kişiler</h3>
+            <div className="mt-4 grid gap-2">
+              {data.contacts.length === 0 ? (
+                <p className="text-[13px] font-semibold text-[#64748B]">Bu işletme için yetkili kişi kaydı yok.</p>
+              ) : (
+                data.contacts.map((contact) => (
+                  <div key={contact.id} className="rounded-[8px] border border-[#D4DCEA] bg-[#FBFCFF] px-3 py-2">
+                    <p className="text-[13px] font-extrabold text-[#162238]">
+                      {contact.fullName}
+                      {contact.title && <span className="font-semibold text-[#64748B]"> · {contact.title}</span>}
+                    </p>
+                    <p className="mt-1 text-[12px] font-semibold text-[#64748B]">
+                      {[contact.phone, contact.email].filter(Boolean).join(" · ") || "İletişim bilgisi yok"}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+
+          <section className={panel}>
             <h3 className="text-[18px] font-extrabold text-[#0B1C30]">Son Audit Kayıtları</h3>
             <div className="mt-4 grid gap-2">
               {data.auditLogs.length === 0 ? (

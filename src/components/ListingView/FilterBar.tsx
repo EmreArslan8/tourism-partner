@@ -9,7 +9,6 @@ const FilterBar = ({
   city,
   district,
   q,
-  verifiedOnly,
   minRating,
   countries,
   cities,
@@ -19,7 +18,6 @@ const FilterBar = ({
   onDistrict,
   onQ,
   onPick,
-  onVerified,
   onMinRating,
 }: {
   businesses: Business[];
@@ -27,7 +25,6 @@ const FilterBar = ({
   city: string;
   district: string;
   q: string;
-  verifiedOnly: boolean;
   minRating: number;
   countries: string[];
   cities: string[];
@@ -37,16 +34,17 @@ const FilterBar = ({
   onDistrict: (v: string) => void;
   onQ: (v: string) => void;
   onPick: (s: Suggestion) => void;
-  onVerified: (v: boolean) => void;
   onMinRating: (v: number) => void;
 }) => {
   return (
     <div className={styles.bar}>
+      <div className={styles.barSearch}>
+        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
+      </div>
       <FilterSelects
         country={country}
         city={city}
         district={district}
-        verifiedOnly={verifiedOnly}
         minRating={minRating}
         countries={countries}
         cities={cities}
@@ -54,12 +52,8 @@ const FilterBar = ({
         onCountry={onCountry}
         onCity={onCity}
         onDistrict={onDistrict}
-        onVerified={onVerified}
         onMinRating={onMinRating}
       />
-      <div className={styles.barSearch}>
-        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
-      </div>
     </div>
   );
 };

@@ -8,12 +8,6 @@ type RateLimitOptions = {
   identity?: Array<string | number | null | undefined>;
 };
 
-type RateLimitRow = {
-  key: string;
-  count: number;
-  window_start: string;
-};
-
 const env = () => ({
   url: process.env.NEXT_PUBLIC_SUPABASE_URL,
   key: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -48,6 +42,29 @@ async function restFetch(path: string, init: RequestInit = {}) {
   });
 }
 
+async function callRateLimitRpc(params: {
+  key: string;
+  scope: string;
+  limit: number;
+  windowSeconds: number;
+}) {
+  const response = await restFetch("rpc/check_rate_limit", {
+    method: "POST",
+    body: JSON.stringify({
+      p_key: params.key,
+      p_scope: params.scope,
+      p_limit: params.limit,
+      p_window_seconds: params.windowSeconds,
+    }),
+  });
+  if (!response?.ok) return null;
+  return (await response.json()) === true;
+}
+
+function fallbackAllow() {
+  return process.env.NODE_ENV !== "production";
+}
+
 export async function checkRateLimit(options: RateLimitOptions): Promise<boolean> {
   const { url, key } = env();
   if (!url || !key) return true;
@@ -59,41 +76,16 @@ export async function checkRateLimit(options: RateLimitOptions): Promise<boolean
       .join("|")
       .slice(0, 800);
     const rowKey = `${options.scope}:${digest(identity)}`;
-    const now = Date.now();
 
-    const select = await restFetch(`rate_limits?key=eq.${encodeURIComponent(rowKey)}&select=key,count,window_start&limit=1`, {
-      headers: { prefer: "" },
+    const allowed = await callRateLimitRpc({
+      key: rowKey,
+      scope: options.scope,
+      limit: options.limit,
+      windowSeconds: options.windowSeconds,
     });
-    if (!select?.ok) return true;
-
-    const rows = (await select.json()) as RateLimitRow[];
-    const row = rows[0];
-    if (!row) {
-      await restFetch("rate_limits", {
-        method: "POST",
-        body: JSON.stringify({ key: rowKey, scope: options.scope, count: 1, window_start: new Date(now).toISOString() }),
-      });
-      return true;
-    }
-
-    const windowStart = Date.parse(row.window_start);
-    const expired = !Number.isFinite(windowStart) || now - windowStart >= options.windowSeconds * 1000;
-    if (expired) {
-      await restFetch(`rate_limits?key=eq.${encodeURIComponent(rowKey)}`, {
-        method: "PATCH",
-        body: JSON.stringify({ count: 1, window_start: new Date(now).toISOString() }),
-      });
-      return true;
-    }
-
-    if (row.count >= options.limit) return false;
-    await restFetch(`rate_limits?key=eq.${encodeURIComponent(rowKey)}`, {
-      method: "PATCH",
-      body: JSON.stringify({ count: row.count + 1 }),
-    });
-    return true;
+    return allowed ?? fallbackAllow();
   } catch (error) {
-    console.warn("[rate-limit] fail-open", error);
-    return true;
+    console.warn("[rate-limit] rpc failed", error);
+    return fallbackAllow();
   }
 }

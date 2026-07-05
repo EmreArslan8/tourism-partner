@@ -6,8 +6,19 @@
   overlay:
     "pointer-events-none absolute inset-0 -z-10 " +
     "bg-[linear-gradient(90deg,rgba(5,8,30,.82)_0%,rgba(5,8,30,.42)_42%,rgba(5,8,30,.05)_72%,rgba(5,8,30,0)_100%)]",
+  // Etkileşimli küre (yalnız masaüstü ≥1025px; mobil/tablet statik fotoğrafla kalır).
+  // Sağ tarafa demirli; içerik (sol) DOM'da sonra geldiği için üstte kalır.
+  globeWrap:
+    "pointer-events-none absolute right-[-20vw] top-[88%] z-0 hidden aspect-square " +
+    "w-[min(72vw,720px)] -translate-y-1/2 min-[1025px]:block " +
+    "min-[1440px]:right-[-20vw] min-[1600px]:right-[-16vw]",
+  // Fotoğraftaki statik küreyi yumuşakça maskeler + kürenin arkasına gece-mavi halo verir.
+  globeHalo:
+    "absolute inset-[-10%] rounded-full " +
+    "bg-[radial-gradient(closest-side,#05081e_46%,rgba(5,8,30,.78)_64%,rgba(5,8,30,0)_100%)]",
+  globeCanvas: "pointer-events-auto relative h-full w-full",
   inner:
-    "container-px flex h-full min-h-[520px] flex-col items-start justify-center pt-[150px] text-left " +
+    "container-px flex h-full min-h-[520px] flex-col items-start justify-center  text-left " +
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
     "max-[640px]:justify-start max-[640px]:pt-[164px] max-[640px]:pb-14",
   title:

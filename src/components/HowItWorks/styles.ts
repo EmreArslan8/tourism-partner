@@ -1,37 +1,61 @@
-/* HowItWorks — "Üç adımda iş birliği" adım şeridi + statik görsel sahnesi. */
+/* HowItWorks - iki net path karti: tedarikci ve acente. */
 const styles = {
   section: "py-9 max-[640px]:py-[19.2px]",
-  headline: "section-copy mb-7 max-w-[680px] max-[640px]:mb-3",
-  eyebrow: "eyebrow mb-2 max-[640px]:hidden",
+  headline: "section-copy mb-5 max-w-[760px] max-[640px]:mb-4",
+  eyebrow: "eyebrow mb-2 text-brand/75 max-[640px]:hidden",
   title: "heading-section text-ink",
-  lead: "section-desc max-w-[60ch] max-[640px]:hidden",
+  lead: "section-desc max-w-[62ch] text-ink/70 max-[640px]:hidden",
   leadMobile: "section-desc mt-1 hidden max-[640px]:block",
-  stage:
-    "grid grid-cols-[minmax(0,0.95fr)_minmax(320px,1.15fr)] items-stretch gap-5 " +
-    "max-[980px]:grid-cols-1 max-[980px]:gap-4 max-[560px]:gap-[12.8px]",
-  steps: "grid h-full grid-rows-3 gap-2.5 max-[560px]:gap-2",
+
+  mobileTabs:
+    "mb-3 hidden grid-cols-2 gap-2 rounded-[14px] bg-white p-1.5 shadow-[0_14px_34px_-30px_rgba(7,9,42,.55)] max-[640px]:grid",
+  mobileTab:
+    "h-10 rounded-[10px] px-2 text-[12.5px] font-extrabold text-ink/58 transition-colors",
+  mobileTabActive:
+    "h-10 rounded-[10px] bg-brand px-2 text-[12.5px] font-extrabold text-white shadow-[0_12px_24px_-16px_rgba(10,36,114,.85)]",
+
+  grid: "grid grid-cols-2 gap-4 max-[860px]:grid-cols-1 max-[640px]:block",
+  mobilePanel: "contents max-[640px]:hidden",
+  mobilePanelActive: "contents max-[640px]:block",
+  card:
+    "group relative min-h-[420px] overflow-hidden rounded-[24px] bg-white p-6 " +
+    "shadow-[0_24px_64px_-52px_rgba(7,9,42,.55)] transition-all duration-300 hover:-translate-y-0.5 " +
+    "max-[640px]:min-h-0 max-[640px]:rounded-[20px] max-[640px]:p-4",
+  cardFeatured:
+    "group relative min-h-[420px] overflow-hidden rounded-[24px] bg-white p-6 " +
+    "shadow-[0_26px_70px_-52px_rgba(15,59,176,.58)] transition-all duration-300 hover:-translate-y-0.5 " +
+    "max-[640px]:min-h-0 max-[640px]:rounded-[20px] max-[640px]:p-4",
+  cardGlow:
+    "pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(closest-side,rgba(53,66,238,.14),transparent_70%)]",
+  cardHead:
+    "relative z-10 mb-6 flex items-start justify-between gap-4 max-[640px]:mb-4 max-[460px]:flex-col",
+  kicker:
+    "inline-flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-[.08em] text-ink/60 [&>svg]:text-ink/45",
+  kickerFeatured:
+    "inline-flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-[.08em] text-brand [&>svg]:text-brand",
+
+  steps: "relative z-10 grid gap-3.5",
   step:
-    "group relative grid h-full min-h-0 grid-cols-[38px_minmax(0,1fr)] items-start gap-3.5 overflow-hidden rounded-card border border-line " +
-    "bg-white px-4 py-5 text-left text-ink-soft shadow-[0_14px_44px_-40px_rgba(7,9,42,.55)] transition-all duration-300 ease-brand " +
-    "hover:-translate-y-0.5 hover:border-terra/35 max-[560px]:min-h-[84.8px] max-[560px]:grid-cols-[27.2px_minmax(0,1fr)] max-[560px]:gap-[9.6px] max-[560px]:px-[9.6px] max-[560px]:py-[12.8px]",
-  stepActive:
-    "group relative grid h-full min-h-0 grid-cols-[38px_minmax(0,1fr)] items-start gap-3.5 overflow-hidden rounded-card border border-terra/10 " +
-    "bg-[linear-gradient(135deg,#3542ee_0%,#5b6cff_58%,#8ea2ff_100%)] px-4 py-5 text-left text-white shadow-pop transition-all duration-300 ease-brand " +
-    "max-[560px]:min-h-[84.8px] max-[560px]:grid-cols-[27.2px_minmax(0,1fr)] max-[560px]:gap-[9.6px] max-[560px]:px-[9.6px] max-[560px]:py-[12.8px]",
-  stepNum:
-    "step-number-text grid h-8 w-8 place-items-center rounded-[10px] bg-[#edf1ff] text-terra transition-colors duration-300 ease-brand " +
-    "group-aria-selected:bg-white/18 group-aria-selected:text-white max-[560px]:h-[22.4px] max-[560px]:w-[22.4px] max-[560px]:rounded-lg",
-  stepText: "min-w-0",
-  stepTitle: "step-title-text block pt-[2px] max-[560px]:pt-[1.6px]",
-  stepDesc: "step-desc-text mt-1.5 block max-w-[58ch] max-[560px]:mt-[4.8px]",
-  progress: "absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 bg-terra/15 max-[560px]:h-[2.4px]",
-  progressActive: "absolute bottom-0 left-0 h-[3px] w-full origin-left animate-[how-progress_5.6s_linear] bg-terra/70 max-[560px]:h-[2.4px]",
-  visual:
-    "relative min-h-[430px] overflow-hidden rounded-card-lg border border-line bg-[#f8f9ff] shadow-card " +
-    "max-[980px]:order-first max-[980px]:min-h-[360px] max-[560px]:min-h-[208px]",
-  image: "object-cover opacity-0 scale-[1.03] transition-[opacity,transform] duration-700 ease-brand",
-  imageActive: "object-cover opacity-100 scale-100 transition-[opacity,transform] duration-700 ease-brand",
-  visualWash: "absolute inset-0 bg-[linear-gradient(180deg,rgba(246,248,255,.04)_0%,rgba(7,9,42,.04)_100%)]",
+    "grid grid-cols-[44px_minmax(0,1fr)] items-center gap-3 rounded-[14px] bg-[#f6f8ff] p-3.5 " +
+    "max-[640px]:grid-cols-[40px_minmax(0,1fr)] max-[640px]:p-3",
+  stepIcon:
+    "grid h-10 w-10 place-items-center rounded-[13px] bg-white text-brand",
+  stepIconFeatured:
+    "grid h-10 w-10 place-items-center rounded-[13px] bg-brand text-white",
+  stepCopy: "min-w-0",
+  stepNo: "mb-1 block text-[10.5px] font-black leading-none text-brand/45",
+  stepTitle: "block text-[15.5px] font-extrabold leading-tight text-ink",
+  stepDesc:
+    "mt-1 block text-[12.5px] font-medium leading-[1.5] text-ink/62 max-[640px]:text-[12px]",
+
+  ctaFeatured:
+    "inline-flex h-10 shrink-0 items-center justify-center rounded-[11px] bg-brand px-4 text-[13px] font-extrabold text-white shadow-[0_16px_34px_-20px_rgba(10,36,114,.9)] transition hover:bg-brand-deep active:scale-[.98]",
+  cta:
+    "inline-flex h-10 shrink-0 items-center justify-center rounded-[11px] bg-[#eef3ff] px-4 text-[13px] font-extrabold text-brand transition active:scale-[.98]",
+
+  trustRow: "mt-5 flex flex-wrap items-center justify-center gap-2.5 max-[640px]:hidden",
+  trustChip:
+    "inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-1.5 text-[12px] font-bold text-ink/70 [&>svg]:text-brand",
 } as const;
 
 export default styles;

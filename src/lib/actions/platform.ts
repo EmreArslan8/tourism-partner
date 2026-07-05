@@ -114,6 +114,24 @@ export async function renameCategory(formData: FormData): Promise<void> {
   revalidatePath(`/${loc(formData)}/admin/kategoriler`);
 }
 
+/* ---------------- B2B Talep moderasyonu (İlan Denetimi) ---------------- */
+export async function moderateB2bRequest(formData: FormData): Promise<void> {
+  const supabase = await requireAdmin();
+  const id = Number(formData.get("id"));
+  const raw = String(formData.get("status") ?? "");
+  const allowed = ["pending", "published", "archived", "rejected"] as const;
+  const status = (allowed as readonly string[]).includes(raw) ? (raw as (typeof allowed)[number]) : "pending";
+  const note = clean(formData.get("note"), 500);
+
+  const { error } = await supabase
+    .from("b2b_requests")
+    .update({ status, ...(note ? { moderation_note: note } : {}), updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/${loc(formData)}/admin/talepler`);
+}
+
 /* ---------------- Destek talebi durum güncelle ---------------- */
 export async function updateTicketStatus(formData: FormData): Promise<void> {
   const supabase = await requireAdmin();

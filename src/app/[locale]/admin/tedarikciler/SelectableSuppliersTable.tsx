@@ -265,6 +265,7 @@ const CATEGORY_TONES: Record<GroupKey, string> = {
   rehber: "bg-[#EDE9FE] text-[#6D28D9]",
   aktivite: "bg-[#EAF1FF] text-[#1D4ED8]",
   saglik: "bg-[#F1F5F9] text-[#475569]",
+  gastronomi: "bg-[#E3EDFF] text-[#2F6FD6]",
 };
 
 const isActive = (status: BusinessLifecycleStatus) => status === "approved" || status === "active";

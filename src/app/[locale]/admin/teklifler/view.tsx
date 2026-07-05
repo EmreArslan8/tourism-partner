@@ -36,7 +36,7 @@ const AdminQuotesView = ({ data, locale }: Props) => {
           title="Talepler"
           tone="blue"
           icon={<FilePenLine size={18} aria-hidden />}
-          action={<span className="shrink-0 text-[12px] font-semibold text-[#566178]">{requests.length} talep</span>}
+          action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{requests.length} talep</span>}
         />
         <DataTable
           data={requests}
@@ -50,7 +50,7 @@ const AdminQuotesView = ({ data, locale }: Props) => {
               cell: (quote) => (
                 <div className="max-w-[280px]">
                   <p className="text-[13px] font-extrabold leading-5 text-[#162238]">{quote.service || quote.name}</p>
-                  <p className="mt-1 line-clamp-2 text-[12px] font-medium leading-5 text-[#64748B]">{quote.message || "Açıklama girilmemiş."}</p>
+                  <p className="mt-1 line-clamp-2 text-[12px] font-medium leading-5 text-[#475569]">{quote.message || "Açıklama girilmemiş."}</p>
                 </div>
               ),
             },
@@ -60,7 +60,7 @@ const AdminQuotesView = ({ data, locale }: Props) => {
               cell: (quote) => (
                 <div>
                   <p className="text-[13px] font-bold text-[#162238]">{quote.company || quote.name}</p>
-                  <p className="mt-1 text-[12px] font-semibold text-[#64748B]">{quote.email}</p>
+                  <p className="mt-1 text-[12px] font-semibold text-[#475569]">{quote.email}</p>
                 </div>
               ),
             },
@@ -70,7 +70,7 @@ const AdminQuotesView = ({ data, locale }: Props) => {
               cell: (quote) => (
                 <div className="text-[13px] font-semibold leading-5 text-[#162238]">
                   {quote.dateRange || "Tarih yok"}
-                  <span className="mt-1 block text-[12px] text-[#64748B]">{quote.people ? `${quote.people} kişi` : "Kapasite yok"}</span>
+                  <span className="mt-1 block text-[12px] text-[#475569]">{quote.people ? `${quote.people} kişi` : "Kapasite yok"}</span>
                 </div>
               ),
             },
@@ -139,7 +139,7 @@ const MetricCard = ({
   tone?: "blue" | "emerald" | "amber";
 }) => (
   <div className="rounded-[10px] border border-[#D4DCEA] bg-white p-4 shadow-[0_8px_18px_rgba(15,23,42,.04)]">
-    <p className="text-[11px] font-extrabold uppercase tracking-[.08em] text-[#64748B]">{label}</p>
+    <p className="text-[11px] font-extrabold uppercase tracking-[.08em] text-[#475569]">{label}</p>
     <p className={cn("mt-2 text-[28px] font-black leading-none", tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-amber-600" : "text-[#0057D9]")}>
       {value}
     </p>

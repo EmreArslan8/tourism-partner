@@ -5,7 +5,6 @@ import type { AdminAccess } from "@/lib/admin-auth";
 import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
 import { CATEGORY_GROUPS } from "@/lib/categories";
-import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import AdminSearch from "./AdminSearch";
 import Logo from "@/components/Logo";
@@ -58,9 +57,9 @@ export const CardHeader = ({
 );
 
 export const panel =
-  "rounded-xl border border-[#E2E8F0] bg-white p-5 shadow-[0_4px_12px_rgba(15,23,42,.05)]";
-export const label = "flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-[.06em] text-[#64748B]";
-export const input = "field min-h-[42px] w-full rounded-lg border-[#E2E8F0] bg-white normal-case tracking-normal text-[#0B1C30]";
+  "rounded-xl border border-line bg-paper p-5 shadow-[0_4px_12px_rgba(15,23,42,.05)]";
+export const label = "flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-[.06em] text-[#475569]";
+export const input = "field min-h-[42px] w-full rounded-lg border-line bg-paper normal-case tracking-normal text-ink";
 export const textarea = `${input} min-h-[110px] py-3`;
 
 export const AdminAccessDenied = () => {
@@ -69,7 +68,7 @@ export const AdminAccessDenied = () => {
       <section className={`${panel} max-w-[520px] text-center`}>
         <p className="text-[12px] font-bold uppercase tracking-[.08em] text-terra">Admin</p>
         <h1 className="mt-2 text-[32px]">Yetkili giriş gerekli</h1>
-        <p className="mt-3 text-[14.5px] text-muted">
+        <p className="mt-3 text-[14.5px] text-[#475569]">
           İçerik, SEO, tedarikçi, başvuru ve teklif yönetimi için admin hesabıyla giriş yapmalısın.
         </p>
         <Link href="/login" className="btn btn-solid mt-5">Giriş yap</Link>
@@ -89,25 +88,25 @@ export const AdminShell = ({
   const initial = (data.userEmail ?? "A").charAt(0).toUpperCase();
 
   return (
-    <div className="flex min-h-screen w-full bg-[#F5F8FC] text-[#0B1C30]">
-      <aside className="sticky top-0 hidden h-screen w-[256px] shrink-0 flex-col border-r border-[#D9E1EF] bg-[#F7F9FF] md:flex">
+    <div className="flex min-h-screen w-full bg-cream text-ink">
+      <aside className="sticky top-0 hidden h-screen w-[256px] shrink-0 flex-col border-r border-line bg-paper md:flex">
         <div className="flex h-[100px] items-center px-7">
           <Logo href="/admin" height={46} priority className="max-w-[170px]" />
         </div>
 
         <AdminNav />
 
-        <div className="mt-auto border-t border-[#D9E1EF] px-6 pb-6 pt-4">
+        <div className="mt-auto border-t border-line px-6 pb-6 pt-4">
           <Link
             href="/admin/tedarikciler"
-            className="mb-5 flex h-9 w-full items-center justify-center gap-2 rounded-[6px] bg-[#0057D9] text-[13px] font-bold text-white shadow-[0_10px_22px_rgba(0,87,217,.16)] transition-colors hover:bg-[#0047B8]"
+            className="mb-5 flex h-9 w-full items-center justify-center gap-2 rounded-[6px] bg-terra text-[13px] font-bold text-white shadow-[0_10px_22px_rgba(15,59,176,.16)] transition-colors hover:bg-terra-deep"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
             Yeni İşletme Kaydı
           </Link>
           <Link
             href="/admin/destek"
-            className="flex items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#566178] transition-colors hover:bg-[#EFF4FF] hover:text-[#0057D9]"
+            className="flex items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#475569] transition-colors hover:bg-cream hover:text-terra"
           >
             <CircleHelp size={17} aria-hidden />
             Destek
@@ -115,7 +114,7 @@ export const AdminShell = ({
           <form action={signOut}>
             <button
               type="submit"
-              className="flex w-full items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#566178] transition-colors hover:bg-[#EFF4FF] hover:text-[#0057D9]"
+              className="flex w-full items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#475569] transition-colors hover:bg-cream hover:text-terra"
             >
               <LogOut size={17} aria-hidden />
               Çıkış Yap
@@ -127,8 +126,8 @@ export const AdminShell = ({
       <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye
             arka plan/çizgi yok ve içerik üstüne binmeyecek şekilde akışta durur. */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#E6ECF5] bg-[#F8FAFF]/90 px-5 backdrop-blur md:px-8">
-          <span className="shrink-0 text-[15px] font-extrabold text-[#0057D9] md:hidden">B2B</span>
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-cream/90 px-5 backdrop-blur md:px-8">
+          <span className="shrink-0 text-[15px] font-extrabold text-terra md:hidden">B2B</span>
 
           {/* Geniş arama — satırın büyük kısmını kaplar */}
           <AdminSearch />
@@ -136,17 +135,17 @@ export const AdminShell = ({
           {/* Yeni İşletme Kaydı */}
           <Link
             href="/admin/tedarikciler"
-            className="hidden h-9 shrink-0 items-center gap-2 rounded-lg bg-[#0057D9] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#0047B8] sm:inline-flex"
+            className="hidden h-9 shrink-0 items-center gap-2 rounded-lg bg-terra px-4 text-[13px] font-semibold text-white transition-colors hover:bg-terra-deep sm:inline-flex"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
             Yeni İşletme Kaydı
           </Link>
 
-          <button type="button" className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#64748B] transition-colors hover:bg-[#EFF4FF] hover:text-[#2563EB]" aria-label="Bildirimler">
+          <button type="button" className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#475569] transition-colors hover:bg-cream hover:text-terra" aria-label="Bildirimler">
             <Bell size={18} aria-hidden />
-            <span className="absolute right-[9px] top-[7px] h-2 w-2 rounded-full bg-[#D01B1B] ring-2 ring-[#F8FAFF]" />
+            <span className="absolute right-[9px] top-[7px] h-2 w-2 rounded-full bg-red-600 ring-2 ring-paper" />
           </button>
-          <button type="button" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#64748B] transition-colors hover:bg-[#EFF4FF] hover:text-[#2563EB]" aria-label="Mesajlar">
+          <button type="button" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#475569] transition-colors hover:bg-cream hover:text-terra" aria-label="Mesajlar">
             <Mail size={18} aria-hidden />
           </button>
           <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#BFD8D4] text-[13px] font-extrabold text-[#1F4B45]" title={who}>
@@ -161,12 +160,12 @@ export const AdminShell = ({
 };
 
 export const PageHeader = ({
-  eyebrow,
   title,
   description,
   action,
 }: {
-  eyebrow: string;
+  /** @deprecated Artık gösterilmiyor; çağrı yerleri geriye uyum için hâlâ geçebilir. */
+  eyebrow?: string;
   title: string;
   description: string;
   action?: React.ReactNode;
@@ -174,9 +173,8 @@ export const PageHeader = ({
   return (
     <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2563EB]">{eyebrow}</p>
-        <h2 className="mt-1 text-[30px] font-bold leading-tight text-[#0B1C30]">{title}</h2>
-        <p className="mt-1.5 max-w-[760px] text-[14px] text-[#64748B]">{description}</p>
+        <h2 className="text-[30px] font-bold leading-tight text-ink">{title}</h2>
+        <p className="mt-1.5 max-w-[760px] text-[14px] text-[#475569]">{description}</p>
       </div>
       {action}
     </header>
@@ -187,9 +185,9 @@ export const Metric = ({ title, value, hint }: { title: string; value: number | 
   return (
     <div className="relative overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-[0_4px_12px_rgba(15,23,42,.05)]">
       <span className="absolute inset-x-0 top-0 h-[3px] bg-[#2563EB]" aria-hidden />
-      <p className="text-[11px] font-bold uppercase tracking-[.08em] text-[#64748B]">{title}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[.08em] text-[#475569]">{title}</p>
       <p className="mt-2 text-[30px] font-semibold leading-none text-[#0B1C30]">{value}</p>
-      <p className="mt-2 text-[12px] text-[#64748B]">{hint}</p>
+      <p className="mt-2 text-[12px] text-[#475569]">{hint}</p>
     </div>
   );
 };
@@ -210,7 +208,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
             <Link href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} className="font-bold text-ink hover:text-terra">
               {b.name}
             </Link>
-            <div className="mt-1 text-[12px] text-muted">
+            <div className="mt-1 text-[12px] text-[#475569]">
               {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}
             </div>
           </div>
@@ -316,8 +314,8 @@ export const ApplicationList = ({ applications, locale }: { applications: AdminA
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-[17px]">{application.name}</h3>
-              <p className="text-[13px] text-muted">{application.email} · {application.categoryLabel ?? application.group}</p>
-              <p className="mt-1 text-[12px] text-muted">{formatDate(application.createdAt)}</p>
+              <p className="text-[13px] text-[#475569]">{application.email} · {application.categoryLabel ?? application.group}</p>
+              <p className="mt-1 text-[12px] text-[#475569]">{formatDate(application.createdAt)}</p>
             </div>
             <StatusPill value={application.status} />
           </div>
@@ -346,13 +344,16 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-[17px]">{quote.name}</h3>
-              <p className="text-[13px] text-muted">{quote.email} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
-              <p className="mt-1 text-[12px] text-muted">
+              <p className="text-[13px] text-[#475569]">{quote.email} · {quote.phone ?? "Telefon yok"} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
+              <p className="mt-1 text-[12px] text-[#475569]">
                 {quote.businessId ? `Tedarikçi #${quote.businessId}` : "Genel"} · {quote.people ?? 0} kişi · {formatDate(quote.createdAt)}
               </p>
-              {quote.message && <p className="mt-2 text-[13px] text-muted">{quote.message}</p>}
+              <p className="mt-1 text-[12px] text-[#475569]">
+                {[quote.categoryType, quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || "Filtre yok"}
+              </p>
+              {quote.message && <p className="mt-2 text-[13px] text-[#475569]">{quote.message}</p>}
             </div>
-            <span className="rounded-pill bg-white px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>
+            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-[#475569]">{quote.status}</span>
           </div>
           <div className="mt-3 grid grid-cols-[160px_minmax(0,1fr)_auto] gap-2 max-[640px]:grid-cols-1">
             <select name="status" defaultValue={quote.status} className={input}>
@@ -396,7 +397,7 @@ export const ComingSoon = ({ eyebrow, title, note }: { eyebrow: string; title: s
 );
 
 export const Empty = ({ text }: { text: string }) => {
-  return <p className="rounded-[8px] border border-dashed border-[#d8ded7] bg-[#f3f6f2] p-4 text-[13.5px] text-muted">{text}</p>;
+  return <p className="rounded-[8px] border border-dashed border-[#d8ded7] bg-[#f3f6f2] p-4 text-[13.5px] text-[#475569]">{text}</p>;
 };
 
 export const seoScore = (businesses: AdminBusiness[]): string => {
