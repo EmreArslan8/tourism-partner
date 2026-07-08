@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getPublishedPosts } from "@/lib/blog";
+import { localeAlternates } from "@/lib/seo";
+import type { SiteLocale } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -14,6 +16,7 @@ export async function generateMetadata({
     title: t("metaTitle"),
     description: t("metaDescription"),
     robots: { index: true, follow: true },
+    alternates: localeAlternates(locale as SiteLocale, "/blog"),
   };
 }
 

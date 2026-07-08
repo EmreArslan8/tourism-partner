@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
-import { supplierPath, INDEXING_ENABLED } from "@/lib/site";
+import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
+import { localeAlternates } from "@/lib/seo";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
@@ -29,19 +30,22 @@ export async function generateMetadata({
   const description =
     b.seoDescription ||
     (b.desc ? b.desc.slice(0, 160) : `${b.name}, ${b.city}/${b.country} · ${b.type}`);
-  const canonical = supplierPath(locale === "en" ? "en" : "tr", businessSlug(b));
+  const alternates = localeAlternates(locale as SiteLocale, {
+    pathname: "/supplier/[id]",
+    params: { id: businessSlug(b) },
+  });
 
   return {
     title,
     description,
     keywords: b.seoKeywords,
-    alternates: { canonical },
+    alternates,
     robots: { index: INDEXING_ENABLED, follow: INDEXING_ENABLED },
     openGraph: {
       title,
       description,
       type: "profile",
-      url: canonical,
+      url: alternates.canonical as string,
       images: b.ogImage || b.image ? [{ url: b.ogImage || b.image! }] : undefined,
     },
   };

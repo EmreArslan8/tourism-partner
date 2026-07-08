@@ -5,7 +5,7 @@ import SuggestionRail from "@/components/SuggestionRail";
 import { getExploreResults, getIsGuest } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
 import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
-import { getPathname } from "@/i18n/navigation";
+import { localeAlternates } from "@/lib/seo";
 import type { SiteLocale } from "@/lib/site";
 import ExploreView from "./view";
 
@@ -23,10 +23,10 @@ export async function generateMetadata({
   const isFiltered = Boolean(
     sp.cat || sp.type || sp.city || sp.country || sp.district || sp.q || sp.rating || sp.attr || sp.sort || sp.page,
   );
-  const canonical = getPathname({ href: "/explore", locale: locale as SiteLocale });
   return {
     robots: isFiltered ? { index: false, follow: true } : { index: true, follow: true },
-    alternates: { canonical },
+    // Filtreli olsun olmasın canonical + hreflang temel /kesfet'e işaret eder.
+    alternates: localeAlternates(locale as SiteLocale, "/explore"),
   };
 }
 

@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getPostBySlug } from "@/lib/blog";
+import { localeAlternates } from "@/lib/seo";
+import type { SiteLocale } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -19,6 +21,7 @@ export async function generateMetadata({
     title,
     description,
     robots: { index: true, follow: true },
+    alternates: localeAlternates(locale as SiteLocale, { pathname: "/blog/[slug]", params: { slug } }),
     openGraph: {
       title,
       description,
