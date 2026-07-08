@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { INDEXING_ENABLED } from "@/lib/site";
 import { getPostBySlug } from "@/lib/blog";
 
 export async function generateMetadata({
@@ -19,7 +18,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    robots: { index: INDEXING_ENABLED, follow: INDEXING_ENABLED },
+    robots: { index: true, follow: true },
     openGraph: {
       title,
       description,

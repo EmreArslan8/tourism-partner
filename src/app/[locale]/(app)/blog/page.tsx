@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getPublishedPosts } from "@/lib/blog";
-import { INDEXING_ENABLED } from "@/lib/site";
 
 export async function generateMetadata({
   params,
@@ -14,7 +13,7 @@ export async function generateMetadata({
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    robots: { index: INDEXING_ENABLED, follow: INDEXING_ENABLED },
+    robots: { index: true, follow: true },
   };
 }
 
