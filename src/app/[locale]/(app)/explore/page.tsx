@@ -6,6 +6,7 @@ import { getExploreResults, getIsGuest } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
 import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
 import { localeAlternates } from "@/lib/seo";
+import { getPageSeo, PAGE_SLUGS } from "@/lib/pages";
 import type { SiteLocale } from "@/lib/site";
 import ExploreView from "./view";
 
@@ -23,7 +24,26 @@ export async function generateMetadata({
   const isFiltered = Boolean(
     sp.cat || sp.type || sp.city || sp.country || sp.district || sp.q || sp.rating || sp.attr || sp.sort || sp.page,
   );
+  // Kod içi varsayılan (şablon); admin `/admin/icerik`'te "explore" slug'ıyla üzerine yazabilir.
+  const fallback =
+    locale === "en"
+      ? {
+          title: "Explore Travel Suppliers — Tourism Partner",
+          description:
+            "Hotels, agencies, guides, transfers, activities and health tourism: explore and compare B2B tourism suppliers by category and city.",
+        }
+      : {
+          title: "Turizm Tedarikçilerini Keşfet — Tourism Partner",
+          description:
+            "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi: B2B turizm tedarikçilerini kategoriye ve şehre göre keşfedin, karşılaştırın.",
+        };
+  const override = await getPageSeo(locale, PAGE_SLUGS.explore);
+  const title = override?.seoTitle || fallback.title;
+  const description = override?.seoDescription || fallback.description;
   return {
+    title,
+    description,
+    keywords: override?.seoKeywords.length ? override.seoKeywords : undefined,
     robots: isFiltered ? { index: false, follow: true } : { index: true, follow: true },
     // Filtreli olsun olmasın canonical + hreflang temel /kesfet'e işaret eder.
     alternates: localeAlternates(locale as SiteLocale, "/explore"),

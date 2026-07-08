@@ -286,6 +286,7 @@ export async function saveContentPage(formData: FormData): Promise<void> {
 
     if (error) throw new Error(error.message);
     await logAdminAction(context, "content_page.upsert", "content_page", slug, payload);
+    revalidateTag("content_pages", "max");
     revalidateAdmin(locale);
   } catch (error) {
     throw error;

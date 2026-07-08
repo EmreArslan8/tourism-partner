@@ -3,6 +3,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getPublishedPosts } from "@/lib/blog";
 import { localeAlternates } from "@/lib/seo";
+import { getPageSeo, PAGE_SLUGS } from "@/lib/pages";
 import type { SiteLocale } from "@/lib/site";
 
 export async function generateMetadata({
@@ -11,10 +12,15 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "blog" });
+  // Çeviri varsayılan (şablon); admin `/admin/icerik`'te "blog" slug'ıyla üzerine yazabilir.
+  const [t, override] = await Promise.all([
+    getTranslations({ locale, namespace: "blog" }),
+    getPageSeo(locale, PAGE_SLUGS.blog),
+  ]);
   return {
-    title: t("metaTitle"),
-    description: t("metaDescription"),
+    title: override?.seoTitle || t("metaTitle"),
+    description: override?.seoDescription || t("metaDescription"),
+    keywords: override?.seoKeywords.length ? override.seoKeywords : undefined,
     robots: { index: true, follow: true },
     alternates: localeAlternates(locale as SiteLocale, "/blog"),
   };
