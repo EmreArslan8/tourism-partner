@@ -1,10 +1,34 @@
+import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
 import SuggestionRail from "@/components/SuggestionRail";
 import { getExploreResults, getIsGuest } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
 import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
+import { getPathname } from "@/i18n/navigation";
+import type { SiteLocale } from "@/lib/site";
 import ExploreView from "./view";
+
+/* Filtreli keşfet URL'leri (?cat=&city=…) duplicate/ince içeriktir: noindex + temel /kesfet'e
+   canonical. Filtresiz temel sayfa index'lenir ve kendine canonical verir. */
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<ExploreSearchParams>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const isFiltered = Boolean(
+    sp.cat || sp.type || sp.city || sp.country || sp.district || sp.q || sp.rating || sp.attr || sp.sort || sp.page,
+  );
+  const canonical = getPathname({ href: "/explore", locale: locale as SiteLocale });
+  return {
+    robots: isFiltered ? { index: false, follow: true } : { index: true, follow: true },
+    alternates: { canonical },
+  };
+}
 
 export default async function ExplorePage({
   params,
