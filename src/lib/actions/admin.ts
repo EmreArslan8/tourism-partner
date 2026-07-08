@@ -148,7 +148,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       verified: boolValue(formData, "verified"),
       sponsored: boolValue(formData, "sponsored"),
       attributes: listValue(formData, "attributes"),
-      status: statusValue(formData),
+      status: lifecycleStatusValue(formData),
       seo_title: clean(formData.get("seoTitle"), 90),
       seo_description: clean(formData.get("seoDescription"), 180),
       seo_keywords: listValue(formData, "seoKeywords"),

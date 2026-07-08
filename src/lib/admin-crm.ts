@@ -113,10 +113,11 @@ export function businessesToCsv(
   businesses: AdminBusiness[],
   memberships: AdminMembership[],
   columns: ExportColumn[],
+  emails: Record<number, string> = {},
 ): string {
   const header = columns.map((column) => labelForColumn(column));
   const rows = businesses.map((business) =>
-    columns.map((column) => valueForColumn(business, memberships, column)),
+    columns.map((column) => valueForColumn(business, memberships, column, emails)),
   );
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
@@ -131,11 +132,12 @@ function valueForColumn(
   business: AdminBusiness,
   memberships: AdminMembership[],
   column: ExportColumn,
+  emails: Record<number, string>,
 ): string {
   if (column === "name") return business.name;
   if (column === "address") return `${business.district}, ${business.city}, ${business.country}`;
   if (column === "phone") return business.phone ?? "";
-  if (column === "email") return businessEmail(business);
+  if (column === "email") return emails[business.id] ?? businessEmail(business);
   if (column === "category") return `${business.group} / ${business.type}`;
   if (column === "membership") return membershipEndDate(business.id, memberships);
   if (column === "status") return business.status;

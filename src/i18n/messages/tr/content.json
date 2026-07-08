@@ -170,17 +170,17 @@
     "vf3": "40+ kişi"
   },
   "cta": {
-    "title": "Vitrinde yerinizi alın",
-    "sub": "Firmanızı yayınlayın, doğru acentelerin aramalarında görünün ve teklif fırsatlarını kaçırmayın.",
-    "button": "+ Firma Ekle",
+    "title": "Dopingli görünürlük başlatın",
+    "sub": "Firmanızı kaydedin; vitrinde ve arama sonuçlarında acentelerin daha hızlı fark ettiği tedarikçi olun.",
+    "button": "Dopingli kayıt başlat",
     "secondary": "Üye girişi",
-    "kicker": "Vitrindeki firmalar",
-    "verifiedValue": "Doğrulanır",
-    "verifiedLabel": "yayına alınmadan",
-    "quoteValue": "Eşleşir",
-    "quoteLabel": "gerçek taleplerle",
-    "memberValue": "Açılır",
-    "memberLabel": "üye acentelere"
+    "kicker": "Dopingli firmalar",
+    "verifiedValue": "Üstte görün",
+    "verifiedLabel": "arama listesinde",
+    "quoteValue": "Vitrine çık",
+    "quoteLabel": "öne çıkan alanda",
+    "memberValue": "Daha çok fark edil",
+    "memberLabel": "üye acentelerce"
   },
   "footer": {
     "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",

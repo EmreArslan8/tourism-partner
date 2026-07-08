@@ -44,10 +44,10 @@ const AdminNav = () => {
             key={item.label}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-[7px] border-l-[3px] px-3 py-2.5 text-[13px] font-semibold transition-colors",
+              "flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors",
               active
-                ? "border-terra bg-cream text-ink"
-                : "border-transparent text-[#475569] hover:bg-cream hover:text-terra",
+                ? "bg-cream text-brand"
+                : "text-muted hover:bg-cream/70 hover:text-brand",
             )}
           >
             {item.icon}

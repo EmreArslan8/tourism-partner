@@ -8,15 +8,11 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import AdminNav from "./AdminNav";
 import AdminSearch from "./AdminSearch";
 import Logo from "@/components/Logo";
-import {
-  Card as UICard,
-  CardHeader as UICardHeader,
-  CardTitle as UICardTitle,
-  CardIcon as UICardIcon,
-} from "@/components/common/Card";
+import { CardIcon as UICardIcon } from "@/components/common/Card";
 import DataTable, { type Column } from "@/components/common/DataTable";
 import Field from "@/components/common/Field";
 import { Bell, CircleHelp, LogOut, Mail, Plus } from "lucide-react";
+import { AdminMetric, AdminPageHeader, adminUi } from "./_ui";
 
 /* ============================================================
    Admin kart bileşenleri — tek kaynak olarak ortak common/Card'a delege eder.
@@ -31,9 +27,9 @@ export const IconChip = ({ tone = "blue", children }: { tone?: ChipTone; childre
 );
 
 export const Card = ({ className, children }: { className?: string; children: React.ReactNode }) => (
-  <UICard variant="default" interactive className={className}>
+  <section className={`overflow-hidden ${adminUi.panel} ${className ?? ""}`}>
     {children}
-  </UICard>
+  </section>
 );
 
 export const CardHeader = ({
@@ -47,19 +43,18 @@ export const CardHeader = ({
   title: string;
   action?: React.ReactNode;
 }) => (
-  <UICardHeader>
+  <div className="flex items-center justify-between gap-3 border-b border-line/80 px-5 py-4">
     <div className="flex min-w-0 items-center gap-3">
       {icon && <UICardIcon tone={toIconTone(tone)}>{icon}</UICardIcon>}
-      <UICardTitle>{title}</UICardTitle>
+      <h3 className="truncate text-[15px] font-medium tracking-[0] text-ink">{title}</h3>
     </div>
     {action}
-  </UICardHeader>
+  </div>
 );
 
-export const panel =
-  "rounded-xl border border-line bg-paper p-5 shadow-[0_4px_12px_rgba(15,23,42,.05)]";
-export const label = "flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-[.06em] text-[#475569]";
-export const input = "field min-h-[42px] w-full rounded-lg border-line bg-paper normal-case tracking-normal text-ink";
+export const panel = `${adminUi.panel} p-5`;
+export const label = "flex flex-col gap-1.5 text-[11px] font-semibold uppercase tracking-[.06em] text-muted";
+export const input = adminUi.input;
 export const textarea = `${input} min-h-[110px] py-3`;
 
 export const AdminAccessDenied = () => {
@@ -68,10 +63,10 @@ export const AdminAccessDenied = () => {
       <section className={`${panel} max-w-[520px] text-center`}>
         <p className="text-[12px] font-bold uppercase tracking-[.08em] text-terra">Admin</p>
         <h1 className="mt-2 text-[32px]">Yetkili giriş gerekli</h1>
-        <p className="mt-3 text-[14.5px] text-[#475569]">
+        <p className="mt-3 text-[14.5px] text-muted">
           İçerik, SEO, tedarikçi, başvuru ve teklif yönetimi için admin hesabıyla giriş yapmalısın.
         </p>
-        <Link href="/login" className="btn btn-solid mt-5">Giriş yap</Link>
+        <Link href="/login" className={`mt-5 ${adminUi.sapphireButton}`}>Giriş yap</Link>
       </section>
     </main>
   );
@@ -88,25 +83,25 @@ export const AdminShell = ({
   const initial = (data.userEmail ?? "A").charAt(0).toUpperCase();
 
   return (
-    <div className="flex min-h-screen w-full bg-cream text-ink">
-      <aside className="sticky top-0 hidden h-screen w-[256px] shrink-0 flex-col border-r border-line bg-paper md:flex">
-        <div className="flex h-[100px] items-center px-7">
-          <Logo href="/admin" height={46} priority className="max-w-[170px]" />
+    <div className="flex min-h-screen w-full bg-panel-bg text-ink">
+      <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-line bg-paper/90 md:flex">
+        <div className="flex h-[92px] items-center px-6">
+          <Logo href="/admin" height={42} priority className="max-w-[165px]" />
         </div>
 
         <AdminNav />
 
-        <div className="mt-auto border-t border-line px-6 pb-6 pt-4">
+        <div className="mt-auto border-t border-line/80 px-5 pb-6 pt-4">
           <Link
             href="/admin/tedarikciler"
-            className="mb-5 flex h-9 w-full items-center justify-center gap-2 rounded-[6px] bg-terra text-[13px] font-bold text-white shadow-[0_10px_22px_rgba(15,59,176,.16)] transition-colors hover:bg-terra-deep"
+            className="mb-4 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-sapphire text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
             Yeni İşletme Kaydı
           </Link>
           <Link
             href="/admin/destek"
-            className="flex items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#475569] transition-colors hover:bg-cream hover:text-terra"
+            className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
           >
             <CircleHelp size={17} aria-hidden />
             Destek
@@ -114,7 +109,7 @@ export const AdminShell = ({
           <form action={signOut}>
             <button
               type="submit"
-              className="flex w-full items-center gap-3 rounded-[7px] px-3 py-2.5 text-[13px] font-semibold text-[#475569] transition-colors hover:bg-cream hover:text-terra"
+              className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
             >
               <LogOut size={17} aria-hidden />
               Çıkış Yap
@@ -126,8 +121,8 @@ export const AdminShell = ({
       <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye
             arka plan/çizgi yok ve içerik üstüne binmeyecek şekilde akışta durur. */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-cream/90 px-5 backdrop-blur md:px-8">
-          <span className="shrink-0 text-[15px] font-extrabold text-terra md:hidden">B2B</span>
+        <header className="sticky top-0 z-30 flex h-[70px] items-center gap-3 border-b border-line/80 bg-panel-bg/90 px-5 backdrop-blur md:px-8">
+          <span className="shrink-0 text-[15px] font-semibold text-brand md:hidden">B2B</span>
 
           {/* Geniş arama — satırın büyük kısmını kaplar */}
           <AdminSearch />
@@ -135,25 +130,25 @@ export const AdminShell = ({
           {/* Yeni İşletme Kaydı */}
           <Link
             href="/admin/tedarikciler"
-            className="hidden h-9 shrink-0 items-center gap-2 rounded-lg bg-terra px-4 text-[13px] font-semibold text-white transition-colors hover:bg-terra-deep sm:inline-flex"
+            className="hidden h-10 shrink-0 items-center gap-2 rounded-[8px] bg-sapphire px-4 text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep sm:inline-flex"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
             Yeni İşletme Kaydı
           </Link>
 
-          <button type="button" className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#475569] transition-colors hover:bg-cream hover:text-terra" aria-label="Bildirimler">
+          <button type="button" className="relative grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-line bg-paper text-muted transition-colors hover:bg-cream hover:text-brand" aria-label="Bildirimler">
             <Bell size={18} aria-hidden />
-            <span className="absolute right-[9px] top-[7px] h-2 w-2 rounded-full bg-red-600 ring-2 ring-paper" />
+            <span className="absolute right-[9px] top-[8px] h-2 w-2 rounded-full bg-red-600 ring-2 ring-paper" />
           </button>
-          <button type="button" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#475569] transition-colors hover:bg-cream hover:text-terra" aria-label="Mesajlar">
+          <button type="button" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-line bg-paper text-muted transition-colors hover:bg-cream hover:text-brand" aria-label="Mesajlar">
             <Mail size={18} aria-hidden />
           </button>
-          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#BFD8D4] text-[13px] font-extrabold text-[#1F4B45]" title={who}>
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-cream text-[13px] font-semibold text-brand" title={who}>
             {initial}
           </div>
         </header>
 
-        <div className="flex-1 px-5 pb-7 pt-1 md:px-8">{children}</div>
+        <div className="flex-1 px-5 pb-8 pt-5 md:px-8">{children}</div>
       </main>
     </div>
   );
@@ -171,24 +166,13 @@ export const PageHeader = ({
   action?: React.ReactNode;
 }) => {
   return (
-    <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h2 className="text-[30px] font-bold leading-tight text-ink">{title}</h2>
-        <p className="mt-1.5 max-w-[760px] text-[14px] text-[#475569]">{description}</p>
-      </div>
-      {action}
-    </header>
+    <AdminPageHeader title={title} description={description} action={action} />
   );
 };
 
 export const Metric = ({ title, value, hint }: { title: string; value: number | string; hint: string }) => {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-[0_4px_12px_rgba(15,23,42,.05)]">
-      <span className="absolute inset-x-0 top-0 h-[3px] bg-[#2563EB]" aria-hidden />
-      <p className="text-[11px] font-bold uppercase tracking-[.08em] text-[#475569]">{title}</p>
-      <p className="mt-2 text-[30px] font-semibold leading-none text-[#0B1C30]">{value}</p>
-      <p className="mt-2 text-[12px] text-[#475569]">{hint}</p>
-    </div>
+    <AdminMetric label={title} value={value} hint={hint} />
   );
 };
 
@@ -208,7 +192,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
             <Link href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} className="font-bold text-ink hover:text-terra">
               {b.name}
             </Link>
-            <div className="mt-1 text-[12px] text-[#475569]">
+            <div className="mt-1 text-[12px] text-muted">
               {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}
             </div>
           </div>
@@ -233,7 +217,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
       </div>
       <div className="grid grid-cols-4 gap-3 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
         <Field label="Grup"><select name="group" defaultValue={business?.group ?? "konaklama"} className={input}>{CATEGORY_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}</select></Field>
-        <Field label="Durum"><select name="status" defaultValue={business?.status ?? "pending"} className={input}><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="rejected">Reddedildi</option></select></Field>
+        <Field label="Durum"><select name="status" defaultValue={business?.status ?? "pending"} className={input}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
         <Field label="Ülke" required><input name="country" required defaultValue={business?.country ?? "Türkiye"} className={input} /></Field>
         <Field label="Şehir" required><input name="city" required defaultValue={business?.city ?? ""} className={input} /></Field>
       </div>
@@ -251,7 +235,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
         <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="verified" defaultChecked={business?.verified ?? false} /> Doğrulanmış</label>
         <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="sponsored" defaultChecked={business?.sponsored ?? false} /> Sponsor</label>
       </div>
-      <div className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
+      <div className="rounded-[8px] border border-line bg-cream/45 p-4">
         <h3 className="mb-3 text-[18px]">SEO metadata</h3>
         <div className="grid gap-3">
           <Field label="SEO başlık"><input name="seoTitle" defaultValue={business?.seoTitle ?? ""} className={input} /></Field>
@@ -263,7 +247,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           </div>
         </div>
       </div>
-      <button className="btn btn-solid justify-self-start" type="submit">Tedarikçiyi kaydet</button>
+      <button className={`${adminUi.sapphireButton} justify-self-start`} type="submit">Tedarikçiyi kaydet</button>
     </form>
   );
 };
@@ -282,7 +266,7 @@ export const ContentForm = ({ locale, page }: { locale: string; page?: ContentPa
       <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(page?.seoKeywords ?? []).join(", ")} className={input} /></Field>
       <Field label="Canonical"><input name="canonicalPath" defaultValue={page?.canonicalPath ?? ""} className={input} /></Field>
       <Field label="OG görsel"><input name="ogImage" defaultValue={page?.ogImage ?? ""} className={input} /></Field>
-      <button className="btn btn-solid justify-self-start" type="submit">İçeriği kaydet</button>
+      <button className={`${adminUi.sapphireButton} justify-self-start`} type="submit">İçeriği kaydet</button>
     </form>
   );
 };
@@ -308,14 +292,14 @@ export const ApplicationList = ({ applications, locale }: { applications: AdminA
   return (
     <div className="grid gap-3">
       {applications.map((application) => (
-        <form key={application.id} action={updateApplicationStatus} className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
+        <form key={application.id} action={updateApplicationStatus} className="rounded-[8px] border border-line bg-cream/45 p-4">
           <input type="hidden" name="id" value={application.id} />
           <input type="hidden" name="locale" value={locale} />
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-[17px]">{application.name}</h3>
-              <p className="text-[13px] text-[#475569]">{application.email} · {application.categoryLabel ?? application.group}</p>
-              <p className="mt-1 text-[12px] text-[#475569]">{formatDate(application.createdAt)}</p>
+              <p className="text-[13px] text-muted">{application.email} · {application.categoryLabel ?? application.group}</p>
+              <p className="mt-1 text-[12px] text-muted">{formatDate(application.createdAt)}</p>
             </div>
             <StatusPill value={application.status} />
           </div>
@@ -325,7 +309,7 @@ export const ApplicationList = ({ applications, locale }: { applications: AdminA
               <option value="approved">Onaylandı</option>
               <option value="rejected">Reddedildi</option>
             </select>
-            <button className="btn btn-pine btn-sm" type="submit">Güncelle</button>
+            <button className={adminUi.sapphireButton} type="submit">Güncelle</button>
           </div>
         </form>
       ))}
@@ -338,22 +322,22 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
   return (
     <div className="grid gap-3">
       {quotes.map((quote) => (
-        <form key={quote.id} action={updateQuoteStatus} className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
+        <form key={quote.id} action={updateQuoteStatus} className="rounded-[8px] border border-line bg-cream/45 p-4">
           <input type="hidden" name="id" value={quote.id} />
           <input type="hidden" name="locale" value={locale} />
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-[17px]">{quote.name}</h3>
-              <p className="text-[13px] text-[#475569]">{quote.email} · {quote.phone ?? "Telefon yok"} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
-              <p className="mt-1 text-[12px] text-[#475569]">
+              <p className="text-[13px] text-muted">{quote.email} · {quote.phone ?? "Telefon yok"} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
+              <p className="mt-1 text-[12px] text-muted">
                 {quote.businessId ? `Tedarikçi #${quote.businessId}` : "Genel"} · {quote.people ?? 0} kişi · {formatDate(quote.createdAt)}
               </p>
-              <p className="mt-1 text-[12px] text-[#475569]">
+              <p className="mt-1 text-[12px] text-muted">
                 {[quote.categoryType, quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || "Filtre yok"}
               </p>
-              {quote.message && <p className="mt-2 text-[13px] text-[#475569]">{quote.message}</p>}
+              {quote.message && <p className="mt-2 text-[13px] text-muted">{quote.message}</p>}
             </div>
-            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-[#475569]">{quote.status}</span>
+            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>
           </div>
           <div className="mt-3 grid grid-cols-[160px_minmax(0,1fr)_auto] gap-2 max-[640px]:grid-cols-1">
             <select name="status" defaultValue={quote.status} className={input}>
@@ -363,7 +347,7 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
               <option value="lost">Kaybedildi</option>
             </select>
             <input name="internalNote" defaultValue={quote.internalNote ?? ""} placeholder="İç not" className={input} />
-            <button className="btn btn-pine btn-sm" type="submit">Kaydet</button>
+            <button className={adminUi.sapphireButton} type="submit">Kaydet</button>
           </div>
         </form>
       ))}
@@ -384,12 +368,12 @@ export const StatusPill = ({ value }: { value: string }) => {
 export const ComingSoon = ({ eyebrow, title, note }: { eyebrow: string; title: string; note?: string }) => (
   <>
     <PageHeader eyebrow={eyebrow} title={title} description={note ?? "Bu modül yakında eklenecek."} />
-    <div className="grid place-items-center rounded-xl border border-dashed border-[#E2E8F0] bg-white px-6 py-24 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-full bg-[#EFF4FF] text-[#2563EB]">
+    <div className="grid place-items-center rounded-xl border border-dashed border-line bg-paper px-6 py-24 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-cream text-brand">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
       </div>
-      <h3 className="mt-4 text-[20px] font-bold text-[#0B1C30]">Yakında</h3>
-      <p className="mt-1.5 max-w-[420px] text-[14px] text-[#64748B]">
+      <h3 className="mt-4 text-[20px] font-bold text-ink">Yakında</h3>
+      <p className="mt-1.5 max-w-[420px] text-[14px] text-muted">
         Bu sekmenin tasarımı hazırlandıkça eklenecek. Menüde yerini şimdiden aldı.
       </p>
     </div>
@@ -397,7 +381,7 @@ export const ComingSoon = ({ eyebrow, title, note }: { eyebrow: string; title: s
 );
 
 export const Empty = ({ text }: { text: string }) => {
-  return <p className="rounded-[8px] border border-dashed border-[#d8ded7] bg-[#f3f6f2] p-4 text-[13.5px] text-[#475569]">{text}</p>;
+  return <p className="rounded-[8px] border border-dashed border-line bg-cream/45 p-4 text-[13.5px] text-muted">{text}</p>;
 };
 
 export const seoScore = (businesses: AdminBusiness[]): string => {

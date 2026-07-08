@@ -33,7 +33,7 @@ export default async function AuthShell({ children }: { children: React.ReactNod
 
         {/* Logo (beyaz varyant, koyu panel) + slogan */}
         <div className="relative">
-          <Logo href="/" variant="light" height={75} priority />
+          <Logo href="/" variant="light" height={58} priority />
           <p className="mt-3 text-[15px] font-medium ">{t("brandSlogan")}</p>
         </div>
 

@@ -28,6 +28,7 @@ export default function SuggestionRail({ items }: { items: Business[] }) {
             key={b.id}
             business={b}
             impressionId={b.id}
+            href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }}
             flag={dopingRank(b) === 2 ? tCommon("ad") : dopingRank(b) === 1 ? tCommon("featured") : null}
             showStars
           >

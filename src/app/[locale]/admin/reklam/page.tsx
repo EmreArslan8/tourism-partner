@@ -4,10 +4,9 @@ import { getAdminData } from "@/lib/admin";
 import { getAdminAdData } from "@/lib/platform-data";
 import { createAdBanner, deleteAdBanner } from "@/lib/actions/platform";
 import { PageHeader, Card, CardHeader, Metric } from "../_components";
+import { adminUi } from "../_ui";
 import { Field, DataTable, StatusBadge, EmptyState, ConfirmAction, type Column } from "@/components/common";
 import type { AdBannerRow } from "@/lib/supabase/database.types";
-
-const input = "field min-h-[42px] w-full rounded-lg border-[#E2E8F0] bg-white normal-case tracking-normal text-[#0B1C30]";
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -39,13 +38,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           <form action={createAdBanner} className="p-5">
             <input type="hidden" name="locale" value={locale} />
             <div className="grid gap-3 md:grid-cols-2">
-              <Field label="Banner başlığı" required><input name="title" required className={input} placeholder="Yaz sezonu kampanyası" /></Field>
-              <Field label="Yönlendirme URL" required><input name="target_url" required className={input} placeholder="https://..." /></Field>
-              <Field label="Başlangıç tarihi"><input name="starts_at" type="date" className={input} /></Field>
-              <Field label="Bitiş tarihi"><input name="ends_at" type="date" className={input} /></Field>
-              <Field label="Görsel yolu" required className="md:col-span-2"><input name="image_url" required className={input} placeholder="https://...supabase.co/storage/v1/object/public/business-images/..." /></Field>
+              <Field label="Banner başlığı" required><input name="title" required className={adminUi.input} placeholder="Yaz sezonu kampanyası" /></Field>
+              <Field label="Yönlendirme URL" required><input name="target_url" required className={adminUi.input} placeholder="https://..." /></Field>
+              <Field label="Başlangıç tarihi"><input name="starts_at" type="date" className={adminUi.input} /></Field>
+              <Field label="Bitiş tarihi"><input name="ends_at" type="date" className={adminUi.input} /></Field>
+              <Field label="Görsel yolu" required className="md:col-span-2"><input name="image_url" required className={adminUi.input} placeholder="https://...supabase.co/storage/v1/object/public/business-images/..." /></Field>
             </div>
-            <button type="submit" className="mt-4 h-10 rounded-lg bg-[#0057D9] px-5 text-[13px] font-extrabold text-white hover:bg-[#0047B8]">
+            <button type="submit" className={`mt-4 ${adminUi.sapphireButton}`}>
               Banner Kaydet
             </button>
           </form>
@@ -63,7 +62,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           title="Mevcut Bannerlar"
           tone="blue"
           icon={<Megaphone size={18} aria-hidden />}
-          action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{ads.banners.length} banner</span>}
+          action={<span className="shrink-0 text-[12px] font-semibold text-muted">{ads.banners.length} banner</span>}
         />
         {ads.banners.length === 0 ? (
           <EmptyState className="border-0" title="Henüz banner yok" description="Yukarıdaki formdan ilk banner'ı ekleyin." />
@@ -73,13 +72,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             getRowKey={(b) => b.id}
             minWidth={720}
             columns={[
-              { key: "title", header: "Başlık", cell: (b) => <span className="font-bold text-[#162238]">{b.title}</span> },
-              { key: "placement", header: "Yerleşim", cell: (b) => <span className="text-[#475569]">{b.placement}</span> },
+              { key: "title", header: "Başlık", cell: (b) => <span className="font-bold text-ink">{b.title}</span> },
+              { key: "placement", header: "Yerleşim", cell: (b) => <span className="text-muted">{b.placement}</span> },
               { key: "status", header: "Durum", cell: (b) => <StatusBadge tone={BANNER_TONE[b.status] ?? "neutral"}>{b.status}</StatusBadge> },
               {
                 key: "date",
                 header: "Tarih",
-                cell: (b) => <span className="text-[#475569]">{bannerRange(b.starts_at, b.ends_at)}</span>,
+                cell: (b) => <span className="text-muted">{bannerRange(b.starts_at, b.ends_at)}</span>,
               },
               {
                 key: "action",
@@ -136,14 +135,14 @@ const DopingCard = ({
   empty: string;
 }) => (
   <Card className="hover:translate-y-0">
-    <CardHeader title={title} tone={tone} icon={icon} action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{items.length}</span>} />
+    <CardHeader title={title} tone={tone} icon={icon} action={<span className="shrink-0 text-[12px] font-semibold text-muted">{items.length}</span>} />
     <div className="p-4">
       {items.length === 0 ? (
-        <p className="px-1 py-3 text-[13px] font-semibold text-[#475569]">{empty}</p>
+        <p className="px-1 py-3 text-[13px] font-semibold text-muted">{empty}</p>
       ) : (
         <div className="grid gap-2">
           {items.map((item) => (
-            <div key={item} className="rounded-lg border border-line bg-[#FBFCFF] px-3 py-2 text-[13px] font-bold text-[#3D4B64]">
+            <div key={item} className="rounded-lg border border-line bg-cream/45 px-3 py-2 text-[13px] font-bold text-ink/80">
               {item}
             </div>
           ))}

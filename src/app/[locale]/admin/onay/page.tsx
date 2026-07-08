@@ -12,7 +12,7 @@ const AdminApprovalsPage = async ({
   const data = await getAdminData();
 
   // Onay havuzu = gerçek işletme kayıtları (kayıt + panelden gelen evrak/detayla).
-  return <ApprovalsView businesses={data.businesses} locale={locale} />;
+  return <ApprovalsView applications={data.applications} businesses={data.businesses} locale={locale} />;
 };
 
 export default AdminApprovalsPage;

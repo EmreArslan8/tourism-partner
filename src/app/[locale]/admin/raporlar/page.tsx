@@ -2,7 +2,7 @@ import { Eye, MousePointerClick, TrendingUp, Users } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/common";
+import { AdminMetric, AdminPage, AdminPanel, adminUi } from "../_ui";
 
 type AdvancedQuery = { period: string; city: string; group: string };
 
@@ -80,19 +80,16 @@ export default async function Page({
   const detailViews = data.pageViews.filter((view) => view.entityType === "business").length;
 
   return (
-    <>
-      <header className="mb-6">
-        <h2 className="text-[30px] font-extrabold leading-tight text-[#0B1C30]">Veri Analitiği</h2>
-        <p className="mt-1.5 max-w-[760px] text-[14px] font-medium leading-6 text-[#475569]">
-          Görüntülenme, bölge yoğunluğu ve kategori performansını takip edin. Son 7 gün.
-        </p>
-      </header>
+    <AdminPage
+      title="Veri Analitiği"
+      description="Görüntülenme, bölge yoğunluğu ve kategori performansını takip edin. Son 7 gün."
+    >
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <ReportCard icon={<TrendingUp size={20} aria-hidden />} label="Çoğul Görüntülenme" value={totalViews} hint="Toplam olay (impression + detay)" />
-        <ReportCard icon={<Users size={20} aria-hidden />} label="Tekil Ziyaretçi" value={uniqueVisitors} hint="Distinct ziyaretçi (bot hariç)" />
-        <ReportCard icon={<Eye size={20} aria-hidden />} label="Kart Impression" value={impressions} hint="Kart ekrana geldi" />
-        <ReportCard icon={<MousePointerClick size={20} aria-hidden />} label="Detay Ziyareti" value={detailViews} hint="Profil sayfası açıldı" />
+        <AdminMetric icon={<TrendingUp size={20} aria-hidden />} label="Çoğul Görüntülenme" value={totalViews.toLocaleString("tr-TR")} hint="Toplam olay (impression + detay)" />
+        <AdminMetric icon={<Users size={20} aria-hidden />} label="Tekil Ziyaretçi" value={uniqueVisitors.toLocaleString("tr-TR")} hint="Distinct ziyaretçi (bot hariç)" tone="emerald" />
+        <AdminMetric icon={<Eye size={20} aria-hidden />} label="Kart Impression" value={impressions.toLocaleString("tr-TR")} hint="Kart ekrana geldi" />
+        <AdminMetric icon={<MousePointerClick size={20} aria-hidden />} label="Detay Ziyareti" value={detailViews.toLocaleString("tr-TR")} hint="Profil sayfası açıldı" tone="amber" />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-2">
@@ -100,101 +97,77 @@ export default async function Page({
         <ReportPanel title="Kategori Yoğunluğu" rows={topGroups} />
       </div>
 
-      <section className="mt-6 rounded-[10px] border border-[#D4DCEA] bg-white p-5 shadow-[0_8px_18px_rgba(15,23,42,.04)]">
-        <h3 className="text-[18px] font-extrabold text-[#162238]">Gelişmiş Sorgu</h3>
+      <AdminPanel title="Gelişmiş Sorgu" className="mt-6" bodyClassName="p-5">
         <form method="get" className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
-          <select name="period" defaultValue={period} className="h-10 rounded-[8px] border border-[#C9D3E5] bg-white px-3 text-[13px] font-semibold text-[#162238]">
+          <select name="period" defaultValue={period} className={adminUi.input}>
             <option value="30d">Son 30 gün</option>
             <option value="7d">Son 7 gün</option>
             <option value="month">Bu ay</option>
           </select>
-          <select name="city" defaultValue={selectedCity} className="h-10 rounded-[8px] border border-[#C9D3E5] bg-white px-3 text-[13px] font-semibold text-[#162238]">
+          <select name="city" defaultValue={selectedCity} className={adminUi.input}>
             <option value="">Tüm bölgeler</option>
             {topCities.map((city) => <option key={city.label} value={city.label}>{city.label}</option>)}
           </select>
-          <select name="group" defaultValue={selectedGroup} className="h-10 rounded-[8px] border border-[#C9D3E5] bg-white px-3 text-[13px] font-semibold text-[#162238]">
+          <select name="group" defaultValue={selectedGroup} className={adminUi.input}>
             <option value="">Tüm kategoriler</option>
             {topGroups.map((group) => <option key={group.label} value={group.label}>{group.label}</option>)}
           </select>
-          <button type="submit" className="h-10 rounded-[8px] bg-[#0057D9] px-5 text-[13px] font-extrabold text-white hover:bg-[#0047B8]">
+          <button type="submit" className={adminUi.sapphireButton}>
             Analiz Et
           </button>
         </form>
 
         {advanced && (
-          <div className="mt-5 border-t border-[#EAEFF7] pt-5">
+          <div className="mt-5 border-t border-line/80 pt-5">
             <div className="flex flex-wrap items-baseline gap-3">
-              <p className="text-[13px] font-bold text-[#475569]">
+              <p className="text-[13px] font-bold text-muted">
                 {periodLabel}
                 {selectedCity && ` · ${selectedCity}`}
                 {selectedGroup && ` · ${selectedGroup}`}
               </p>
             </div>
-            <p className="mt-2 text-[34px] font-black leading-none text-[#0B1C30]">
+            <p className="mt-2 text-[34px] font-black leading-none text-ink">
               {advanced.total.toLocaleString("tr-TR")}
-              <span className="ml-2 text-[13px] font-bold text-[#64748B]">görüntülenme</span>
+              <span className="ml-2 text-[13px] font-bold text-muted">görüntülenme</span>
             </p>
             {advanced.top.length > 0 ? (
               <div className="mt-4 grid gap-2">
-                <p className="text-[12px] font-extrabold uppercase tracking-[.08em] text-[#475569]">En çok görüntülenen 5 işletme</p>
+                <p className="text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">En çok görüntülenen 5 işletme</p>
                 {advanced.top.map((row) => (
-                  <div key={row.label} className="flex justify-between gap-3 rounded-[8px] border border-[#EAEFF7] bg-[#FBFCFF] px-3 py-2 text-[13px] font-bold text-[#3D4B64]">
+                  <div key={row.label} className="flex justify-between gap-3 rounded-[8px] border border-line/80 bg-cream/45 px-3 py-2 text-[13px] font-bold text-ink/80">
                     <span className="truncate">{row.label}</span>
                     <span>{row.count}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mt-3 text-[13px] font-semibold text-[#475569]">Seçilen kriterlerde görüntülenme kaydı bulunamadı.</p>
+              <p className="mt-3 text-[13px] font-semibold text-muted">Seçilen kriterlerde görüntülenme kaydı bulunamadı.</p>
             )}
           </div>
         )}
-      </section>
-    </>
+      </AdminPanel>
+    </AdminPage>
   );
 }
-
-/* common/Card (composition) ile beslenen metric kartı. */
-const ReportCard = ({
-  icon,
-  label,
-  value,
-  hint,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number;
-  hint?: string;
-}) => (
-  <Card interactive>
-    <CardContent>
-      <div className="mb-4 grid h-10 w-10 place-items-center rounded-[8px] bg-[#EEF4FF] text-[#0057D9]">{icon}</div>
-      <p className="text-[12px] font-extrabold uppercase tracking-[.08em] text-[#475569]">{label}</p>
-      <p className="mt-2 text-[30px] font-black leading-none text-[#0B1C30]">{value.toLocaleString("tr-TR")}</p>
-      {hint && <p className="mt-1.5 text-[11.5px] font-medium text-[#64748B]">{hint}</p>}
-    </CardContent>
-  </Card>
-);
 
 const ReportPanel = ({ title, rows }: { title: string; rows: Array<{ label: string; count: number }> }) => {
   const max = Math.max(...rows.map((row) => row.count), 1);
   return (
-    <section className="rounded-[10px] border border-[#D4DCEA] bg-white p-5 shadow-[0_8px_18px_rgba(15,23,42,.04)]">
-      <h3 className="mb-4 text-[18px] font-extrabold text-[#162238]">{title}</h3>
+    <AdminPanel title={title} bodyClassName="p-5">
       <div className="grid gap-3">
         {rows.map((row) => (
           <div key={row.label}>
-            <div className="mb-1 flex justify-between gap-3 text-[13px] font-bold text-[#3D4B64]">
+            <div className="mb-1 flex justify-between gap-3 text-[13px] font-medium text-ink/80">
               <span>{row.label}</span>
               <span>{row.count}</span>
             </div>
-            <div className="h-2 rounded-full bg-[#EEF4FF]">
-              <div className="h-2 rounded-full bg-[#0057D9]" style={{ width: `${Math.max(8, (row.count / max) * 100)}%` }} />
+            <div className="h-2 rounded-full bg-cream">
+              <div className="h-2 rounded-full bg-sapphire" style={{ width: `${Math.max(8, (row.count / max) * 100)}%` }} />
             </div>
           </div>
         ))}
       </div>
-    </section>
+    </AdminPanel>
   );
 };
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import type { CrmFilters } from "@/lib/admin-crm";
+import { adminUi } from "../_ui";
 
 type Column = { key: string; label: string };
 const DEFAULT_CHECKED = new Set(["name", "address", "phone", "email"]);
@@ -31,7 +32,7 @@ const ExportMenu = ({
           onOpen?.();
           setOpen((v) => !v);
         }}
-        className="inline-flex h-10 shrink-0 items-center gap-2 rounded-[8px] border border-[#C9D3E5] bg-white px-4 text-[13px] font-bold text-[#0057D9] shadow-[0_1px_2px_rgba(15,23,42,.04)] transition-colors hover:border-[#A9B8D0] hover:bg-[#F8FAFF]"
+        className={adminUi.ghostButton}
         aria-expanded={open}
       >
         <Download size={15} aria-hidden />
@@ -42,9 +43,9 @@ const ExportMenu = ({
         <>
           {/* dışarı tıkla → kapat */}
           <button type="button" aria-hidden className="fixed inset-0 z-30 cursor-default" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-40 mt-2 w-[420px] rounded-[10px] border border-[#D4DCEA] bg-white p-4 shadow-[0_18px_44px_rgba(15,23,42,.18)]">
-            <p className="mb-1 text-[14px] font-semibold text-[#0B1C30]">Dışa aktar</p>
-            <p className="mb-3 text-[12.5px] text-[#64748B]">
+          <div className="absolute right-0 z-40 mt-2 w-[420px] rounded-[10px] border border-line bg-paper p-4 shadow-card">
+            <p className="mb-1 text-[14px] font-semibold text-ink">Dışa aktar</p>
+            <p className="mb-3 text-[12.5px] text-muted">
               {hasSelection
                 ? `${selectedIds.length} seçili işletme indirilecek.`
                 : "İşletme seçmezsen mevcut filtrelerdeki kayıtlar indirilir."}
@@ -58,17 +59,17 @@ const ExportMenu = ({
                 <input key={id} type="hidden" name="ids" value={id} />
               ))}
 
-              <div className="grid grid-cols-2 gap-2 text-[13px] font-medium text-[#3D4B64]">
+              <div className="grid grid-cols-2 gap-2 text-[13px] font-medium text-ink/80">
                 {columns.map((item) => (
-                  <label key={item.key} className="flex items-center gap-2 rounded-[7px] border border-[#D4DCEA] bg-[#F8FAFF] px-2.5 py-2">
-                    <input name="columns" value={item.key} type="checkbox" defaultChecked={DEFAULT_CHECKED.has(item.key)} className="accent-[#0057D9]" />
+                  <label key={item.key} className="flex items-center gap-2 rounded-[7px] border border-line bg-cream/45 px-2.5 py-2">
+                    <input name="columns" value={item.key} type="checkbox" defaultChecked={DEFAULT_CHECKED.has(item.key)} className="accent-sapphire" />
                     {item.label}
                   </label>
                 ))}
               </div>
               <button
                 type="submit"
-                className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-[7px] bg-[#0057D9] px-4 text-[13px] font-extrabold text-white hover:bg-[#0047B8]"
+                className={`mt-3 w-full ${adminUi.sapphireButton}`}
               >
                 <Download size={15} aria-hidden />
                 İndir

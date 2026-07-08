@@ -20,7 +20,7 @@ const FilterBar = ({
   onPick,
   onMinRating,
 }: {
-  businesses: Business[];
+  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
   country: string;
   city: string;
   district: string;

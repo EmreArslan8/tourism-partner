@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -8,11 +8,9 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { businessSlug } from "@/lib/business-slug";
 import { facetLabel } from "@/lib/facets";
 import { cn } from "@/lib/utils";
-import {
-  filterAndSortBusinesses,
-  dopingRank,
-} from "@/lib/listing";
-import type { Business, GroupKey, ListingFilters, Sort } from "@/lib/types";
+import { dopingRank } from "@/lib/listing";
+import type { Business, GroupKey, Sort } from "@/lib/types";
+import type { ExploreIndexItem, ExploreMapItem } from "@/lib/explore-search";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
@@ -22,7 +20,7 @@ import FacetPanel from "./FacetPanel";
 import BottomSheet from "./BottomSheet";
 import SearchBox, { type Suggestion } from "./SearchBox";
 import ActiveTags, { type FilterTag } from "./ActiveTags";
-import Pagination from "./Pagination";
+import TopProgressBar from "@/components/TopProgressBar";
 import styles from "./styles";
 
 
@@ -33,12 +31,21 @@ const MapPanel = dynamic(() => import("@/components/MapPanel"), {
   ),
 });
 
-const PAGE_SIZE = 9;
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
 
+/* Keşfet listesi — SUNUCU-GÜDÜMLÜ.
+   Filtre/sıralama/sayfalama artık `lib/explore-search.getExploreResults` içinde (sunucu).
+   Bu bileşen yalnız: kontrol state'i tutar, değişimi URL'e yazar (useTransition ile anlık his),
+   ve sunucudan gelen sonuçları (items/total/pageCount) + hafif index'i (arama/seçici) + mapItems'ı
+   (harita) render eder. Ağır iş ve ağır veri istemciye inmez. */
 const ListingView = ({
   isGuest = false,
-  businesses = [],
+  items = [],
+  index = [],
+  mapItems = [],
+  total = 0,
+  page: serverPage = 1,
+  pageCount = 1,
   initialGroups = [],
   initialTypes = [],
   initialCountry = "all",
@@ -50,7 +57,12 @@ const ListingView = ({
   initialAttrs = [],
 }: {
   isGuest?: boolean;
-  businesses?: Business[];
+  items?: Business[];
+  index?: ExploreIndexItem[];
+  mapItems?: ExploreMapItem[];
+  total?: number;
+  page?: number;
+  pageCount?: number;
   initialGroups?: GroupKey[];
   initialTypes?: string[];
   initialCountry?: string;
@@ -66,6 +78,7 @@ const ListingView = ({
   const tCommon = useTranslations("common");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   const [groups, setGroups] = useState<Set<GroupKey>>(new Set(initialGroups));
   const [types, setTypes] = useState<Set<string>>(new Set(initialTypes));
@@ -76,55 +89,70 @@ const ListingView = ({
   const [minRating, setMinRating] = useState(initialMinRating);
   const [attrs, setAttrs] = useState<Set<string>>(new Set(initialAttrs));
   const [sort, setSort] = useState<Sort>(initialSort);
+  const [page, setPage] = useState(serverPage);
   const [view, setView] = useState<"list" | "map">("list");
-  const [page, setPage] = useState(1);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [visibleItems, setVisibleItems] = useState<Business[]>(items);
+  const resultKeyRef = useRef("");
 
-  // Yazarken input akıcı kalsın diye arama metnini geciktiriyoruz;
-  // ağır liste hesabı arka planda, düşük öncelikte güncellenir.
+  // Yazarken URL'e yazmayı geciktir (doğal debounce); sunucu isteği arka planda.
   const deferredQ = useDeferredValue(q);
 
-  const countries = useMemo(() => uniqSorted(businesses.map((b) => b.country)), [businesses]);
+  // İl/ilçe/ülke seçenekleri hafif index'ten (tüm veri değil).
+  const countries = useMemo(() => uniqSorted(index.map((b) => b.country)), [index]);
   const cities = useMemo(
-    () => uniqSorted(businesses.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
-    [businesses, country]
+    () => uniqSorted(index.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
+    [index, country]
   );
   const districts = useMemo(
     () =>
       city === "all"
         ? []
-        : uniqSorted(
-            businesses.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)
-          ),
-    [businesses, city, country]
+        : uniqSorted(index.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)),
+    [index, city, country]
   );
 
-  // Saf süzme/sıralama/skor mantığı lib/listing.ts'te; burada yalnız state → filtre nesnesi.
-  const filters: ListingFilters = useMemo(
-    () => ({ groups, types, country, city, district, minRating, attrs }),
-    [groups, types, country, city, district, minRating, attrs]
-  );
-
-  const filtered = useMemo(
-    () => filterAndSortBusinesses(businesses, filters, deferredQ, sort),
-    [businesses, filters, deferredQ, sort]
-  );
-
-  // Kelime araması yapılıyorsa ülke seçimi zorunlu (modern "önce konum" akışı):
-  // ülke seçili değilse sonuç yerine ülke seçtiren bir ekran gösterilir.
+  // Kelime araması yapılıyorsa ülke seçimi zorunlu (önce konum akışı).
   const needsCountry = deferredQ.trim() !== "" && country === "all";
+  const shownPage = Math.min(page, pageCount);
+  const resultKey = useMemo(
+    () =>
+      JSON.stringify({
+        groups: initialGroups,
+        types: initialTypes,
+        country: initialCountry,
+        city: initialCity,
+        district: initialDistrict,
+        q: initialQ,
+        minRating: initialMinRating,
+        sort: initialSort,
+        attrs: initialAttrs,
+      }),
+    [initialGroups, initialTypes, initialCountry, initialCity, initialDistrict, initialQ, initialMinRating, initialSort, initialAttrs]
+  );
+  const shownCount = Math.min(visibleItems.length, total);
+  const hasMore = pageCount > 1 && shownPage < pageCount && shownCount < total;
 
-  const maxPage = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, maxPage);
-  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  useEffect(() => {
+    const changedResultSet = resultKeyRef.current !== resultKey;
+    if (changedResultSet || serverPage <= 1) {
+      resultKeyRef.current = resultKey;
+      setVisibleItems(items);
+      return;
+    }
+    setVisibleItems((prev) => {
+      const next = new Map(prev.map((item) => [item.id, item]));
+      items.forEach((item) => next.set(item.id, item));
+      return [...next.values()];
+    });
+  }, [items, resultKey, serverPage]);
 
   function toggleGroup(g: GroupKey) {
     setGroups((prev) => {
       const next = new Set(prev);
       if (next.has(g)) next.delete(g);
       else next.add(g);
-      // Grup kalkınca o gruba ait seçili alt türleri de temizle.
       const stillValid = new Set(
         CATEGORY_GROUPS.filter((cg) => next.has(cg.key)).flatMap((cg) => cg.children.map((c) => c.label))
       );
@@ -158,10 +186,10 @@ const ListingView = ({
   }
   function handlePick(s: Suggestion) {
     if (s.kind === "business") {
-      const business = businesses.find((b) => b.id === s.id);
+      const business = index.find((b) => b.id === s.id);
       router.push({
         pathname: "/supplier/[id]",
-        params: { id: business ? businessSlug(business) : s.id.toString() }
+        params: { id: business ? businessSlug({ name: business.name }) : s.id.toString() },
       });
       return;
     }
@@ -192,7 +220,8 @@ const ListingView = ({
     setPage(1);
   }
 
-  // Filtre durumunu URL'e yansıt (paylaşılabilir link + geri/ileri + SSR ön-filtre).
+  // Filtre/sayfa durumunu URL'e yaz → sunucu yeni sonuçları döner. useTransition ile
+  // giriş akıcı kalır, sunucu compute arka planda çalışır (anlık his + ölçek).
   useEffect(() => {
     const p = new URLSearchParams();
     if (groups.size) p.set("cat", [...groups].join(","));
@@ -204,15 +233,15 @@ const ListingView = ({
     if (minRating > 0) p.set("rating", String(minRating));
     if (attrs.size) p.set("attr", [...attrs].join(","));
     if (sort !== "featured") p.set("sort", sort);
+    if (page > 1) p.set("page", String(page));
     const qs = p.toString();
     if (qs !== (searchParams?.toString() ?? "")) {
-      router.replace(
-        { pathname: "/explore", query: Object.fromEntries(p) },
-        { scroll: false }
-      );
+      startTransition(() => {
+        router.replace({ pathname: "/explore", query: Object.fromEntries(p) }, { scroll: false });
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, minRating, attrs, sort]);
+  }, [groups, types, country, city, district, deferredQ, minRating, attrs, sort, page]);
 
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
@@ -240,11 +269,20 @@ const ListingView = ({
     setPage(1);
   }
 
-  const visibleCount = filtered.length;
-  const hasNoDatabaseResults = !isGuest && businesses.length === 0;
+  const hasNoDatabaseResults = !isGuest && index.length === 0;
+  const quoteQuery = useMemo(() => {
+    const query: Record<string, string> = {};
+    if (groups.size) query.cat = [...groups].join(",");
+    if (types.size) query.type = [...types].join(",");
+    if (country !== "all") query.country = country;
+    if (city !== "all") query.city = city;
+    if (district !== "all") query.district = district;
+    if (deferredQ.trim()) query.q = deferredQ.trim();
+    if (minRating > 0) query.rating = String(minRating);
+    if (attrs.size) query.attr = [...attrs].join(",");
+    return query;
+  }, [groups, types, country, city, district, deferredQ, minRating, attrs]);
 
-  // Misafir bilgilendirme şeridi: yalnızca dopingli/premium işletmeler gösterilir,
-  // tüm tedarikçileri görmek için giriş/kayıt. (Kart listesi normal render edilir.)
   const guestBanner = isGuest ? (
     <div className={styles.guestBanner}>
       <div className={styles.guestBannerIcon} aria-hidden>
@@ -264,7 +302,6 @@ const ListingView = ({
     </div>
   ) : null;
 
-  // Kelime araması var ama ülke seçilmemiş → "önce ülke seç" + popüler ülke çipleri.
   const countryPrompt = (
     <div className={styles.countryAsk}>
       <div className={styles.countryAskIcon} aria-hidden>
@@ -290,8 +327,11 @@ const ListingView = ({
   );
 
   const resultsColumn = (gridClass: string) => (
-    <div>
-      {filtered.length === 0 ? (
+    <div
+      aria-busy={isPending}
+      className={cn("transition-opacity duration-200", isPending && "pointer-events-none opacity-55")}
+    >
+      {total === 0 ? (
         <div className={styles.empty}>
           <h3 className={styles.emptyTitle}>{hasNoDatabaseResults ? "DB verisi görünmüyor" : t("emptyTitle")}</h3>
           <p className={styles.emptyText}>
@@ -303,22 +343,23 @@ const ListingView = ({
         </div>
       ) : (
         <div className={gridClass}>
-          {pageItems.map((b) => (
+          {visibleItems.map((b) => (
             <SupplierCard
               key={b.id}
               business={b}
               impressionId={b.id}
+              href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }}
               flag={dopingRank(b) === 2 ? tCommon("ad") : dopingRank(b) === 1 ? tCommon("featured") : null}
               showStars
             >
-              <Link 
-                href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} 
+              <Link
+                href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }}
                 className="btn btn-outline btn-sm !px-3.5 !py-2 !text-[12.5px]"
               >
                 {tCommon("detail")}
               </Link>
-              <Link 
-                href={{ pathname: "/quote", query: { s: b.id.toString() } }} 
+              <Link
+                href={{ pathname: "/quote", query: { s: b.id.toString() } }}
                 className="btn btn-solid btn-sm !px-3.5 !py-2 !text-[12.5px]"
               >
                 {tCommon("requestQuote")}
@@ -327,7 +368,19 @@ const ListingView = ({
           ))}
         </div>
       )}
-      <Pagination page={safePage} maxPage={maxPage} onPage={setPage} />
+      {hasMore && (
+        <div className={styles.loadMoreWrap}>
+          <p className={styles.loadMoreText}>{t("shownCount", { shown: shownCount, total })}</p>
+          <button
+            type="button"
+            className={styles.loadMoreBtn}
+            disabled={isPending}
+            onClick={() => setPage(Math.min(shownPage + 1, pageCount))}
+          >
+            {isPending ? t("loadingMore") : t("loadMore")}
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -340,7 +393,6 @@ const ListingView = ({
     />
   );
 
-  // Mobil "Filtreler" rozeti için aktif konum/puan sayısı.
   const activeRefine =
     (country !== "all" ? 1 : 0) +
     (city !== "all" ? 1 : 0) +
@@ -362,15 +414,17 @@ const ListingView = ({
   };
 
   return (
-    <div>
+    <div className="relative">
+      {/* Filtre/arama/sayfa güncellenirken üstte gerçek ilerleme çubuğu (dolup sona doğru yavaşlar,
+          bitince tamamlanır). Sonuçlar stale-while-revalidate: eski kartlar görünür kalır, soluklaşır. */}
+      <TopProgressBar active={isPending} />
+
       <div className={styles.head}>
-        <p className={styles.eyebrow}>{t("eyebrow")}</p>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.sub}>{t("sub")}</p>
       </div>
 
       <div className={styles.layout}>
-        {/* Sol kenar: kategoriler + hizmet/koşul facet'leri TEK kart içinde (masaüstü) */}
         <aside className={styles.catalogAside}>
           <CategoryCatalog
             groups={groups}
@@ -389,30 +443,22 @@ const ListingView = ({
         </aside>
 
         <div className={styles.content}>
-          {/* Mobil araç çubuğu: arama + kategoriler + filtreler */}
           <div className={styles.toolbar}>
             <div className={styles.toolbarSearch}>
-              <SearchBox businesses={businesses} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+              <SearchBox businesses={index} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
             </div>
             <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M3 6h18M3 12h18M3 18h18" />
-              </svg>
               {t("suggestCategories")}
             </button>
             <button type="button" className={styles.toolBtn} onClick={() => setFiltersOpen(true)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M3 5h18M6 12h12M10 19h4" />
-              </svg>
               {t("filters")}
               {activeRefine > 0 && <span className={styles.toolBtnBadge}>{activeRefine}</span>}
             </button>
           </div>
 
-          {/* Masaüstü filtre barı */}
           <div className="max-[1120px]:hidden">
             <FilterBar
-              businesses={businesses}
+              businesses={index}
               country={country}
               city={city}
               district={district}
@@ -437,10 +483,16 @@ const ListingView = ({
           {guestBanner}
           <div className={styles.resultsBar}>
         <p className={styles.count}>
-          {t.rich("results", { count: visibleCount, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
+          {t.rich("results", { count: total, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
           {city !== "all" ? ` · ${city}` : ""}
         </p>
         {<div className={styles.barRight}>
+          <Link
+            href={{ pathname: "/quote", query: quoteQuery }}
+            className="btn btn-solid btn-sm !h-[38px] !px-4 !text-[12.5px]"
+          >
+            {tCommon("requestQuote")}
+          </Link>
           <div className={styles.viewToggle} role="tablist" aria-label="View">
             <button
               type="button"
@@ -470,7 +522,7 @@ const ListingView = ({
           <div className={styles.sortWrap}>
             <label className={styles.sortLabel} htmlFor="sort">{t("sortLabel")}</label>
             <span className={styles.sortSelectWrap}>
-              <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as Sort)}>
+              <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => { setSort(e.target.value as Sort); setPage(1); }}>
                 <option value="featured">{t("sortFeatured")}</option>
                 <option value="rating">{t("sortRating")}</option>
                 <option value="az">{t("sortAz")}</option>
@@ -487,7 +539,7 @@ const ListingView = ({
             <div className={styles.shell}>
               {resultsColumn(styles.grid)}
               <aside className={cn(styles.mapAside, "max-[1120px]:order-first max-[1120px]:mb-4")}>
-                <MapPanel items={filtered} />
+                <MapPanel items={mapItems} />
               </aside>
             </div>
           ) : (
@@ -498,7 +550,6 @@ const ListingView = ({
         </div>
       </div>
 
-      {/* Mobil: kategoriler ve filtreler alttan açılan panellerde */}
       <BottomSheet open={catalogOpen} onClose={() => setCatalogOpen(false)} title={t("suggestCategories")}>
         {catalogEl}
       </BottomSheet>

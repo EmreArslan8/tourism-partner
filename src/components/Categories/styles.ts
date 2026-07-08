@@ -19,12 +19,13 @@ const styles = {
     "flex h-full min-h-0 flex-col justify-between gap-1.5 py-1 " +
     "max-[980px]:gap-2 max-[640px]:grid max-[640px]:grid-cols-2 max-[640px]:gap-2.5 max-[640px]:py-0",
   item:
-    "group/category grid min-h-[68px] grid-cols-[28px_minmax(0,1fr)] gap-3 rounded-card px-5 py-3.5 text-left outline-none " +
-    "transition-all duration-200 ease-brand hover:bg-white/70 focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-brand/30 " +
+    "group/category grid min-h-[68px] grid-cols-[28px_minmax(0,1fr)] gap-3 rounded-card border border-transparent px-5 py-3.5 text-left outline-none " +
+    "transition-all duration-200 ease-brand hover:-translate-y-px hover:border-line hover:bg-white hover:shadow-[0_16px_36px_-30px_rgba(7,9,42,.5)] " +
+    "focus-visible:border-line focus-visible:bg-white focus-visible:ring-2 focus-visible:ring-brand/30 " +
     "max-[1280px]:min-h-[64px] max-[1280px]:px-4 max-[1280px]:py-3 " +
     "max-[640px]:relative max-[640px]:block max-[640px]:min-h-0 max-[640px]:overflow-hidden max-[640px]:bg-white max-[640px]:p-0 max-[640px]:shadow-[0_14px_32px_-26px_rgba(7,9,42,.55)] max-[640px]:aspect-[1.18/1]",
   itemActive:
-    "bg-white shadow-[0_16px_36px_-30px_rgba(7,9,42,.55)] ring-1 ring-black/5 " +
+    "border-line bg-white shadow-[0_16px_36px_-30px_rgba(7,9,42,.55)] " +
     "[&_.category-index]:text-brand [&_.category-name]:text-ink [&_.category-badge]:bg-brand/10 [&_.category-badge]:text-brand",
   index:
     "category-index pt-1 text-[12px] font-bold leading-none text-brand/45 transition-colors " +
@@ -48,22 +49,29 @@ const styles = {
     "section-desc !mt-0 overflow-hidden !text-[12.5px] !leading-[1.55] text-ink/72 [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] " +
     "max-[1280px]:!text-[12px] max-[640px]:hidden",
 
+  // Sağ panel: küçültülmüş görsel şeridi (üst) + beyaz bilgi alanı (alt). Aynı yüksekliği tutar.
   visual:
-    "group relative h-full min-h-[478px] overflow-hidden rounded-card-lg bg-[linear-gradient(135deg,#E7EDF7,#F7F9FF)] shadow-[0_24px_58px_-38px_rgba(7,9,42,.65)] ring-1 ring-black/5 " +
+    "group relative flex h-full min-h-[478px] flex-col overflow-hidden rounded-card-lg border border-line bg-paper shadow-[0_24px_58px_-38px_rgba(7,9,42,.6)] " +
     "transition-transform duration-300 ease-brand hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 " +
     "max-[1280px]:min-h-[452px] max-[980px]:h-[360px] max-[980px]:min-h-0 max-[640px]:hidden",
+  // Görsel artık alanın tamamını değil, üst kısmı kaplar (flex-1 ama bilgi alanına yer bırakır).
+  visualMedia: "relative min-h-[180px] flex-1 overflow-hidden bg-[linear-gradient(135deg,#E7EDF7,#F7F9FF)]",
   img:
     "object-cover transition-[transform,opacity] duration-500 ease-brand group-hover:scale-[1.035]",
   visualShade:
-    "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,42,0)_42%,rgba(7,9,42,.58)_100%)]",
-  visualBadge:
-    "absolute bottom-4 left-4 inline-flex items-center gap-1.5 rounded-full border border-white/55 bg-white/92 px-4 py-2 text-[13px] font-extrabold text-ink shadow-[0_14px_34px_-18px_rgba(7,9,42,.55)] backdrop-blur-md " +
-    "max-[640px]:bottom-3 max-[640px]:left-3 max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[11.5px]",
-  badgeDot: "h-1.5 w-1.5 rounded-full bg-brand",
+    "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(7,9,42,0)_55%,rgba(7,9,42,.28)_100%)]",
+  // Bilgi alanı (beyaz, sade)
+  visualInfo: "flex shrink-0 flex-col gap-3 p-5",
+  visualStatRow: "flex flex-wrap items-baseline justify-between gap-2",
+  visualName: "text-[18px] font-extrabold text-ink",
+  visualCount: "text-[12.5px] font-semibold text-[#48566e]",
+  visualChips: "flex flex-wrap gap-1.5",
+  chip: "rounded-full bg-cream-deep px-2.5 py-1 text-[11.5px] font-semibold text-[#4b5875]",
   visualCta:
-    "absolute bottom-4 right-4 inline-flex items-center gap-1.5 rounded-full border border-white/55 bg-white/92 px-3.5 py-2 text-[12.5px] font-bold text-ink opacity-0 shadow-[0_14px_34px_-18px_rgba(7,9,42,.6)] backdrop-blur-md transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100 " +
-    "max-[980px]:opacity-100 max-[640px]:bottom-3 max-[640px]:right-3 max-[640px]:px-3 max-[640px]:py-1.5 max-[640px]:text-[11.5px]",
+    "mt-1 inline-flex items-center gap-1.5 text-[13px] font-bold text-brand transition-colors group-hover:text-brand-deep",
   ctaArrow: "transition-transform duration-200 group-hover:translate-x-1",
+  visualBadge: "hidden",
+  badgeDot: "hidden",
 
   mobileIcons: "hidden",
   mobileIcon: "hidden",

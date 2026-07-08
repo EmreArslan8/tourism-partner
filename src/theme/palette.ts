@@ -5,6 +5,8 @@ export const palette = {
      aynı mavi aileden; kartlar `paper` (beyaz) kaldığı için zeminin üstünde net öne çıkar. */
   cream: "#dbe3f5",
   creamDeep: "#c9d5ef",
+  /* Panel/workspace zemini — sakin operasyon ekranları için eski özel zemin rengi. */
+  panelBg: "#f6f9fd",
   paper: "#ffffff",
   /* Sapphire — resmî palet. Ana: #0F3BB0 · Parlak: #004FE6 · Gece: #0A2472. */
   sapphire: "#0f3bb0",
@@ -42,6 +44,7 @@ export const tailwindColors = {
   "pine-soft": palette.pineSoft,
   cream: palette.cream,
   "cream-deep": palette.creamDeep,
+  "panel-bg": palette.panelBg,
   paper: palette.paper,
   sapphire: palette.sapphire,
   "sapphire-top": palette.sapphireTop,

@@ -36,7 +36,7 @@ const SelectableSuppliersTable = ({
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedSet.has(id));
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-line/80 bg-white shadow-[0_2px_8px_rgba(15,23,42,.04),0_14px_30px_-20px_rgba(15,23,42,.14)]">
+    <section className="overflow-hidden rounded-2xl border border-line/80 bg-paper shadow-card">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line/70 px-5 py-4">
         <div>
           <h3 className="text-[16px] font-semibold text-ink">Kayıtlı İşletmeler</h3>
@@ -52,7 +52,7 @@ const SelectableSuppliersTable = ({
                 setSelectionMode(false);
                 setSelectedIds([]);
               }}
-              className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[13px] font-semibold text-[#475569] hover:bg-[#F8FAFC]"
+              className="h-10 rounded-[8px] border border-line bg-paper px-3 text-[13px] font-semibold text-muted hover:bg-cream/50"
             >
               Seçimi kapat
             </button>
@@ -66,8 +66,8 @@ const SelectableSuppliersTable = ({
         getRowKey={(b) => b.id}
         empty={
           <div>
-            <p className="font-semibold text-[#162238]">DB verisi görünmüyor.</p>
-            <p className="mt-1 text-[13px] text-[#64748B]">
+            <p className="font-semibold text-ink">DB verisi görünmüyor.</p>
+            <p className="mt-1 text-[13px] text-muted">
               Seed/demo fallback kapalı. Supabase bağlantısı yoksa veya businesses tablosunda kayıt yoksa bu tablo boş kalır.
             </p>
           </div>
@@ -88,7 +88,7 @@ const SelectableSuppliersTable = ({
                     return Array.from(next);
                   });
                 }}
-                className="h-4 w-4 accent-[#0057D9]"
+                className="h-4 w-4 accent-sapphire"
                 aria-label="Görünen işletmeleri seç"
               />
             ),
@@ -103,7 +103,7 @@ const SelectableSuppliersTable = ({
                       : current.filter((id) => id !== business.id),
                   );
                 }}
-                className="h-4 w-4 accent-[#0057D9]"
+                className="h-4 w-4 accent-sapphire"
                 aria-label={`${business.name} seç`}
               />
             ),
@@ -117,22 +117,22 @@ const SelectableSuppliersTable = ({
               <div className="min-w-0">
                 <Link
                   href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(business.id) } }}
-                  className="block truncate text-[15px] font-semibold leading-6 text-[#162238] hover:text-[#0057D9]"
+                  className="block truncate text-[15px] font-semibold leading-6 text-ink hover:text-brand"
                 >
                   {business.name}
                 </Link>
-                <p className="truncate text-[13px] font-normal leading-5 text-[#64748B]">{businessEmail(business)}</p>
+                <p className="truncate text-[13px] font-normal leading-5 text-muted">{businessEmail(business)}</p>
               </div>
             ),
           },
           { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={b.type} /> },
-          { key: "city", header: "Şehir", cell: (b) => <span className="font-medium text-[#162238]">{b.city}</span> },
+          { key: "city", header: "Şehir", cell: (b) => <span className="font-medium text-ink">{b.city}</span> },
           { key: "status", header: "Durum", cell: (b) => <StatusPill status={b.status} /> },
           {
             key: "end",
             header: "Üyelik Bitişi",
             cell: (b) => (
-              <span className={daysUntil(membershipFor(b.id, memberships)?.endsAt) <= 3 ? "font-medium text-[#E11D48]" : "font-medium text-[#162238]"}>
+              <span className={daysUntil(membershipFor(b.id, memberships)?.endsAt) <= 3 ? "font-medium text-red-600" : "font-medium text-ink"}>
                 {membershipEndDate(b.id, memberships)}
               </span>
             ),
@@ -168,8 +168,8 @@ const SelectableSuppliersTable = ({
         ] satisfies Column<AdminBusiness>[]}
       />
 
-      <footer className="flex flex-wrap items-center justify-between gap-3 bg-white px-5 py-4">
-        <p className="text-[13px] font-medium text-[#566178]">
+      <footer className="flex flex-wrap items-center justify-between gap-3 bg-paper px-5 py-4">
+        <p className="text-[13px] font-medium text-muted">
           Filtrelenmiş {total} işletme, {businesses.length === 0 ? "0" : `${(filters.page - 1) * filters.limit + 1}-${(filters.page - 1) * filters.limit + businesses.length}`} arası gösteriliyor
         </p>
         <div className="flex items-center gap-1.5">
@@ -193,7 +193,7 @@ const StatusPill = ({ status }: { status: BusinessLifecycleStatus }) => {
   const active = isActive(status);
   const label = active ? "Aktif" : status === "pending" ? "Beklemede" : "Pasif";
   return (
-    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium leading-5", active ? "bg-[#EAF1FF] text-[#0057D9]" : status === "pending" ? "bg-[#FFF3E6] text-[#9A5B00]" : "bg-[#F1F5F9] text-[#475569]")}>
+    <span className={cn("inline-flex rounded-full px-2.5 py-1 text-[12px] font-medium leading-5", active ? "bg-cream text-brand" : status === "pending" ? "bg-gold/20 text-brand" : "bg-cream/70 text-muted")}>
       {label}
     </span>
   );
@@ -216,9 +216,9 @@ const PagerButton = ({
     className={cn(
       "grid h-9 min-w-9 place-items-center rounded-[7px] border px-2 text-[13px] font-semibold transition-colors",
       active
-        ? "border-[#0057D9] bg-[#E8F0FF] text-[#0057D9]"
-        : "border-[#D4DCEA] bg-white text-[#3D4B64] hover:border-[#A9B8D0] hover:bg-[#F8FAFF]",
-      disabled && "cursor-not-allowed opacity-45 hover:border-[#D4DCEA] hover:bg-white",
+        ? "border-sapphire bg-cream text-brand"
+        : "border-line bg-paper text-ink/80 hover:border-line hover:bg-cream/45",
+      disabled && "cursor-not-allowed opacity-45 hover:border-line hover:bg-paper",
     )}
     aria-label={label}
   >
@@ -246,8 +246,8 @@ const BusinessStatusButton = ({
         className={cn(
           "inline-flex h-9 items-center gap-1.5 rounded-[8px] border px-3 text-[13px] font-semibold transition-colors",
           hide
-            ? "border-[#CBD5E1] text-[#475569] hover:bg-[#F8FAFC]"
-            : "border-[#BBD0FF] text-[#0057D9] hover:bg-[#F2F6FF]",
+            ? "border-line text-muted hover:bg-cream/50"
+            : "border-line text-brand hover:bg-cream/70",
         )}
         aria-label={hide ? `${business.name} pasifleştir` : `${business.name} yayına al`}
       >
@@ -259,13 +259,13 @@ const BusinessStatusButton = ({
 };
 
 const CATEGORY_TONES: Record<GroupKey, string> = {
-  konaklama: "bg-[#DDEBFF] text-[#0057D9]",
-  acente: "bg-[#E1E7FA] text-[#4A5C8A]",
-  ulasim: "bg-[#EAF1FF] text-[#0F3BB0]",
-  rehber: "bg-[#EDE9FE] text-[#6D28D9]",
-  aktivite: "bg-[#EAF1FF] text-[#1D4ED8]",
-  saglik: "bg-[#F1F5F9] text-[#475569]",
-  gastronomi: "bg-[#E3EDFF] text-[#2F6FD6]",
+  konaklama: "bg-cream text-brand",
+  acente: "bg-cream/70 text-muted",
+  ulasim: "bg-cream text-sapphire",
+  rehber: "bg-cream/70 text-group-rehber",
+  aktivite: "bg-cream text-group-aktivite",
+  saglik: "bg-cream/70 text-muted",
+  gastronomi: "bg-cream text-group-gastronomi",
 };
 
 const isActive = (status: BusinessLifecycleStatus) => status === "approved" || status === "active";

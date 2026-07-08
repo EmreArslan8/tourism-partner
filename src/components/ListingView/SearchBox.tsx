@@ -23,7 +23,7 @@ const SearchBox = ({
   onChange,
   onPick,
 }: {
-  businesses: Business[];
+  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
   value: string;
   onChange: (v: string) => void;
   onPick: (s: Suggestion) => void;

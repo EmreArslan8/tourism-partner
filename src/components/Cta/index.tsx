@@ -1,14 +1,10 @@
-import { Handshake, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { ArrowRight } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import styles from "./styles";
 
 const Cta = () => {
   const t = useTranslations("cta");
-  const metrics = [
-    { value: t("verifiedValue"), label: t("verifiedLabel"), Icon: ShieldCheck },
-    { value: t("quoteValue"), label: t("quoteLabel"), Icon: Handshake },
-    { value: t("memberValue"), label: t("memberLabel"), Icon: LockKeyhole },
-  ];
 
   return (
     <section className={styles.section}>
@@ -17,19 +13,11 @@ const Cta = () => {
           <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.sub}>{t("sub")}</p>
         </div>
-
-        <div className={styles.metrics}>
-          {metrics.map((metric) => (
-            <div className={styles.metric} key={metric.label}>
-              <span className={styles.metricIcon}>
-                <metric.Icon size={18} strokeWidth={2.3} />
-              </span>
-              <span className={styles.metricCopy}>
-                <strong className={styles.metricValue}>{metric.value}</strong>
-                <span className={styles.metricLabel}>{metric.label}</span>
-              </span>
-            </div>
-          ))}
+        <div className={styles.actions}>
+          <Link href="/register" className={styles.primary}>
+            <span>{t("button")}</span>
+            <ArrowRight size={17} strokeWidth={2.4} aria-hidden />
+          </Link>
         </div>
       </div>
     </section>

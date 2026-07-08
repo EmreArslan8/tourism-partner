@@ -11,6 +11,7 @@ export type ExploreSearchParams = {
   rating?: string;
   attr?: string;
   sort?: string;
+  page?: string;
 };
 
 export type ExploreInitialFilters = {

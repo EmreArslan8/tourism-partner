@@ -35,6 +35,22 @@ export const routing = defineRouting({
       tr: "/panel/talepler",
       en: "/dashboard/requests",
     },
+    "/dashboard/favorites": {
+      tr: "/panel/favoriler",
+      en: "/dashboard/favorites",
+    },
+    "/dashboard/reviews": {
+      tr: "/panel/degerlendirmeler",
+      en: "/dashboard/reviews",
+    },
+    "/dashboard/support": {
+      tr: "/panel/destek",
+      en: "/dashboard/support",
+    },
+    "/dashboard/doping": {
+      tr: "/panel/doping",
+      en: "/dashboard/doping",
+    },
     "/dashboard/listings/new": {
       tr: "/panel/ilanlar/yeni",
       en: "/dashboard/listings/new",

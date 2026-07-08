@@ -15,17 +15,21 @@ const LoginForm = () => {
   const t = useTranslations("login");
 
   return (
-    <div className="flex h-full items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
-      <div className="w-full max-w-[440px]">
-        <h1 className="text-[26px] font-extrabold leading-tight tracking-tight text-ink lg:text-[30px]">{t("title")}</h1>
-        <p className="mb-7 mt-2 text-[14px] text-muted">
+    <div className="flex h-full items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
+      <div className="w-full max-w-[560px]">
+        <span className="mb-3 block text-[12px] font-extrabold uppercase tracking-[.14em] text-brand/70">{t("eyebrow")}</span>
+        <h1 className="text-[32px] font-extrabold leading-tight tracking-tight text-ink sm:text-[36px] lg:text-[40px]">{t("title")}</h1>
+        <p className="mb-8 mt-3 text-[16px] font-medium leading-relaxed text-ink/75">
           {t("noAccount")}{" "}
-          <Link href={{ pathname: "/register" }} className="font-semibold text-terra transition-colors hover:text-terra-deep">
+          <Link
+            href={{ pathname: "/register" }}
+            className="font-extrabold text-brand underline decoration-brand/25 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/40"
+          >
             {t("signupLink")}
           </Link>
         </p>
 
-        <form className="flex flex-col gap-3.5" action={action}>
+        <form className="flex flex-col gap-[18px]" action={action}>
           <Input
             name="email"
             label={t("email")}
@@ -33,11 +37,12 @@ const LoginForm = () => {
             required
             autoComplete="username"
             placeholder={t("emailPh")}
+            className="h-[56px] text-[16px] font-semibold text-ink placeholder:text-ink/45"
           />
 
           {/* Şifre — göster/gizle */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-ink">{t("password")}</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-[14.5px] font-bold text-ink">{t("password")}</label>
             <div className="relative">
               <input
                 name="password"
@@ -45,22 +50,22 @@ const LoginForm = () => {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="field h-[46px] w-full pr-11"
+                className="field h-[56px] w-full pr-12 text-[16px] font-semibold text-ink placeholder:text-ink/45"
               />
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
                 aria-label={showPw ? t("pwHide") : t("pwShow")}
-                className="absolute right-3 top-1/2 grid -translate-y-1/2 place-items-center text-muted transition-colors hover:text-ink"
+                className="absolute right-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-brand"
               >
-                {showPw ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
+                {showPw ? <EyeOff size={20} strokeWidth={2.25} aria-hidden /> : <Eye size={20} strokeWidth={2.25} aria-hidden />}
               </button>
             </div>
           </div>
 
           {state.error && <p className="text-[13px] font-medium text-red-600">{t("error")}</p>}
 
-          <Button type="submit" block className="mt-2" loading={pending}>
+          <Button type="submit" block size="lg" className="mt-3 h-[58px] text-[16px]" loading={pending}>
             {t("submit")}
           </Button>
         </form>

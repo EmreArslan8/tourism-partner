@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "../_components";
+import { AdminMetric, AdminPanel, adminUi } from "../_ui";
 import SelectableSuppliersTable from "./SelectableSuppliersTable";
 import { membershipFor, type CrmFilters } from "@/lib/admin-crm";
 import type { AdminBusiness, AdminMembership } from "@/lib/types";
@@ -45,21 +46,16 @@ const AdminSuppliersView = ({
         />
 
         <div className="mb-5 grid gap-3 lg:grid-cols-[repeat(3,minmax(0,1fr))_1.2fr]">
-          <CrmMetric label="Toplam İşletme" value={total} />
-          <CrmMetric label="Aktif Otel" value={activeHotels} />
-          <CrmMetric label="Aktif Acente" value={activeAgencies} />
+          <AdminMetric label="Toplam İşletme" value={total} />
+          <AdminMetric label="Aktif Otel" value={activeHotels} tone="emerald" />
+          <AdminMetric label="Aktif Acente" value={activeAgencies} tone="blue" />
           <ExpiringBand count={Math.max(expiring.length, expiringBusinesses.length)} businesses={expiring.map(({ business }) => business)} />
         </div>
 
-        <form action="" className="mb-5 rounded-xl border border-[#DDE4EE] bg-white p-3 shadow-[0_10px_30px_-24px_rgba(15,23,42,.22)]">
-          <div className="grid gap-2 lg:grid-cols-[minmax(220px,1fr)_180px_170px_170px_auto_auto] lg:items-center">
-            <input
-              name="q"
-              defaultValue={filters.q}
-              placeholder="Firma adı, VKN veya ID"
-              className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238] placeholder:text-[#8B95A7]"
-            />
-            <select name="group" defaultValue={filters.group} className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238]">
+        <AdminPanel className="mb-5" bodyClassName="p-3">
+          <form action="" className="grid gap-2 lg:grid-cols-[minmax(220px,1fr)_180px_170px_170px_auto_auto] lg:items-center">
+            <input name="q" defaultValue={filters.q} placeholder="Firma adı, VKN veya ID" className={adminUi.input} />
+            <select name="group" defaultValue={filters.group} className={adminUi.input}>
               <option value="all">Tüm Kategoriler</option>
               <option value="konaklama">Konaklama</option>
               <option value="acente">Acente</option>
@@ -69,11 +65,11 @@ const AdminSuppliersView = ({
               <option value="saglik">Sağlık</option>
               <option value="gastronomi">Gastronomi</option>
             </select>
-            <select name="city" defaultValue={filters.city} className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238]">
+            <select name="city" defaultValue={filters.city} className={adminUi.input}>
               <option value="">Tüm Şehirler</option>
               {cities.map((city) => <option key={city} value={city}>{city}</option>)}
             </select>
-            <select name="status" defaultValue={filters.status} className="h-10 rounded-[8px] border border-[#CBD5E1] bg-white px-3 text-[14px] font-medium text-[#162238]">
+            <select name="status" defaultValue={filters.status} className={adminUi.input}>
               <option value="all">Tüm Durumlar</option>
               <option value="approved">Aktif</option>
               <option value="pending">Beklemede</option>
@@ -81,13 +77,12 @@ const AdminSuppliersView = ({
               <option value="expired">Süresi Bitti</option>
               <option value="blacklisted">Blacklist</option>
             </select>
-            <button className="h-10 rounded-[8px] bg-[#0057D9] px-4 text-[13px] font-semibold text-white hover:bg-[#0047B8]" type="submit">Filtrele
-            </button>
-            <Link href="/admin/tedarikciler" className="inline-flex h-10 items-center justify-center rounded-[8px] border border-[#CBD5E1] bg-white px-4 text-[13px] font-semibold text-[#3D4B64] hover:bg-[#F8FAFF]">
+            <button className={adminUi.sapphireButton} type="submit">Filtrele</button>
+            <Link href="/admin/tedarikciler" className={adminUi.ghostButton}>
               Temizle
             </Link>
-          </div>
-        </form>
+          </form>
+        </AdminPanel>
 
         <SelectableSuppliersTable
           businesses={visibleBusinesses}
@@ -101,24 +96,17 @@ const AdminSuppliersView = ({
   );
 };
 
-const CrmMetric = ({ value, label }: { value: number; label: string }) => (
-  <section className="rounded-xl border border-[#DDE4EE] bg-white p-4 shadow-[0_10px_30px_-26px_rgba(15,23,42,.2)]">
-    <p className="text-[12px] font-semibold uppercase tracking-[.06em] text-[#475569]">{label}</p>
-    <strong className="mt-2 block text-[28px] font-semibold leading-none text-[#0B1C30]">{value}</strong>
-  </section>
-);
-
 const ExpiringBand = ({ count, businesses }: { count: number; businesses: AdminBusiness[] }) => (
-  <section className="rounded-xl border border-[#F3C7C1] bg-[#FFF9F8] p-4 shadow-[0_10px_30px_-26px_rgba(185,28,28,.24)]">
+  <section className="rounded-[10px] border border-red-200 bg-red-50 p-5 shadow-card">
     <div className="flex items-start justify-between gap-3">
       <div>
-        <p className="text-[12px] font-semibold uppercase tracking-[.06em] text-[#B42318]">Üyelik Riski</p>
-        <strong className="mt-2 block text-[24px] font-semibold leading-none text-[#0B1C30]">{count}</strong>
+        <p className="text-[13px] font-normal text-red-700">Üyelik Riski</p>
+        <strong className="mt-1 block text-[28px] font-medium leading-none tracking-[0] text-ink">{count}</strong>
       </div>
-      <span className="rounded-full bg-[#FFE4E0] px-2.5 py-1 text-[12px] font-semibold text-[#B42318]">14 gün</span>
+      <span className="rounded-full bg-red-100 px-2.5 py-1 text-[12px] font-medium text-red-700">14 gün</span>
     </div>
     {businesses.length > 0 && (
-      <p className="mt-3 truncate text-[12.5px] font-medium text-[#475569]">
+      <p className="mt-3 truncate text-[12.5px] font-normal text-muted">
         {businesses.map((business) => business.name).join(", ")}
       </p>
     )}

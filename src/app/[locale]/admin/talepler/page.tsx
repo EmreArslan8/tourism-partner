@@ -47,7 +47,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           title="Tüm Talepler"
           tone="blue"
           icon={<ClipboardList size={18} aria-hidden />}
-          action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{requests.length} talep</span>}
+          action={<span className="shrink-0 text-[12px] font-semibold text-muted">{requests.length} talep</span>}
         />
         {requests.length === 0 ? (
           <EmptyState
@@ -66,25 +66,25 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 header: "Talep",
                 cell: (r) => (
                   <div className="max-w-[340px]">
-                    <p className="text-[13px] font-extrabold text-[#162238]">{r.title}</p>
-                    {r.businessName && <p className="truncate text-[12px] font-semibold text-[#475569]">{r.businessName}</p>}
-                    {r.description && <p className="mt-0.5 line-clamp-1 text-[12px] text-[#475569]">{r.description}</p>}
+                    <p className="text-[13px] font-extrabold text-ink">{r.title}</p>
+                    {r.businessName && <p className="truncate text-[12px] font-semibold text-muted">{r.businessName}</p>}
+                    {r.description && <p className="mt-0.5 line-clamp-1 text-[12px] text-muted">{r.description}</p>}
                   </div>
                 ),
               },
-              { key: "region", header: "Bölge", cell: (r) => <span className="text-[13px] font-semibold text-[#3D4B64]">{r.region ?? "—"}</span> },
+              { key: "region", header: "Bölge", cell: (r) => <span className="text-[13px] font-semibold text-ink/80">{r.region ?? "—"}</span> },
               {
                 key: "views",
                 header: "Görüntülenme",
                 cell: (r) => (
-                  <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#162238]">
-                    <Eye size={14} aria-hidden className="text-[#64748B]" />
+                  <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-ink">
+                    <Eye size={14} aria-hidden className="text-muted" />
                     {r.viewCount.toLocaleString("tr-TR")}
                   </span>
                 ),
               },
               { key: "status", header: "Durum", cell: (r) => <StatusBadge tone={TONE[r.status]}>{LABEL[r.status]}</StatusBadge> },
-              { key: "date", header: "Tarih", cell: (r) => <span className="text-[#475569]">{fmt(r.createdAt)}</span> },
+              { key: "date", header: "Tarih", cell: (r) => <span className="text-muted">{fmt(r.createdAt)}</span> },
               {
                 key: "action",
                 header: "İşlem",
@@ -130,7 +130,7 @@ const ModBtn = ({
           ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50"
           : tone === "red"
             ? "border-red-300 text-red-700 hover:bg-red-50"
-            : "border-[#D4DCEA] text-[#475569] hover:bg-cream")
+            : "border-line text-muted hover:bg-cream")
       }
     >
       {label}

@@ -170,17 +170,17 @@
     "vf3": "40+ guests"
   },
   "cta": {
-    "title": "Claim your place in the demand feed",
-    "sub": "Publish your business, appear in agency searches and stop missing quote opportunities.",
-    "button": "+ List Business",
+    "title": "Start boosted visibility",
+    "sub": "Register your business and become the supplier agencies notice faster in showcase and search results.",
+    "button": "Start boosted registration",
     "secondary": "Member login",
-    "kicker": "Showcased partners",
-    "verifiedValue": "Verified",
-    "verifiedLabel": "before publishing",
-    "quoteValue": "Matched",
-    "quoteLabel": "with real demand",
-    "memberValue": "Unlocked",
-    "memberLabel": "for member agencies"
+    "kicker": "Boosted partners",
+    "verifiedValue": "Rank higher",
+    "verifiedLabel": "in search results",
+    "quoteValue": "Reach showcase",
+    "quoteLabel": "featured placement",
+    "memberValue": "Get noticed",
+    "memberLabel": "by member agencies"
   },
   "footer": {
     "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",

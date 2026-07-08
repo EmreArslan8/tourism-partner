@@ -187,6 +187,44 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["b2b_offers"]["Insert"]>;
         Relationships: [];
       };
+      favorites: {
+        Row: {
+          id: number;
+          user_id: string;
+          business_id: number;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          user_id: string;
+          business_id: number;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["favorites"]["Insert"]>;
+        Relationships: [];
+      };
+      reviews: {
+        Row: {
+          id: number;
+          business_id: number;
+          author_id: string;
+          author_business_id: number | null;
+          rating: number;
+          comment: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          author_id: string;
+          author_business_id?: number | null;
+          rating: number;
+          comment?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["reviews"]["Insert"]>;
+        Relationships: [];
+      };
       quotes: {
         Row: {
           id: number;
@@ -623,6 +661,8 @@ export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 export type B2BRequestRow = Database["public"]["Tables"]["b2b_requests"]["Row"];
 export type B2BOfferRow = Database["public"]["Tables"]["b2b_offers"]["Row"];
+export type FavoriteRow = Database["public"]["Tables"]["favorites"]["Row"];
+export type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
 export type AdBannerRow = Database["public"]["Tables"]["ad_banners"]["Row"];
 export type BlogPostRow = Database["public"]["Tables"]["blog_posts"]["Row"];
 export type AdminPopupRow = Database["public"]["Tables"]["admin_popups"]["Row"];

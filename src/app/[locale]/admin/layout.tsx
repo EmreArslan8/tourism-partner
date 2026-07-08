@@ -30,9 +30,6 @@ export default async function AdminLayout({
 
 async function AdminGate({ children }: { children: React.ReactNode }) {
   const data = await getAdminAccess();
-  if (!data.isAdmin && process.env.NODE_ENV === "development") {
-    return <AdminShell data={{ mode: "demo", userEmail: "local@admin.dev", isAdmin: true }}>{children}</AdminShell>;
-  }
   if (!data.isAdmin) return <AdminAccessDenied />;
   return <AdminShell data={data}>{children}</AdminShell>;
 }

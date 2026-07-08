@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
-import { ALL_DETAIL_KEYS } from "@/lib/business-fields";
+import { ALL_DETAIL_KEYS, docsForGroup } from "@/lib/business-fields";
 import { BUSINESS_DOCUMENTS_BUCKET, persistableDocuments } from "@/lib/business-document-shape";
 import { BUSINESS_IMAGES_BUCKET, storagePathFromBusinessImage } from "@/lib/business-images";
 import { isValidRegion } from "@/lib/regions";
@@ -62,6 +62,16 @@ function cleanStoragePath(value: unknown, userId: string): string | null {
   return path.startsWith(`${userId}/`) ? path : null;
 }
 
+function allowedDocumentKinds(group: GroupKey, type: string) {
+  return new Set(docsForGroup(group, type).map((document) => document.kind));
+}
+
+function filterAllowedDocuments(documents: BusinessDocument[], group: GroupKey, type: string) {
+  const allowed = allowedDocumentKinds(group, type);
+  if (allowed.size === 0) return [];
+  return documents.filter((document) => allowed.has(document.kind));
+}
+
 function businessMediaFolder(businessId: number, businessName: string) {
   const slug = businessSlug({ name: businessName }) || `business-${businessId}`;
   return `${businessId}-${slug}`;
@@ -111,6 +121,27 @@ async function moveBusinessDocument(
     .move(document.path, destinationPath);
   if (error) throw new Error(error.message);
   return { kind: document.kind, name: document.name, path: destinationPath };
+}
+
+async function cleanupRemovedDocuments(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  previousDocuments: unknown,
+  nextDocuments: BusinessDocument[],
+  userId: string,
+) {
+  if (!Array.isArray(previousDocuments)) return;
+
+  const nextPaths = new Set(nextDocuments.map((document) => document.path).filter((path): path is string => Boolean(path)));
+  const removePaths = previousDocuments
+    .map((document) => {
+      if (!document || typeof document !== "object") return null;
+      const path = (document as Record<string, unknown>).path;
+      return cleanStoragePath(path, userId);
+    })
+    .filter((path): path is string => Boolean(path && !nextPaths.has(path)));
+
+  if (removePaths.length === 0) return;
+  await supabase.storage.from(BUSINESS_DOCUMENTS_BUCKET).remove(removePaths);
 }
 
 async function finalizeBusinessMedia(
@@ -220,9 +251,13 @@ export async function saveMyBusiness(
     documents = [];
   }
 
+  const payloadType = clean(formData.get("type"), 80) ?? "";
+  const meta = user.user_metadata ?? {};
+  const requestedGroup = groupFromMetadata(meta.biz_group);
+
   const payload = {
     name,
-    type: clean(formData.get("type"), 80) ?? "",
+    type: payloadType,
     country,
     city,
     district,
@@ -233,7 +268,7 @@ export async function saveMyBusiness(
     images,
     attributes,
     details,
-    documents,
+    documents: filterAllowedDocuments(documents, requestedGroup, payloadType || (meta.biz_type as string) || ""),
   };
 
   const contacts = parseContacts(formData.get("contacts"));
@@ -246,6 +281,19 @@ export async function saveMyBusiness(
     if (idRaw && /^\d+$/.test(idRaw)) {
       const businessId = Number(idRaw);
       savedBusinessId = businessId;
+      const { data: currentBusiness, error: currentError } = await supabase
+        .from("businesses")
+        .select("group,type,documents")
+        .eq("id", businessId)
+        .eq("owner_id", user.id)
+        .single();
+      if (currentError) return { ok: false, error: currentError.message };
+      if (!currentBusiness) return { ok: false, error: "notFound" };
+
+      const effectiveGroup = groupFromMetadata(currentBusiness.group);
+      const effectiveType = payload.type || currentBusiness.type || "";
+      payload.documents = filterAllowedDocuments(payload.documents, effectiveGroup, effectiveType);
+
       const media = await finalizeBusinessMedia(
         supabase,
         user.id,
@@ -261,9 +309,10 @@ export async function saveMyBusiness(
         .eq("id", businessId)
         .eq("owner_id", user.id);
       if (error) return { ok: false, error: error.message };
+      await cleanupRemovedDocuments(supabase, currentBusiness.documents, media.documents, user.id);
     } else {
-      const meta = user.user_metadata ?? {};
-      const group = groupFromMetadata(meta.biz_group);
+      const group = requestedGroup;
+      payload.documents = filterAllowedDocuments(payload.documents, group, payload.type || (meta.biz_type as string) || "");
       const { data, error } = await supabase.from("businesses").insert({
         owner_id: user.id,
         group,

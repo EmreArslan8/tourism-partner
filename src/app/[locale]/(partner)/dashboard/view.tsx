@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { Building2, Eye, FileText, LayoutDashboard, LogOut, PencilLine, Search, Sparkles } from "lucide-react";
+import { Eye, ImagePlus, LogOut, PencilLine, Sparkles } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
@@ -16,6 +16,7 @@ import { BUSINESS_DOCUMENTS_BUCKET } from "@/lib/business-document-shape";
 import { businessImageUrl, BUSINESS_IMAGES_BUCKET } from "@/lib/business-images";
 import { upsertPanelDraftMedia } from "@/lib/business-drafts";
 import styles from "./styles";
+import { getPathname } from "@/i18n/navigation";
 import { saveMyBusiness } from "@/lib/actions/panel";
 
 export type PanelBusiness = {
@@ -118,7 +119,6 @@ const DashboardView = ({
   business,
   quotes,
   membership,
-  email,
   userId,
   group,
   meta,
@@ -197,18 +197,17 @@ const DashboardView = ({
   const hasListingDashboard = !!b && (statusKey === "pending" || statusKey === "approved" || statusKey === "active");
   const showProfileForm = mode === "edit";
   const isOverview = mode === "overview";
-  const localizedPanel = locale === "tr" ? "/tr/panel" : "/en/dashboard";
-  const localizedListings = locale === "tr" ? "/tr/panel/ilanlar" : "/en/dashboard/listings";
-  const localizedNewListing = locale === "tr" ? "/tr/panel/ilanlar/yeni" : "/en/dashboard/listings/new";
+  // URL'ler routing.ts pathnames config'inden türetilir (elle /tr,/en yazılmaz).
+  const localizedListings = getPathname({ locale, href: "/dashboard/listings" });
+  const localizedNewListing = getPathname({ locale, href: "/dashboard/listings/new" });
   const localizedEditListing = b
-    ? locale === "tr"
-      ? `/tr/panel/ilanlar/${b.id}/duzenle`
-      : `/en/dashboard/listings/${b.id}/edit`
+    ? getPathname({ locale, href: { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } } })
     : localizedNewListing;
-  const localizedExplore = locale === "tr" ? "/tr/kesfet" : "/en/explore";
-  const localizedQuote = locale === "tr" ? "/tr/teklif" : "/en/quote";
-  const localizedRequests = locale === "tr" ? "/tr/panel/talepler" : "/en/dashboard/requests";
-  const localizedHome = locale === "tr" ? "/tr" : "/en";
+  const localizedQuote = getPathname({ locale, href: "/quote" });
+
+  const localizedPreview = b
+    ? getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: businessSlug(b) } } })
+    : "#";
 
   useEffect(() => {
     if (!state.ok || typeof window === "undefined") return;
@@ -269,7 +268,7 @@ const DashboardView = ({
     const blob = await compressImage(file);
     const isJpeg = blob.type === "image/jpeg" || blob !== file;
     const ext = isJpeg ? "jpg" : file.name.split(".").pop()?.toLowerCase() || "bin";
-    const scope = b?.id ? `business-${b.id}` : `drafts/${ensureDraftKey()}`;
+    const scope = b?.id ? `businesses/${b.id}` : `drafts/${ensureDraftKey()}`;
     const path = `${userId}/${scope}/documents/${kind}/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from(BUSINESS_DOCUMENTS_BUCKET).upload(path, blob, {
       contentType: blob.type || file.type || "application/octet-stream",
@@ -338,65 +337,35 @@ const DashboardView = ({
   }
 
   return (
-    <main className={styles.main}>
-      <aside className={styles.sidebar}>
-        <a href={localizedHome} className={styles.brandMark} aria-label="Tourism Partner">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />
-        </a>
-
-        <nav className={styles.sideNav} aria-label="Partner dashboard">
-          <a href={localizedPanel} className={mode === "overview" ? styles.sideNavActive : undefined}>
-            <LayoutDashboard size={17} aria-hidden />
-            {t("overview")}
-          </a>
-          <a href={localizedListings} className={mode === "listings" ? styles.sideNavActive : undefined}>
-            <Building2 size={17} aria-hidden />
-            {t("listingDashboardTitle")}
-          </a>
-          <a href={localizedRequests}>
-            <FileText size={17} aria-hidden />
-            Talep &amp; Teklif
-          </a>
-          <a href={localizedExplore}>
-            <Search size={17} aria-hidden />
-            {t("searchSuppliers")}
-          </a>
-        </nav>
-
-        <div className={styles.sidebarFoot}>
-          <span>{t("signedInAs")}</span>
-          <b>{email}</b>
-        </div>
-      </aside>
-
-      <section className={styles.workspace}>
+    <>
         <div className={styles.topbar}>
-          <div>
-            <h1 className={styles.title}>{isAgency ? t("agencyTitle") : t("supplierTitle")}</h1>
-            <p className={styles.email}>
-              {b?.name || meta.firm_name || email} · {isAgency ? t("agencyMode") : isGuide ? t("guideMode") : t("supplierMode")}
-            </p>
-          </div>
-          <div className={styles.actions}>
-            {b && (
-              <a href={`/${locale === "tr" ? "tr/tedarikci" : "en/supplier"}/${businessSlug(b)}`} target="_blank" className="btn btn-outline btn-sm">
-                <Eye size={15} aria-hidden />
-                {t("preview")}
-              </a>
-            )}
-            {mode !== "edit" && (
-              <a href={localizedEditListing} className="btn btn-solid btn-sm">
-                <PencilLine size={15} aria-hidden />
-                {b ? t("editListing") : t("newListing")}
-              </a>
-            )}
-            <form action={signOut}>
-              <button type="submit" className="btn btn-outline btn-sm">
-                <LogOut size={15} aria-hidden />
-                {t("signOut")}
-              </button>
-            </form>
+          <div className={styles.topbarInner}>
+            <div className={styles.topbarText}>
+              <h1 className={styles.title}>{isAgency ? t("agencyTitle") : t("supplierTitle")}</h1>
+              <p className={styles.email}>
+                {b?.name || meta.firm_name || (isAgency ? t("agencyMode") : isGuide ? t("guideMode") : t("supplierMode"))}
+              </p>
+            </div>
+            <div className={styles.actions}>
+              {b && (
+                <a href={localizedPreview} target="_blank" className={styles.compactSecondaryButton}>
+                  <Eye size={15} aria-hidden />
+                  {t("preview")}
+                </a>
+              )}
+              {mode !== "edit" && (
+                <a href={localizedEditListing} className={styles.compactPrimaryButton}>
+                  <PencilLine size={15} aria-hidden />
+                  {b ? t("editListing") : t("newListing")}
+                </a>
+              )}
+              <form action={signOut}>
+                <button type="submit" className={styles.compactSecondaryButton}>
+                  <LogOut size={15} aria-hidden />
+                  {t("signOut")}
+                </button>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -413,15 +382,15 @@ const DashboardView = ({
             {isAgency ? t("agencyHeroSub") : b ? t("panelReadySub") : t("panelSetupSub")}
           </p>
           <div className={styles.quickActions}>
-            <a href={localizedQuote} className="btn btn-solid btn-sm">
+            <a href={localizedQuote} className={styles.compactPrimaryButton}>
               {isAgency ? t("createRequest") : t("viewRequests")}
             </a>
             {hasListingDashboard ? (
-              <a href={localizedEditListing} className="btn btn-outline btn-sm">
+              <a href={localizedEditListing} className={styles.compactSecondaryButton}>
                 {t("editListing")}
               </a>
             ) : (
-              <a href={localizedEditListing} className="btn btn-outline btn-sm">
+              <a href={localizedEditListing} className={styles.compactSecondaryButton}>
                 {isAgency ? t("completeCompany") : t("completeProfile")}
               </a>
             )}
@@ -461,7 +430,7 @@ const DashboardView = ({
       )}
 
       <div className={cn(styles.grid, (showProfileForm || isOverview) && styles.editGrid)}>
-        <section className={cn(isOverview ? styles.overviewSection : styles.section, showProfileForm && styles.editSection)} id="profile">
+        <section className={cn(isOverview ? styles.overviewSection : showProfileForm ? styles.editSection : styles.section)} id="profile">
           {isOverview ? (
             <OverviewDashboard
               business={b}
@@ -492,7 +461,7 @@ const DashboardView = ({
               statusKey={visibleStatusKey}
               membership={membership}
               editHref={localizedEditListing}
-              previewHref={`/${locale === "tr" ? "tr/tedarikci" : "en/supplier"}/${businessSlug(b)}`}
+              previewHref={localizedPreview}
               t={t}
             />
           ) : (
@@ -503,7 +472,7 @@ const DashboardView = ({
                   <p className={styles.sectionSub}>{isAgency ? t("agencyProfileSub") : t("editSub")}</p>
                 </div>
                 {hasListingDashboard && (
-                  <a href={localizedListings} className="btn btn-outline btn-sm">
+                  <a href={localizedListings} className={styles.compactSecondaryButton}>
                     {t("backToListingDashboard")}
                   </a>
                 )}
@@ -576,7 +545,7 @@ const DashboardView = ({
             </div>
             </div>
 
-            <div className={styles.formSection}>
+            <div className={styles.basicFormSection}>
               <h3 className={styles.formSectionTitle}>{t("basicInfoSectionTitle")}</h3>
             <label className={styles.labelCls}>
               {t("name")}
@@ -660,7 +629,7 @@ const DashboardView = ({
                         className={
                           on
                             ? "rounded-pill border-[1.5px] border-terra bg-terra/10 px-3 py-1.5 text-[13px] font-semibold text-terra-deep"
-                            : "rounded-pill border-[1.5px] border-line bg-white px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-terra/50"
+                            : "rounded-pill border-[1.5px] border-line bg-paper px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:border-terra/50"
                         }
                       >
                         {city}
@@ -778,7 +747,7 @@ const DashboardView = ({
                           )}
                         </div>
                         <div className={styles.docActions}>
-                          <button type="button" onClick={() => pickDoc(d.kind)} className="btn btn-outline btn-sm">
+                          <button type="button" onClick={() => pickDoc(d.kind)} className={styles.compactSecondaryButton}>
                             {uploaded ? t("docReplace") : t("docUpload")}
                           </button>
                           {uploaded && (
@@ -864,7 +833,7 @@ const DashboardView = ({
                       <button
                         type="button"
                         onClick={() => removeContact(i)}
-                        className="btn btn-outline btn-sm"
+                        className={styles.compactSecondaryButton}
                         aria-label={t("contactRemove")}
                       >
                         {t("contactRemove")}
@@ -873,7 +842,7 @@ const DashboardView = ({
                   ))}
                 </div>
                 {contactRows.length < 10 && (
-                  <button type="button" onClick={addContact} className="btn btn-outline btn-sm mt-2 w-fit">
+                  <button type="button" onClick={addContact} className={`mt-2 w-fit ${styles.compactSecondaryButton}`}>
                     + {t("contactAdd")}
                   </button>
                 )}
@@ -887,11 +856,11 @@ const DashboardView = ({
 
             <div className={styles.formActions}>
               {hasListingDashboard && (
-                <a href={localizedListings} className="btn btn-outline">
+                <a href={localizedListings} className={styles.secondaryButton}>
                   {t("cancel")}
                 </a>
               )}
-              <button type="submit" disabled={pending || uploading} className="btn btn-solid disabled:opacity-60">
+              <button type="submit" disabled={pending || uploading} className={`${styles.primaryButton} disabled:opacity-60`}>
                 {pending ? t("saving") : t("save")}
               </button>
             </div>
@@ -936,7 +905,7 @@ const DashboardView = ({
           {isAgency ? (
             <div className={styles.requestBoard}>
               <p className={styles.emptyQuotes}>{t("noAgencyRequests")}</p>
-              <a href={localizedQuote} className="btn btn-solid btn-sm">
+              <a href={localizedQuote} className={styles.compactPrimaryButton}>
                 {t("createRequest")}
               </a>
             </div>
@@ -962,7 +931,7 @@ const DashboardView = ({
                     {[q.category_type, q.country, q.city, q.district].filter(Boolean).join(" · ")}
                   </p>
                   {q.message && <p className={styles.quoteMsg}>{q.message}</p>}
-                  <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className="btn btn-outline btn-sm mt-2.5">
+                  <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className={`mt-2.5 ${styles.compactSecondaryButton}`}>
                     {t("reply")}
                   </a>
                 </li>
@@ -974,8 +943,7 @@ const DashboardView = ({
         )}
       </div>
         </div>
-      </section>
-    </main>
+    </>
   );
 };
 
@@ -1015,8 +983,8 @@ const OverviewDashboard = ({
   <div className={styles.overviewStack}>
     <section className={styles.overviewHero}>
       <div>
-        <span className={styles.eyebrow}>{t("overview")}</span>
-        <h2>{business ? t("panelReady") : t("panelSetup")}</h2>
+        <span className={styles.eyebrow}>{t("overviewLabel")}</span>
+        <h2>{business ? t("overviewReadyTitle") : t("overviewSetupTitle")}</h2>
         <p>{business ? t("panelReadySub") : t("panelSetupSub")}</p>
       </div>
       <div className={styles.overviewStatus}>
@@ -1031,20 +999,21 @@ const OverviewDashboard = ({
           <SafeCoverImage src={cover} fallback={t("addCover")} />
         </div>
         <div className={styles.overviewListingBody}>
-          <span className={styles.homeCardHead}>{t("listingDashboardTitle")}</span>
-          <h3>{business?.name || t("panelSetup")}</h3>
-          <p>
-            {business
-              ? [business.type, business.city, business.country].filter(Boolean).join(" · ")
-              : t("panelSetupSub")}
-          </p>
+          <span className={styles.homeCardHead}>{t("overviewNextStep")}</span>
+          <h3>{business ? t("editListing") : t("panelSetup")}</h3>
+          <p>{business ? [business.name, business.type, business.city].filter(Boolean).join(" · ") : t("overviewListingSub")}</p>
           <div className={styles.overviewProgress}>
-            <span>{t("profileScore")}</span>
-            <b>{profileScore}%</b>
+            <div className={styles.overviewProgressHead}>
+              <span>{t("profileScore")}</span>
+              <b>{profileScore}%</b>
+            </div>
+            <div className={styles.progressTrack}>
+              <div className={styles.progressFill} style={{ width: `${profileScore}%` }} />
+            </div>
           </div>
-          <div className={styles.listingActions}>
-            <a href={listingsHref} className="btn btn-solid btn-sm">{t("listingDashboardTitle")}</a>
-            <a href={editHref} className="btn btn-outline btn-sm">{business ? t("editListing") : t("newListing")}</a>
+          <div className={cn(styles.listingActions, "mt-4")}>
+            <a href={editHref} className={styles.compactPrimaryButton}>{business ? t("editListing") : t("completeProfile")}</a>
+            <a href={listingsHref} className={styles.compactSecondaryButton}>{t("listingDashboardTitle")}</a>
           </div>
         </div>
       </article>
@@ -1056,7 +1025,7 @@ const OverviewDashboard = ({
           </div>
           <strong className={styles.homeNumber}>{newQuoteCount}</strong>
           <p>{t("quotesSub", { count: newQuoteCount })}</p>
-          <a href={quoteHref} className="btn btn-outline btn-sm">{t("viewRequests")}</a>
+          <a href={quoteHref} className={styles.compactSecondaryButton}>{t("viewRequests")}</a>
         </article>
 
         <article className={styles.homeCard}>
@@ -1074,7 +1043,13 @@ const OverviewDashboard = ({
 const SafeCoverImage = ({ src, fallback }: { src: string; fallback: string }) => {
   const [failed, setFailed] = useState(false);
   const url = businessImageUrl(src);
-  if (!url || failed) return <span>{fallback}</span>;
+  if (!url || failed)
+    return (
+      <span className="flex flex-col items-center gap-2 text-muted/60">
+        <ImagePlus size={26} strokeWidth={1.5} aria-hidden />
+        {fallback}
+      </span>
+    );
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={url} alt="" className="h-full w-full object-cover" onError={() => setFailed(true)} />
@@ -1145,10 +1120,10 @@ const ListingDashboard = ({
     </div>
 
     <div className={styles.listingActions}>
-      <a href={editHref} className="btn btn-solid btn-sm">
+      <a href={editHref} className={styles.compactPrimaryButton}>
         {t("editListing")}
       </a>
-      <a href={previewHref} target="_blank" className="btn btn-outline btn-sm">
+      <a href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
         {t("preview")}
       </a>
     </div>

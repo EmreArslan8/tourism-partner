@@ -13,7 +13,7 @@ import styles from "./styles";
 /* Gerçek OSM/Leaflet haritası. Bu bileşen ListingView'da next/dynamic
    (ssr:false) ile lazy yüklenir; leaflet paketi + CSS yalnızca kullanıcı
    harita görünümüne geçtiğinde indirilir, ilk sayfa yüküne maliyeti yoktur. */
-const MapPanel = ({ items }: { items: Business[] }) => {
+const MapPanel = ({ items }: { items: Pick<Business, "id" | "name" | "group" | "coords">[] }) => {
   const router = useRouter();
   const t = useTranslations("listing");
   const elRef = useRef<HTMLDivElement>(null);

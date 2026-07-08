@@ -172,9 +172,12 @@ const RegisterForm = () => {
           <h1 className="text-[26px] font-extrabold leading-tight tracking-tight !text-ink lg:text-[30px]">
             {stepTitle}
           </h1>
-          <p className="mt-2 text-[14px] font-medium text-[#3f4b67]">
+          <p className="mt-2 text-[14px] font-medium text-ink/75">
             {t("haveAccount")}{" "}
-            <Link href={{ pathname: "/login" }} className="font-semibold text-terra transition-colors hover:text-terra-deep">
+            <Link
+              href={{ pathname: "/login" }}
+              className="font-extrabold text-brand underline decoration-brand/25 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/40"
+            >
               {t("loginLink")}
             </Link>
           </p>

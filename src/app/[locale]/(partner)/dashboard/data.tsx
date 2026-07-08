@@ -1,5 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getPanelUser, getPanelSession } from "@/lib/panel-auth";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
 import DashboardView, { PanelBusiness, PanelContact, PanelDraft, PanelMembership, PanelQuote } from "./view";
 
@@ -14,21 +15,15 @@ export async function PanelData({
   mode: DashboardMode;
   listingId?: string;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const userId = user?.id ?? "";
-  if (!userId) redirect({ href: "/login", locale });
+  const user = await getPanelUser();
+  if (!user) redirect({ href: "/login", locale });
+  const userId = user!.id;
 
   // Alıcı-üye (listelenmeyen firma) tedarikçi panelini kullanmaz → keşfete yönlendir.
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("account_type")
-    .eq("id", userId)
-    .maybeSingle();
-  if (profile?.account_type === "buyer") redirect({ href: "/explore", locale });
+  const session = await getPanelSession();
+  if (session?.accountType === "buyer") redirect({ href: "/explore", locale });
 
+  const supabase = await createClient();
   const { data: biz } = await supabase
     .from("businesses")
     .select(

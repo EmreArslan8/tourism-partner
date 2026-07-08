@@ -64,7 +64,7 @@ const HomeView = ({
       {/* 4 — Tedarikçi türleri */}
       <div className={styles.panelCategories}>
         <div className="flex w-full flex-col justify-start gap-6 max-[1024px]:gap-5 max-[640px]:gap-6">
-          <Categories />
+          <Categories businesses={businesses} />
         </div>
       </div>
 

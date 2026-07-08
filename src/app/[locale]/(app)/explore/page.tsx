@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
 import SuggestionRail from "@/components/SuggestionRail";
-import { getExploreData } from "@/lib/explore-data";
+import { getExploreResults, getIsGuest } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
 import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
 import ExploreView from "./view";
@@ -27,14 +27,26 @@ export default async function ExplorePage({
 async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchParams> }) {
   const sp = await searchParams;
   const filters = parseExploreFilters(sp);
-  const { businesses, isGuest } = await getExploreData();
-  const suggestions = await getCrossCategorySuggestions(filters, { isGuest });
+  const pageNum = Math.max(1, Number(sp.page) || 1);
+
+  // isGuest'i bir kez hesapla; sonuç + öneri sorgularını PARALEL çalıştır (birbirini beklemesin).
+  // getBusinesses her ikisinde de cache'li — tek DB okuması paylaşılır.
+  const isGuest = await getIsGuest();
+  const [results, suggestions] = await Promise.all([
+    getExploreResults(filters, pageNum, isGuest),
+    getCrossCategorySuggestions(filters, { isGuest }),
+  ]);
 
   return (
     <>
       <ListingView
-        isGuest={isGuest}
-        businesses={businesses}
+        isGuest={results.isGuest}
+        items={results.items}
+        index={results.index}
+        mapItems={results.mapItems}
+        total={results.total}
+        page={results.page}
+        pageCount={results.pageCount}
         initialGroups={filters.groups}
         initialTypes={filters.types}
         initialCountry={filters.country}

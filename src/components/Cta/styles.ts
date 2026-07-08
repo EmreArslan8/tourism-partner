@@ -1,43 +1,29 @@
-/* Cta — Showcase sonrası kompakt ağ özeti. */
+/* Cta — Showcase sonrası kampanya bandı. */
 const styles = {
   section: "w-full",
   panel:
-    "grid w-full grid-cols-[minmax(0,1fr)_minmax(560px,.85fr)] items-center gap-8 border-y border-line/80 py-6 " +
-    "max-[980px]:grid-cols-1 max-[980px]:gap-4 " +
-    "min-[641px]:rounded-[18px] min-[641px]:border min-[641px]:border-white/90 min-[641px]:bg-white/95 " +
-    "min-[641px]:px-6 min-[641px]:py-4 min-[641px]:shadow-[0_18px_54px_-42px_rgba(7,9,42,.78)] " +
-    "min-[641px]:max-[980px]:gap-3 min-[641px]:max-[980px]:px-5 min-[641px]:max-[980px]:py-4 " +
-    "max-[560px]:border-x-0 max-[560px]:border-b-0 max-[560px]:border-t max-[560px]:border-line/70 " +
-    "max-[560px]:bg-transparent max-[560px]:px-0 max-[560px]:py-2 max-[560px]:shadow-none max-[560px]:gap-2 " +
-    "[@media(max-height:720px)]:py-3 [@media(max-height:720px)]:gap-[9.6px]",
-  content: "section-copy min-w-0",
+    "relative isolate grid w-full grid-cols-[minmax(0,1fr)_minmax(230px,auto)] items-center gap-7 overflow-hidden rounded-[18px] " +
+    "border border-white/20 bg-sapphire-deep px-7 py-6 shadow-[0_26px_76px_-40px_rgba(7,9,42,.9)] " +
+    "before:absolute before:inset-0 before:-z-10 before:bg-[radial-gradient(circle_at_13%_18%,rgba(255,255,255,.24),transparent_26%),radial-gradient(circle_at_86%_30%,rgba(0,79,230,.42),transparent_32%),linear-gradient(118deg,rgba(255,255,255,.07),transparent_38%,rgba(255,255,255,.08))] " +
+    "after:absolute after:right-[-12%] after:top-1/2 after:-z-10 after:h-[170%] after:w-[34%] after:-translate-y-1/2 after:rotate-[-12deg] after:bg-white/[.07] after:blur-[1px] " +
+    "max-[860px]:grid-cols-1 max-[860px]:gap-5 max-[860px]:px-5 max-[860px]:py-5 " +
+    "max-[560px]:rounded-[14px] max-[560px]:px-4 max-[560px]:py-4",
+  content: "section-copy min-w-0 text-white",
   title:
-    "max-w-[18ch] font-display text-[28px] font-semibold leading-[1.08] text-ink " +
-    "max-[980px]:max-w-none max-[980px]:text-[23px] max-[560px]:hidden",
+    "max-w-none whitespace-nowrap font-display text-[28px] font-semibold leading-[1.05] text-white " +
+    "max-[980px]:text-[24px] max-[720px]:whitespace-normal max-[560px]:text-[21px]",
   sub:
-    "mt-2 max-w-[56ch] text-[14px] font-medium leading-[1.55] text-ink/72 " +
-    "max-[980px]:mt-2 max-[980px]:max-w-[66ch] max-[980px]:text-[13.5px] max-[980px]:leading-[1.45] max-[560px]:hidden",
-  metrics:
-    "grid min-w-0 grid-cols-3 gap-2.5 " +
-    "max-[560px]:gap-0 max-[560px]:divide-x max-[560px]:divide-line/70",
-  metric:
-    "group flex min-w-0 items-center gap-2.5 rounded-[14px] border border-line/70 bg-white px-3.5 py-3 shadow-[0_14px_34px_-32px_rgba(7,9,42,.55)] " +
-    "transition-transform duration-200 ease-brand hover:-translate-y-0.5 " +
-    "min-[641px]:max-[980px]:rounded-[14px] min-[641px]:max-[980px]:px-3 min-[641px]:max-[980px]:py-3 " +
-    "max-[560px]:block max-[560px]:rounded-none max-[560px]:border-0 max-[560px]:bg-transparent max-[560px]:px-2 max-[560px]:py-0.5 max-[560px]:shadow-none",
-  metricIcon:
-    "grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-brand/[.08] text-brand " +
-    "min-[641px]:max-[980px]:h-9 min-[641px]:max-[980px]:w-9 " +
-    "max-[560px]:hidden",
-  metricCopy: "block min-w-0",
-  metricValue:
-    "block font-display text-[20px] font-semibold leading-none text-ink " +
-    "min-[641px]:max-[980px]:text-[20px] " +
-    "max-[560px]:text-center max-[560px]:text-[14px]",
-  metricLabel:
-    "mt-1 block text-[12px] font-semibold leading-tight text-ink/55 " +
-    "min-[641px]:max-[980px]:text-[11.5px] " +
-    "max-[560px]:mt-1 max-[560px]:text-center max-[560px]:text-[10.5px]",
+    "mt-3 max-w-[54ch] text-[15px] font-medium leading-[1.5] text-white/78 " +
+    "max-[980px]:max-w-[62ch] max-[980px]:text-[13.5px] max-[980px]:leading-[1.45]",
+  actions:
+    "relative flex shrink-0 items-center justify-end " +
+    "before:absolute before:inset-[-14px] before:-z-10 before:rounded-full before:bg-sapphire-top/24 before:blur-2xl " +
+    "max-[860px]:justify-start max-[560px]:w-full",
+  primary:
+    "group inline-flex min-h-[52px] items-center justify-center gap-2.5 rounded-[8px] bg-white px-7 text-[14.5px] font-extrabold text-sapphire-deep " +
+    "shadow-[0_16px_30px_-22px_rgba(0,0,0,.62)] transition-transform duration-200 ease-brand hover:-translate-y-0.5 " +
+    "[&>svg]:transition-transform [&>svg]:duration-200 [&>svg]:ease-brand hover:[&>svg]:translate-x-0.5 " +
+    "max-[980px]:min-h-[50px] max-[980px]:px-6 max-[560px]:min-h-12 max-[560px]:w-full max-[560px]:px-5 max-[560px]:text-[14px]",
 } as const;
 
 export default styles;

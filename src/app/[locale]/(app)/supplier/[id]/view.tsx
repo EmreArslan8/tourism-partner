@@ -2,6 +2,8 @@ import { Link } from "@/i18n/navigation";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
+import FavoriteButton from "@/components/FavoriteButton";
+import ReviewsSection from "@/components/ReviewsSection";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 
@@ -58,19 +60,22 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
           <div className={styles.gated}>
             {t("gated")} <Link href={{ pathname: "/login" }} className={styles.gatedLink}>{t("loginCta")}</Link>.
           </div>
+
+          <ReviewsSection businessId={b.id} />
         </article>
 
         <aside className={styles.aside}>
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>{t("quoteTitle")}</h3>
             <p className={styles.cardSub}>{t("quoteSub")}</p>
-            <Button 
-              href={{ pathname: "/quote", query: { s: b.id.toString() } }} 
-              block 
+            <Button
+              href={{ pathname: "/quote", query: { s: b.id.toString() } }}
+              block
               className="mt-4"
             >
               {t("requestQuote")}
             </Button>
+            <FavoriteButton businessId={b.id} />
           </div>
           {/* Kurum iletişim — herkese açık (yetkili kişi bilgisi BURADA gösterilmez) */}
           {(b.phone || b.website) && (

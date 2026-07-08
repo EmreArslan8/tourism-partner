@@ -37,7 +37,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           title="Gelen Talepler"
           tone="blue"
           icon={<MessageSquareText size={18} aria-hidden />}
-          action={<span className="shrink-0 text-[12px] font-semibold text-[#475569]">{tickets.length} talep</span>}
+          action={<span className="shrink-0 text-[12px] font-semibold text-muted">{tickets.length} talep</span>}
         />
         {tickets.length === 0 ? (
           <EmptyState
@@ -56,8 +56,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 header: "Gönderen",
                 cell: (t) => (
                   <div className="min-w-0">
-                    <p className="text-[13px] font-extrabold text-[#162238]">{t.sender_name}</p>
-                    {t.sender_email && <p className="truncate text-[12px] font-semibold text-[#475569]">{t.sender_email}</p>}
+                    <p className="text-[13px] font-extrabold text-ink">{t.sender_name}</p>
+                    {t.sender_email && <p className="truncate text-[12px] font-semibold text-muted">{t.sender_email}</p>}
                   </div>
                 ),
               },
@@ -66,8 +66,8 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 header: "Konu",
                 cell: (t) => (
                   <div className="max-w-[320px]">
-                    <p className="text-[13px] font-semibold text-[#162238]">{t.subject}</p>
-                    <p className="mt-1 line-clamp-1 text-[12px] text-[#475569]">{t.message}</p>
+                    <p className="text-[13px] font-semibold text-ink">{t.subject}</p>
+                    <p className="mt-1 line-clamp-1 text-[12px] text-muted">{t.message}</p>
                   </div>
                 ),
               },
@@ -76,7 +76,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 header: "Durum",
                 cell: (t) => <StatusBadge tone={TONE[t.status as TicketStatus] ?? "neutral"}>{LABEL[t.status as TicketStatus] ?? t.status}</StatusBadge>,
               },
-              { key: "date", header: "Tarih", cell: (t) => <span className="text-[#475569]">{fmt(t.created_at)}</span> },
+              { key: "date", header: "Tarih", cell: (t) => <span className="text-muted">{fmt(t.created_at)}</span> },
               {
                 key: "action",
                 header: "İşlem",
@@ -122,7 +122,7 @@ const TicketBtn = ({
         "rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition-colors " +
         (tone === "green"
           ? "border-emerald-300 text-emerald-700 hover:bg-emerald-50"
-          : "border-[#D4DCEA] text-[#475569] hover:bg-cream")
+          : "border-line text-muted hover:bg-cream")
       }
     >
       {label}

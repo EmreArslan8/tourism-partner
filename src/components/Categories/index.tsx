@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { CATEGORY_GROUPS } from "@/lib/categories";
-import type { GroupKey } from "@/lib/types";
+import type { Business, GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 const IMG: Record<GroupKey, string> = {
@@ -75,12 +75,21 @@ const ICONS: Record<GroupKey, ReactNode> = {
 
 /* Ana sayfa kategori girişi — görsel + rozet + ikon + açıklama + İncele.
    Mobilde yatay kaydırmalı tek satır, tablet/desktop'ta panele grid olarak yerleşir. */
-const Categories = () => {
+const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
   const groups = CATEGORY_GROUPS.filter((g) => g.key !== "saglik");
   const [activeKey, setActiveKey] = useState<GroupKey>(groups[0].key);
   const activeGroup = groups.find((g) => g.key === activeKey) ?? groups[0];
+
+  // Kategori başına tedarikçi sayısı + kapsanan şehir (gerçek veriden — dekor yerine bilgi).
+  const stats = businesses.reduce<Record<string, { n: number; cities: Set<string> }>>((acc, b) => {
+    const s = (acc[b.group] ??= { n: 0, cities: new Set() });
+    s.n += 1;
+    if (b.city) s.cities.add(b.city);
+    return acc;
+  }, {});
+  const activeStat = stats[activeGroup.key] ?? { n: 0, cities: new Set<string>() };
 
   return (
     <section className={styles.section} id="kategoriler" data-tour="supplier-categories">
@@ -128,25 +137,41 @@ const Categories = () => {
         </div>
 
         <Link href={{ pathname: "/explore", query: { cat: activeGroup.key } }} className={styles.visual} aria-label={`${tc(activeGroup.key)} ${t("cta")}`}>
-          <Image
-            key={activeGroup.key}
-            src={IMG[activeGroup.key]}
-            alt=""
-            fill
-            sizes="(max-width: 760px) 100vw, (max-width: 1200px) 48vw, 560px"
-            className={styles.img}
-            priority
-          />
-          <span className={styles.visualShade} aria-hidden="true" />
-          <span className={styles.visualBadge}>
-            <span className={styles.badgeDot} aria-hidden="true" />
-            {t(`cards.${activeGroup.key}.badge`)}
+          {/* Küçültülmüş görsel şeridi — marka hissi kalsın, alan bilgiye açılsın */}
+          <span className={styles.visualMedia} aria-hidden="true">
+            <Image
+              key={activeGroup.key}
+              src={IMG[activeGroup.key]}
+              alt=""
+              fill
+              sizes="(max-width: 760px) 100vw, (max-width: 1200px) 48vw, 560px"
+              className={styles.img}
+              priority
+            />
+            <span className={styles.visualShade} />
           </span>
-          <span className={styles.visualCta}>
-            {t("cta")}
-            <svg className={styles.ctaArrow} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+
+          {/* Bilgi katmanı: tedarikçi sayısı + birkaç alt kategori çipi + CTA (sade) */}
+          <span className={styles.visualInfo}>
+            <span className={styles.visualStatRow}>
+              <strong className={styles.visualName}>{tc(activeGroup.key)}</strong>
+              {activeStat.n > 0 && (
+                <span className={styles.visualCount}>
+                  {activeStat.n} tedarikçi{activeStat.cities.size > 0 ? ` · ${activeStat.cities.size} şehir` : ""}
+                </span>
+              )}
+            </span>
+            <span className={styles.visualChips}>
+              {activeGroup.children.slice(0, 4).map((c) => (
+                <span key={c.slug} className={styles.chip}>{c.label}</span>
+              ))}
+            </span>
+            <span className={styles.visualCta}>
+              {t("cta")}
+              <svg className={styles.ctaArrow} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+            </span>
           </span>
         </Link>
       </div>

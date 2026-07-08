@@ -5,8 +5,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
 import { getCityOptions, getDistrictOptions } from "@/lib/regions";
-import type { ActionState } from "@/lib/types";
+import { normalizeTr } from "@/lib/utils";
+import type { ActionState, GroupKey } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
 type QuotePayload = {
@@ -101,6 +103,45 @@ function isValidDistrict(country: string | null, city: string | null, district: 
   return getDistrictOptions(country, city).includes(district);
 }
 
+function cleanList(value: FormDataEntryValue | null, allowed?: Set<string>) {
+  return String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item && (!allowed || allowed.has(item)))
+    .slice(0, 40);
+}
+
+function matchesQuoteKeyword(
+  row: { name: string; type: string; tag: string | null; city: string; district: string },
+  raw: string | null,
+) {
+  const needle = normalizeTr(raw ?? "");
+  if (!needle) return true;
+  return [row.name, row.type, row.tag ?? "", row.city, row.district].some((value) =>
+    normalizeTr(value).includes(needle),
+  );
+}
+
+function cleanDate(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "").trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
+}
+
+function dateRangeValue(formData: FormData) {
+  const start = cleanDate(formData.get("dateStart"));
+  const end = cleanDate(formData.get("dateEnd"));
+  if (start && end) return `${start} - ${end}`;
+  return start ?? end ?? null;
+}
+
+function normalizeTrPhone(value: FormDataEntryValue | null) {
+  let digits = String(value ?? "").replace(/\D/g, "");
+  if (digits.startsWith("90")) digits = digits.slice(2);
+  if (digits.startsWith("0")) digits = digits.slice(1);
+  if (!/^5\d{9}$/.test(digits)) return null;
+  return `+90 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
+}
+
 /* Teklif (RFQ) gönderimi — teklif formundan quotes tablosuna yazar. */
 export async function submitQuote(
   _prev: ActionState,
@@ -110,7 +151,7 @@ export async function submitQuote(
 
   const name = clean(formData.get("name"), 120);
   const email = clean(formData.get("email"), 200);
-  const phone = clean(formData.get("phone"), 40);
+  const phone = normalizeTrPhone(formData.get("phone"));
   if (!name || !email || !phone) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
   const allowed = await checkRateLimit({
@@ -133,8 +174,20 @@ export async function submitQuote(
   const city = clean(formData.get("city"), 80);
   const district = clean(formData.get("district"), 80);
   const service = clean(formData.get("service"), 120) ?? selectedCategory?.type ?? null;
-  const dateRange = clean(formData.get("dateRange"), 80);
+  const dateRange = dateRangeValue(formData);
   const message = clean(formData.get("message"), 4000);
+  const filterGroups = cleanList(
+    formData.get("filterGroups"),
+    new Set(CATEGORY_GROUPS.map((item) => item.key)),
+  );
+  const filterTypes = cleanList(
+    formData.get("filterTypes"),
+    new Set(CATEGORY_GROUPS.flatMap((item) => item.children.map((child) => child.label))),
+  );
+  const filterAttrs = cleanList(formData.get("filterAttrs"), ALL_FACET_SLUGS);
+  const filterQ = clean(formData.get("filterQ"), 160);
+  const filterRatingRaw = Number(formData.get("filterRating"));
+  const filterRating = Number.isFinite(filterRatingRaw) ? Math.max(0, Math.min(5, filterRatingRaw)) : 0;
   const payload: QuotePayload = {
     name,
     email,
@@ -162,20 +215,27 @@ export async function submitQuote(
     let targetBusinessIds = businessId ? [businessId] : [];
 
     if (!businessId && selectedCategory && country && city) {
+      const targetGroups = (filterGroups.length ? filterGroups : [selectedCategory.group]) as GroupKey[];
+      const targetTypes = filterTypes.length ? filterTypes : [selectedCategory.type];
       let query = supabase
         .from("businesses")
-        .select("id")
+        .select("id,name,type,tag,city,district,rating,attributes")
         .eq("status", "approved")
-        .eq("group", selectedCategory.group)
-        .eq("type", selectedCategory.type)
+        .in("group", targetGroups)
+        .in("type", targetTypes)
         .eq("country", country)
         .eq("city", city);
 
       if (district) query = query.eq("district", district);
+      if (filterRating > 0) query = query.gte("rating", filterRating);
 
       const { data: matches, error: matchError } = await query;
       if (matchError) return { ok: false, error: matchError.message };
-      targetBusinessIds = (matches ?? []).map((item) => Number(item.id)).filter(Number.isFinite);
+      targetBusinessIds = (matches ?? [])
+        .filter((item) => attrsPass(item.attributes ?? [], new Set(filterAttrs)))
+        .filter((item) => matchesQuoteKeyword(item, filterQ))
+        .map((item) => Number(item.id))
+        .filter(Number.isFinite);
       if (targetBusinessIds.length === 0) return { ok: false, error: "no_match" };
     }
 

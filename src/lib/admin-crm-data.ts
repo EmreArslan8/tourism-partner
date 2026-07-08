@@ -216,15 +216,31 @@ export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportCo
     scopedQuery,
   );
   const resultIds = result.businesses.map((business) => business.id);
-  const membershipsRes = resultIds.length > 0
-    ? await supabase
-        .from("business_memberships")
-        .select("id,business_id,plan,status,starts_at,ends_at")
-        .in("business_id", resultIds)
-        .order("ends_at", { ascending: true })
-    : { data: [], error: null };
+  const [membershipsRes, contactsRes] = await Promise.all([
+    resultIds.length > 0
+      ? supabase
+          .from("business_memberships")
+          .select("id,business_id,plan,status,starts_at,ends_at")
+          .in("business_id", resultIds)
+          .order("ends_at", { ascending: true })
+      : Promise.resolve({ data: [], error: null }),
+    columns.includes("email") && resultIds.length > 0
+      ? supabase
+          .from("business_contacts")
+          .select("business_id,email")
+          .in("business_id", resultIds)
+          .not("email", "is", null)
+          .order("id", { ascending: true })
+      : Promise.resolve({ data: [], error: null }),
+  ]);
   if (membershipsRes.error) throw new Error(membershipsRes.error.message);
-  return businessesToCsv(result.businesses, mapMemberships(membershipsRes.data ?? []), columns);
+  if (contactsRes.error) throw new Error(contactsRes.error.message);
+  const emails = new Map<number, string>();
+  for (const row of contactsRes.data ?? []) {
+    const businessId = Number(row.business_id);
+    if (!emails.has(businessId) && row.email) emails.set(businessId, row.email);
+  }
+  return businessesToCsv(result.businesses, mapMemberships(membershipsRes.data ?? []), columns, Object.fromEntries(emails));
 }
 
 type BusinessFilterQuery = {
