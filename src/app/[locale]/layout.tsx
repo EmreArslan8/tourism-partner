@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   title: "Tourism Partner — B2B Travel Supplier Network",
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
+  verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
 };
 
 export function generateStaticParams() {

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
+import { businessSlug } from "@/lib/business-slug";
 import { GROUP_COLORS } from "@/lib/categories";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
@@ -80,17 +81,8 @@ const Slide = ({ business }: { business: Business }) => {
 
         {/* SAĞ — bilgiler */}
         <div className={styles.info}>
-          <div className={styles.infoTop}>
-            <span className={styles.cat}>{tc(business.group)} · {business.type}</span>
-            {business.verified && (
-              <span className={styles.verified}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                {tv("verified")}
-              </span>
-            )}
-          </div>
-
           <h3 className={styles.name}>{business.name}</h3>
+          <p className={styles.categoryText}>{tc(business.group)} · {business.type}</p>
 
           <div className={styles.meta}>
             <span className={styles.metaItem}>
@@ -117,7 +109,14 @@ const Slide = ({ business }: { business: Business }) => {
           )}
 
           <div className={styles.foot}>
-            <Button href="/login" variant="solid" size="sm" className="btn-compact-sm">{tv("detailLogin")}</Button>
+            <Button
+              href={{ pathname: "/supplier/[id]", params: { id: businessSlug(business) } }}
+              variant="solid"
+              size="md"
+              className={styles.detailButton}
+            >
+              {tv("detail")}
+            </Button>
             <Link href={{ pathname: "/quote" }} className={styles.quote}>{tv("requestQuote")}</Link>
           </div>
         </div>
@@ -161,12 +160,6 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
         <div className={styles.track} style={{ transform: `translateX(-${i * 100}%)` }}>
           {items.map((b) => <Slide key={b.id} business={b} />)}
         </div>
-      </div>
-
-      <div className={styles.dots}>
-        {items.map((b, idx) => (
-          <button key={b.id} type="button" aria-label={`Slide ${idx + 1}`} onClick={() => setI(idx)} className={idx === i ? styles.dotActive : styles.dot} />
-        ))}
       </div>
     </section>
   );
