@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
-import { supplierPath } from "@/lib/site";
+import { supplierPath, INDEXING_ENABLED } from "@/lib/site";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
@@ -36,7 +36,7 @@ export async function generateMetadata({
     description,
     keywords: b.seoKeywords,
     alternates: { canonical },
-    robots: { index: true, follow: true },
+    robots: { index: INDEXING_ENABLED, follow: INDEXING_ENABLED },
     openGraph: {
       title,
       description,

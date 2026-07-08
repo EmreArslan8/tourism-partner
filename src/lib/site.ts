@@ -7,6 +7,11 @@ export const SITE_URL = (
   "http://localhost:3000"
 ).replace(/\/$/, "");
 
+/* İndekslemeye izin — YALNIZ NEXT_PUBLIC_ALLOW_INDEXING="true" iken açık.
+   Demo/gerçek-olmayan veri döneminde Google sahte profilleri indekslemesin diye
+   varsayılan KAPALI. Yayına hazır olunca Vercel'de bu env'i "true" yap. */
+export const INDEXING_ENABLED = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
+
 export const LOCALES = ["tr", "en"] as const;
 export type SiteLocale = (typeof LOCALES)[number];
 

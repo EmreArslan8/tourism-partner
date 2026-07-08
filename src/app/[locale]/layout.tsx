@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, INDEXING_ENABLED } from "@/lib/site";
 import "../globals.css";
 
 const display = Inter({
@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
   verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
+  // Demo veri döneminde tüm site noindex; launch'ta NEXT_PUBLIC_ALLOW_INDEXING ile açılır.
+  robots: { index: INDEXING_ENABLED, follow: INDEXING_ENABLED },
 };
 
 export function generateStaticParams() {

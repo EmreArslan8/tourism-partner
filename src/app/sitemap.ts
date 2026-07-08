@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
 import { getBusinesses, businessSlug } from "@/lib/businesses";
-import { SITE_URL, LOCALES, supplierPath } from "@/lib/site";
+import { SITE_URL, LOCALES, supplierPath, INDEXING_ENABLED } from "@/lib/site";
 
 /* Dinamik sitemap (Brief §3B / El Kitabı §1.2): tüm onaylı işletme profilleri
    Google botları için index'lenebilir olarak listelenir. Profiller herkese açıktır
    (deep-link), bu yüzden organik trafik için sitemap'e dahil edilir. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Demo/gerçek-olmayan veri döneminde boş sitemap — sahte profiller Google'a duyurulmaz.
+  if (!INDEXING_ENABLED) return [];
+
   const businesses = await getBusinesses();
   const now = new Date();
 
