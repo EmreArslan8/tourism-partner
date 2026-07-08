@@ -45,47 +45,41 @@ const styles = {
 
   /* SAĞ — bilgiler (ayrı box) */
   info:
-    "flex flex-col gap-3 rounded-card-lg border border-line bg-paper p-7 shadow-card " +
-    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-2 max-[560px]:p-4",
-  infoTop: "flex flex-wrap items-center gap-2.5 max-[560px]:gap-1.5",
-  cat:
-    "label-pill rounded-full bg-cream-deep px-3 py-1 text-brand " +
-    "max-[560px]:px-2.5 max-[560px]:py-1 max-[560px]:text-[10.5px] max-[560px]:leading-none",
-  verified:
-    "label-pill inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-600 " +
-    "max-[560px]:gap-1 max-[560px]:px-2.5 max-[560px]:py-1 max-[560px]:text-[10.5px] max-[560px]:leading-none " +
-    "max-[560px]:[&_svg]:h-3 max-[560px]:[&_svg]:w-3",
-  name: "heading-card text-ink max-[560px]:text-[1.08rem] max-[560px]:leading-[1.18]",
+    "flex flex-col gap-3 rounded-card-lg border border-sapphire/10 bg-[#f7f9ff]/80 p-6 shadow-[0_18px_48px_-36px_rgba(7,9,42,.42)] " +
+    "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-2.5 max-[560px]:p-4",
+  name:
+    "font-display text-[28px] font-semibold leading-[1.12] tracking-[0] text-ink " +
+    "max-[980px]:text-[25px] max-[560px]:text-[1.18rem] max-[560px]:leading-[1.18]",
+  categoryText:
+    "-mt-1 text-[13px] font-semibold leading-tight text-brand/72 " +
+    "max-[560px]:mt-0 max-[560px]:text-[12px]",
   meta:
-    "flex flex-wrap items-center gap-2.5 text-[13px] font-semibold leading-tight text-ink/70 " +
+    "flex flex-wrap items-center gap-2.5 text-[13px] font-semibold leading-tight text-ink/62 " +
     "max-[560px]:gap-x-2 max-[560px]:gap-y-0.5 max-[560px]:text-[12px] max-[560px]:leading-[1.3]",
   metaItem: "inline-flex min-w-0 items-center gap-1.5 max-[560px]:gap-1",
   metaIcon: "h-4 w-4 shrink-0 text-brand/60 max-[560px]:h-3.5 max-[560px]:w-3.5",
-  metaDot: "h-1 w-1 rounded-full bg-line max-[560px]:h-[3.2px] max-[560px]:w-[3.2px]",
+  metaDot: "h-1 w-1 rounded-full bg-line/90 max-[560px]:h-[3.2px] max-[560px]:w-[3.2px]",
   stars: "rating-star-text text-gold",
   ratingNum: "font-bold text-ink",
   reviews: "text-[12.5px] font-semibold text-ink/58 max-[560px]:text-[11.5px] max-[560px]:leading-[1.3]",
   desc:
-    "body-muted line-clamp-2 text-ink/70 " +
+    "body-muted line-clamp-2 max-w-[56ch] text-ink/68 " +
     "max-[560px]:line-clamp-2 max-[560px]:text-[14px] max-[560px]:leading-[1.45]",
-  services: "flex flex-col gap-2.5 max-[560px]:hidden",
+  services: "flex flex-col gap-3 max-[560px]:hidden",
   servicesLabel:
-    "text-[12px] font-extrabold leading-none tracking-normal text-ink/72",
-  chips: "flex flex-wrap gap-1.5",
+    "text-[14px] font-semibold leading-none tracking-[0] text-ink/78",
+  chips: "flex flex-wrap gap-2",
   chip:
-    "rounded-[8px] border border-line/80 bg-[#f7f9ff] px-2.5 py-1.5 text-[12px] font-bold leading-none text-ink/72",
+    "inline-flex items-center rounded-full bg-sapphire/[.055] px-3 py-1.5 text-[13px] font-medium leading-none text-ink/72 ring-1 ring-sapphire/10",
   foot:
-    "mt-auto flex items-center gap-4 border-t border-line pt-4 " +
-    "max-[560px]:grid max-[560px]:grid-cols-[1fr_auto] max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px] " +
-    "max-[560px]:[&_.btn]:min-h-10 max-[560px]:[&_.btn]:px-4 max-[560px]:[&_.btn]:py-2 max-[560px]:[&_.btn]:text-[13px]",
+    "mt-auto flex items-center gap-3 border-t border-line/90 pt-4 " +
+    "max-[560px]:grid max-[560px]:grid-cols-1 max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px]",
+  detailButton:
+    "min-h-11 rounded-[10px] px-5 text-[14px] font-semibold shadow-[0_14px_30px_-22px_rgba(15,59,176,.9)] max-[560px]:w-full max-[560px]:min-h-10 max-[560px]:text-[13px]",
   quote:
-    "inline-flex items-center justify-center rounded-button border border-line px-4 py-[9px] text-[13.5px] font-semibold text-terra " +
-    "transition-colors hover:border-terra hover:text-terra-deep " +
-    "max-[560px]:min-h-10 max-[560px]:px-4 max-[560px]:py-2 max-[560px]:text-[13px]",
-
-  dots: "mt-3 flex items-center justify-center gap-2 max-[640px]:hidden",
-  dot: "h-2 w-2 rounded-full bg-line transition-colors hover:bg-muted",
-  dotActive: "h-2 w-6 rounded-full bg-terra transition-all",
+    "inline-flex min-h-11 items-center justify-center rounded-[10px] border border-line bg-white px-5 text-[14px] font-semibold text-terra " +
+    "transition-colors hover:border-terra hover:bg-cream/60 hover:text-terra-deep " +
+    "max-[560px]:min-h-10 max-[560px]:w-full max-[560px]:px-4 max-[560px]:text-[13px]",
 } as const;
 
 export default styles;
