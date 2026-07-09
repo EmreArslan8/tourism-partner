@@ -8,6 +8,7 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
 import { getCityOptions, getDistrictOptions } from "@/lib/regions";
 import { normalizeTr } from "@/lib/utils";
+import { isPublicBusinessStatus, PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { ActionState, GroupKey } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
@@ -213,14 +214,23 @@ export async function submitQuote(
   try {
     const supabase = await createClient();
     let targetBusinessIds = businessId ? [businessId] : [];
-
-    if (!businessId && selectedCategory && country && city) {
+    if (businessId) {
+      const { data: directTarget, error: directError } = await supabase
+        .from("businesses")
+        .select("id,status")
+        .eq("id", businessId)
+        .in("status", [...PUBLIC_BUSINESS_STATUSES])
+        .maybeSingle();
+      if (directError) return { ok: false, error: directError.message };
+      if (!directTarget || !isPublicBusinessStatus(directTarget.status)) return { ok: false, error: "no_match" };
+      targetBusinessIds = [Number(directTarget.id)];
+    } else if (selectedCategory && country && city) {
       const targetGroups = (filterGroups.length ? filterGroups : [selectedCategory.group]) as GroupKey[];
       const targetTypes = filterTypes.length ? filterTypes : [selectedCategory.type];
       let query = supabase
         .from("businesses")
         .select("id,name,type,tag,city,district,rating,attributes")
-        .eq("status", "approved")
+        .in("status", [...PUBLIC_BUSINESS_STATUSES])
         .in("group", targetGroups)
         .in("type", targetTypes)
         .eq("country", country)

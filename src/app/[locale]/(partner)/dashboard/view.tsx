@@ -16,8 +16,8 @@ import { BUSINESS_DOCUMENTS_BUCKET } from "@/lib/business-document-shape";
 import { businessImageUrl, BUSINESS_IMAGES_BUCKET } from "@/lib/business-images";
 import { upsertPanelDraftMedia } from "@/lib/business-drafts";
 import styles from "./styles";
-import { getPathname } from "@/i18n/navigation";
-import { saveMyBusiness } from "@/lib/actions/panel";
+import { Link, type Href } from "@/i18n/navigation";
+import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness, sendPartnerRequest } from "@/lib/actions/panel";
 
 export type PanelBusiness = {
   id: number;
@@ -38,15 +38,8 @@ export type PanelBusiness = {
   status: "pending" | "approved" | "rejected" | "active" | "expired" | "blacklisted" | "suspended";
   verified: boolean;
   sponsored: boolean;
+  founderPartnerNumber?: number;
   created_at: string;
-};
-
-export type PanelMembership = {
-  id: number;
-  plan: string;
-  status: "trial" | "active" | "expired" | "cancelled";
-  starts_at: string;
-  ends_at: string;
 };
 
 export type PanelContact = {
@@ -54,6 +47,19 @@ export type PanelContact = {
   title: string | null;
   phone: string | null;
   email: string | null;
+};
+
+export type PanelPartnerOption = {
+  id: number;
+  name: string;
+  group: string;
+  type: string;
+  city: string;
+};
+
+export type PanelPartnerRequest = {
+  id: number;
+  business: PanelPartnerOption;
 };
 
 export type PanelDraft = {
@@ -118,25 +124,32 @@ const DashboardView = ({
   mode,
   business,
   quotes,
-  membership,
   userId,
   group,
   meta,
   draft,
   contacts,
+  partnerOptions,
+  acceptedPartners,
+  incomingPartnerRequests,
+  outgoingPartnerRequests,
 }: {
   mode: "overview" | "listings" | "edit";
   business: PanelBusiness | null;
   quotes: PanelQuote[];
-  membership: PanelMembership | null;
   email: string;
   userId: string;
   group: string;
   meta: { firm_name: string; biz_type: string };
   draft: PanelDraft | null;
   contacts: PanelContact[];
+  partnerOptions: PanelPartnerOption[];
+  acceptedPartners: PanelPartnerOption[];
+  incomingPartnerRequests: PanelPartnerRequest[];
+  outgoingPartnerRequests: PanelPartnerRequest[];
 }) => {
   const t = useTranslations("panel");
+  const tc = useTranslations("cat");
   const locale = useLocale();
   const lang: "tr" | "en" = locale === "en" ? "en" : "tr";
   const [state, action, pending] = useActionState(saveMyBusiness, { ok: false });
@@ -191,23 +204,17 @@ const DashboardView = ({
   const selectedAttrs = new Set(b?.attributes ?? []);
   const profileScore = getProfileScore(b, cover);
   const newQuoteCount = quotes.filter((quote) => quote.status === "new").length;
-  const membershipDays = membership ? daysUntil(membership.ends_at) : null;
   const cityOptions = getCityOptions(selectedCountry);
   const districtOptions = getDistrictOptions(selectedCountry, selectedCity);
   const hasListingDashboard = !!b && (statusKey === "pending" || statusKey === "approved" || statusKey === "active");
   const showProfileForm = mode === "edit";
   const isOverview = mode === "overview";
-  // URL'ler routing.ts pathnames config'inden türetilir (elle /tr,/en yazılmaz).
-  const localizedListings = getPathname({ locale, href: "/dashboard/listings" });
-  const localizedNewListing = getPathname({ locale, href: "/dashboard/listings/new" });
-  const localizedEditListing = b
-    ? getPathname({ locale, href: { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } } })
-    : localizedNewListing;
-  const localizedQuote = getPathname({ locale, href: "/quote" });
-
-  const localizedPreview = b
-    ? getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: businessSlug(b) } } })
-    : "#";
+  const editListingHref: Href = b
+    ? { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } }
+    : "/dashboard/listings/new";
+  const previewHref: Href | null = b
+    ? { pathname: "/supplier/[id]", params: { id: businessSlug(b) } }
+    : null;
 
   useEffect(() => {
     if (!state.ok || typeof window === "undefined") return;
@@ -348,16 +355,16 @@ const DashboardView = ({
             </div>
             <div className={styles.actions}>
               {b && (
-                <a href={localizedPreview} target="_blank" className={styles.compactSecondaryButton}>
+                <Link href={previewHref!} target="_blank" className={styles.compactSecondaryButton}>
                   <Eye size={15} aria-hidden />
                   {t("preview")}
-                </a>
+                </Link>
               )}
               {mode !== "edit" && (
-                <a href={localizedEditListing} className={styles.compactPrimaryButton}>
+                <Link href={editListingHref} className={styles.compactPrimaryButton}>
                   <PencilLine size={15} aria-hidden />
                   {b ? t("editListing") : t("newListing")}
-                </a>
+                </Link>
               )}
               <form action={signOut}>
                 <button type="submit" className={styles.compactSecondaryButton}>
@@ -382,17 +389,17 @@ const DashboardView = ({
             {isAgency ? t("agencyHeroSub") : b ? t("panelReadySub") : t("panelSetupSub")}
           </p>
           <div className={styles.quickActions}>
-            <a href={localizedQuote} className={styles.compactPrimaryButton}>
+            <Link href="/quote" className={styles.compactPrimaryButton}>
               {isAgency ? t("createRequest") : t("viewRequests")}
-            </a>
+            </Link>
             {hasListingDashboard ? (
-              <a href={localizedEditListing} className={styles.compactSecondaryButton}>
+              <Link href={editListingHref} className={styles.compactSecondaryButton}>
                 {t("editListing")}
-              </a>
+              </Link>
             ) : (
-              <a href={localizedEditListing} className={styles.compactSecondaryButton}>
+              <Link href={editListingHref} className={styles.compactSecondaryButton}>
                 {isAgency ? t("completeCompany") : t("completeProfile")}
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -422,9 +429,9 @@ const DashboardView = ({
           detail={isAgency ? t("openRequestsSub") : t("quotesSub", { count: quotes.length })}
         />
         <MetricCard
-          label={t("membership")}
-          value={membership ? t(`membership_${membership.status}`) : t("membership_none")}
-          detail={membershipDays === null ? t("membershipNoDate") : membershipDays < 0 ? t("membershipExpired") : t("membershipDays", { count: membershipDays })}
+          label={t("visibility")}
+          value={t(`status_${visibleStatusKey}`)}
+          detail={visibleStatusKey === "approved" ? t("visibilityPublic") : visibleStatusKey === "pending" ? t("visibilityPending") : t("visibilityRestricted")}
         />
       </section>
       )}
@@ -438,17 +445,9 @@ const DashboardView = ({
               statusKey={visibleStatusKey}
               profileScore={profileScore}
               newQuoteCount={newQuoteCount}
-              membership={membership}
-              membershipDetail={
-                membershipDays === null
-                  ? t("membershipNoDate")
-                  : membershipDays < 0
-                    ? t("membershipExpired")
-                    : t("membershipDays", { count: membershipDays })
-              }
-              listingsHref={localizedListings}
-              editHref={localizedEditListing}
-              quoteHref={localizedQuote}
+              listingsHref="/dashboard/listings"
+              editHref={editListingHref}
+              quoteHref="/quote"
               t={t}
             />
           ) : hasListingDashboard && !showProfileForm && b ? (
@@ -459,9 +458,8 @@ const DashboardView = ({
               documentsCount={documents.length}
               profileScore={profileScore}
               statusKey={visibleStatusKey}
-              membership={membership}
-              editHref={localizedEditListing}
-              previewHref={localizedPreview}
+              editHref={editListingHref}
+              previewHref={previewHref}
               t={t}
             />
           ) : (
@@ -472,9 +470,9 @@ const DashboardView = ({
                   <p className={styles.sectionSub}>{isAgency ? t("agencyProfileSub") : t("editSub")}</p>
                 </div>
                 {hasListingDashboard && (
-                  <a href={localizedListings} className={styles.compactSecondaryButton}>
+                  <Link href="/dashboard/listings" className={styles.compactSecondaryButton}>
                     {t("backToListingDashboard")}
-                  </a>
+                  </Link>
                 )}
               </div>
 
@@ -671,6 +669,110 @@ const DashboardView = ({
             </div>
             </div>
 
+            <div className={styles.formSection}>
+              <h3 className={styles.formSectionTitle}>{t("partnersTitle")}</h3>
+              <div className={styles.dynBox}>
+                <span className={styles.labelCls}>{t("partnersTitle")}</span>
+                <p className={styles.sectionSub}>{t("partnersSub")}</p>
+
+                {acceptedPartners.length > 0 && (
+                  <div className={styles.partnerPickGrid}>
+                    {acceptedPartners.map((partner) => (
+                      <div key={partner.id} className={cn(styles.partnerPickItem, styles.partnerPickItemActive)}>
+                        <span className={styles.partnerPickName}>{partner.name}</span>
+                        <span className={styles.partnerPickMeta}>
+                          {[t("partnerAccepted"), tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {incomingPartnerRequests.length > 0 && (
+                  <div className={styles.partnerRequestList}>
+                    <span className={styles.partnerRequestTitle}>{t("partnerIncomingTitle")}</span>
+                    {incomingPartnerRequests.map((request) => (
+                      <div key={request.id} className={styles.partnerRequestItem}>
+                        <div className="min-w-0">
+                          <span className={styles.partnerPickName}>{request.business.name}</span>
+                          <span className={styles.partnerPickMeta}>
+                            {[tc(request.business.group), request.business.type, request.business.city].filter(Boolean).join(" · ")}
+                          </span>
+                        </div>
+                        <div className={styles.partnerRequestActions}>
+                          <button
+                            type="submit"
+                            name="acceptPartnerRequestId"
+                            value={request.id}
+                            formAction={respondPartnerRequest}
+                            className={styles.compactPrimaryButton}
+                          >
+                            {t("partnerAccept")}
+                          </button>
+                          <button
+                            type="submit"
+                            name="rejectPartnerRequestId"
+                            value={request.id}
+                            formAction={respondPartnerRequest}
+                            className={styles.compactSecondaryButton}
+                          >
+                            {t("partnerReject")}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {outgoingPartnerRequests.length > 0 && (
+                  <div className={styles.partnerRequestList}>
+                    <span className={styles.partnerRequestTitle}>{t("partnerOutgoingTitle")}</span>
+                    {outgoingPartnerRequests.map((request) => (
+                      <div key={request.id} className={styles.partnerRequestItem}>
+                        <div className="min-w-0">
+                          <span className={styles.partnerPickName}>{request.business.name}</span>
+                          <span className={styles.partnerPickMeta}>
+                            {[t("partnerPending"), tc(request.business.group), request.business.type, request.business.city].filter(Boolean).join(" · ")}
+                          </span>
+                        </div>
+                        <button
+                          type="submit"
+                          name="partnerRequestId"
+                          value={request.id}
+                          formAction={cancelPartnerRequest}
+                          className={styles.compactSecondaryButton}
+                        >
+                          {t("partnerCancel")}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {partnerOptions.length === 0 ? (
+                  <p className="mt-3 text-[13px] text-muted">{t("partnersEmpty")}</p>
+                ) : (
+                  <div className={styles.partnerPickGrid}>
+                    {partnerOptions.map((partner) => (
+                      <button
+                        key={partner.id}
+                        type="submit"
+                        name="partnerBusinessId"
+                        value={partner.id}
+                        formAction={sendPartnerRequest}
+                        className={styles.partnerPickItem}
+                      >
+                        <span className={styles.partnerPickName}>{partner.name}</span>
+                        <span className={styles.partnerPickMeta}>
+                          {[t("partnerInvite"), tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Kategori-bazlı dinamik alanlar (vergi no, ünvan, kapasite, rehber TCKN/sicil…) */}
             {dynFields.length > 0 && (
               <div className={styles.formSection}>
@@ -856,9 +958,9 @@ const DashboardView = ({
 
             <div className={styles.formActions}>
               {hasListingDashboard && (
-                <a href={localizedListings} className={styles.secondaryButton}>
+                <Link href="/dashboard/listings" className={styles.secondaryButton}>
                   {t("cancel")}
-                </a>
+                </Link>
               )}
               <button type="submit" disabled={pending || uploading} className={`${styles.primaryButton} disabled:opacity-60`}>
                 {pending ? t("saving") : t("save")}
@@ -885,16 +987,12 @@ const DashboardView = ({
           </section>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t("membershipTitle")}</h2>
-            <p className={styles.sectionSub}>{t("membershipSub")}</p>
+            <h2 className={styles.sectionTitle}>{t("visibilityTitle")}</h2>
+            <p className={styles.sectionSub}>{t("visibilitySub")}</p>
             <div className={styles.membershipBox}>
-              <span>{membership ? membership.plan : t("membership_none")}</span>
-              <b>{membership ? t(`membership_${membership.status}`) : "-"}</b>
-              <small>
-                {membership
-                  ? `${new Date(membership.ends_at).toLocaleDateString("tr-TR")} ${t("membershipEnd")}`
-                  : t("membershipNoDate")}
-              </small>
+              <span>{t("visibility")}</span>
+              <b>{t(`status_${visibleStatusKey}`)}</b>
+              <small>{visibleStatusKey === "approved" ? t("visibilityPublic") : visibleStatusKey === "pending" ? t("visibilityPending") : t("visibilityRestricted")}</small>
             </div>
           </section>
 
@@ -905,9 +1003,9 @@ const DashboardView = ({
           {isAgency ? (
             <div className={styles.requestBoard}>
               <p className={styles.emptyQuotes}>{t("noAgencyRequests")}</p>
-              <a href={localizedQuote} className={styles.compactPrimaryButton}>
+              <Link href="/quote" className={styles.compactPrimaryButton}>
                 {t("createRequest")}
-              </a>
+              </Link>
             </div>
           ) : quotes.length === 0 ? (
             <p className={styles.emptyQuotes}>{t("noQuotes")}</p>
@@ -961,8 +1059,6 @@ const OverviewDashboard = ({
   statusKey,
   profileScore,
   newQuoteCount,
-  membership,
-  membershipDetail,
   listingsHref,
   editHref,
   quoteHref,
@@ -973,11 +1069,9 @@ const OverviewDashboard = ({
   statusKey: "pending" | "approved" | "rejected";
   profileScore: number;
   newQuoteCount: number;
-  membership: PanelMembership | null;
-  membershipDetail: string;
-  listingsHref: string;
-  editHref: string;
-  quoteHref: string;
+  listingsHref: Href;
+  editHref: Href;
+  quoteHref: Href;
   t: ReturnType<typeof useTranslations>;
 }) => (
   <div className={styles.overviewStack}>
@@ -1012,8 +1106,8 @@ const OverviewDashboard = ({
             </div>
           </div>
           <div className={cn(styles.listingActions, "mt-4")}>
-            <a href={editHref} className={styles.compactPrimaryButton}>{business ? t("editListing") : t("completeProfile")}</a>
-            <a href={listingsHref} className={styles.compactSecondaryButton}>{t("listingDashboardTitle")}</a>
+            <Link href={editHref} className={styles.compactPrimaryButton}>{business ? t("editListing") : t("completeProfile")}</Link>
+            <Link href="/dashboard/listings" className={styles.compactSecondaryButton}>{t("listingDashboardTitle")}</Link>
           </div>
         </div>
       </article>
@@ -1025,15 +1119,15 @@ const OverviewDashboard = ({
           </div>
           <strong className={styles.homeNumber}>{newQuoteCount}</strong>
           <p>{t("quotesSub", { count: newQuoteCount })}</p>
-          <a href={quoteHref} className={styles.compactSecondaryButton}>{t("viewRequests")}</a>
+          <Link href="/quote" className={styles.compactSecondaryButton}>{t("viewRequests")}</Link>
         </article>
 
         <article className={styles.homeCard}>
           <div className={styles.homeCardHead}>
-            <span>{t("membershipTitle")}</span>
+            <span>{t("visibilityTitle")}</span>
           </div>
-          <strong className={styles.homeNumber}>{membership ? t(`membership_${membership.status}`) : t("membership_none")}</strong>
-          <p>{membershipDetail}</p>
+          <strong className={styles.homeNumber}>{t(`status_${statusKey}`)}</strong>
+          <p>{statusKey === "approved" ? t("visibilityPublic") : statusKey === "pending" ? t("visibilityPending") : t("visibilityRestricted")}</p>
         </article>
       </aside>
     </div>
@@ -1063,7 +1157,6 @@ const ListingDashboard = ({
   documentsCount,
   profileScore,
   statusKey,
-  membership,
   editHref,
   previewHref,
   t,
@@ -1074,9 +1167,8 @@ const ListingDashboard = ({
   documentsCount: number;
   profileScore: number;
   statusKey: "pending" | "approved" | "rejected";
-  membership: PanelMembership | null;
-  editHref: string;
-  previewHref: string;
+  editHref: Href;
+  previewHref: Href | null;
   t: ReturnType<typeof useTranslations>;
 }) => (
   <div className={styles.listingDashboard}>
@@ -1109,7 +1201,7 @@ const ListingDashboard = ({
           <span>{profileScore}% {t("profileScore")}</span>
           <span>{galleryCount} {t("listingGallery")}</span>
           <span>{documentsCount} {t("listingDocuments")}</span>
-          <span>{membership ? t(`membership_${membership.status}`) : t("membership_none")}</span>
+          <span>{t(`status_${statusKey}`)}</span>
         </div>
       </div>
     </div>
@@ -1120,12 +1212,14 @@ const ListingDashboard = ({
     </div>
 
     <div className={styles.listingActions}>
-      <a href={editHref} className={styles.compactPrimaryButton}>
+      <Link href={editHref} className={styles.compactPrimaryButton}>
         {t("editListing")}
-      </a>
-      <a href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
-        {t("preview")}
-      </a>
+      </Link>
+      {previewHref && (
+        <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
+          {t("preview")}
+        </Link>
+      )}
     </div>
   </div>
 );
@@ -1144,14 +1238,6 @@ function getProfileScore(b: PanelBusiness | null, cover: string) {
     b?.attributes?.length,
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
-
-function daysUntil(value: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return Math.ceil((date.getTime() - today.getTime()) / 86_400_000);
 }
 
 export default DashboardView;

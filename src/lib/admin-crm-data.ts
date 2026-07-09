@@ -1,12 +1,12 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminAccess } from "@/lib/admin-auth";
-import type { AdminAuditLog, AdminBusiness, AdminMembership, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
+import type { AdminAuditLog, AdminBusiness, AdminMembership, AdminPageView, AdminQuote, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
 import { businessesToCsv } from "@/lib/admin-crm";
 
 const BUSINESS_SELECT =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -27,6 +27,7 @@ type BusinessRow = {
   tag: string | null;
   verified: boolean;
   sponsored: boolean;
+  founder_partner_number: number | null;
   doping_until: string | null;
   phone: string | null;
   website: string | null;
@@ -65,6 +66,8 @@ export type CrmBusinessDetailData = {
   membership: AdminMembership | null;
   auditLogs: AdminAuditLog[];
   contacts: CrmContact[];
+  quotes: AdminQuote[];
+  pageViews: AdminPageView[];
 };
 
 const EMPTY_CRM_LIST: CrmListData = {
@@ -151,13 +154,13 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
 export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusinessDetailData> => {
   if (!hasEnv()) {
     console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş CRM detayı dönülüyor.");
-    return { business: null, membership: null, auditLogs: [], contacts: [] };
+    return { business: null, membership: null, auditLogs: [], contacts: [], quotes: [], pageViews: [] };
   }
   const access = await getAdminAccess();
-  if (!access.isAdmin) return { business: null, membership: null, auditLogs: [], contacts: [] };
+  if (!access.isAdmin) return { business: null, membership: null, auditLogs: [], contacts: [], quotes: [], pageViews: [] };
 
   const supabase = await createClient();
-  const [businessRes, membershipRes, auditRes, contactsRes] = await Promise.all([
+  const [businessRes, membershipRes, auditRes, contactsRes, quotesRes, pageViewsRes] = await Promise.all([
     supabase.from("businesses").select(BUSINESS_SELECT).eq("id", id).maybeSingle(),
     supabase
       .from("business_memberships")
@@ -178,12 +181,27 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .select("id,full_name,title,phone,email")
       .eq("business_id", id)
       .order("id", { ascending: true }),
+    supabase
+      .from("quotes")
+      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,internal_note,created_at")
+      .eq("business_id", id)
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabase
+      .from("page_views")
+      .select("id,entity_type,entity_id,visitor_id,viewed_at")
+      .in("entity_type", ["business", "impression"])
+      .eq("entity_id", id)
+      .order("viewed_at", { ascending: false })
+      .limit(1000),
   ]);
 
   if (businessRes.error) throw new Error(businessRes.error.message);
   if (membershipRes.error) throw new Error(membershipRes.error.message);
   if (auditRes.error) throw new Error(auditRes.error.message);
   if (contactsRes.error) throw new Error(contactsRes.error.message);
+  if (quotesRes.error) throw new Error(quotesRes.error.message);
+  if (pageViewsRes.error) throw new Error(pageViewsRes.error.message);
 
   return {
     business: businessRes.data ? rowToAdminBusiness(businessRes.data as BusinessRow) : null,
@@ -196,16 +214,18 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       phone: row.phone,
       email: row.email,
     })),
+    quotes: (quotesRes.data ?? []).map(mapQuote),
+    pageViews: (pageViewsRes.data ?? []).map(mapPageView),
   };
 });
 
 export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportColumn[], ids: number[] = []): Promise<string> {
   if (!hasEnv()) {
     console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş export dönülüyor.");
-    return businessesToCsv([], [], columns);
+    return businessesToCsv([], columns);
   }
   const access = await getAdminAccess();
-  if (!access.isAdmin) return businessesToCsv([], [], columns);
+  if (!access.isAdmin) return businessesToCsv([], columns);
 
   const supabase = await createClient();
   const query = applyBusinessFilters(supabase.from("businesses").select(BUSINESS_SELECT), filters)
@@ -216,14 +236,7 @@ export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportCo
     scopedQuery,
   );
   const resultIds = result.businesses.map((business) => business.id);
-  const [membershipsRes, contactsRes] = await Promise.all([
-    resultIds.length > 0
-      ? supabase
-          .from("business_memberships")
-          .select("id,business_id,plan,status,starts_at,ends_at")
-          .in("business_id", resultIds)
-          .order("ends_at", { ascending: true })
-      : Promise.resolve({ data: [], error: null }),
+  const contactsRes = await (
     columns.includes("email") && resultIds.length > 0
       ? supabase
           .from("business_contacts")
@@ -231,16 +244,15 @@ export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportCo
           .in("business_id", resultIds)
           .not("email", "is", null)
           .order("id", { ascending: true })
-      : Promise.resolve({ data: [], error: null }),
-  ]);
-  if (membershipsRes.error) throw new Error(membershipsRes.error.message);
+      : Promise.resolve({ data: [], error: null })
+  );
   if (contactsRes.error) throw new Error(contactsRes.error.message);
   const emails = new Map<number, string>();
   for (const row of contactsRes.data ?? []) {
     const businessId = Number(row.business_id);
     if (!emails.has(businessId) && row.email) emails.set(businessId, row.email);
   }
-  return businessesToCsv(result.businesses, mapMemberships(membershipsRes.data ?? []), columns, Object.fromEntries(emails));
+  return businessesToCsv(result.businesses, columns, Object.fromEntries(emails));
 }
 
 type BusinessFilterQuery = {
@@ -292,6 +304,7 @@ function rowToAdminBusiness(row: BusinessRow): AdminBusiness {
     tag: row.tag ?? "",
     verified: row.verified,
     sponsored: row.sponsored,
+    founderPartnerNumber: row.founder_partner_number ?? undefined,
     dopingUntil: row.doping_until ?? undefined,
     phone: row.phone ?? undefined,
     website: row.website ?? undefined,
@@ -353,4 +366,66 @@ function mapAuditLogs(rows: AuditRow[]): AdminAuditLog[] {
     userAgent: row.user_agent,
     createdAt: row.created_at,
   }));
+}
+
+type QuoteRow = {
+  id: number | string;
+  business_id: number | null;
+  name: string;
+  company: string | null;
+  email: string;
+  phone: string | null;
+  service: string | null;
+  category_group: string | null;
+  category_type: string | null;
+  country: string | null;
+  city: string | null;
+  district: string | null;
+  date_range: string | null;
+  people: number | null;
+  message: string | null;
+  status: string | null;
+  internal_note: string | null;
+  created_at: string;
+};
+
+function mapQuote(row: QuoteRow): AdminQuote {
+  return {
+    id: Number(row.id),
+    businessId: row.business_id,
+    name: String(row.name),
+    company: row.company,
+    email: String(row.email),
+    phone: row.phone,
+    service: row.service,
+    categoryGroup: row.category_group,
+    categoryType: row.category_type,
+    country: row.country,
+    city: row.city,
+    district: row.district,
+    dateRange: row.date_range,
+    people: row.people,
+    message: row.message,
+    status: row.status ?? "new",
+    internalNote: row.internal_note,
+    createdAt: row.created_at,
+  };
+}
+
+type PageViewRow = {
+  id: number | string;
+  entity_type: string;
+  entity_id: number | null;
+  visitor_id: string | null;
+  viewed_at: string;
+};
+
+function mapPageView(row: PageViewRow): AdminPageView {
+  return {
+    id: Number(row.id),
+    entityType: String(row.entity_type),
+    entityId: row.entity_id === null ? null : Number(row.entity_id),
+    visitorId: row.visitor_id ?? null,
+    viewedAt: row.viewed_at,
+  };
 }

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getPathname } from "@/i18n/navigation";
 import { getBusinesses, businessSlug } from "@/lib/businesses";
 import { SITE_URL, LOCALES, supplierPath, INDEXING_ENABLED } from "@/lib/site";
 
@@ -13,13 +14,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Statik üst sayfalar (her locale)
   for (const locale of LOCALES) {
     entries.push({
-      url: `${SITE_URL}/${locale}`,
+      url: `${SITE_URL}${getPathname({ locale, href: "/" })}`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
     });
     entries.push({
-      url: `${SITE_URL}/${locale}/${locale === "tr" ? "kesfet" : "explore"}`,
+      url: `${SITE_URL}${getPathname({ locale, href: "/explore" })}`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.7,

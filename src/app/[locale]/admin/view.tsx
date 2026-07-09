@@ -1,5 +1,5 @@
 import { Link } from "@/i18n/navigation";
-import { DataTable, StatusBadge, type Column } from "@/components/common";
+import { DataTable, type Column } from "@/components/common";
 import type { AdminData, AdminQuote } from "@/lib/types";
 import { AdminActionButton, AdminHero, AdminMetric, AdminPage, AdminPanel } from "./_ui";
 
@@ -13,14 +13,8 @@ const AdminView = ({ data }: Props) => {
   const approvalCount = pendingApplications + pendingBusinesses;
 
   const recentQuotes = data.quotes.slice(0, 5);
-
-  const businessName = (id: number | null) =>
-    data.businesses.find((b) => b.id === id)?.name ?? `Firma #${id ?? "-"}`;
-
-  const expiring = data.memberships
-    .map((m) => ({ ...m, days: daysUntil(m.endsAt) }))
-    .filter((m) => m.status !== "expired" && m.days >= 0 && m.days <= 14)
-    .sort((a, b) => a.days - b.days)
+  const pendingReview = data.businesses
+    .filter((business) => business.status === "pending")
     .slice(0, 5);
 
   return (
@@ -88,40 +82,40 @@ const AdminView = ({ data }: Props) => {
           </div>
         </AdminPanel>
 
-        {/* Üyeliği bitmek üzere olanlar */}
+        {/* Onay bekleyen işletmeler */}
         <AdminPanel
-          title="Üyeliği 14 Günden Az Kalanlar"
+          title="Onay Bekleyen İşletmeler"
           tone="amber"
           icon={<Svg size={18}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" /><path d="M12 9v4M12 17h.01" /></Svg>}
-          action={<Link href="/admin/tedarikciler" className="shrink-0 text-[12px] font-medium text-brand hover:underline">Tümü</Link>}
+          action={<Link href="/admin/onay" className="shrink-0 text-[12px] font-medium text-brand hover:underline">İncele</Link>}
         >
           <div className="overflow-x-auto">
           <DataTable
-            data={expiring}
-            getRowKey={(m) => m.id}
-            empty="Yaklaşan üyelik bitişi yok."
+            data={pendingReview}
+            getRowKey={(business) => business.id}
+            empty="Onay bekleyen işletme yok."
             minWidth={420}
             columns={[
-              { key: "firm", header: "Firma", cell: (m) => <span className="font-medium text-ink">{businessName(m.businessId)}</span> },
+              { key: "firm", header: "Firma", cell: (business) => <span className="font-medium text-ink">{business.name}</span> },
               {
-                key: "days",
-                header: "Kalan Gün",
-                cell: (m) => <StatusBadge tone={m.days <= 3 ? "solidRed" : "amber"}>{m.days} Gün</StatusBadge>,
+                key: "city",
+                header: "Şehir",
+                cell: (business) => <span className="text-muted">{business.city}</span>,
               },
               {
                 key: "action",
                 header: "İşlem",
                 align: "right",
-                cell: () => (
+                cell: (business) => (
                   <Link
-                    href="/admin/tedarikciler"
+                    href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(business.id) } }}
                     className="rounded-[8px] border border-line px-3 py-1 text-[12px] font-medium text-brand transition-colors hover:bg-cream"
                   >
-                    İletişim
+                    Aç
                   </Link>
                 ),
               },
-            ] satisfies Column<(typeof expiring)[number]>[]}
+            ] satisfies Column<(typeof pendingReview)[number]>[]}
           />
           </div>
         </AdminPanel>
@@ -147,14 +141,6 @@ const Svg = ({ children, size = 22 }: { children: React.ReactNode; size?: number
     {children}
   </svg>
 );
-
-function daysUntil(value: string) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return Math.ceil((date.getTime() - today.getTime()) / 86_400_000);
-}
 
 function fmtDate(value?: string) {
   if (!value) return "—";

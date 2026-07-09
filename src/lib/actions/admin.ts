@@ -78,6 +78,16 @@ function numberValue(formData: FormData, key: string, fallback: number): number 
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function optionalFounderPartnerNumber(formData: FormData): number | null {
+  const raw = String(formData.get("founderPartnerNumber") ?? "").trim();
+  if (!raw) return null;
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) {
+    throw new Error("Kurucu Partner numarası 1-100 arasında olmalı.");
+  }
+  return parsed;
+}
+
 function listValue(formData: FormData, key: string): string[] {
   return String(formData.get(key) ?? "")
     .split(",")
@@ -147,6 +157,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       tag: clean(formData.get("tag"), 80),
       verified: boolValue(formData, "verified"),
       sponsored: boolValue(formData, "sponsored"),
+      founder_partner_number: optionalFounderPartnerNumber(formData),
       attributes: listValue(formData, "attributes"),
       status: lifecycleStatusValue(formData),
       seo_title: clean(formData.get("seoTitle"), 90),
@@ -223,35 +234,6 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   await logAdminAction(context, "business.status.update", "business", id, payload);
   // Onay/red public liste cache'ini de etkiler.
   revalidateTag("businesses", "max");
-  revalidateAdmin(locale);
-}
-
-export async function renewBusinessMembership(formData: FormData): Promise<void> {
-  const context = await requireAdmin();
-  const { supabase } = context;
-  const businessId = Number(formData.get("businessId"));
-  const locale = clean(formData.get("locale"), 8);
-  const days = Math.max(1, Math.min(730, numberValue(formData, "days", 365)));
-  const startsAt = new Date();
-  const endsAt = new Date(startsAt.getTime() + days * 86_400_000);
-
-  const payload = {
-    business_id: businessId,
-    plan: clean(formData.get("plan"), 40) ?? "standard",
-    status: "active",
-    starts_at: startsAt.toISOString(),
-    ends_at: endsAt.toISOString(),
-    renewed_by_admin_id: context.userId,
-  } as const;
-
-  const { error } = await supabase.from("business_memberships").insert(payload);
-
-  if (error) throw new Error(error.message);
-  await logAdminAction(context, "membership.renew", "business", businessId, {
-    plan: payload.plan,
-    starts_at: payload.starts_at,
-    ends_at: payload.ends_at,
-  });
   revalidateAdmin(locale);
 }
 

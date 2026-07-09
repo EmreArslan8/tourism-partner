@@ -1,16 +1,19 @@
 import { Link } from "@/i18n/navigation";
+import { BadgeCheck } from "lucide-react";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
 import FavoriteButton from "@/components/FavoriteButton";
 import ReviewsSection from "@/components/ReviewsSection";
 import type { Business } from "@/lib/types";
+import type { PublicBusinessPartner } from "@/lib/business-partners";
 import styles from "./styles";
 
 type TranslationFn = (key: string) => string;
 
 interface Props {
   b: Business;
+  partners: PublicBusinessPartner[];
   t: TranslationFn;
   tc: TranslationFn;
   tCommon: TranslationFn;
@@ -18,7 +21,7 @@ interface Props {
   gallery: string[];
 }
 
-const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => {
+const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: Props) => {
   return (
     <main className={styles.main}>
       <RecordView type="business" id={b.id} />
@@ -30,7 +33,18 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
 
       <header className={styles.heroHead}>
         <div>
-          <h1 className={styles.title}>{b.name}</h1>
+          <div className={styles.titleWrap}>
+            <h1 className={styles.title}>{b.name}</h1>
+            {b.founderPartnerNumber && (
+              <span
+                className={styles.founderBadge}
+                title={`Kurucu Partner #${b.founderPartnerNumber}`}
+                aria-label={`Kurucu Partner #${b.founderPartnerNumber}`}
+              >
+                <BadgeCheck size={28} strokeWidth={2.35} aria-hidden />
+              </span>
+            )}
+          </div>
           <p className={styles.meta}>
             {[b.type, b.district, b.city].filter(Boolean).join(" · ")}
           </p>
@@ -60,6 +74,31 @@ const SupplierDetailView = ({ b, t, tc, tCommon, services, gallery }: Props) => 
           <div className={styles.gated}>
             {t("gated")} <Link href={{ pathname: "/login" }} className={styles.gatedLink}>{t("loginCta")}</Link>.
           </div>
+
+          {partners.length > 0 && (
+            <section className={styles.partners} aria-labelledby="profile-partners">
+              <div className={styles.partnersHead}>
+                <span className={styles.partnersEyebrow}>{t("partnersEyebrow")}</span>
+                <h2 id="profile-partners" className={styles.partnersTitle}>{t("partnersTitle")}</h2>
+                <p className={styles.partnersSub}>{t("partnersSub")}</p>
+              </div>
+              <div className={styles.partnersGrid}>
+                {partners.map((partner) => (
+                  <Link
+                    key={partner.id}
+                    href={{ pathname: "/supplier/[id]", params: { id: partner.slug || String(partner.id) } }}
+                    className={styles.partnerItem}
+                  >
+                    <span className={styles.partnerMark}>{partner.name.slice(0, 2).toLocaleUpperCase("tr-TR")}</span>
+                    <span className={styles.partnerBody}>
+                      <strong>{partner.name}</strong>
+                      <small>{[tc(partner.group), partner.type, partner.city, partner.country].filter(Boolean).join(" · ")}</small>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
 
           <ReviewsSection businessId={b.id} />
         </article>

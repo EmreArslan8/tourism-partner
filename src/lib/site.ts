@@ -1,3 +1,5 @@
+import { getPathname } from "@/i18n/navigation";
+
 /* Kanonik site kök URL'i — sitemap, robots ve metadataBase için tek kaynak.
    Üretimde NEXT_PUBLIC_SITE_URL tanımlanmalı (ör. https://tourismpartner.com). */
 export const SITE_URL = (
@@ -17,5 +19,5 @@ export type SiteLocale = (typeof LOCALES)[number];
 
 /** İşletme detay sayfasının locale'e göre yolu (routing.ts ile aynı kalıp). */
 export function supplierPath(locale: SiteLocale, slug: string): string {
-  return locale === "tr" ? `/tr/tedarikci/${slug}` : `/en/supplier/${slug}`;
+  return getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: slug } } });
 }

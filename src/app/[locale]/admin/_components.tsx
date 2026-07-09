@@ -4,7 +4,9 @@ import { signOut } from "@/lib/actions/auth";
 import type { AdminAccess } from "@/lib/admin-auth";
 import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
+import { getPathname } from "@/i18n/navigation";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import AdminSearch from "./AdminSearch";
 import Logo from "@/components/Logo";
@@ -193,7 +195,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
               {b.name}
             </Link>
             <div className="mt-1 text-[12px] text-muted">
-              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}
+              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartnerNumber ? ` · Kurucu Partner #${b.founderPartnerNumber}` : ""}
             </div>
           </div>
         ),
@@ -207,50 +209,91 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
 );
 
 export const BusinessForm = ({ locale, business }: { locale: string; business?: AdminBusiness }) => {
+  const compactInput = `${input} h-11 px-3 text-[14px]`;
+  const compactTextarea = `${input} min-h-[104px] px-3 py-2.5 text-[14px] leading-6`;
+
   return (
-    <form action={saveBusiness} className="grid gap-4">
+    <form id="admin-business-profile-form" action={saveBusiness} className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <input type="hidden" name="locale" value={locale} />
-      <div className="grid grid-cols-[110px_minmax(0,1fr)_minmax(0,1fr)] gap-3 max-[720px]:grid-cols-1">
-        <Field label="ID"><input name="id" defaultValue={business?.id ?? ""} placeholder="Yeni için boş" className={input} /></Field>
-        <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={input} /></Field>
-        <Field label="Tür" required><input name="type" required defaultValue={business?.type ?? ""} className={input} /></Field>
-      </div>
-      <div className="grid grid-cols-4 gap-3 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
-        <Field label="Grup"><select name="group" defaultValue={business?.group ?? "konaklama"} className={input}>{CATEGORY_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}</select></Field>
-        <Field label="Durum"><select name="status" defaultValue={business?.status ?? "pending"} className={input}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
-        <Field label="Ülke" required><input name="country" required defaultValue={business?.country ?? "Türkiye"} className={input} /></Field>
-        <Field label="Şehir" required><input name="city" required defaultValue={business?.city ?? ""} className={input} /></Field>
-      </div>
-      <div className="grid grid-cols-5 gap-3 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
-        <Field label="İlçe" required><input name="district" required defaultValue={business?.district ?? ""} className={input} /></Field>
-        <Field label="Lat"><input name="lat" defaultValue={business?.coords[0] ?? 0} className={input} /></Field>
-        <Field label="Lng"><input name="lng" defaultValue={business?.coords[1] ?? 0} className={input} /></Field>
-        <Field label="Puan"><input name="rating" defaultValue={business?.rating ?? 0} className={input} /></Field>
-        <Field label="Yorum"><input name="reviews" defaultValue={business?.reviews ?? 0} className={input} /></Field>
-      </div>
-      <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={textarea} /></Field>
-      <Field label="Etiket"><input name="tag" defaultValue={business?.tag ?? ""} className={input} /></Field>
-      <Field label="Filtre özellikleri" hint="virgülle ayır"><input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={input} /></Field>
-      <div className="grid grid-cols-2 gap-3 max-[560px]:grid-cols-1">
-        <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="verified" defaultChecked={business?.verified ?? false} /> Doğrulanmış</label>
-        <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="sponsored" defaultChecked={business?.sponsored ?? false} /> Sponsor</label>
-      </div>
-      <div className="rounded-[8px] border border-line bg-cream/45 p-4">
-        <h3 className="mb-3 text-[18px]">SEO metadata</h3>
-        <div className="grid gap-3">
-          <Field label="SEO başlık"><input name="seoTitle" defaultValue={business?.seoTitle ?? ""} className={input} /></Field>
-          <Field label="SEO açıklama"><textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${textarea} min-h-[80px]`} /></Field>
-          <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={input} /></Field>
-          <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-            <Field label="Canonical path"><input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/supplier/kaya-palas-hotel" className={input} /></Field>
-            <Field label="OG görsel"><input name="ogImage" defaultValue={business?.ogImage ?? ""} className={input} /></Field>
+      <div className="grid gap-5">
+        <AdminFormSection title="Temel Bilgiler">
+          <div className="grid grid-cols-[88px_minmax(0,1.3fr)_minmax(180px,.7fr)] gap-3 max-[820px]:grid-cols-1">
+            <Field label="ID"><input name="id" defaultValue={business?.id ?? ""} placeholder="Yeni" className={`${compactInput} text-muted`} /></Field>
+            <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
+            <Field label="Tür" required><input name="type" required defaultValue={business?.type ?? ""} className={compactInput} /></Field>
           </div>
-        </div>
+          <div className="grid grid-cols-[minmax(180px,1fr)_minmax(180px,1fr)] gap-3 max-[620px]:grid-cols-1">
+            <Field label="Grup"><select name="group" defaultValue={business?.group ?? "konaklama"} className={compactInput}>{CATEGORY_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}</select></Field>
+          </div>
+        </AdminFormSection>
+
+        <AdminFormSection title="İçerik Detayları">
+          <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={compactTextarea} /></Field>
+          <div className="grid grid-cols-[minmax(180px,.35fr)_minmax(0,.65fr)] gap-3 max-[820px]:grid-cols-1">
+            <Field label="Etiket"><input name="tag" defaultValue={business?.tag ?? ""} className={compactInput} /></Field>
+            <Field label="Filtre özellikleri" hint="virgülle ayır"><input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={compactInput} /></Field>
+          </div>
+        </AdminFormSection>
+
+        <AdminFormSection title="SEO">
+          <Field label="SEO başlık"><input name="seoTitle" defaultValue={business?.seoTitle ?? ""} className={compactInput} /></Field>
+          <Field label="SEO açıklama"><textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${compactTextarea} min-h-[82px]`} /></Field>
+          <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={compactInput} /></Field>
+          <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
+            <Field label="Canonical path"><input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder={getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: "kaya-palas-hotel" } } })} className={compactInput} /></Field>
+            <Field label="OG görsel"><input name="ogImage" defaultValue={business?.ogImage ?? ""} className={compactInput} /></Field>
+          </div>
+        </AdminFormSection>
       </div>
-      <button className={`${adminUi.sapphireButton} justify-self-start`} type="submit">Tedarikçiyi kaydet</button>
+
+      <div className="grid content-start gap-5">
+        <AdminFormSection title="Operasyon">
+          <Field label="Sistem Durumu"><select name="status" defaultValue={business?.status ?? "pending"} className={compactInput}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
+          <ToggleRow name="verified" label="Doğrulanmış İşletme" description="Belgeleri onaylanmış tesis" checked={business?.verified ?? false} />
+          <ToggleRow name="sponsored" label="Sponsor / Premium" description="Arama sonuçlarında öne çıkar" checked={business?.sponsored ?? false} />
+          <Field label="Kurucu Partner Kayıt No" hint="1-100">
+            <input name="founderPartnerNumber" type="number" min={1} max={100} defaultValue={business?.founderPartnerNumber ?? ""} placeholder="Örn: 12" className={compactInput} />
+          </Field>
+        </AdminFormSection>
+
+        <AdminFormSection title="Konum">
+          <div className="grid grid-cols-2 gap-3 max-[520px]:grid-cols-1">
+            <Field label="Ülke" required><input name="country" required defaultValue={business?.country ?? "Türkiye"} className={compactInput} /></Field>
+            <Field label="Şehir" required><input name="city" required defaultValue={business?.city ?? ""} className={compactInput} /></Field>
+          </div>
+          <Field label="İlçe / Bölge" required><input name="district" required defaultValue={business?.district ?? ""} className={compactInput} /></Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Lat"><input name="lat" defaultValue={business?.coords[0] ?? 0} className={compactInput} /></Field>
+            <Field label="Lng"><input name="lng" defaultValue={business?.coords[1] ?? 0} className={compactInput} /></Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Puan"><input name="rating" defaultValue={business?.rating ?? 0} className={compactInput} /></Field>
+            <Field label="Yorum"><input name="reviews" defaultValue={business?.reviews ?? 0} className={compactInput} /></Field>
+          </div>
+        </AdminFormSection>
+      </div>
     </form>
   );
 };
+
+const AdminFormSection = ({ title, className, children }: { title: string; className?: string; children: React.ReactNode }) => (
+  <section className={cn("overflow-hidden rounded-[8px] border border-line bg-paper shadow-card", className)}>
+    <div className="flex min-h-11 items-center border-b border-line bg-cream/35 px-4">
+      <h3 className="text-[15px] font-extrabold text-ink">{title}</h3>
+    </div>
+    <div className="grid gap-3 p-4">{children}</div>
+  </section>
+);
+
+const ToggleRow = ({ name, label, description, checked }: { name: string; label: string; description: string; checked: boolean }) => (
+  <label className="flex items-center justify-between gap-4 border-b border-line pb-3 last:border-b-0 last:pb-0">
+    <span>
+      <span className="block text-[13px] font-extrabold text-ink">{label}</span>
+      <span className="mt-0.5 block text-[12px] font-medium text-muted">{description}</span>
+    </span>
+    <input type="checkbox" name={name} defaultChecked={checked} className="h-5 w-5 shrink-0 accent-sapphire" />
+  </label>
+);
 
 export const ContentForm = ({ locale, page }: { locale: string; page?: ContentPage }) => {
   return (

@@ -350,6 +350,7 @@ export async function saveMyBusiness(
         );
         if (contactsError) return { ok: false, error: contactsError.message };
       }
+
     }
 
     if (draftKey) {
@@ -362,8 +363,102 @@ export async function saveMyBusiness(
     revalidatePath("/[locale]/dashboard", "page");
     // Sahip onaylı ilanını düzenlediyse public liste cache'i (businesses tag) tazelensin.
     revalidateTag("businesses", "max");
+    revalidateTag("business-partners", "max");
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "unknown" };
   }
+}
+
+async function currentOwnedBusiness() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { supabase, business: null, error: "auth" };
+
+  const { data: business, error } = await supabase
+    .from("businesses")
+    .select("id,status")
+    .eq("owner_id", user.id)
+    .order("id")
+    .limit(1)
+    .maybeSingle();
+
+  if (error) return { supabase, business: null, error: error.message };
+  if (!business) return { supabase, business: null, error: "notFound" };
+  return { supabase, business, error: null };
+}
+
+function revalidatePartnerRequests() {
+  revalidatePath("/[locale]/dashboard", "page");
+  revalidatePath("/[locale]/dashboard/listings", "page");
+  revalidateTag("business-partners", "max");
+}
+
+export async function sendPartnerRequest(formData: FormData): Promise<void> {
+  const receiverBusinessId = Number(formData.get("partnerBusinessId"));
+  if (!Number.isInteger(receiverBusinessId) || receiverBusinessId <= 0) return;
+
+  const { supabase, business, error } = await currentOwnedBusiness();
+  if (error || !business || receiverBusinessId === Number(business.id)) return;
+  if (business.status !== "approved" && business.status !== "active") return;
+
+  const myBusinessId = Number(business.id);
+  const { data: existing, error: existingError } = await supabase
+    .from("business_partner_requests")
+    .select("id")
+    .or(
+      `and(requester_business_id.eq.${myBusinessId},receiver_business_id.eq.${receiverBusinessId}),and(requester_business_id.eq.${receiverBusinessId},receiver_business_id.eq.${myBusinessId})`,
+    )
+    .limit(1)
+    .maybeSingle();
+  if (existingError) throw new Error(existingError.message);
+  if (existing) return;
+
+  const { error: insertError } = await supabase.from("business_partner_requests").insert({
+    requester_business_id: myBusinessId,
+    receiver_business_id: receiverBusinessId,
+    status: "pending",
+    responded_at: null,
+  });
+  if (insertError) throw new Error(insertError.message);
+  revalidatePartnerRequests();
+}
+
+export async function respondPartnerRequest(formData: FormData): Promise<void> {
+  const acceptedId = Number(formData.get("acceptPartnerRequestId"));
+  const rejectedId = Number(formData.get("rejectPartnerRequestId"));
+  const decision = Number.isInteger(acceptedId) && acceptedId > 0 ? "accepted" : "rejected";
+  const requestId = decision === "accepted" ? acceptedId : rejectedId;
+  if (!Number.isInteger(requestId) || requestId <= 0) return;
+
+  const { supabase, business, error } = await currentOwnedBusiness();
+  if (error || !business) return;
+
+  const { error: updateError } = await supabase
+    .from("business_partner_requests")
+    .update({ status: decision, responded_at: new Date().toISOString() })
+    .eq("id", requestId)
+    .eq("receiver_business_id", Number(business.id))
+    .eq("status", "pending");
+  if (updateError) throw new Error(updateError.message);
+  revalidatePartnerRequests();
+}
+
+export async function cancelPartnerRequest(formData: FormData): Promise<void> {
+  const requestId = Number(formData.get("partnerRequestId"));
+  if (!Number.isInteger(requestId) || requestId <= 0) return;
+
+  const { supabase, business, error } = await currentOwnedBusiness();
+  if (error || !business) return;
+
+  const { error: deleteError } = await supabase
+    .from("business_partner_requests")
+    .delete()
+    .eq("id", requestId)
+    .eq("requester_business_id", Number(business.id))
+    .eq("status", "pending");
+  if (deleteError) throw new Error(deleteError.message);
+  revalidatePartnerRequests();
 }

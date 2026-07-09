@@ -20,9 +20,6 @@ export default async function AdminBusinessesPage({
     <AdminSuppliersView
       businesses={data.businesses}
       total={data.total}
-      expiringBusinesses={data.expiringBusinesses}
-      expiringMemberships={data.expiringMemberships}
-      memberships={data.memberships}
       filters={filters}
       cities={data.cities}
       activeHotels={data.activeHotels}

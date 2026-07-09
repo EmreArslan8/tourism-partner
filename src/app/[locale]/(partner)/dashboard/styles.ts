@@ -120,6 +120,17 @@ const styles = {
   checkList: "flex flex-wrap gap-1.5",
   checkLabel:
     "flex cursor-pointer items-center gap-1.5 rounded-[999px] border border-line px-3 py-1.5 text-[12.5px] has-[:checked]:border-sapphire has-[:checked]:bg-cream",
+  partnerPickGrid: "mt-3 grid gap-2 min-[680px]:grid-cols-2",
+  partnerPickItem:
+    "grid min-h-[72px] content-center rounded-[8px] border border-line bg-paper px-3 py-2.5 text-left transition-colors hover:border-sapphire/45 hover:bg-cream/45",
+  partnerPickItemActive: "!border-sapphire bg-sapphire/10",
+  partnerPickName: "truncate text-[13.5px] font-semibold text-ink",
+  partnerPickMeta: "mt-1 truncate text-[12px] font-medium text-muted",
+  partnerRequestList: "mt-4 flex flex-col gap-2",
+  partnerRequestTitle: "text-[12px] font-extrabold uppercase tracking-[.06em] text-muted",
+  partnerRequestItem:
+    "flex items-center justify-between gap-3 rounded-[8px] border border-line bg-paper px-3 py-2.5 max-[560px]:items-start max-[560px]:flex-col",
+  partnerRequestActions: "flex shrink-0 items-center gap-2",
   guideBox:
     "rounded-2xl border border-line bg-cream/45 p-4 [&>h3]:text-[15px] [&>h3]:font-bold [&>p]:mt-1 [&>p]:text-[13px] [&>p]:text-muted",
   guideTags: "mt-3 flex flex-wrap gap-1.5 [&>span]:rounded-[999px] [&>span]:border [&>span]:border-line [&>span]:bg-paper [&>span]:px-3 [&>span]:py-1.5 [&>span]:text-[12.5px] [&>span]:font-bold",

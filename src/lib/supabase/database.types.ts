@@ -19,6 +19,7 @@ export type B2BRequestStatus = "pending" | "published" | "archived" | "rejected"
 export type AdBannerStatus = "draft" | "active" | "paused" | "archived";
 export type PopupFrequency = "always" | "daily" | "session";
 export type SupportTicketStatus = "new" | "in_progress" | "resolved" | "archived";
+export type BusinessPartnerRequestStatus = "pending" | "accepted" | "rejected";
 
 type Timestamp = string;
 
@@ -65,6 +66,8 @@ export interface Database {
           tag: string | null;
           verified: boolean;
           sponsored: boolean;
+          founder_partner: boolean;
+          founder_partner_number: number | null;
           doping_until: Timestamp | null;
           image: string | null;
           images: string[];
@@ -99,6 +102,8 @@ export interface Database {
           tag?: string | null;
           verified?: boolean;
           sponsored?: boolean;
+          founder_partner?: boolean;
+          founder_partner_number?: number | null;
           doping_until?: Timestamp | null;
           image?: string | null;
           images?: string[];
@@ -165,6 +170,42 @@ export interface Database {
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["business_contacts"]["Insert"]>;
+        Relationships: [];
+      };
+      business_partners: {
+        Row: {
+          id: number;
+          business_id: number;
+          partner_business_id: number;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          partner_business_id: number;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_partners"]["Insert"]>;
+        Relationships: [];
+      };
+      business_partner_requests: {
+        Row: {
+          id: number;
+          requester_business_id: number;
+          receiver_business_id: number;
+          status: BusinessPartnerRequestStatus;
+          created_at: Timestamp;
+          responded_at: Timestamp | null;
+        };
+        Insert: {
+          id?: number;
+          requester_business_id: number;
+          receiver_business_id: number;
+          status?: BusinessPartnerRequestStatus;
+          created_at?: Timestamp;
+          responded_at?: Timestamp | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_partner_requests"]["Insert"]>;
         Relationships: [];
       };
       b2b_offers: {
@@ -654,6 +695,8 @@ export interface Database {
 /* Kısayol Row tipleri — uygulama genelinde kullanılır. */
 export type BusinessRow = Database["public"]["Tables"]["businesses"]["Row"];
 export type BusinessContactRow = Database["public"]["Tables"]["business_contacts"]["Row"];
+export type BusinessPartnerRow = Database["public"]["Tables"]["business_partners"]["Row"];
+export type BusinessPartnerRequestRow = Database["public"]["Tables"]["business_partner_requests"]["Row"];
 export type QuoteRow = Database["public"]["Tables"]["quotes"]["Row"];
 export type ApplicationRow = Database["public"]["Tables"]["applications"]["Row"];
 export type ContentPageRow = Database["public"]["Tables"]["content_pages"]["Row"];

@@ -32,6 +32,8 @@ export interface Business {
   verified: boolean;
   /** Premium Partner dopingi: ücretli, kalıcı öne çıkarma (admin kontrollü). */
   sponsored: boolean;
+  /** Manuel verilen Kurucu Partner kayıt numarası (1-100). Sıralama/doping etkisi yoktur. */
+  founderPartnerNumber?: number;
   /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
       Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
   dopingUntil?: string;

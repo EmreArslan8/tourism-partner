@@ -6,6 +6,7 @@ import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses
 import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
 import { localeAlternates } from "@/lib/seo";
 import { realBusinessImages } from "@/lib/business-images";
+import { getBusinessPartners } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
 
@@ -68,12 +69,16 @@ export default async function DetailPage({
   
   if (!b) notFound();
   
+  const [partners] = await Promise.all([
+    getBusinessPartners(b.id),
+  ]);
   const services = featuredFacetTags(b).map((tag) => tag.label);
   const gallery = realBusinessImages(b.image, b.images);
 
   return (
     <SupplierDetailView
       b={b}
+      partners={partners}
       t={t}
       tc={tc}
       tCommon={tCommon}

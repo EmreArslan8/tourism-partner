@@ -230,7 +230,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
         </div>
         <label className={styles.label}>{t("message")}<textarea name="message" className={styles.textarea} placeholder={t("messagePh")} /></label>
         {state.error && !state.ok && (
-          <p className="text-[13px] font-medium text-red-600">{t("error")}</p>
+          <p className="text-[13px] font-medium text-red-600">{quoteErrorMessage(t, state.error)}</p>
         )}
         <button type="submit" className="btn btn-solid btn-block" disabled={pending || state.ok || (isGeneral && (!group || !categoryType))}>
           {state.ok ? t("sent") : pending ? t("sending") : t("submit")}
@@ -383,3 +383,11 @@ const dayPickerClassNames = {
 };
 
 export default QuoteForm;
+
+function quoteErrorMessage(t: ReturnType<typeof useTranslations>, error: string) {
+  if (error === "missing") return t("errorMissing");
+  if (error === "email") return t("errorEmail");
+  if (error === "rate") return t("errorRate");
+  if (error === "no_match") return t("errorNoMatch");
+  return t("error");
+}

@@ -28,6 +28,7 @@ type AdminBusinessRow = {
   tag: string | null;
   verified: boolean;
   sponsored: boolean;
+  founder_partner_number: number | null;
   image: string | null;
   attributes: string[] | null;
   phone: string | null;
@@ -62,6 +63,7 @@ function rowToAdminBusiness(r: AdminBusinessRow, documents?: AdminBusiness["docu
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
+    founderPartnerNumber: r.founder_partner_number ?? undefined,
     image: r.image ?? undefined,
     attributes: r.attributes ?? [],
     phone: r.phone ?? undefined,
@@ -141,7 +143,7 @@ async function getSupabaseAdminData(
     supabase
       .from("businesses")
       .select(
-        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,image,attributes,phone,website,documents,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
+        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,image,attributes,phone,website,documents,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
       )
       .order("created_at", { ascending: false }),
     supabase

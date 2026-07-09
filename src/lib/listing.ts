@@ -3,19 +3,18 @@
 import type { Business, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
 import { normalizeTr } from "./utils";
+import { isPremiumVisible, premiumVisibilityRank } from "./business-visibility";
 
 /* Doping rütbesi (öne çıkarma) — büyük olan üstte listelenir.
    2 = Premium Partner (ücretli, kalıcı). 1 = süreli doping (24s hoş geldin veya
    süreli premium paketi, dopingUntil gelecekte). 0 = normal. */
 export function dopingRank(b: Business): number {
-  if (b.sponsored) return 2;
-  if (b.dopingUntil && new Date(b.dopingUntil).getTime() > Date.now()) return 1;
-  return 0;
+  return premiumVisibilityRank(b);
 }
 
 /** İşletme şu an öne çıkan (doping aktif) mı? Kart rozetinde kullanılır. */
 export function isDoped(b: Business): boolean {
-  return dopingRank(b) > 0;
+  return isPremiumVisible(b);
 }
 
 /* Profil doluluk skoru (0–8) — dolu profiller arama sonuçlarında üst sırada.

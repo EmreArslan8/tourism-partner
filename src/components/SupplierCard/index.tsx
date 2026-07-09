@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { BadgeCheck } from "lucide-react";
 import { Link, type Href } from "@/i18n/navigation";
 import { GROUP_COLORS } from "@/lib/categories";
 import { businessImageUrl } from "@/lib/business-images";
@@ -61,7 +62,18 @@ const SupplierCard = ({
         <div className={styles.tags}>
           <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
         </div>
-        <h3 className={styles.name}>{business.name}</h3>
+        <div className={styles.nameWrap}>
+          <h3 className={styles.name}>{business.name}</h3>
+          {business.founderPartnerNumber && (
+            <span
+              className={styles.founderBadge}
+              title={`Kurucu Partner #${business.founderPartnerNumber}`}
+              aria-label={`Kurucu Partner #${business.founderPartnerNumber}`}
+            >
+              <BadgeCheck size={16} strokeWidth={2.5} aria-hidden />
+            </span>
+          )}
+        </div>
         <p className={styles.loc}>
           <span>{business.district}, {business.city} · {business.country}</span>
           {showStars && <span className={styles.rating}>★ {business.rating.toFixed(1)}</span>}

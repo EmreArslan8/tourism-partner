@@ -18,7 +18,8 @@ export function storagePathFromBusinessImage(value?: string | null): string | nu
 
 export function businessImageUrl(value?: string | null): string | null {
   const raw = value?.trim();
-  if (!raw || raw.startsWith("/assets/")) return null;
+  if (!raw) return null;
+  if (raw.startsWith("/assets/")) return raw;
   if (raw.startsWith("http://") || raw.startsWith("https://")) {
     return storagePathFromBusinessImage(raw) ? raw : null;
   }

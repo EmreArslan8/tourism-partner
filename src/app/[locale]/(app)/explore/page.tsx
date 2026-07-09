@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import ListingView from "@/components/ListingView";
 import SuggestionRail from "@/components/SuggestionRail";
-import { getExploreResults, getIsGuest } from "@/lib/explore-search";
+import { getExploreResults, getExploreViewerKind } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
 import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
 import { localeAlternates } from "@/lib/seo";
@@ -73,12 +73,12 @@ async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchPa
   const filters = parseExploreFilters(sp);
   const pageNum = Math.max(1, Number(sp.page) || 1);
 
-  // isGuest'i bir kez hesapla; sonuç + öneri sorgularını PARALEL çalıştır (birbirini beklemesin).
+  // Viewer'ı bir kez hesapla; sonuç + öneri sorgularını PARALEL çalıştır (birbirini beklemesin).
   // getBusinesses her ikisinde de cache'li — tek DB okuması paylaşılır.
-  const isGuest = await getIsGuest();
+  const viewer = await getExploreViewerKind();
   const [results, suggestions] = await Promise.all([
-    getExploreResults(filters, pageNum, isGuest),
-    getCrossCategorySuggestions(filters, { isGuest }),
+    getExploreResults(filters, pageNum, viewer),
+    getCrossCategorySuggestions(filters, { isGuest: viewer === "guest" }),
   ]);
 
   return (

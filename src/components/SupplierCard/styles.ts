@@ -18,9 +18,12 @@
   tags: "flex min-w-0 shrink-0 flex-wrap items-center gap-2",
   badge:
     "max-w-full truncate rounded-[8px] border border-line bg-[#eef3ff] px-2.5 py-[3px] text-[10px] font-semibold uppercase tracking-[.06em] text-[#4b5875]",
+  founderBadge:
+    "inline-grid h-5 w-5 shrink-0 place-items-center text-terra-deep",
   verified: "inline-flex shrink-0 items-center gap-1 text-[11px] font-bold text-terra-deep",
   // Başlık — en baskın: kalın, büyük, koyu (hiyerarşinin tepesi).
-  name: "line-clamp-1 shrink-0 py-0.5 text-[18px] font-bold leading-snug tracking-[-.012em] text-ink",
+  nameWrap: "flex min-w-0 shrink-0 items-center gap-1.5 py-0.5",
+  name: "line-clamp-1 min-w-0 text-[18px] font-bold leading-snug tracking-[-.012em] text-ink",
   // Konum — ikincil meta: okunur ama başlıktan sessiz (orta ağırlık, koyu-mat renk).
   loc: "flex shrink-0 items-center justify-between gap-3 text-[12.5px] font-semibold text-[#48566e] [&>span:first-child]:min-w-0 [&>span:first-child]:truncate",
   rating: "ml-2 shrink-0 rounded-full bg-cream px-2 py-0.5 text-[12px] font-bold text-terra-deep",

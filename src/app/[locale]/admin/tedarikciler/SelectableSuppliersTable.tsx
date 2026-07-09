@@ -9,23 +9,19 @@ import { updateBusinessStatus } from "@/lib/actions/admin";
 import {
   businessEmail,
   EXPORT_COLUMNS,
-  membershipEndDate,
-  membershipFor,
   type CrmFilters,
 } from "@/lib/admin-crm";
-import type { AdminBusiness, AdminMembership, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
+import type { AdminBusiness, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const SelectableSuppliersTable = ({
   businesses,
   total,
-  memberships,
   filters,
   locale,
 }: {
   businesses: AdminBusiness[];
   total: number;
-  memberships: AdminMembership[];
   filters: CrmFilters;
   locale: string;
 }) => {
@@ -128,15 +124,6 @@ const SelectableSuppliersTable = ({
           { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={b.type} /> },
           { key: "city", header: "Şehir", cell: (b) => <span className="font-medium text-ink">{b.city}</span> },
           { key: "status", header: "Durum", cell: (b) => <StatusPill status={b.status} /> },
-          {
-            key: "end",
-            header: "Üyelik Bitişi",
-            cell: (b) => (
-              <span className={daysUntil(membershipFor(b.id, memberships)?.endsAt) <= 3 ? "font-medium text-red-600" : "font-medium text-ink"}>
-                {membershipEndDate(b.id, memberships)}
-              </span>
-            ),
-          },
           {
             key: "action",
             header: "Aksiyon",
@@ -269,14 +256,5 @@ const CATEGORY_TONES: Record<GroupKey, string> = {
 };
 
 const isActive = (status: BusinessLifecycleStatus) => status === "approved" || status === "active";
-
-const daysUntil = (value?: string) => {
-  if (!value) return Number.POSITIVE_INFINITY;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const date = new Date(value);
-  date.setHours(0, 0, 0, 0);
-  return Math.ceil((date.getTime() - today.getTime()) / 86_400_000);
-};
 
 export default SelectableSuppliersTable;

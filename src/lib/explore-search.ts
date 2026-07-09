@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
-import { filterAndSortBusinesses, facetCounts, isDoped } from "@/lib/listing";
+import { filterAndSortBusinesses, facetCounts } from "@/lib/listing";
+import { canAppearInExplore, type ViewerKind } from "@/lib/business-visibility";
 import type { Business, ListingFilters } from "@/lib/types";
 import type { ExploreInitialFilters } from "@/lib/explore-filters";
 
@@ -65,19 +66,73 @@ export async function getIsGuest(): Promise<boolean> {
   return !user;
 }
 
+export async function getExploreViewerKind(): Promise<ViewerKind> {
+  if (!hasEnv()) return "authenticated";
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return "guest";
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,account_type")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role === "admin") return "admin";
+  if (profile?.account_type === "buyer") return "buyer";
+  if (profile?.account_type === "supplier") return "supplier";
+  return "authenticated";
+}
+
 export async function getExploreResults(
   filters: ExploreInitialFilters,
   page: number,
-  isGuestArg?: boolean,
+  viewerArg?: ViewerKind | boolean,
 ): Promise<ExploreResults> {
-  // isGuest çağıran taraftan gelebilir (tek kez hesaplansın, öneri sorgusuyla paralel çalışsın).
-  const [all, isGuest] = await Promise.all([
+  // Viewer çağıran taraftan gelebilir (tek kez hesaplansın, öneri sorgusuyla paralel çalışsın).
+  const viewerPromise =
+    typeof viewerArg === "string"
+      ? Promise.resolve(viewerArg)
+      : typeof viewerArg === "boolean"
+        ? Promise.resolve<ViewerKind>(viewerArg ? "guest" : "authenticated")
+        : getExploreViewerKind();
+  const [all, viewer] = await Promise.all([
     getBusinesses(),
-    isGuestArg !== undefined ? Promise.resolve(isGuestArg) : getIsGuest(),
+    viewerPromise,
   ]);
+  const isGuest = viewer === "guest";
 
   // Misafir → yalnız dopingli/premium (müşteri kuralı); iletişim alanları da çıkarılır.
-  const visible = (isGuest ? all.filter(isDoped) : all).map(toListingBusiness);
+  const visible = all.filter((business) => canAppearInExplore(business, viewer)).map(toListingBusiness);
+
+  // Kelime araması ülke seçimi olmadan çalışmaz. UI zaten kullanıcıyı ülke
+  // seçimine yönlendiriyor; burada da sonucu kapatıyoruz ki URL/API seviyesinde
+  // ülkesiz toplu arama verisi dönmesin.
+  const requiresCountry = filters.q.trim() !== "" && filters.country === "all";
+  const index: ExploreIndexItem[] = visible.map((b) => ({
+    id: b.id,
+    name: b.name,
+    city: b.city,
+    district: b.district,
+    country: b.country,
+    group: b.group,
+    type: b.type,
+  }));
+
+  if (requiresCountry) {
+    return {
+      isGuest,
+      total: 0,
+      page: 1,
+      pageCount: 1,
+      items: [],
+      mapItems: [],
+      facets: { group: {}, type: {} },
+      index,
+    };
+  }
 
   const lf = toListingFilters(filters);
   const filtered = filterAndSortBusinesses(visible, lf, filters.q, filters.sort);
@@ -97,16 +152,6 @@ export async function getExploreResults(
     name: b.name,
     group: b.group,
     coords: b.coords,
-  }));
-
-  const index: ExploreIndexItem[] = visible.map((b) => ({
-    id: b.id,
-    name: b.name,
-    city: b.city,
-    district: b.district,
-    country: b.country,
-    group: b.group,
-    type: b.type,
   }));
 
   return { isGuest, total, page: safe, pageCount, items, mapItems, facets, index };

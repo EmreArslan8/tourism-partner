@@ -1,4 +1,4 @@
-import type { AdminBusiness, AdminMembership, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
+import type { AdminBusiness, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { normalizeTr } from "@/lib/utils";
 
 export type CrmFilters = {
@@ -16,7 +16,6 @@ export type ExportColumn =
   | "phone"
   | "email"
   | "category"
-  | "membership"
   | "status"
   | "website";
 
@@ -26,7 +25,6 @@ export const EXPORT_COLUMNS: Array<{ key: ExportColumn; label: string }> = [
   { key: "phone", label: "Telefon" },
   { key: "email", label: "E-posta" },
   { key: "category", label: "Kategori" },
-  { key: "membership", label: "Üyelik Bitişi" },
   { key: "status", label: "Durum" },
   { key: "website", label: "Web Sitesi" },
 ];
@@ -94,30 +92,19 @@ export function filterBusinesses(businesses: AdminBusiness[], filters: CrmFilter
   });
 }
 
-export function membershipFor(businessId: number, memberships: AdminMembership[]): AdminMembership | null {
-  return memberships.find((membership) => membership.businessId === businessId) ?? null;
-}
-
 export function businessEmail(business: AdminBusiness): string {
   const host = business.website?.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
   return host ? `info@${host}` : `info@${normalizeTr(business.name).replaceAll(" ", "")}.com`;
 }
 
-export function membershipEndDate(businessId: number, memberships: AdminMembership[]): string {
-  const membership = membershipFor(businessId, memberships);
-  if (!membership) return "Üyelik yok";
-  return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(membership.endsAt));
-}
-
 export function businessesToCsv(
   businesses: AdminBusiness[],
-  memberships: AdminMembership[],
   columns: ExportColumn[],
   emails: Record<number, string> = {},
 ): string {
   const header = columns.map((column) => labelForColumn(column));
   const rows = businesses.map((business) =>
-    columns.map((column) => valueForColumn(business, memberships, column, emails)),
+    columns.map((column) => valueForColumn(business, column, emails)),
   );
   return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
@@ -130,7 +117,6 @@ export function cityOptions(businesses: AdminBusiness[]): string[] {
 
 function valueForColumn(
   business: AdminBusiness,
-  memberships: AdminMembership[],
   column: ExportColumn,
   emails: Record<number, string>,
 ): string {
@@ -139,7 +125,6 @@ function valueForColumn(
   if (column === "phone") return business.phone ?? "";
   if (column === "email") return emails[business.id] ?? businessEmail(business);
   if (column === "category") return `${business.group} / ${business.type}`;
-  if (column === "membership") return membershipEndDate(business.id, memberships);
   if (column === "status") return business.status;
   if (column === "website") return business.website ?? "";
   return "";

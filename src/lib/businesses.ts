@@ -4,6 +4,7 @@ import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
 import { businessSlug } from "./business-slug";
 import { profileScore } from "./listing";
+import { PUBLIC_BUSINESS_STATUSES } from "./business-visibility";
 export { businessSlug } from "./business-slug";
 
 /* Liste/istemci payload'ı için iletişim alanlarını çıkarır (Brief §6A: telefon/website
@@ -19,24 +20,24 @@ export function toListingBusiness(b: Business): Business {
 /* Firma veri erişim katmanı (server). Supabase'den okur.
    Seed fallback kapalı: local/dev/prod aynı gerçek DB davranışını görür. */
 
-/* Public listede çekilen kolonlar — Row tipi şemadan türer (drift = derleme hatası).
-   details YALNIZCA work_regions (rehber çalışma bölgeleri) için çekilir; hassas alanlar
-   (TCKN, vergi no…) rowToBusiness'ta ATILIR, asla public Business'a girmez. */
+/* Public listede çekilen kolonlar — hassas işletme detayları çekilmez.
+   `details` JSON'u vergi no/TCKN gibi private alanlar taşıyabildiği için yalnızca
+   rehber aramasında gereken `work_regions` JSON path olarak alınır. */
 const SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,images,attributes,details,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,doping_until,phone,website,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+const LEGACY_SELECT_COLUMNS =
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 
 type Row = Pick<
   BusinessRow,
   | "id" | "group" | "type" | "name" | "country" | "city" | "district"
   | "lat" | "lng" | "description" | "rating" | "reviews" | "tag"
   | "verified" | "sponsored" | "doping_until" | "phone" | "website" | "image" | "images" | "attributes"
-  | "details" | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
->;
+  | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
+> & { founder_partner_number?: number | null; work_regions?: string | null };
 
-/* details.work_regions'ı güvenle şehir dizisine çevirir (virgülle ayrık string). */
-function parseWorkRegions(details: Row["details"]): string[] | undefined {
-  if (!details || typeof details !== "object") return undefined;
-  const raw = (details as Record<string, unknown>).work_regions;
+/* details->>work_regions değerini güvenle şehir dizisine çevirir (virgülle ayrık string). */
+function parseWorkRegions(raw: Row["work_regions"]): string[] | undefined {
   if (typeof raw !== "string" || !raw.trim()) return undefined;
   const list = raw.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 40);
   return list.length ? list : undefined;
@@ -58,14 +59,14 @@ function rowToBusiness(r: Row): Business {
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
+    founderPartnerNumber: r.founder_partner_number ?? undefined,
     dopingUntil: r.doping_until ?? undefined,
     phone: r.phone ?? undefined,
     website: r.website ?? undefined,
     image: r.image ?? undefined,
     images: r.images ?? [],
     attributes: r.attributes ?? [],
-    // Yalnızca work_regions taşınır; details'in geri kalanı (TCKN vb.) burada bırakılır.
-    workRegions: parseWorkRegions(r.details),
+    workRegions: parseWorkRegions(r.work_regions),
     seoTitle: r.seo_title ?? undefined,
     seoDescription: r.seo_description ?? undefined,
     seoKeywords: r.seo_keywords ?? undefined,
@@ -88,6 +89,10 @@ function reportMissingEnv(where: string) {
   console.error(`[businesses] Supabase env eksik (${where}); seed fallback kapalı, boş sonuç dönülüyor.`);
 }
 
+function isMissingFounderColumn(error: { message?: string } | null) {
+  return Boolean(error?.message?.includes("founder_partner"));
+}
+
 /* Çerezsiz public client + 'use cache': oturumdan bağımsız, herkese açık liste.
    Veri Next Data Cache'e yazılır; 'businesses' tag'i admin mutasyonlarında
    revalidateTag ile tazelenir. Böylece her geçişte DB vurulmaz. */
@@ -100,11 +105,22 @@ export async function getBusinesses(): Promise<Business[]> {
     return [];
   }
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  const primary = await supabase
     .from("businesses")
     .select(SELECT_COLUMNS)
-    .eq("status", "approved")
+    .in("status", [...PUBLIC_BUSINESS_STATUSES])
     .order("id");
+  let data: Row[] | null = primary.data as Row[] | null;
+  let error = primary.error;
+  if (isMissingFounderColumn(error)) {
+    const legacy = await supabase
+      .from("businesses")
+      .select(LEGACY_SELECT_COLUMNS)
+      .in("status", [...PUBLIC_BUSINESS_STATUSES])
+      .order("id");
+    data = legacy.data as Row[] | null;
+    error = legacy.error;
+  }
   if (error) {
     console.error(`[businesses] getBusinesses DB hatası; seed fallback kapalı, boş sonuç dönülüyor: ${error.message}`);
     return [];
@@ -121,11 +137,24 @@ export async function getBusinessById(id: number | string): Promise<Business | n
     return null;
   }
   const supabase = createPublicClient();
-  const { data, error } = await supabase
+  const primary = await supabase
     .from("businesses")
     .select(SELECT_COLUMNS)
     .eq("id", Number(id))
+    .in("status", [...PUBLIC_BUSINESS_STATUSES])
     .maybeSingle();
+  let data: Row | null = primary.data as Row | null;
+  let error = primary.error;
+  if (isMissingFounderColumn(error)) {
+    const legacy = await supabase
+      .from("businesses")
+      .select(LEGACY_SELECT_COLUMNS)
+      .eq("id", Number(id))
+      .in("status", [...PUBLIC_BUSINESS_STATUSES])
+      .maybeSingle();
+    data = legacy.data as Row | null;
+    error = legacy.error;
+  }
   if (error) {
     console.error(`[businesses] getBusinessById DB hatası; seed fallback kapalı, null dönülüyor: ${error.message}`);
     return null;

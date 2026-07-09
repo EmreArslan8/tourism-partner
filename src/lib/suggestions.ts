@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
-import { isDoped } from "@/lib/listing";
+import { canAppearInExplore } from "@/lib/business-visibility";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Business } from "@/lib/types";
 import type { ExploreInitialFilters } from "@/lib/explore-filters";
@@ -46,7 +46,7 @@ export async function getCrossCategorySuggestions(
       (filters.district === "all" || b.district === filters.district),
   );
 
-  if (opts.isGuest) candidates = candidates.filter(isDoped);
+  if (opts.isGuest) candidates = candidates.filter((business) => canAppearInExplore(business, "guest"));
   if (candidates.length === 0) return [];
 
   const sampled =
