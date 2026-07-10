@@ -53,6 +53,7 @@ const FilterBar = ({
         onCity={onCity}
         onDistrict={onDistrict}
         onMinRating={onMinRating}
+        showRating={false}
       />
     </div>
   );

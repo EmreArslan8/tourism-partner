@@ -37,9 +37,11 @@ export type ExploreIndexItem = {
 export type ExploreResults = {
   isGuest: boolean;
   total: number;
+  fullTotal: number;
   page: number;
   pageCount: number;
   items: Business[];
+  lockedPreviewItems: Business[];
   mapItems: ExploreMapItem[];
   facets: { group: Record<string, number>; type: Record<string, number> };
   index: ExploreIndexItem[];
@@ -125,9 +127,11 @@ export async function getExploreResults(
     return {
       isGuest,
       total: 0,
+      fullTotal: 0,
       page: 1,
       pageCount: 1,
       items: [],
+      lockedPreviewItems: [],
       mapItems: [],
       facets: { group: {}, type: {} },
       index,
@@ -135,6 +139,8 @@ export async function getExploreResults(
   }
 
   const lf = toListingFilters(filters);
+  const fullFiltered = filterAndSortBusinesses(all.map(toListingBusiness), lf, filters.q, filters.sort);
+  const fullTotal = fullFiltered.length;
   const filtered = filterAndSortBusinesses(visible, lf, filters.q, filters.sort);
 
   const total = filtered.length;
@@ -154,5 +160,9 @@ export async function getExploreResults(
     coords: b.coords,
   }));
 
-  return { isGuest, total, page: safe, pageCount, items, mapItems, facets, index };
+  const lockedPreviewItems = isGuest
+    ? fullFiltered.filter((business) => !filtered.some((visibleBusiness) => visibleBusiness.id === business.id)).slice(0, 3)
+    : [];
+
+  return { isGuest, total, fullTotal, items, lockedPreviewItems, page: safe, pageCount, mapItems, facets, index };
 }

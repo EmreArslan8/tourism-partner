@@ -102,7 +102,7 @@ export default function FavoriteButton({
         });
       }}
       className={
-        isIcon
+          isIcon
           ? `relative z-[6] inline-grid h-9 w-9 shrink-0 place-items-center drop-shadow-[0_2px_8px_rgba(0,0,0,.35)] transition-colors disabled:opacity-60 ${
               fav ? "text-sapphire hover:text-paper" : "text-paper hover:text-sapphire"
             }`

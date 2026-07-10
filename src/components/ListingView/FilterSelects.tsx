@@ -15,6 +15,7 @@ const FilterSelects = ({
   onDistrict,
   onMinRating,
   stack = false,
+  showRating = true,
 }: {
   country: string;
   city: string;
@@ -28,6 +29,7 @@ const FilterSelects = ({
   onDistrict: (v: string) => void;
   onMinRating: (v: number) => void;
   stack?: boolean;
+  showRating?: boolean;
 }) => {
   const t = useTranslations("listing");
   const field = cn(styles.field, styles.selectControl, "peer", stack && "!w-full");
@@ -68,15 +70,17 @@ const FilterSelects = ({
         </select>
         {chevron}
       </span>
-      <span className={selectWrap}>
-        <select aria-label={t("minRating")} className={field} value={minRating} onChange={(e) => onMinRating(Number(e.target.value))}>
-          <option value={0}>{t("minRating")}: {t("anyRating")}</option>
-          <option value={4}>{t("minRating")}: 4.0+</option>
-          <option value={4.5}>{t("minRating")}: 4.5+</option>
-          <option value={4.8}>{t("minRating")}: 4.8+</option>
-        </select>
-        {chevron}
-      </span>
+      {showRating && (
+        <span className={selectWrap}>
+          <select aria-label={t("minRating")} className={field} value={minRating} onChange={(e) => onMinRating(Number(e.target.value))}>
+            <option value={0}>{t("minRating")}: {t("anyRating")}</option>
+            <option value={4}>{t("minRating")}: 4.0+</option>
+            <option value={4.5}>{t("minRating")}: 4.5+</option>
+            <option value={4.8}>{t("minRating")}: 4.8+</option>
+          </select>
+          {chevron}
+        </span>
+      )}
     </>
   );
 

@@ -31,6 +31,8 @@
     "viewAll": "View all →",
     "detailLogin": "Log in for details",
     "categoriesEyebrow": "Supplier types",
+    "founderPartner": "Founding Partner",
+    "founderPartnerTooltip": "A verified business that joined Tourism Partner early.",
     "featured": "Featured"
   },
   "cat": {
@@ -66,6 +68,7 @@
     "activeLabel": "Active filters:",
     "clearAll": "Clear all",
     "results": "<b>{count}</b> results",
+    "guestResults": "<b>{shown} / {total}</b> suppliers",
     "shownCount": "Showing {shown} / {total} suppliers",
     "loadMore": "Show more",
     "loadingMore": "Loading…",
@@ -91,6 +94,9 @@
     "guestCountEyebrow": "Restricted search result",
     "guestCountTitle": "<b>{count}</b> businesses found",
     "guestCountText": "The B2B business directory opens to verified members only. Direct supplier links remain public; bulk listings require sign-in.",
+    "guestUnlockTitle": "Discover {count} more suppliers",
+    "guestUnlockText": "Get free access to all {total} suppliers.",
+    "guestUnlockCta": "View All",
     "guestBannerTitle": "You're viewing featured suppliers",
     "guestBannerText": "As a guest you only see featured (premium) businesses. Sign in or register free to reach every supplier.",
     "suggestTitle": "Also worth a look in this region",

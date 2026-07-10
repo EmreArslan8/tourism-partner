@@ -15,16 +15,23 @@ const FacetPanel = ({
   onToggle,
   onClear,
   bare = false,
+  minRating,
+  onMinRating,
+  ratingLabel,
 }: {
   groups: GroupKey[];
   selected: Set<string>;
   onToggle: (slug: string) => void;
   onClear: () => void;
   bare?: boolean;
+  /** Verildiğinde facet listesinin sonuna puan filtresi satırı eklenir (sol sidebar). */
+  minRating?: number;
+  onMinRating?: (v: number) => void;
+  ratingLabel?: string;
 }) => {
   const [closed, setClosed] = useState<Set<string>>(new Set());
   const facets = visibleFacets(groups);
-  if (facets.length === 0) return null;
+  if (facets.length === 0 && !onMinRating) return null;
 
   return (
     <div className={bare ? styles.facetBare : styles.facetWrap}>
@@ -76,6 +83,50 @@ const FacetPanel = ({
           </div>
           );
         })}
+        {onMinRating && (() => {
+          const open = !closed.has("__rating");
+          return (
+            <div className={styles.facetRow}>
+              <div className={styles.facetRowHead}>
+                <button
+                  type="button"
+                  className={styles.facetRowToggle}
+                  onClick={() =>
+                    setClosed((prev) => {
+                      const next = new Set(prev);
+                      if (next.has("__rating")) next.delete("__rating");
+                      else next.add("__rating");
+                      return next;
+                    })
+                  }
+                  aria-expanded={open}
+                >
+                  <span className={styles.facetRowLabel}>{ratingLabel}</span>
+                  <ChevronDown className={cn(styles.facetChevron, open && styles.facetChevronOpen)} aria-hidden />
+                </button>
+              </div>
+              {open && (
+                <div className={styles.facetCheckList}>
+                  {[4, 4.5, 4.8].map((v) => {
+                    const active = minRating === v;
+                    return (
+                      <label key={v} className={cn(styles.facetCheck, active && styles.facetCheckActive)}>
+                        <input
+                          type="checkbox"
+                          checked={active}
+                          onChange={() => onMinRating(active ? 0 : v)}
+                          className="sr-only"
+                        />
+                        <span className={cn(styles.catCheckbox, active && styles.catCheckboxActive)} aria-hidden />
+                        {v.toFixed(1)}+
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

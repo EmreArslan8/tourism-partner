@@ -8,12 +8,6 @@ import { cn } from "@/lib/utils";
 import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
-const normalize = (value: string) =>
-  value
-    .toLocaleLowerCase("tr-TR")
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
-
 const CategoryCatalog = ({
   groups,
   types,
@@ -30,17 +24,10 @@ const CategoryCatalog = ({
 }) => {
   const tc = useTranslations("cat");
   const t = useTranslations("listing");
-  const [query, setQuery] = useState("");
   const [open, setOpen] = useState(true);
-  const needle = normalize(query.trim());
   const visibleGroups = useMemo(
-    () =>
-      CATEGORY_GROUPS.map((g) => ({
-        ...g,
-        groupLabel: tc(g.key),
-        children: g.children.filter((c) => !needle || normalize(c.label).includes(needle)),
-      })).filter((g) => !needle || normalize(g.groupLabel).includes(needle) || g.children.length > 0),
-    [needle, tc]
+    () => CATEGORY_GROUPS.map((g) => ({ ...g, groupLabel: tc(g.key) })),
+    [tc]
   );
 
   return (
@@ -58,18 +45,10 @@ const CategoryCatalog = ({
       </div>
       {open && (
         <>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className={styles.catalogSearch}
-            placeholder={t("categorySearch")}
-          />
-
           <div className={styles.catList}>
           {visibleGroups.map((g) => {
         const active = groups.has(g.key);
-        const showChildren = active || g.children.some((c) => types.has(c.label)) || Boolean(needle);
+        const showChildren = active || g.children.some((c) => types.has(c.label));
         return (
           <div key={g.key} className={styles.catBlock}>
             <button

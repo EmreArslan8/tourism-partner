@@ -3,7 +3,9 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { requireAdminContext, writeAdminAudit } from "@/lib/admin-audit";
+import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import type { GroupKey } from "@/lib/types";
+import type { AdBannerStatus, PopupFrequency } from "@/lib/supabase/database.types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
 /* Admin yetki kontrolü — admin'in KENDİ oturumuyla yazar; erişim DB'de RLS
@@ -134,6 +136,67 @@ export async function renameCategory(formData: FormData): Promise<void> {
   if (error) throw new Error(error.message);
   await writeAdminAudit(context, "category.rename", "category", id, { label }, oldValue ?? null);
   revalidatePath(`/${loc(formData)}/admin/kategoriler`);
+}
+
+/* ---------------- Pop-up kaydet (İçerik → Pop-up Yönetimi) ----------------
+   id boşsa yeni kayıt açar, doluysa günceller. body zengin metin — sanitize edilir,
+   cta_url public tarafta href'e basıldığı için http(s) şemasına zorlanır. */
+const POPUP_FREQUENCIES: PopupFrequency[] = ["always", "daily", "session"];
+const POPUP_STATUSES: AdBannerStatus[] = ["draft", "active", "paused", "archived"];
+const POPUP_ROLES = ["all", "supplier", "buyer"] as const;
+
+export async function savePopup(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = String(formData.get("id") ?? "").trim();
+  const title = clean(formData.get("title"), 180);
+  if (!title) throw new Error("Pop-up başlığı zorunlu.");
+
+  const roleRaw = String(formData.get("target_role") ?? "all");
+  const freqRaw = String(formData.get("frequency") ?? "daily");
+  const statusRaw = String(formData.get("status") ?? "draft");
+
+  const payload = {
+    title,
+    body: sanitizePublicHtml(clean(formData.get("body"), 4000)),
+    image_url: cleanImageUrl(formData.get("image_url"), 400),
+    cta_label: clean(formData.get("cta_label"), 80),
+    cta_url: cleanHttpUrl(formData.get("cta_url"), 400),
+    target_role: (POPUP_ROLES as readonly string[]).includes(roleRaw) ? roleRaw : "all",
+    frequency: POPUP_FREQUENCIES.includes(freqRaw as PopupFrequency) ? (freqRaw as PopupFrequency) : "daily",
+    status: POPUP_STATUSES.includes(statusRaw as AdBannerStatus) ? (statusRaw as AdBannerStatus) : "draft",
+    starts_at: clean(formData.get("starts_at"), 40) || null,
+    ends_at: clean(formData.get("ends_at"), 40) || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  const result = id
+    ? await supabase.from("admin_popups").update(payload).eq("id", Number(id)).select("id").single()
+    : await supabase.from("admin_popups").insert(payload).select("id").single();
+  if (result.error) throw new Error(result.error.message);
+  await writeAdminAudit(context, id ? "popup.update" : "popup.create", "admin_popup", result.data?.id ?? null, payload);
+
+  revalidateTag("popups", "max");
+  revalidatePath(`/${loc(formData)}/admin/icerik`);
+}
+
+/* ---------------- Pop-up sil ---------------- */
+export async function deletePopup(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  if (!Number.isInteger(id)) throw new Error("Geçersiz pop-up.");
+  const { data: oldValue } = await supabase
+    .from("admin_popups")
+    .select("id,title,target_role,status")
+    .eq("id", id)
+    .maybeSingle();
+  const { error } = await supabase.from("admin_popups").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  await writeAdminAudit(context, "popup.delete", "admin_popup", id, undefined, oldValue ?? null);
+
+  revalidateTag("popups", "max");
+  revalidatePath(`/${loc(formData)}/admin/icerik`);
 }
 
 /* ---------------- B2B Talep moderasyonu (İlan Denetimi) ---------------- */

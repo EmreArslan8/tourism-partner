@@ -20,15 +20,16 @@ const styles = {
     "max-[860px]:grid-cols-1 max-[860px]:gap-0 max-[860px]:overflow-hidden max-[860px]:rounded-card-lg " +
     "max-[860px]:border max-[860px]:border-line max-[860px]:shadow-card",
 
-  /* SOL — galeri (mobilde sabit ~3/2 oran ≈ %58 → kart her yükseklikte tutarlı ~60/40) */
+  /* SOL — galeri (mobilde yükseklik viewport'a bağlı: dvh → kısa ekranda küçülür,
+     böylece kart + CTA aynı 100dvh panele sığar, alttan kırpılmaz) */
   gallery:
     "relative min-h-[360px] overflow-hidden rounded-card-lg shadow-card " +
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
-    "max-[640px]:min-h-0 max-[640px]:aspect-[3/2]",
+    "max-[640px]:min-h-0 max-[640px]:h-[26dvh]",
   galleryImg: "object-cover",
   placeholder:
     "grid h-full min-h-[360px] place-items-center text-[13px] font-bold text-white/90 " +
-    "max-[860px]:min-h-[300px] max-[640px]:min-h-0 max-[640px]:aspect-[3/2]",
+    "max-[860px]:min-h-[300px] max-[640px]:min-h-0",
   thumbs: "absolute inset-x-0 bottom-0 flex gap-2 p-3 max-[640px]:hidden",
   // Mobil: galeri swipe nokta göstergesi
   galleryDots:
@@ -73,7 +74,7 @@ const styles = {
     "inline-flex items-center rounded-full bg-sapphire/[.055] px-3 py-1.5 text-[13px] font-medium leading-none text-ink/72 ring-1 ring-sapphire/10",
   foot:
     "mt-auto flex items-center gap-3 border-t border-line/90 pt-4 " +
-    "max-[560px]:grid max-[560px]:grid-cols-1 max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px]",
+    "max-[560px]:grid max-[560px]:grid-cols-2 max-[560px]:items-center max-[560px]:gap-2 max-[560px]:pt-[9.6px]",
   detailButton:
     "min-h-11 rounded-[10px] px-5 text-[14px] font-semibold shadow-[0_14px_30px_-22px_rgba(15,59,176,.9)] max-[560px]:w-full max-[560px]:min-h-10 max-[560px]:text-[13px]",
   quote:

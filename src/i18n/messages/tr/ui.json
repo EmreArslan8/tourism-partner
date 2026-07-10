@@ -31,6 +31,8 @@
     "viewAll": "Tümünü gör →",
     "detailLogin": "Detay için giriş",
     "categoriesEyebrow": "Tedarikçi türleri",
+    "founderPartner": "Kurucu Partner",
+    "founderPartnerTooltip": "Tourism Partner’a erken katılan doğrulanmış işletme.",
     "featured": "Öne Çıkan"
   },
   "cat": {
@@ -43,9 +45,9 @@
     "gastronomi": "Gastronomi"
   },
   "listing": {
-    "eyebrow": "Keşfet",
-    "title": "Tedarikçileri keşfedin",
-    "sub": "Kategori, şehir, puan ve çalışma modeline göre hızlıca filtreleyin.",
+    "eyebrow": "Onaylı İş Ortakları",
+    "title": "Doğru tedarikçiyi güvenle keşfedin.",
+    "sub": "Konaklamadan deneyime, sağlıktan ulaşıma kadar turizm sektörünün doğrulanmış iş ortaklarını tek bir profesyonel ağda karşılaştırın.",
     "statSuppliers": "tedarikçi",
     "statCities": "şehir",
     "statVerified": "doğrulanmış",
@@ -66,6 +68,7 @@
     "activeLabel": "Aktif filtreler:",
     "clearAll": "Tümünü temizle",
     "results": "<b>{count}</b> sonuç",
+    "guestResults": "<b>{shown} / {total}</b> tedarikçi",
     "shownCount": "{shown} / {total} tedarikçi gösteriliyor",
     "loadMore": "Daha fazla göster",
     "loadingMore": "Yükleniyor…",
@@ -91,6 +94,9 @@
     "guestCountEyebrow": "Kısıtlı arama sonucu",
     "guestCountTitle": "<b>{count}</b> işletme bulundu",
     "guestCountText": "B2B işletme listesi yalnızca doğrulanmış üyeler için açılır. Doğrudan firma linkleri public kalır; toplu listeleme için giriş gerekir.",
+    "guestUnlockTitle": "{count} tedarikçiyi daha keşfedin",
+    "guestUnlockText": "Tüm {total} tedarikçiye ücretsiz erişin.",
+    "guestUnlockCta": "Tümünü Gör",
     "guestBannerTitle": "Öne çıkan tedarikçileri görüyorsunuz",
     "guestBannerText": "Misafir görünümünde yalnızca öne çıkan (premium) işletmeler listelenir. Tüm tedarikçilere ulaşmak için giriş yapın veya ücretsiz kayıt olun.",
     "suggestTitle": "Bu bölgede ayrıca ilginizi çekebilir",

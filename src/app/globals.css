@@ -37,7 +37,9 @@
   }
   body {
     @apply bg-cream text-ink font-body leading-relaxed antialiased;
-    overflow-x: hidden;
+    /* clip (hidden değil): yatay taşmayı engeller ama scroll konteyneri OLUŞTURMAZ,
+       böylece sticky sidebar viewport'a göre sabit kalır (hidden bunu bozuyordu). */
+    overflow-x: clip;
   }
   h1, h2, h3, h4 {
     @apply font-display font-medium leading-tight tracking-heading;

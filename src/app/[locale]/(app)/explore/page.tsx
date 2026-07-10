@@ -86,9 +86,11 @@ async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchPa
       <ListingView
         isGuest={results.isGuest}
         items={results.items}
+        lockedPreviewItems={results.lockedPreviewItems}
         index={results.index}
         mapItems={results.mapItems}
         total={results.total}
+        fullTotal={results.fullTotal}
         page={results.page}
         pageCount={results.pageCount}
         initialGroups={filters.groups}

@@ -41,9 +41,11 @@ const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeC
 const ListingView = ({
   isGuest = false,
   items = [],
+  lockedPreviewItems = [],
   index = [],
   mapItems = [],
   total = 0,
+  fullTotal = 0,
   page: serverPage = 1,
   pageCount = 1,
   initialGroups = [],
@@ -58,9 +60,11 @@ const ListingView = ({
 }: {
   isGuest?: boolean;
   items?: Business[];
+  lockedPreviewItems?: Business[];
   index?: ExploreIndexItem[];
   mapItems?: ExploreMapItem[];
   total?: number;
+  fullTotal?: number;
   page?: number;
   pageCount?: number;
   initialGroups?: GroupKey[];
@@ -283,25 +287,6 @@ const ListingView = ({
     return query;
   }, [groups, types, country, city, district, deferredQ, minRating, attrs]);
 
-  const guestBanner = isGuest ? (
-    <div className={styles.guestBanner}>
-      <div className={styles.guestBannerIcon} aria-hidden>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="10" rx="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-      </div>
-      <div className={styles.guestBannerText}>
-        <p className={styles.guestBannerTitle}>{t("guestBannerTitle")}</p>
-        <p className={styles.guestBannerSub}>{t("guestBannerText")}</p>
-      </div>
-      <div className={styles.guestBannerActions}>
-        <Link href="/login" className="btn btn-solid btn-sm">{t("gateLogin")}</Link>
-        <Link href="/register" className="btn btn-outline btn-sm">{t("gateRegister")}</Link>
-      </div>
-    </div>
-  ) : null;
-
   const countryPrompt = (
     <div className={styles.countryAsk}>
       <div className={styles.countryAskIcon} aria-hidden>
@@ -366,6 +351,31 @@ const ListingView = ({
               </Link>
             </SupplierCard>
           ))}
+          {isGuest && fullTotal > total && (
+            <article className={styles.guestUnlockShell}>
+              <div className={styles.guestUnlockPreview} aria-hidden>
+                {lockedPreviewItems.map((business) => (
+                  <SupplierCard key={business.id} business={business} showStars>{null}</SupplierCard>
+                ))}
+              </div>
+              <div className={styles.guestUnlockOverlay}>
+                <div className={styles.guestUnlockPanel}>
+                  <div className={styles.guestUnlockIcon} aria-hidden>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="10" rx="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <div className={styles.guestUnlockCopy}>
+                    <p className={styles.guestUnlockEyebrow}>{t("guestCountEyebrow")}</p>
+                    <h3 className={styles.guestUnlockTitle}>{t("guestUnlockTitle", { count: fullTotal - total })}</h3>
+                    <p className={styles.guestUnlockText}>{t("guestUnlockText", { total: fullTotal })}</p>
+                  </div>
+                  <Link href="/register" className={styles.guestUnlockCta}>{t("guestUnlockCta")}</Link>
+                </div>
+              </div>
+            </article>
+          )}
         </div>
       )}
       {hasMore && (
@@ -420,7 +430,10 @@ const ListingView = ({
       <TopProgressBar active={isPending} />
 
       <div className={styles.head}>
-        <h1 className={styles.title}>{t("title")}</h1>
+        <div>
+          <span className={styles.eyebrow}>{t("eyebrow")}</span>
+          <h1 className={styles.title}>{t("title")}</h1>
+        </div>
         <p className={styles.sub}>{t("sub")}</p>
       </div>
 
@@ -438,25 +451,15 @@ const ListingView = ({
               selected={attrs}
               onToggle={toggleAttr}
               onClear={() => { setAttrs(new Set()); setPage(1); }}
+              minRating={minRating}
+              onMinRating={(v) => { setMinRating(v); setPage(1); }}
+              ratingLabel={t("minRating")}
             />
           </CategoryCatalog>
         </aside>
 
         <div className={styles.content}>
-          <div className={styles.toolbar}>
-            <div className={styles.toolbarSearch}>
-              <SearchBox businesses={index} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
-            </div>
-            <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
-              {t("suggestCategories")}
-            </button>
-            <button type="button" className={styles.toolBtn} onClick={() => setFiltersOpen(true)}>
-              {t("filters")}
-              {activeRefine > 0 && <span className={styles.toolBtnBadge}>{activeRefine}</span>}
-            </button>
-          </div>
-
-          <div className="max-[1120px]:hidden">
+          <div className={styles.topSearch}>
             <FilterBar
               businesses={index}
               country={country}
@@ -475,24 +478,35 @@ const ListingView = ({
               onMinRating={selectProps.onMinRating}
             />
           </div>
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarSearch}>
+              <SearchBox businesses={index} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+            </div>
+            <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
+              {t("suggestCategories")}
+            </button>
+            <button type="button" className={styles.toolBtn} onClick={() => setFiltersOpen(true)}>
+              {t("filters")}
+              {activeRefine > 0 && <span className={styles.toolBtnBadge}>{activeRefine}</span>}
+            </button>
+          </div>
 
           <ActiveTags tags={tags} onRemove={removeTag} onClear={reset} />
 
           {needsCountry ? countryPrompt : (
           <>
-          {guestBanner}
           <div className={styles.resultsBar}>
         <p className={styles.count}>
-          {t.rich("results", { count: total, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
+          {isGuest && fullTotal > total
+            ? t.rich("guestResults", {
+                shown: total,
+                total: fullTotal,
+                b: (c) => <strong className={styles.guestCountStrong}>{c}</strong>,
+              })
+            : t.rich("results", { count: total, b: (c) => <strong className={styles.countStrong}>{c}</strong> })}
           {city !== "all" ? ` · ${city}` : ""}
         </p>
         {<div className={styles.barRight}>
-          <Link
-            href={{ pathname: "/quote", query: quoteQuery }}
-            className="btn btn-solid btn-sm !h-[38px] !px-4 !text-[12.5px]"
-          >
-            {tCommon("requestQuote")}
-          </Link>
           <div className={styles.viewToggle} role="tablist" aria-label="View">
             <button
               type="button"
