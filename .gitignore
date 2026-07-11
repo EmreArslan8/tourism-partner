@@ -60,3 +60,5 @@ next-env.d.ts
 # statik tasarım taslakları (repoya girmez)
 admin-panel-static-design/
 output/
+
+.claude/
