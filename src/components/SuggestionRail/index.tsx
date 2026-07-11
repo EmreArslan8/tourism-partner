@@ -19,8 +19,8 @@ export default function SuggestionRail({ items }: { items: Business[] }) {
   return (
     <section className="mt-10 border-t border-line/70 pt-7">
       <div className="mb-4">
-        <h2 className="heading-section text-[22px] text-ink">{t("suggestTitle")}</h2>
-        <p className="body-muted mt-1 text-[14px]">{t("suggestSub")}</p>
+        <h2 className="heading-section text-[22px] text-white">{t("suggestTitle")}</h2>
+        <p className="mt-1 text-[14px] text-cream/75">{t("suggestSub")}</p>
       </div>
       <div className="grid grid-cols-3 gap-5 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1">
         {items.map((b) => (

@@ -6,7 +6,7 @@ import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
 import { businessesToCsv } from "@/lib/admin-crm";
 
 const BUSINESS_SELECT =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -27,7 +27,7 @@ type BusinessRow = {
   tag: string | null;
   verified: boolean;
   sponsored: boolean;
-  founder_partner_number: number | null;
+  founder_partner: boolean;
   doping_until: string | null;
   phone: string | null;
   website: string | null;
@@ -183,7 +183,7 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .order("id", { ascending: true }),
     supabase
       .from("quotes")
-      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,internal_note,created_at")
+      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,internal_note,created_at")
       .eq("business_id", id)
       .order("created_at", { ascending: false })
       .limit(50),
@@ -304,7 +304,7 @@ function rowToAdminBusiness(row: BusinessRow): AdminBusiness {
     tag: row.tag ?? "",
     verified: row.verified,
     sponsored: row.sponsored,
-    founderPartnerNumber: row.founder_partner_number ?? undefined,
+    founderPartner: row.founder_partner ?? false,
     dopingUntil: row.doping_until ?? undefined,
     phone: row.phone ?? undefined,
     website: row.website ?? undefined,
@@ -382,6 +382,7 @@ type QuoteRow = {
   city: string | null;
   district: string | null;
   date_range: string | null;
+  valid_until: string | null;
   people: number | null;
   message: string | null;
   status: string | null;
@@ -404,6 +405,7 @@ function mapQuote(row: QuoteRow): AdminQuote {
     city: row.city,
     district: row.district,
     dateRange: row.date_range,
+    validUntil: row.valid_until,
     people: row.people,
     message: row.message,
     status: row.status ?? "new",

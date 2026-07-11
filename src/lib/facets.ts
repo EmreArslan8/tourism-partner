@@ -216,7 +216,7 @@ export function attrsPass(businessAttrs: string[] | undefined, selected: Set<str
   return Object.values(byFacet).every((slugs) => slugs.some((s) => has.has(s)));
 }
 
-export type FeaturedFacetTag = { slug: string; label: string };
+export type FeaturedFacetTag = { slug: string; label: string; facetKey: string };
 
 /**
  * İşletme detayında / vitrin kartında gösterilecek öne çıkan çipler.
@@ -237,6 +237,7 @@ export function featuredFacetTags(
     return [{
       slug,
       label: SLUG_TO_LABEL[slug] ?? slug,
+      facetKey,
       facetOrder: FACET_ORDER[facetKey] ?? Number.MAX_SAFE_INTEGER,
       index,
     }];
@@ -245,5 +246,5 @@ export function featuredFacetTags(
   return tags
     .sort((a, b) => a.facetOrder - b.facetOrder || a.index - b.index)
     .slice(0, limit)
-    .map(({ slug, label }) => ({ slug, label }));
+    .map(({ slug, label, facetKey }) => ({ slug, label, facetKey }));
 }

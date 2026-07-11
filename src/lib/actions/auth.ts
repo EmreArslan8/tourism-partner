@@ -165,6 +165,51 @@ export async function resendSignupEmail(email: string): Promise<{ ok: boolean; e
   return { ok: true };
 }
 
+/* Şifre sıfırlama bağlantısı gönder — link callback üzerinden /reset-password'a düşer.
+   E-posta kayıtlı olmasa bile "gönderildi" döner (hesap varlığı sızdırılmaz). */
+export async function requestPasswordReset(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!isEmail(email)) return { ok: false, error: "email" };
+  const allowed = await checkRateLimit({
+    scope: "auth-reset",
+    limit: 3,
+    windowSeconds: 10 * 60,
+    identity: [email.toLowerCase()],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
+
+  const locale = await getLocale();
+  const supabase = await createClient();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}&next=reset`,
+  });
+  return { ok: true };
+}
+
+/* Sıfırlama linkiyle gelen (recovery oturumu açık) kullanıcının yeni şifresini kaydeder. */
+export async function updatePassword(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const password = String(formData.get("password") ?? "");
+  const password2 = String(formData.get("password2") ?? "");
+  if (password.length < 8) return { ok: false, error: "short" };
+  if (password !== password2) return { ok: false, error: "mismatch" };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "session" };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { ok: false, error: "generic" };
+  return { ok: true };
+}
+
 /* Çıkış yap. */
 export async function signOut(): Promise<void> {
   const supabase = await createClient();

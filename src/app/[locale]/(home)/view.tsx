@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import Partners from "@/components/Partners";
 import Showcase from "@/components/Showcase";
 import Regions from "@/components/Regions";
 import Categories from "@/components/Categories";
@@ -16,7 +15,7 @@ import styles from "./styles";
 /*
  * Anasayfa = Reels tarzı tam-sayfa panel destesi (ReelDeck).
  * Her doğrudan child = bir 100dvh panel. Sıra:
- * 1) Hero + Partners  2) Vitrin + CTA  3) Bölgeler
+ * 1) Hero  2) Vitrin + CTA  3) Bölgeler
  * 4) Tedarikçi türleri 5) Platform turu 6) Üç adımda iş birliği  7) SSS
  * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
  */
@@ -29,13 +28,10 @@ const HomeView = ({
 }) => {
   return (
     <ReelDeck>
-      {/* 1 — Hero (tam-bleed) + alt marka şeridi */}
+      {/* 1 — Hero (tam-bleed, panelin tamamını kaplar) */}
       <div className={styles.panelDark}>
         <div className={styles.heroFill}>
           <Hero businesses={businesses} />
-        </div>
-        <div className={styles.brandStrip}>
-          <Partners />
         </div>
       </div>
 

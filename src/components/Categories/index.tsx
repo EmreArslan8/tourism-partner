@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
@@ -19,6 +19,9 @@ const IMG: Record<GroupKey, string> = {
   saglik: "/assets/cards/clinic-1.webp",
   gastronomi: "/assets/cards/resort-1.webp",
 };
+
+const DISPLAY_GROUPS = CATEGORY_GROUPS.filter((group) => group.key !== "saglik");
+const AUTO_ROTATE_MS = 3500;
 
 const iconProps = {
   width: 20,
@@ -78,9 +81,23 @@ const ICONS: Record<GroupKey, ReactNode> = {
 const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
-  const groups = CATEGORY_GROUPS.filter((g) => g.key !== "saglik");
+  const groups = DISPLAY_GROUPS;
   const [activeKey, setActiveKey] = useState<GroupKey>(groups[0].key);
+  const [rotationPaused, setRotationPaused] = useState(false);
   const activeGroup = groups.find((g) => g.key === activeKey) ?? groups[0];
+
+  useEffect(() => {
+    if (rotationPaused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = window.setInterval(() => {
+      setActiveKey((current) => {
+        const currentIndex = groups.findIndex((group) => group.key === current);
+        return groups[(currentIndex + 1) % groups.length].key;
+      });
+    }, AUTO_ROTATE_MS);
+
+    return () => window.clearInterval(timer);
+  }, [groups, rotationPaused]);
 
   // Kategori başına tedarikçi sayısı + kapsanan şehir (gerçek veriden — dekor yerine bilgi).
   const stats = businesses.reduce<Record<string, { n: number; cities: Set<string> }>>((acc, b) => {
@@ -92,7 +109,17 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
   const activeStat = stats[activeGroup.key] ?? { n: 0, cities: new Set<string>() };
 
   return (
-    <section className={styles.section} id="kategoriler" data-tour="supplier-categories">
+    <section
+      className={styles.section}
+      id="kategoriler"
+      data-tour="supplier-categories"
+      onMouseEnter={() => setRotationPaused(true)}
+      onMouseLeave={() => setRotationPaused(false)}
+      onFocusCapture={() => setRotationPaused(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setRotationPaused(false);
+      }}
+    >
       <div className={styles.head}>
         <SectionHeader
           className={styles.headCopy}

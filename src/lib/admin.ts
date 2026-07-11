@@ -28,7 +28,7 @@ type AdminBusinessRow = {
   tag: string | null;
   verified: boolean;
   sponsored: boolean;
-  founder_partner_number: number | null;
+  founder_partner: boolean;
   image: string | null;
   attributes: string[] | null;
   phone: string | null;
@@ -63,7 +63,7 @@ function rowToAdminBusiness(r: AdminBusinessRow, documents?: AdminBusiness["docu
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
-    founderPartnerNumber: r.founder_partner_number ?? undefined,
+    founderPartner: r.founder_partner ?? false,
     image: r.image ?? undefined,
     attributes: r.attributes ?? [],
     phone: r.phone ?? undefined,
@@ -143,7 +143,7 @@ async function getSupabaseAdminData(
     supabase
       .from("businesses")
       .select(
-        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,image,attributes,phone,website,documents,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
+        "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,image,attributes,phone,website,documents,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at"
       )
       .order("created_at", { ascending: false }),
     supabase
@@ -152,7 +152,7 @@ async function getSupabaseAdminData(
       .order("created_at", { ascending: false }),
     supabase
       .from("quotes")
-      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,internal_note,created_at")
+      .select("id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,internal_note,created_at")
       .order("created_at", { ascending: false })
       .limit(50),
     supabase
@@ -240,6 +240,7 @@ async function getSupabaseAdminData(
       city: row.city,
       district: row.district,
       dateRange: row.date_range,
+      validUntil: row.valid_until,
       people: row.people,
       message: row.message,
       status: row.status ?? "new",

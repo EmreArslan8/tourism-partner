@@ -15,7 +15,7 @@ export default function FavoriteButton({
   variant = "full",
 }: {
   businessId: number;
-  variant?: "full" | "icon";
+  variant?: "full" | "icon" | "header";
 }) {
   const [fav, setFav] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
@@ -51,6 +51,7 @@ export default function FavoriteButton({
   }, [businessId]);
 
   const isIcon = variant === "icon";
+  const isHeader = variant === "header";
   const label = fav ? "Favorilerden çıkar" : "Favorilere kaydet";
   const stopCardNavigation = (event: MouseEvent<HTMLElement> | PointerEvent<HTMLElement>) => {
     event.preventDefault();
@@ -72,11 +73,13 @@ export default function FavoriteButton({
         className={
           isIcon
             ? "relative z-[6] inline-grid h-9 w-9 shrink-0 place-items-center text-paper drop-shadow-[0_2px_8px_rgba(0,0,0,.28)] transition-colors hover:text-brand-deep"
+            : isHeader
+              ? "inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold text-ink transition-colors hover:bg-cream"
             : "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-line px-4 py-2.5 text-[13.5px] font-semibold text-ink transition-colors hover:border-sapphire hover:text-brand"
         }
       >
         <Heart size={22} strokeWidth={2.25} aria-hidden />
-        {!isIcon && "Favorilere kaydet"}
+        {!isIcon && <span className={isHeader ? "underline decoration-ink/40 underline-offset-2" : undefined}>Favorilere kaydet</span>}
       </Link>
     );
   }
@@ -106,13 +109,15 @@ export default function FavoriteButton({
           ? `relative z-[6] inline-grid h-9 w-9 shrink-0 place-items-center drop-shadow-[0_2px_8px_rgba(0,0,0,.35)] transition-colors disabled:opacity-60 ${
               fav ? "text-sapphire hover:text-paper" : "text-paper hover:text-sapphire"
             }`
+          : isHeader
+            ? `inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold transition-colors hover:bg-cream disabled:opacity-60 ${fav ? "text-sapphire" : "text-ink"}`
           : `mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border px-4 py-2.5 text-[13.5px] font-semibold transition-colors disabled:opacity-60 ${
               fav ? "border-sapphire bg-cream text-brand" : "border-line text-ink hover:border-sapphire hover:text-brand"
             }`
       }
     >
       <Heart size={24} strokeWidth={2.5} className={fav ? "fill-current" : ""} aria-hidden />
-      {!isIcon && label}
+      {!isIcon && <span className={isHeader ? "underline decoration-current/40 underline-offset-2" : undefined}>{label}</span>}
       {isIcon && feedback && (
         <span className="pointer-events-none absolute right-0 top-10 whitespace-nowrap rounded-full bg-paper/95 px-3 py-1.5 text-[11.5px] font-semibold text-brand-deep shadow-[0_14px_34px_-20px_rgba(7,9,42,.65)] ring-1 ring-line backdrop-blur">
           {feedback}

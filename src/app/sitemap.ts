@@ -25,6 +25,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.7,
     });
+    entries.push({
+      url: `${SITE_URL}${getPathname({ locale, href: "/help" })}`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    });
   }
 
   // İşletme profilleri (her locale) — asıl SEO yüzeyimiz.

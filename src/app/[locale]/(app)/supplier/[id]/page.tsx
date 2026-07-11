@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
@@ -9,6 +10,7 @@ import { realBusinessImages } from "@/lib/business-images";
 import { getBusinessPartners } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
+import MemberContactSection, { MemberContactSkeleton } from "./MemberContactSection";
 
 export async function generateStaticParams() {
   const businesses = await getBusinesses();
@@ -72,13 +74,18 @@ export default async function DetailPage({
   const [partners] = await Promise.all([
     getBusinessPartners(b.id),
   ]);
-  const services = featuredFacetTags(b).map((tag) => tag.label);
+  const services = featuredFacetTags(b, 40);
   const gallery = realBusinessImages(b.image, b.images);
 
   return (
     <SupplierDetailView
       b={b}
       partners={partners}
+      contactSection={
+        <Suspense fallback={<MemberContactSkeleton />}>
+          <MemberContactSection businessId={b.id} />
+        </Suspense>
+      }
       t={t}
       tc={tc}
       tCommon={tCommon}

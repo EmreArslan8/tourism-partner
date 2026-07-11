@@ -72,6 +72,7 @@ const AdminQuotesView = ({ data, locale }: Props) => {
                 <div className="text-[13px] font-semibold leading-5 text-ink">
                   {quote.dateRange || "Tarih yok"}
                   <span className="mt-1 block text-[12px] text-muted">{quote.people ? `${quote.people} kişi` : "Kapasite yok"}</span>
+                  {quote.validUntil && <span className="mt-1 block text-[12px] font-bold text-amber-700">Son teklif: {formatDateOnly(quote.validUntil)}</span>}
                 </div>
               ),
             },
@@ -145,6 +146,9 @@ const hasExternalContact = (value: string | null) => {
   if (!value) return false;
   return /@|(?:\+?\d[\d\s()-]{7,})|whatsapp|telegram|instagram/i.test(value);
 };
+
+const formatDateOnly = (value: string) =>
+  new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(`${value}T12:00:00`));
 
 const requestViews = (data: AdminData, quote: AdminQuote) => {
   return data.pageViews.filter((view) => view.entityType === "quote" && view.entityId === quote.id).length;

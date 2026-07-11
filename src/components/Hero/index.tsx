@@ -1,4 +1,4 @@
-import { getImageProps } from "next/image";
+import Image, { getImageProps } from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
@@ -44,11 +44,12 @@ const {
 const Hero = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
-  const stats = [
-    { n: formatCount(businesses.length), key: "statSuppliers" },
-    { n: String(new Set(businesses.map((business) => business.city).filter(Boolean)).size), key: "statCities" },
-    { n: String(new Set(businesses.map((business) => business.country).filter(Boolean)).size), key: "statCountries" },
-    { n: "~4 sa", key: "statResponse" },
+  const categoryLinks = [
+    { key: "konaklama", label: t("catHotels"), icon: <Image src="/assets/icons/hotels.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
+    { key: "acente", label: t("catAgencies"), icon: <Image src="/assets/icons/agencies.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
+    { key: "rehber", label: t("catGuides"), icon: <Image src="/assets/icons/guides.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
+    { key: "ulasim", label: t("catTransfers"), icon: <Image src="/assets/icons/transfers.svg" alt="" width={44} height={39} className={styles.transferIcon} /> },
+    { key: "saglik", label: t("catHealth"), icon: <Image src="/assets/icons/health-tourism.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
   ] as const;
 
   return (
@@ -71,38 +72,58 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
           {t("titlePre").trim()}<br />
           <em>{t("titleEm")}</em> {t("titlePost").trim()}
         </h1>
-        <p className={styles.sub}>{t("sub")}</p>
+        <p className={styles.mobileIntro}>{t("quickSub")}</p>
+        <nav className={styles.categories} aria-label={t("categoryNavLabel")}>
+          {categoryLinks.map(({ key, label, icon }) => (
+            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} className={styles.categoryLink}>
+              {icon}
+              <span>{label}</span>
+            </Link>
+          ))}
+        </nav>
 
         <div className={styles.searchWrap}>
           <HeroSearch businesses={businesses} />
         </div>
 
-        {/* Mobilde arama yerine acente/firma giriş butonları */}
-        <div className={styles.mobileCtas}>
-          <Link href="/login" className={styles.mobileCtaPrimary}>
-            {tn("agencyLogin")}
-          </Link>
-          <Link href="/login" className={styles.mobileCtaGhost}>
-            {tn("supplierLogin")}
+        {/* Aramaya alternatif olarak kullanıcı ihtiyacını paylaşır ve uygun firmalardan teklif alır. */}
+        <div className={styles.ctaBlock}>
+          <div className={styles.ctaCopy}>
+            <p className={styles.ctaPrompt}>{t("quickPrompt")}</p>
+            <p className={styles.ctaSub}>{t("quickSub")}</p>
+          </div>
+          <Link href={{ pathname: "/quote" }} className={styles.ctaPrimary}>
+            <span>{t("quickQuote")}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
           </Link>
         </div>
 
-        <div className={styles.stats} aria-label="Stats">
-          {stats.map((st) => (
-            <div key={st.key} className={styles.stat}>
-              <strong className={styles.statNum}>{st.n}</strong>
-              <span className={styles.statLabel}>{t(st.key)}</span>
-            </div>
+        <nav className={styles.mobileCategories} aria-label={t("categoryNavLabel")}>
+          {categoryLinks.map(({ key, label, icon }) => (
+            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} className={styles.mobileCategoryLink}>
+              {icon}
+              <span>{label}</span>
+            </Link>
           ))}
+        </nav>
+
+        {/* Mobilde: kategorilerden sonra teklif ana buton, üye girişi ikincil aksiyon. */}
+        <div className={styles.mobileCtas}>
+          <Link href={{ pathname: "/quote" }} className={styles.mobileCtaPrimary}>
+            {tn("quote")}
+          </Link>
+          <div className={styles.mobileCtaRow}>
+            <Link href="/login" className={styles.mobileCtaGhost}>
+              {tn("memberLogin")}
+            </Link>
+          </div>
         </div>
+
       </div>
     </section>
   );
 };
-
-function formatCount(value: number): string {
-  if (value >= 1000) return `${Math.floor(value / 100) / 10}K+`;
-  return value.toLocaleString("tr-TR");
-}
 
 export default Hero;

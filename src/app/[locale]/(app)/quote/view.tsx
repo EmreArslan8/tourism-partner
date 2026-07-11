@@ -5,9 +5,11 @@ import styles from "./styles";
 const QuoteView = ({ children }: { children: React.ReactNode }) => {
   return (
     <main className={styles.main}>
-      <Suspense fallback={<QuoteForm business={null} />}>
-        {children}
-      </Suspense>
+      <div className={styles.inner}>
+        <Suspense fallback={<QuoteForm business={null} />}>
+          {children}
+        </Suspense>
+      </div>
     </main>
   );
 };

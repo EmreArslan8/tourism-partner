@@ -5,7 +5,7 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { requireAdminContext, writeAdminAudit } from "@/lib/admin-audit";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import type { GroupKey } from "@/lib/types";
-import type { AdBannerStatus, PopupFrequency } from "@/lib/supabase/database.types";
+import type { AdBannerStatus, ContentPageStatus, PopupFrequency } from "@/lib/supabase/database.types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
 /* Admin yetki kontrolü — admin'in KENDİ oturumuyla yazar; erişim DB'de RLS
@@ -196,6 +196,70 @@ export async function deletePopup(formData: FormData): Promise<void> {
   await writeAdminAudit(context, "popup.delete", "admin_popup", id, undefined, oldValue ?? null);
 
   revalidateTag("popups", "max");
+  revalidatePath(`/${loc(formData)}/admin/icerik`);
+}
+
+/* ---------------- Blog yazısı kaydet (İçerik → Blog) ----------------
+   id boşsa yeni kayıt açar, doluysa günceller. body zengin metin — sanitize edilir.
+   Yayına alınırken published_at boşsa şimdiki zaman yazılır. */
+const BLOG_STATUSES: ContentPageStatus[] = ["draft", "published", "archived"];
+
+export async function saveBlogPost(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = String(formData.get("id") ?? "").trim();
+  const title = clean(formData.get("title"), 180);
+  const slug = clean(formData.get("slug"), 160);
+  if (!title || !slug) throw new Error("Başlık ve slug zorunlu.");
+
+  const statusRaw = String(formData.get("status") ?? "draft");
+  const status = BLOG_STATUSES.includes(statusRaw as ContentPageStatus)
+    ? (statusRaw as ContentPageStatus)
+    : "draft";
+  const existingPublishedAt = clean(formData.get("published_at"), 40);
+
+  const payload = {
+    slug,
+    title,
+    locale: loc(formData),
+    excerpt: clean(formData.get("excerpt"), 320),
+    body: sanitizePublicHtml(clean(formData.get("body"), 20000)),
+    category: clean(formData.get("category"), 80),
+    cover_image: cleanImageUrl(formData.get("cover_image"), 400),
+    seo_title: clean(formData.get("seo_title"), 90),
+    seo_description: clean(formData.get("seo_description"), 180),
+    status,
+    published_at:
+      status === "published" ? (existingPublishedAt ?? new Date().toISOString()) : existingPublishedAt,
+    updated_at: new Date().toISOString(),
+  };
+
+  const result = id
+    ? await supabase.from("blog_posts").update(payload).eq("id", Number(id)).select("id").single()
+    : await supabase.from("blog_posts").insert(payload).select("id").single();
+  if (result.error) throw new Error(result.error.message);
+  await writeAdminAudit(context, id ? "blog_post.update" : "blog_post.create", "blog_post", result.data?.id ?? null, payload);
+
+  revalidateTag("blog", "max");
+  revalidatePath(`/${loc(formData)}/admin/icerik`);
+}
+
+/* ---------------- Blog yazısı sil ---------------- */
+export async function deleteBlogPost(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  if (!Number.isInteger(id)) throw new Error("Geçersiz blog yazısı.");
+  const { data: oldValue } = await supabase
+    .from("blog_posts")
+    .select("id,title,slug,status")
+    .eq("id", id)
+    .maybeSingle();
+  const { error } = await supabase.from("blog_posts").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  await writeAdminAudit(context, "blog_post.delete", "blog_post", id, undefined, oldValue ?? null);
+
+  revalidateTag("blog", "max");
   revalidatePath(`/${loc(formData)}/admin/icerik`);
 }
 

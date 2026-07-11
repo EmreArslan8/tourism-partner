@@ -36,7 +36,23 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-cream text-ink font-body leading-relaxed antialiased;
+    @apply bg-sapphire text-ink font-body leading-relaxed antialiased;
+    /* Sayfa zemini düz renk değil, hero-2.webp ile aynı aileden degrade.
+       Doküman üstü hero fotoğrafının altında kaldığı için degrade hero'nun
+       bittiği koyulukta (pine ≈ fotoğrafın alt kenarı) başlar, sayfa ortasında
+       hafifçe sapphire'e aydınlanır, footer'a doğru tekrar gece tonuna iner.
+       Işıma hotspot değil; fark edilmeyecek kadar hafif bir yıkama. */
+    background-image:
+      radial-gradient(100% 50% at 70% 30%, rgba(0, 79, 230, 0.08) 0%, rgba(0, 79, 230, 0) 60%),
+      linear-gradient(
+        180deg,
+        theme("colors.pine") 0%,
+        theme("colors.pine") 18%,
+        theme("colors.sapphire-deep") 40%,
+        theme("colors.sapphire") 58%,
+        theme("colors.sapphire-deep") 80%,
+        theme("colors.pine") 100%
+      );
     /* clip (hidden değil): yatay taşmayı engeller ama scroll konteyneri OLUŞTURMAZ,
        böylece sticky sidebar viewport'a göre sabit kalır (hidden bunu bozuyordu). */
     overflow-x: clip;

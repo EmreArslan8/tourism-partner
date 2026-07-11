@@ -19,6 +19,7 @@ type QuotePayload = {
   company: string | null;
   service: string | null;
   dateRange: string | null;
+  validUntil: string;
   people: number | null;
   message: string | null;
   categoryGroup: string | null;
@@ -59,6 +60,7 @@ async function notifyOwnerOfQuote(
       ["Kategori", [q.categoryGroup, q.categoryType].filter(Boolean).join(" > ") || null],
       ["Bölge", [q.country, q.city, q.district].filter(Boolean).join(" > ") || null],
       ["Tarih", q.dateRange],
+      ["Teklif son tarihi", q.validUntil],
       ["Kişi", q.people != null ? String(q.people) : null],
     ];
     const list = rows
@@ -135,6 +137,17 @@ function dateRangeValue(formData: FormData) {
   return start ?? end ?? null;
 }
 
+function todayInIstanbul() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Istanbul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${value.year}-${value.month}-${value.day}`;
+}
+
 function normalizeTrPhone(value: FormDataEntryValue | null) {
   let digits = String(value ?? "").replace(/\D/g, "");
   if (digits.startsWith("90")) digits = digits.slice(2);
@@ -176,6 +189,8 @@ export async function submitQuote(
   const district = clean(formData.get("district"), 80);
   const service = clean(formData.get("service"), 120) ?? selectedCategory?.type ?? null;
   const dateRange = dateRangeValue(formData);
+  const validUntil = cleanDate(formData.get("validUntil"));
+  if (!validUntil || validUntil < todayInIstanbul()) return { ok: false, error: "valid_until" };
   const message = clean(formData.get("message"), 4000);
   const filterGroups = cleanList(
     formData.get("filterGroups"),
@@ -196,6 +211,7 @@ export async function submitQuote(
     company,
     service,
     dateRange,
+    validUntil,
     people,
     message,
     categoryGroup: selectedCategory?.group ?? null,
@@ -262,6 +278,7 @@ export async function submitQuote(
       city,
       district,
       date_range: dateRange,
+      valid_until: validUntil,
       people,
       message,
     }));

@@ -8,6 +8,7 @@
   supplierMeta: "text-[13px] text-muted",
   form: "flex flex-col gap-4",
   label: "flex flex-col gap-1.5 text-[13px] font-semibold text-ink",
+  labelLine: "flex flex-wrap items-baseline gap-x-2 gap-y-0.5 [&>small]:text-[11.5px] [&>small]:font-normal [&>small]:text-muted",
   field: "field h-[46px] font-normal",
   phoneField:
     "flex h-[46px] items-center rounded-[14px] border border-line bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10",

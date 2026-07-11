@@ -5,7 +5,7 @@
   image: "h-full w-full object-cover object-center",
   overlay:
     "pointer-events-none absolute inset-0 -z-10 " +
-    "bg-[linear-gradient(90deg,rgba(5,8,30,.82)_0%,rgba(5,8,30,.42)_42%,rgba(5,8,30,.05)_72%,rgba(5,8,30,0)_100%)]",
+    "bg-[linear-gradient(90deg,rgba(1,8,47,.82)_0%,rgba(1,8,47,.42)_42%,rgba(1,8,47,.05)_72%,rgba(1,8,47,0)_100%)]",
   // Etkileşimli küre (yalnız masaüstü ≥1025px; mobil/tablet statik fotoğrafla kalır).
   // Sağ tarafa demirli; içerik (sol) DOM'da sonra geldiği için üstte kalır.
   globeWrap:
@@ -15,27 +15,55 @@
   // Fotoğraftaki statik küreyi yumuşakça maskeler + kürenin arkasına gece-mavi halo verir.
   globeHalo:
     "absolute inset-[-10%] rounded-full " +
-    "bg-[radial-gradient(closest-side,#05081e_46%,rgba(5,8,30,.78)_64%,rgba(5,8,30,0)_100%)]",
+    "bg-[radial-gradient(closest-side,#01082f_46%,rgba(1,8,47,.78)_64%,rgba(1,8,47,0)_100%)]",
   globeCanvas: "pointer-events-auto relative h-full w-full",
   inner:
     "container-px flex h-full min-h-[520px] flex-col items-start justify-center  text-left " +
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
-    "max-[640px]:justify-start max-[640px]:pt-[164px] max-[640px]:pb-14",
+    "max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
   title:
-    "heading-hero max-w-[18ch] text-white max-[640px]:text-[42px] " +
+    "heading-hero max-w-[17ch] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.06] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block " +
     "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.04] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
-    "[text-shadow:0_2px_28px_rgba(5,8,30,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
-  sub:
-    "body-lead mt-6 max-w-[50ch] font-medium !text-[#f4f7ff] [text-shadow:0_2px_18px_rgba(0,0,0,.75)] " +
-    "min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:!text-[1.2rem]",
-  searchWrap: "mt-9 w-full max-w-[700px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-11 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full",
-  mobileCtas: "mt-7 hidden w-full gap-2.5 max-[640px]:flex",
+    "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
+  mobileIntro:
+    "mt-4 hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
+  categories:
+    "mt-8 flex items-start gap-8 text-white max-[1100px]:gap-5 max-[640px]:hidden",
+  categoryLink:
+    "group flex min-w-[68px] flex-col items-center gap-2 !text-white text-[13px] font-semibold transition-opacity hover:opacity-80",
+  categoryIcon:
+    "h-8 w-8 text-white stroke-white stroke-[1.55] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110",
+  transferIcon:
+    "h-8 w-11 object-contain text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110",
+  searchWrap: "mt-7 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full",
+  ctaBlock:
+    "relative mt-8 flex w-full max-w-[760px] flex-col items-start gap-4 pt-5 max-[640px]:hidden " +
+    "before:absolute before:inset-x-0 before:top-0 before:h-px before:content-[''] " +
+    "before:bg-[linear-gradient(90deg,rgba(157,180,255,.58),rgba(157,180,255,.16)_58%,transparent)]",
+  ctaCopy: "min-w-0 max-w-[560px]",
+  ctaPrompt:
+    "font-display text-[25px] font-medium leading-[1.15] tracking-[-.01em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.35)]",
+  ctaSub: "mt-2.5 max-w-[58ch] text-[14.5px] font-medium leading-6 !text-white",
+  ctaPrimary:
+    "group/quote relative inline-flex min-h-[50px] min-w-[300px] shrink-0 items-center justify-center gap-3 overflow-hidden rounded-[12px] " +
+    "border border-white/15 bg-sapphire-top px-8 text-[15px] font-bold text-white " +
+    "shadow-[0_14px_34px_-16px_rgba(0,79,230,.85)] ring-1 ring-[#8eb0ff]/15 transition-all duration-200 " +
+    "before:absolute before:inset-y-0 before:left-[-45%] before:w-[38%] before:skew-x-[-18deg] before:bg-white/12 before:content-[''] before:transition-[left] before:duration-500 " +
+    "hover:-translate-y-0.5 hover:border-white/25 hover:bg-sapphire hover:shadow-[0_18px_38px_-15px_rgba(0,79,230,.95)] hover:before:left-[120%] " +
+    "[&>span]:relative [&>svg]:relative [&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1",
+  mobileCtas: "mt-5 hidden w-full flex-col gap-2.5 max-[640px]:flex",
+  mobileCtaRow: "flex w-full",
   mobileCtaPrimary:
-    "flex flex-1 items-center justify-center rounded-xl bg-white px-4 py-3 text-[14.5px] font-bold text-brand " +
+    "flex h-[52px] w-full items-center justify-center rounded-xl bg-white px-4 text-[14.5px] font-bold text-brand " +
     "shadow-[0_18px_38px_-18px_rgba(0,0,0,.55)] transition-transform active:scale-[.97]",
   mobileCtaGhost:
-    "flex flex-1 items-center justify-center rounded-xl border border-white/25 bg-white/[.12] px-4 py-3 " +
-    "text-[14.5px] font-bold text-white backdrop-blur-md transition-colors active:bg-white/20",
+    "flex h-[48px] w-full items-center justify-center rounded-xl border border-white/25 bg-white/[.12] px-4 " +
+    "text-[14px] font-bold text-white backdrop-blur-md transition-colors active:bg-white/20",
+  mobileCategories:
+    "mt-5 hidden w-full flex-wrap gap-2 max-[640px]:flex",
+  mobileCategoryLink:
+    "flex min-w-0 flex-[1_1_30%] items-center justify-center gap-1.5 rounded-[10px] border border-white/15 bg-[#071a52]/75 px-2 py-2 text-center text-[10.5px] font-bold leading-tight text-white backdrop-blur-md " +
+    "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0",
   stats:
     "mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 max-[640px]:hidden " +
     "min-[641px]:max-[1024px]:mt-14 min-[641px]:max-[1024px]:flex-nowrap min-[641px]:max-[1024px]:items-baseline min-[641px]:max-[1024px]:gap-x-9 min-[641px]:max-[1024px]:pl-[28px]",

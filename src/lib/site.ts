@@ -14,6 +14,17 @@ export const SITE_URL = (
    varsayılan KAPALI. Yayına hazır olunca Vercel'de bu env'i "true" yap. */
 export const INDEXING_ENABLED = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
 
+/* Platformun kendi sosyal medya hesapları — footer'da ikon olarak gösterilir.
+   URL'ler placeholder; gerçek hesaplar açıldıkça burası güncellenir.
+   Boş string ("") bırakılan platformun ikonu render edilmez. */
+export const PLATFORM_SOCIALS = {
+  instagram: "https://instagram.com/tourismpartner",
+  facebook: "https://facebook.com/tourismpartner",
+  linkedin: "https://linkedin.com/company/tourismpartner",
+  youtube: "https://youtube.com/@tourismpartner",
+  x: "https://x.com/tourismpartner",
+} as const;
+
 export const LOCALES = ["tr", "en"] as const;
 export type SiteLocale = (typeof LOCALES)[number];
 

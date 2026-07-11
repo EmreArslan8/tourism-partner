@@ -78,16 +78,6 @@ function numberValue(formData: FormData, key: string, fallback: number): number 
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-function optionalFounderPartnerNumber(formData: FormData): number | null {
-  const raw = String(formData.get("founderPartnerNumber") ?? "").trim();
-  if (!raw) return null;
-  const parsed = Number(raw);
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) {
-    throw new Error("Kurucu Partner numarası 1-100 arasında olmalı.");
-  }
-  return parsed;
-}
-
 function listValue(formData: FormData, key: string): string[] {
   return String(formData.get(key) ?? "")
     .split(",")
@@ -157,7 +147,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       tag: clean(formData.get("tag"), 80),
       verified: boolValue(formData, "verified"),
       sponsored: boolValue(formData, "sponsored"),
-      founder_partner_number: optionalFounderPartnerNumber(formData),
+      founder_partner: boolValue(formData, "founderPartner"),
       attributes: listValue(formData, "attributes"),
       status: lifecycleStatusValue(formData),
       seo_title: clean(formData.get("seoTitle"), 90),
@@ -216,6 +206,55 @@ export async function updateQuoteStatus(formData: FormData): Promise<void> {
   if (error) throw new Error(error.message);
   await logAdminAction(context, "quote.status.update", "quote", id, payload);
   revalidateAdmin(locale);
+}
+
+export async function moderatePartnerRequest(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  const operation = String(formData.get("operation") ?? "");
+
+  if (!Number.isInteger(id) || id <= 0) throw new Error("Geçersiz partnerlik isteği.");
+  if (!["approve", "reject", "cancel", "remove", "reset"].includes(operation)) {
+    throw new Error("Geçersiz moderasyon işlemi.");
+  }
+
+  const { data: current, error: readError } = await supabase
+    .from("business_partner_requests")
+    .select("id,requester_business_id,receiver_business_id,status,created_at,responded_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!current) throw new Error("Partnerlik isteği bulunamadı.");
+
+  if (operation === "approve" || operation === "reject") {
+    if (current.status !== "pending") throw new Error("Yalnızca bekleyen istekler yanıtlanabilir.");
+    const status = operation === "approve" ? "accepted" : "rejected";
+    const payload = { status, responded_at: new Date().toISOString() } as const;
+    const { error } = await supabase
+      .from("business_partner_requests")
+      .update(payload)
+      .eq("id", id)
+      .eq("status", "pending");
+    if (error) throw new Error(error.message);
+    await logAdminAction(context, `partner_request.${operation}`, "business_partner_request", id, payload, current);
+  } else if (operation === "reset") {
+    if (current.status !== "rejected") throw new Error("Yalnızca reddedilmiş istek yeniden beklemeye alınabilir.");
+    const payload = { status: "pending" as const, responded_at: null };
+    const { error } = await supabase.from("business_partner_requests").update(payload).eq("id", id).eq("status", "rejected");
+    if (error) throw new Error(error.message);
+    await logAdminAction(context, "partner_request.reset", "business_partner_request", id, payload, current);
+  } else {
+    if (operation === "cancel" && current.status !== "pending") throw new Error("Yalnızca bekleyen istek iptal edilebilir.");
+    if (operation === "remove" && current.status !== "accepted") throw new Error("Yalnızca kabul edilmiş bağlantı kaldırılabilir.");
+    const { error } = await supabase.from("business_partner_requests").delete().eq("id", id);
+    if (error) throw new Error(error.message);
+    await logAdminAction(context, `partner_request.${operation}`, "business_partner_request", id, { deleted: true }, current);
+  }
+
+  revalidatePath("/[locale]/admin/partnerlik", "page");
+  revalidatePath("/[locale]/dashboard", "page");
+  revalidateTag("business-partners", "max");
 }
 
 export async function updateBusinessStatus(formData: FormData): Promise<void> {

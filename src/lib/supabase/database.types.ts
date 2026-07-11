@@ -77,6 +77,7 @@ export interface Database {
           reject_reason: string | null;
           phone: string | null;
           website: string | null;
+          socials: Record<string, string>;
           seo_title: string | null;
           seo_description: string | null;
           seo_keywords: string[];
@@ -113,6 +114,7 @@ export interface Database {
           reject_reason?: string | null;
           phone?: string | null;
           website?: string | null;
+          socials?: Record<string, string>;
           seo_title?: string | null;
           seo_description?: string | null;
           seo_keywords?: string[];
@@ -281,6 +283,7 @@ export interface Database {
           city: string | null;
           district: string | null;
           date_range: string | null;
+          valid_until: string | null;
           people: number | null;
           message: string | null;
           status: string;
@@ -301,6 +304,7 @@ export interface Database {
           city?: string | null;
           district?: string | null;
           date_range?: string | null;
+          valid_until?: string | null;
           people?: number | null;
           message?: string | null;
           status?: string;

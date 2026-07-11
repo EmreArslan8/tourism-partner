@@ -43,6 +43,7 @@ export function useReelDeck(count: number) {
   const prevTimeRef = useRef(0);
   const samplesRef = useRef<number[]>([]);
   const touchStartRef = useRef<number | null>(null);
+  const touchStartedInScrollRef = useRef(false);
   const boundaryReleaseAtRef = useRef(0);
 
   const coversViewport = useCallback(() => {
@@ -83,6 +84,12 @@ export function useReelDeck(count: number) {
       if (!coversViewport()) return;
       const dir = e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0;
       if (dir === 0) return;
+      const scrollArea = (e.target as Element | null)?.closest?.<HTMLElement>("[data-reel-scroll]");
+      if (scrollArea) {
+        const canScrollDown = dir > 0 && scrollArea.scrollTop + scrollArea.clientHeight < scrollArea.scrollHeight - 1;
+        const canScrollUp = dir < 0 && scrollArea.scrollTop > 1;
+        if (canScrollDown || canScrollUp) return;
+      }
       if (atBoundary(dir)) {
         if (performance.now() < boundaryReleaseAtRef.current) e.preventDefault();
         return; // sınır → bilinçli sonraki scroll'da native akış (Footer / üst boşluk)
@@ -115,10 +122,14 @@ export function useReelDeck(count: number) {
 
     const onTouchStart = (e: TouchEvent) => {
       touchStartRef.current = e.touches[0].clientY;
+      touchStartedInScrollRef.current = Boolean(
+        (e.target as Element | null)?.closest?.("[data-reel-scroll]")
+      );
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (touchStartRef.current === null || !coversViewport()) return;
+      if (touchStartedInScrollRef.current) return;
       const dy = touchStartRef.current - e.touches[0].clientY;
       const dir = dy > 0 ? 1 : -1;
       if (!atBoundary(dir) && Math.abs(dy) > 6) e.preventDefault(); // native rubber-band'i engelle
@@ -128,6 +139,10 @@ export function useReelDeck(count: number) {
       if (touchStartRef.current === null) return;
       const dy = touchStartRef.current - e.changedTouches[0].clientY;
       touchStartRef.current = null;
+      if (touchStartedInScrollRef.current) {
+        touchStartedInScrollRef.current = false;
+        return;
+      }
       if (Math.abs(dy) < SWIPE_THRESHOLD) return;
       const dir = dy > 0 ? 1 : -1;
       if (!atBoundary(dir) && !lockRef.current) go(indexRef.current + dir);

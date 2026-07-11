@@ -1,11 +1,17 @@
+import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { BadgeCheck } from "lucide-react";
+import { SOCIAL_ICONS } from "@/components/SocialIcons";
+import ServicesList from "./ServicesList";
+import AboutText from "./AboutText";
+import type { FeaturedFacetTag } from "@/lib/facets";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
 import FavoriteButton from "@/components/FavoriteButton";
+import ShareButton from "@/components/ShareButton";
 import ReviewsSection from "@/components/ReviewsSection";
-import type { Business } from "@/lib/types";
+import type { Business, SocialPlatform } from "@/lib/types";
 import type { PublicBusinessPartner } from "@/lib/business-partners";
 import styles from "./styles";
 
@@ -14,14 +20,18 @@ type TranslationFn = (key: string) => string;
 interface Props {
   b: Business;
   partners: PublicBusinessPartner[];
+  contactSection: ReactNode;
   t: TranslationFn;
   tc: TranslationFn;
   tCommon: TranslationFn;
-  services: string[];
+  services: FeaturedFacetTag[];
   gallery: string[];
 }
 
-const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: Props) => {
+const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, services, gallery }: Props) => {
+  const socialEntries = Object.entries(b.socials ?? {}).filter(
+    (entry): entry is [SocialPlatform, string] => Boolean(entry[1]) && entry[0] in SOCIAL_ICONS
+  );
   return (
     <main className={styles.main}>
       <RecordView type="business" id={b.id} />
@@ -35,11 +45,11 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
         <div>
           <div className={styles.titleWrap}>
             <h1 className={styles.title}>{b.name}</h1>
-            {b.founderPartnerNumber && (
+            {b.founderPartner && (
               <span
                 className={styles.founderBadge}
-                title={`Kurucu Partner #${b.founderPartnerNumber}`}
-                aria-label={`Kurucu Partner #${b.founderPartnerNumber}`}
+                title="Kurucu Partner"
+                aria-label="Kurucu Partner"
               >
                 <BadgeCheck size={28} strokeWidth={2.35} aria-hidden />
               </span>
@@ -48,6 +58,10 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
           <p className={styles.meta}>
             {[b.type, b.district, b.city].filter(Boolean).join(" · ")}
           </p>
+        </div>
+        <div className={styles.heroActions}>
+          <ShareButton title={b.name} />
+          <FavoriteButton businessId={b.id} variant="header" />
         </div>
       </header>
 
@@ -61,27 +75,27 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
 
       <div className={styles.grid}>
         <article>
-          <h2 className={cn(styles.h2, "!mt-0")}>{t("about")}</h2>
-          <p className={styles.desc}>{b.desc}</p>
+          <section className={cn(styles.svcCard, "!mt-0")} aria-labelledby="profile-about">
+            <h2 id="profile-about" className={styles.svcTitle}>{t("about")}</h2>
+            <AboutText text={b.desc} className={styles.desc} />
+          </section>
 
-          <h2 className={styles.h2}>{t("services")}</h2>
-          <div className={styles.svcWrap}>
-            {services.map((sv, idx) => (
-              <span key={`${sv}-${idx}`} className={styles.svcTag}>{sv}</span>
-            ))}
-          </div>
+          {services.length > 0 && (
+            <section className={styles.svcCard} aria-labelledby="profile-services">
+              <h2 id="profile-services" className={styles.svcTitle}>{t("services")}</h2>
+              <ServicesList tags={services} />
+            </section>
+          )}
 
-          <div className={styles.gated}>
-            {t("gated")} <Link href={{ pathname: "/login" }} className={styles.gatedLink}>{t("loginCta")}</Link>.
-          </div>
+          {contactSection}
 
-          {partners.length > 0 && (
-            <section className={styles.partners} aria-labelledby="profile-partners">
-              <div className={styles.partnersHead}>
-                <span className={styles.partnersEyebrow}>{t("partnersEyebrow")}</span>
-                <h2 id="profile-partners" className={styles.partnersTitle}>{t("partnersTitle")}</h2>
-                <p className={styles.partnersSub}>{t("partnersSub")}</p>
-              </div>
+          <section className={styles.partners} aria-labelledby="profile-partners">
+            <div className={styles.partnersHead}>
+              <span className={styles.partnersEyebrow}>{t("partnersEyebrow")}</span>
+              <h2 id="profile-partners" className={styles.partnersTitle}>{t("partnersTitle")}</h2>
+              <p className={styles.partnersSub}>{t("partnersSub")}</p>
+            </div>
+            {partners.length > 0 ? (
               <div className={styles.partnersGrid}>
                 {partners.map((partner) => (
                   <Link
@@ -97,8 +111,10 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
                   </Link>
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <p className={styles.partnersEmpty}>{t("partnersEmpty")}</p>
+            )}
+          </section>
 
           <ReviewsSection businessId={b.id} />
         </article>
@@ -114,10 +130,9 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
             >
               {t("requestQuote")}
             </Button>
-            <FavoriteButton businessId={b.id} />
           </div>
           {/* Kurum iletişim — herkese açık (yetkili kişi bilgisi BURADA gösterilmez) */}
-          {(b.phone || b.website) && (
+          {(b.phone || b.website || socialEntries.length > 0) && (
             <div className={styles.card}>
               <h3 className={cn(styles.cardTitle, "mb-3")}>{t("contactTitle")}</h3>
               {b.phone && (
@@ -131,6 +146,26 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
                 />
               )}
               <Row k={t("addressLabel")} v={`${b.district}, ${b.city} · ${b.country}`} />
+              {socialEntries.length > 0 && (
+                <div className={styles.socialRow}>
+                  {socialEntries.map(([platform, url]) => {
+                    const Icon = SOCIAL_ICONS[platform];
+                    return (
+                      <a
+                        key={platform}
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={platform}
+                        title={platform}
+                        className={styles.socialLink}
+                      >
+                        <Icon size={17} aria-hidden />
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -138,7 +173,14 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
             <h3 className={cn(styles.cardTitle, "mb-3")}>{t("quickInfo")}</h3>
             <Row k={t("category")} v={`${tc(b.group)} · ${b.type}`} />
             <Row k={t("location")} v={`${b.city}, ${b.country}`} />
-            <Row k={t("rating")} v={`★ ${b.rating.toFixed(1)} (${b.reviews})`} />
+            <Row
+              k={t("rating")}
+              v={
+                <>
+                  <span className="text-star">★</span> {b.rating.toFixed(1)} ({b.reviews})
+                </>
+              }
+            />
           </div>
         </aside>
       </div>
@@ -146,7 +188,7 @@ const SupplierDetailView = ({ b, partners, t, tc, tCommon, services, gallery }: 
   );
 };
 
-const Row = ({ k, v, href }: { k: string; v: string; href?: string }) => (
+const Row = ({ k, v, href }: { k: string; v: ReactNode; href?: string }) => (
   <div className={styles.row}>
     <span className={styles.rowKey}>{k}</span>
     {href ? (

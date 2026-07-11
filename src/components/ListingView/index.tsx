@@ -434,7 +434,6 @@ const ListingView = ({
           <span className={styles.eyebrow}>{t("eyebrow")}</span>
           <h1 className={styles.title}>{t("title")}</h1>
         </div>
-        <p className={styles.sub}>{t("sub")}</p>
       </div>
 
       <div className={styles.layout}>

@@ -74,11 +74,11 @@ const SupplierCard = ({
         </div>
         <div className={styles.nameWrap}>
           <h3 className={styles.name}>{business.name}</h3>
-          {business.founderPartnerNumber && (
+          {business.founderPartner && (
             <span
               className={styles.partnerMedal}
-              title={`${tCommon("founderPartner")} #${business.founderPartnerNumber}`}
-              aria-label={`${tCommon("founderPartner")} #${business.founderPartnerNumber}`}
+              title={tCommon("founderPartner")}
+              aria-label={tCommon("founderPartner")}
               tabIndex={0}
             >
               <svg viewBox="0 0 48 54" aria-hidden>
@@ -93,7 +93,7 @@ const SupplierCard = ({
         </div>
         <p className={styles.loc}>
           <span>{business.district}, {business.city} · {business.country}</span>
-          {showStars && <span className={styles.rating}>★ {business.rating.toFixed(1)}</span>}
+          {showStars && <span className={styles.rating}><span className="text-star">★</span> {business.rating.toFixed(1)}</span>}
         </p>
         <p className={styles.desc}>{business.desc}</p>
         <div className={`${styles.foot} relative z-[2]`}>

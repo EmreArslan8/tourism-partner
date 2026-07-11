@@ -8,8 +8,8 @@ import { createClient } from "@/lib/supabase/server";
  * /api altında olduğu için next-intl proxy'sini baypas eder.
  */
 const DEST = {
-  tr: { dashboard: "/tr/panel", explore: "/tr/kesfet", login: "/tr/giris" },
-  en: { dashboard: "/en/dashboard", explore: "/en/explore", login: "/en/login" },
+  tr: { dashboard: "/tr/panel", explore: "/tr/kesfet", login: "/tr/giris", reset: "/tr/sifre-yenile" },
+  en: { dashboard: "/en/dashboard", explore: "/en/explore", login: "/en/login", reset: "/en/reset-password" },
 } as const;
 
 export async function GET(request: NextRequest) {
@@ -23,6 +23,11 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) return NextResponse.redirect(new URL(d.login, url.origin));
+
+  // Şifre sıfırlama linki: recovery oturumu açıldı → yeni şifre ekranına git.
+  if (url.searchParams.get("next") === "reset") {
+    return NextResponse.redirect(new URL(d.reset, url.origin));
+  }
 
   // Üye tipine göre hedef: alıcı → keşfet, tedarikçi → panel.
   let dest: string = d.dashboard;

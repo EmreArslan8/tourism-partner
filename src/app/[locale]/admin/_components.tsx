@@ -4,8 +4,6 @@ import { signOut } from "@/lib/actions/auth";
 import type { AdminAccess } from "@/lib/admin-auth";
 import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
-import { getPathname } from "@/i18n/navigation";
-import { CATEGORY_GROUPS } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
 import AdminSearch from "./AdminSearch";
@@ -15,6 +13,7 @@ import DataTable, { type Column } from "@/components/common/DataTable";
 import Field from "@/components/common/Field";
 import { Bell, CircleHelp, LogOut, Mail, Plus } from "lucide-react";
 import { AdminMetric, AdminPageHeader, adminUi } from "./_ui";
+import BusinessCategoryFields from "./BusinessCategoryFields";
 
 /* ============================================================
    Admin kart bileşenleri — tek kaynak olarak ortak common/Card'a delege eder.
@@ -195,7 +194,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
               {b.name}
             </Link>
             <div className="mt-1 text-[12px] text-muted">
-              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartnerNumber ? ` · Kurucu Partner #${b.founderPartnerNumber}` : ""}
+              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartner ? " · Kurucu Partner" : ""}
             </div>
           </div>
         ),
@@ -215,16 +214,13 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
   return (
     <form id="admin-business-profile-form" action={saveBusiness} className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <input type="hidden" name="locale" value={locale} />
+      {business && <input type="hidden" name="id" value={business.id} />}
       <div className="grid gap-5">
         <AdminFormSection title="Temel Bilgiler">
-          <div className="grid grid-cols-[88px_minmax(0,1.3fr)_minmax(180px,.7fr)] gap-3 max-[820px]:grid-cols-1">
-            <Field label="ID"><input name="id" defaultValue={business?.id ?? ""} placeholder="Yeni" className={`${compactInput} text-muted`} /></Field>
+          <div>
             <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
-            <Field label="Tür" required><input name="type" required defaultValue={business?.type ?? ""} className={compactInput} /></Field>
           </div>
-          <div className="grid grid-cols-[minmax(180px,1fr)_minmax(180px,1fr)] gap-3 max-[620px]:grid-cols-1">
-            <Field label="Grup"><select name="group" defaultValue={business?.group ?? "konaklama"} className={compactInput}>{CATEGORY_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}</select></Field>
-          </div>
+          <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialType={business?.type ?? "Otel"} inputClassName={compactInput} />
         </AdminFormSection>
 
         <AdminFormSection title="İçerik Detayları">
@@ -235,15 +231,6 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           </div>
         </AdminFormSection>
 
-        <AdminFormSection title="SEO">
-          <Field label="SEO başlık"><input name="seoTitle" defaultValue={business?.seoTitle ?? ""} className={compactInput} /></Field>
-          <Field label="SEO açıklama"><textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${compactTextarea} min-h-[82px]`} /></Field>
-          <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={compactInput} /></Field>
-          <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-            <Field label="Canonical path"><input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder={getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: "kaya-palas-hotel" } } })} className={compactInput} /></Field>
-            <Field label="OG görsel"><input name="ogImage" defaultValue={business?.ogImage ?? ""} className={compactInput} /></Field>
-          </div>
-        </AdminFormSection>
       </div>
 
       <div className="grid content-start gap-5">
@@ -251,9 +238,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           <Field label="Sistem Durumu"><select name="status" defaultValue={business?.status ?? "pending"} className={compactInput}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
           <ToggleRow name="verified" label="Doğrulanmış İşletme" description="Belgeleri onaylanmış tesis" checked={business?.verified ?? false} />
           <ToggleRow name="sponsored" label="Sponsor / Premium" description="Arama sonuçlarında öne çıkar" checked={business?.sponsored ?? false} />
-          <Field label="Kurucu Partner Kayıt No" hint="1-100">
-            <input name="founderPartnerNumber" type="number" min={1} max={100} defaultValue={business?.founderPartnerNumber ?? ""} placeholder="Örn: 12" className={compactInput} />
-          </Field>
+          <ToggleRow name="founderPartner" label="Kurucu Partner Rozeti" description="Firma kartında kurucu partner mührünü göster" checked={business?.founderPartner ?? false} />
         </AdminFormSection>
 
         <AdminFormSection title="Konum">
@@ -378,6 +363,7 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
               <p className="mt-1 text-[12px] text-muted">
                 {[quote.categoryType, quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || "Filtre yok"}
               </p>
+              {quote.validUntil && <p className="mt-1 text-[12px] font-semibold text-amber-700">Teklif son tarihi: {formatDate(quote.validUntil)}</p>}
               {quote.message && <p className="mt-2 text-[13px] text-muted">{quote.message}</p>}
             </div>
             <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>

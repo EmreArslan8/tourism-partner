@@ -63,6 +63,15 @@ const LoginForm = () => {
             </div>
           </div>
 
+          <p className="-mt-1 text-right text-[13.5px] font-semibold">
+            <Link
+              href={{ pathname: "/forgot-password" }}
+              className="text-brand/80 underline decoration-brand/25 underline-offset-4 transition-colors hover:text-terra"
+            >
+              {t("forgot")}
+            </Link>
+          </p>
+
           {state.error && <p className="text-[13px] font-medium text-red-600">{t("error")}</p>}
 
           <Button type="submit" block size="lg" className="mt-3 h-[58px] text-[16px]" loading={pending}>

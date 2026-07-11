@@ -21,7 +21,9 @@ export default async function AppLayout({
   return (
     <>
       <SiteHeader />
-      {children}
+      <div className="min-h-screen bg-sapphire-deep">
+        {children}
+      </div>
       <SiteFooter />
       <Suspense fallback={null}>
         <PopupSlot />

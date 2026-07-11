@@ -10,7 +10,7 @@ import { BUSINESS_IMAGES_BUCKET, storagePathFromBusinessImage } from "@/lib/busi
 import { isValidRegion } from "@/lib/regions";
 import { isValidTCKN, isValidVKN } from "@/lib/validators";
 import { businessSlug } from "@/lib/business-slug";
-import type { GroupKey, ActionState, BusinessDocument } from "@/lib/types";
+import { SOCIAL_PLATFORMS, type GroupKey, type ActionState, type BusinessDocument, type BusinessSocials } from "@/lib/types";
 import { clean, cleanHttpUrl, isEmail } from "./validate";
 
 type ContactInput = { full_name: string; title: string | null; phone: string | null; email: string | null };
@@ -264,6 +264,11 @@ export async function saveMyBusiness(
     description: clean(formData.get("description"), 2000),
     phone: clean(formData.get("phone"), 40),
     website: cleanHttpUrl(formData.get("website"), 200),
+    socials: SOCIAL_PLATFORMS.reduce<BusinessSocials>((acc, key) => {
+      const url = cleanHttpUrl(formData.get(`social_${key}`), 300);
+      if (url) acc[key] = url;
+      return acc;
+    }, {}),
     image: cleanStoragePath(storagePathFromBusinessImage(String(formData.get("image") ?? "")), user.id),
     images,
     attributes,
@@ -396,13 +401,27 @@ function revalidatePartnerRequests() {
   revalidateTag("business-partners", "max");
 }
 
-export async function sendPartnerRequest(formData: FormData): Promise<void> {
+export type PartnerRequestActionState = {
+  status: "idle" | "success" | "error";
+  partnerBusinessId: number | null;
+  reason?: "invalid" | "notAllowed" | "exists" | "failed";
+};
+
+export async function sendPartnerRequest(
+  _previousState: PartnerRequestActionState,
+  formData: FormData,
+): Promise<PartnerRequestActionState> {
   const receiverBusinessId = Number(formData.get("partnerBusinessId"));
-  if (!Number.isInteger(receiverBusinessId) || receiverBusinessId <= 0) return;
+  const failure = (reason: PartnerRequestActionState["reason"]): PartnerRequestActionState => ({
+    status: "error",
+    partnerBusinessId: Number.isInteger(receiverBusinessId) ? receiverBusinessId : null,
+    reason,
+  });
+  if (!Number.isInteger(receiverBusinessId) || receiverBusinessId <= 0) return failure("invalid");
 
   const { supabase, business, error } = await currentOwnedBusiness();
-  if (error || !business || receiverBusinessId === Number(business.id)) return;
-  if (business.status !== "approved" && business.status !== "active") return;
+  if (error || !business || receiverBusinessId === Number(business.id)) return failure("notAllowed");
+  if (business.status !== "approved" && business.status !== "active") return failure("notAllowed");
 
   const myBusinessId = Number(business.id);
   const { data: existing, error: existingError } = await supabase
@@ -413,8 +432,8 @@ export async function sendPartnerRequest(formData: FormData): Promise<void> {
     )
     .limit(1)
     .maybeSingle();
-  if (existingError) throw new Error(existingError.message);
-  if (existing) return;
+  if (existingError) return failure("failed");
+  if (existing) return failure("exists");
 
   const { error: insertError } = await supabase.from("business_partner_requests").insert({
     requester_business_id: myBusinessId,
@@ -422,15 +441,17 @@ export async function sendPartnerRequest(formData: FormData): Promise<void> {
     status: "pending",
     responded_at: null,
   });
-  if (insertError) throw new Error(insertError.message);
+  if (insertError) return failure("failed");
   revalidatePartnerRequests();
+  return { status: "success", partnerBusinessId: receiverBusinessId };
 }
 
-export async function respondPartnerRequest(formData: FormData): Promise<void> {
-  const acceptedId = Number(formData.get("acceptPartnerRequestId"));
-  const rejectedId = Number(formData.get("rejectPartnerRequestId"));
-  const decision = Number.isInteger(acceptedId) && acceptedId > 0 ? "accepted" : "rejected";
-  const requestId = decision === "accepted" ? acceptedId : rejectedId;
+export async function respondPartnerRequest(
+  requestId: number,
+  decision: "accepted" | "rejected",
+  _formData: FormData,
+): Promise<void> {
+  void _formData;
   if (!Number.isInteger(requestId) || requestId <= 0) return;
 
   const { supabase, business, error } = await currentOwnedBusiness();
@@ -446,8 +467,8 @@ export async function respondPartnerRequest(formData: FormData): Promise<void> {
   revalidatePartnerRequests();
 }
 
-export async function cancelPartnerRequest(formData: FormData): Promise<void> {
-  const requestId = Number(formData.get("partnerRequestId"));
+export async function cancelPartnerRequest(requestId: number, _formData: FormData): Promise<void> {
+  void _formData;
   if (!Number.isInteger(requestId) || requestId <= 0) return;
 
   const { supabase, business, error } = await currentOwnedBusiness();

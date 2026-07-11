@@ -228,6 +228,13 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
           <DateRangePicker label={t("dateRange")} />
           <label className={styles.label}>{t("people")}<input name="people" type="number" min={1} className={styles.field} placeholder="0" /></label>
         </div>
+        <SingleDatePicker
+          label={t("validUntil")}
+          hint={t("validUntilHint")}
+          placeholder={t("dateSelect")}
+          clearLabel={t("dateClear")}
+          doneLabel={t("dateDone")}
+        />
         <label className={styles.label}>{t("message")}<textarea name="message" className={styles.textarea} placeholder={t("messagePh")} /></label>
         {state.error && !state.ok && (
           <p className="text-[13px] font-medium text-red-600">{quoteErrorMessage(t, state.error)}</p>
@@ -353,6 +360,90 @@ const DateRangePicker = ({ label }: { label: string }) => {
   );
 };
 
+const SingleDatePicker = ({
+  label,
+  hint,
+  placeholder,
+  clearLabel,
+  doneLabel,
+}: {
+  label: string;
+  hint: string;
+  placeholder: string;
+  clearLabel: string;
+  doneLabel: string;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>();
+  const today = useMemo(() => new Date(), []);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [open]);
+
+  return (
+    <div className={styles.datePicker} ref={rootRef}>
+      <input type="hidden" name="validUntil" value={toInputDate(date)} />
+      <span className={`${styles.dateLegend} ${styles.labelLine}`}>
+        {label}
+        <small>{hint}</small>
+      </span>
+      <button
+        type="button"
+        className={styles.dateTrigger}
+        aria-expanded={open}
+        aria-label={`${label} seç`}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className={styles.dateIcon} aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 2v4" />
+            <path d="M16 2v4" />
+            <rect width="18" height="18" x="3" y="4" rx="4" />
+            <path d="M3 10h18" />
+          </svg>
+        </span>
+        <span className={date ? styles.dateValue : styles.datePlaceholder}>
+          {date ? formatDateLabel(date) : placeholder}
+        </span>
+      </button>
+      {open && (
+        <div className={styles.datePopover}>
+          <DayPicker
+            mode="single"
+            selected={date}
+            onSelect={(nextDate) => {
+              setDate(nextDate);
+              if (nextDate) setOpen(false);
+            }}
+            defaultMonth={date ?? today}
+            startMonth={today}
+            endMonth={new Date(today.getFullYear() + 2, today.getMonth(), 1)}
+            locale={tr}
+            weekStartsOn={1}
+            disabled={{ before: today }}
+            classNames={dayPickerClassNames}
+          />
+          <div className={styles.datePopoverFooter}>
+            <button type="button" className={styles.dateClearButton} onClick={() => setDate(undefined)}>
+              {clearLabel}
+            </button>
+            <button type="button" className={styles.dateDoneButton} onClick={() => setOpen(false)}>
+              {doneLabel}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const dayPickerClassNames = {
   root: "w-full",
   months: "flex",
@@ -373,7 +464,7 @@ const dayPickerClassNames = {
   day: "relative grid h-8 place-items-center text-center text-[13px] text-ink",
   day_button: "grid h-8 w-8 place-items-center rounded-full font-medium transition hover:bg-primary/10",
   today: "text-primary",
-  selected: "text-primary",
+  selected: "text-primary [&>button]:bg-primary [&>button]:text-white",
   range_start: "[&>button]:bg-primary [&>button]:text-white [&>button]:hover:bg-primary",
   range_middle:
     "rounded-full bg-primary/10 text-primary [&>button]:!bg-transparent [&>button]:!text-primary [&>button]:hover:!bg-transparent",
@@ -389,5 +480,6 @@ function quoteErrorMessage(t: ReturnType<typeof useTranslations>, error: string)
   if (error === "email") return t("errorEmail");
   if (error === "rate") return t("errorRate");
   if (error === "no_match") return t("errorNoMatch");
+  if (error === "valid_until") return t("errorValidUntil");
   return t("error");
 }

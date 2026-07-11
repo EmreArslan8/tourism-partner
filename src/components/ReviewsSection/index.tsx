@@ -25,7 +25,7 @@ function Stars({ value }: { value: number }) {
   return (
     <span className="inline-flex" aria-label={`${value} / 5`}>
       {[1, 2, 3, 4, 5].map((n) => (
-        <Star key={n} size={14} className={n <= value ? "fill-terra text-terra" : "text-line"} aria-hidden />
+        <Star key={n} size={14} className={n <= value ? "fill-star text-star" : "text-line"} aria-hidden />
       ))}
     </span>
   );
@@ -78,16 +78,18 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
   return (
-    <section className="mt-8">
-      <h2 className="mb-1 inline-flex items-center gap-2 text-[17px] font-extrabold text-ink">
-        Değerlendirmeler
-        {reviews.length > 0 && (
-          <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-muted">
-            · {avg.toFixed(1)} <Star size={13} className="fill-terra text-terra" aria-hidden /> ({reviews.length})
-          </span>
-        )}
-      </h2>
-      <p className="mb-4 text-[13px] text-muted">İş birliği yaptığınız iş ortaklarını puanlayın — B2B güven duvarı.</p>
+    <section className="mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-card max-[560px]:p-4">
+      <div className="mb-4 border-b border-line pb-3">
+        <h2 className="heading-subsection inline-flex items-center gap-2 text-[19px] text-ink">
+          Değerlendirmeler
+          {reviews.length > 0 && (
+            <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-muted">
+              · {avg.toFixed(1)} <Star size={13} className="fill-star text-star" aria-hidden /> ({reviews.length})
+            </span>
+          )}
+        </h2>
+        <p className="mt-1 text-[13px] font-medium text-[#4b5875]">İş birliği yaptığınız iş ortaklarını puanlayın — B2B güven duvarı.</p>
+      </div>
 
       {ready && loggedIn && (
         <form action={action} className="mb-5 rounded-[14px] border border-line bg-paper p-4">
@@ -97,7 +99,7 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
             <span className="text-[13px] font-semibold text-ink">Puanınız:</span>
             {[1, 2, 3, 4, 5].map((n) => (
               <button key={n} type="button" onClick={() => setRating(n)} aria-label={`${n} yıldız`} className="p-0.5">
-                <Star size={20} className={n <= rating ? "fill-terra text-terra" : "text-line hover:text-terra/50"} aria-hidden />
+                <Star size={20} className={n <= rating ? "fill-star text-star" : "text-line hover:text-star/60"} aria-hidden />
               </button>
             ))}
           </div>
@@ -112,9 +114,15 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
       )}
 
       {ready && !loggedIn && (
-        <p className="mb-5 rounded-[12px] border border-dashed border-line bg-cream/40 px-4 py-3 text-[13px] text-muted">
-          Değerlendirme bırakmak için <Link href="/login" className="font-semibold text-terra-deep hover:underline">giriş yapın</Link>.
-        </p>
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-terra/25 bg-[#EDEBFB] px-4 py-3.5">
+          <p className="text-[14px] font-semibold text-ink">Değerlendirme bırakmak için üye girişi gerekir.</p>
+          <Link
+            href="/login"
+            className="inline-flex items-center rounded-[8px] bg-terra px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-terra-deep"
+          >
+            Giriş yapın
+          </Link>
+        </div>
       )}
 
       {reviews.length === 0 ? (

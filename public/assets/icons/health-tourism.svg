@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <g stroke="#fff" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Büyük, açıkta ve merkezde duran kalp -->
+    <path d="M32 28 18.5 15.4A8.5 8.5 0 0 1 30.5 3.3L32 4.8l1.5-1.5a8.5 8.5 0 0 1 12 12.1L32 28Z"/>
+    <!-- Sade, dışa açık sol avuç -->
+    <path d="M27 61V48c0-3.4-1.4-6.7-4-9l-5.3-4.8a3.2 3.2 0 0 0-4.5.2 3.2 3.2 0 0 0 .2 4.5l6.3 5.7"/>
+    <path d="M13 38.5V27a3.5 3.5 0 0 0-7 0v14.2c0 4.5 1.8 8.8 5 12l6 5.8v2h10"/>
+    <!-- Sade, dışa açık sağ avuç -->
+    <path d="M37 61V48c0-3.4 1.4-6.7 4-9l5.3-4.8a3.2 3.2 0 0 1 4.5.2 3.2 3.2 0 0 1-.2 4.5l-6.3 5.7"/>
+    <path d="M51 38.5V27a3.5 3.5 0 0 1 7 0v14.2c0 4.5-1.8 8.8-5 12L47 59v2H37"/>
+  </g>
+</svg>

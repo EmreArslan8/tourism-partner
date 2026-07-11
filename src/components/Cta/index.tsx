@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Crown } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import styles from "./styles";
 
@@ -10,6 +10,10 @@ const Cta = () => {
     <section className={styles.section}>
       <div className={styles.panel}>
         <div className={styles.content}>
+          <span className={styles.badge}>
+            <Crown size={14} strokeWidth={2.4} aria-hidden />
+            Premium Partner
+          </span>
           <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.sub}>{t("sub")}</p>
         </div>

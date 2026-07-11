@@ -62,14 +62,14 @@ const SupplierGallery = ({
 
   return (
     <section className="relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_24px_70px_-48px_rgba(7,9,42,.75)]">
-        <div className="grid h-[400px] grid-cols-[minmax(0,1.45fr)_minmax(320px,.9fr)] gap-1.5 max-[900px]:h-auto max-[900px]:grid-cols-1">
+        <div className="grid h-[480px] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 max-[1100px]:h-[440px] max-[900px]:h-auto max-[900px]:grid-cols-1">
         <button type="button" onClick={() => openGallery(0)} className="relative block min-h-[320px] w-full overflow-hidden border-0 p-0 bg-[#EEF2F7] max-[900px]:min-h-[260px]">
           <Image
             src={main}
             alt={title}
             fill
             priority
-            sizes="(max-width: 900px) 100vw, 980px"
+            sizes="(max-width: 900px) 100vw, 50vw"
             className="object-cover"
           />
         </button>
@@ -90,7 +90,7 @@ const SupplierGallery = ({
                   src={src}
                   alt={`${title} görsel ${index + 2}`}
                   fill
-                  sizes="320px"
+                  sizes="(max-width: 900px) 0px, 25vw"
                   className="object-cover"
                 />
                   {isLastVisible && (

@@ -51,7 +51,7 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
   },
   {
     key: "saglik",
-    label: "Sağlık Turizmi",
+    label: "Sağlık",
     children: [
       { slug: "hastane", label: "Hastane" },
       { slug: "sac-klinigi", label: "Saç Kliniği" },
@@ -62,9 +62,9 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
     key: "gastronomi",
     label: "Gastronomi",
     children: [
+      { slug: "dunya-mutfagi", label: "Dünya Mutfağı" },
       { slug: "restoran", label: "Restoran" },
-      { slug: "gurme-deneyim", label: "Gurme Deneyim" },
-      { slug: "yerel-lezzet-noktasi", label: "Yerel Lezzet Noktası" },
+      { slug: "yerel-kulturel-lezzetler", label: "Yerel & Kültürel Lezzetler" },
     ],
   },
 ];

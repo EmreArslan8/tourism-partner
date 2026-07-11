@@ -1,16 +1,14 @@
 /* ListingView — Tailwind sınıf token'ları (filtreleme + düzen).
    Kart görünümü SupplierCard'da; burada yalnız filtre/sonuç/harita düzeni. */
 const styles= {
-  head:
-    "mb-4 grid grid-cols-[minmax(0,1fr)_minmax(260px,.65fr)] items-end gap-x-12 gap-y-2 py-2 max-[1120px]:mb-3 max-[720px]:grid-cols-1 max-[720px]:gap-1.5 max-[640px]:mb-2.5",
-  eyebrow: "mb-1 block text-[10.5px] font-bold uppercase tracking-[.14em] text-terra-deep",
-  title: "whitespace-nowrap font-display text-[48px] font-medium leading-[1.05] tracking-[-.03em] text-ink max-[900px]:text-[40px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
-  sub: "pb-0.5 text-[14px] font-normal leading-6 text-[#5c6775] max-[720px]:pb-0 max-[640px]:text-[13.5px] max-[640px]:leading-5",
+  head: "mb-6 py-2 max-[1120px]:mb-4 max-[640px]:mb-3",
+  eyebrow: "mb-1 block text-[10.5px] font-bold uppercase tracking-[.1em] text-[#aebfff]",
+  title: "whitespace-nowrap font-display text-[44px] font-medium leading-[1.05] tracking-[-.03em] text-white max-[900px]:text-[38px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
   topSearch: "mb-5 max-[1120px]:hidden",
 
   bar:
     "sticky top-[86px] z-40 grid grid-cols-[minmax(320px,1.8fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)] " +
-    "items-center gap-0 rounded-[12px] border border-line bg-paper/95 px-3 py-0 shadow-card backdrop-blur-xl " +
+    "items-center gap-0 rounded-[12px] border border-line bg-paper/95 px-3 py-0 backdrop-blur-xl " +
     "[&>*]:min-w-0 [&>*]:py-1 [&>*+*]:border-l [&>*+*]:border-[#e1e6ef] [&>*+*]:pl-3 " +
     "max-[1280px]:grid-cols-[minmax(260px,1.4fr)_repeat(3,minmax(132px,1fr))]",
   field: "field h-[50px]",
@@ -48,14 +46,14 @@ const styles= {
   toggleBox: "grid h-4 w-4 place-items-center rounded-full border-[1.5px] border-current text-white",
 
   active: "mt-3 flex flex-wrap items-center gap-2",
-  activeLabel: "text-[12.5px] font-semibold text-[#4b5875]",
+  activeLabel: "text-[12.5px] font-semibold text-cream/80",
   tag:
     "inline-flex items-center gap-1.5 rounded-pill border-[1.5px] border-terra/30 bg-terra/10 " +
-    "px-2.5 py-1 text-[12.5px] font-semibold text-terra-deep transition-colors hover:bg-terra/20",
+    "px-2.5 py-1 text-[12.5px] font-semibold text-white transition-colors hover:bg-terra/25",
   tagX: "text-[14px] leading-none opacity-70",
   clearTag:
-    "rounded-pill border-[1.5px] border-[#9fb1d8] bg-white px-2.5 py-1 text-[12.5px] " +
-    "font-bold text-[#0b102f] transition-colors hover:border-terra hover:text-terra-deep",
+    "rounded-pill border-[1.5px] border-white/30 bg-white/10 px-2.5 py-1 text-[12.5px] " +
+    "font-bold text-white transition-colors hover:border-white/55 hover:bg-white/15",
 
   // Hizmet/koşul facet paneli (sol kenar — filtreleme motoru)
   facetWrap: "mt-3 flex flex-col rounded-[14px] border border-line bg-paper p-2 shadow-card",
@@ -89,11 +87,11 @@ const styles= {
   facetCheckbox: "h-[17px] w-[17px] shrink-0 accent-terra",
 
   resultsBar:
-    "mb-5 mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-[#dfe5f0] py-3 " +
+    "mb-5 mt-6 flex flex-wrap items-center justify-between gap-4 py-3 " +
     "max-[1120px]:mb-4 max-[1120px]:mt-4 max-[640px]:mb-3 max-[640px]:mt-3 max-[640px]:gap-3 max-[640px]:py-2.5",
-  count: "text-[14px] font-normal tracking-[-.01em] text-[#5b6680]",
-  countStrong: "font-medium text-[#17213a]",
-  guestCountStrong: "text-[17px] font-bold tracking-[-.025em] text-[#10265f]",
+  count: "text-[14px] font-medium tracking-[-.01em] text-cream/90",
+  countStrong: "font-semibold text-white",
+  guestCountStrong: "text-[17px] font-bold tracking-[-.025em] text-white",
   barRight: "flex items-center gap-2.5 max-[560px]:w-full max-[560px]:justify-between max-[560px]:gap-2",
   viewToggle: "inline-flex items-center gap-0.5 rounded-[9px] bg-[#edf2fc] p-0.5",
   viewBtn:
@@ -101,7 +99,7 @@ const styles= {
   viewBtnActive: "!bg-paper !font-semibold !text-terra-deep shadow-[0_2px_6px_rgba(24,55,116,.12)] hover:!text-terra-deep",
   viewIcon: "h-3.5 w-3.5",
   sortWrap: "flex items-center gap-2",
-  sortLabel: "text-[12.5px] font-normal text-[#66718a] max-[560px]:hidden",
+  sortLabel: "text-[12.5px] font-medium text-cream/85 max-[560px]:hidden",
   sortSelectWrap: "relative inline-flex w-[106px] max-[640px]:w-[98px]",
   sortSelect:
     "h-9 w-full appearance-none rounded-[8px] border border-[#d7deec] bg-paper py-0 pl-2.5 pr-7 text-[12.5px] font-medium text-ink focus:border-terra focus:outline-none max-[640px]:text-[12px]",
@@ -118,7 +116,7 @@ const styles= {
     "inline-flex h-5 min-w-5 items-center justify-center rounded-pill bg-cream-deep px-1.5 text-[11.5px] font-bold text-muted",
 
   // Sol katalog + içerik düzeni
-  layout: "grid grid-cols-[260px_minmax(0,1fr)] items-start gap-5 max-[1120px]:grid-cols-1 max-[1120px]:gap-0",
+  layout: "grid grid-cols-[240px_minmax(0,1fr)] items-start gap-5 max-[1120px]:grid-cols-1 max-[1120px]:gap-0",
   content: "min-w-0",
   catalogAside: "self-start pr-1 max-[1120px]:hidden",
 
@@ -186,8 +184,12 @@ const styles= {
 
   shell: "grid grid-cols-[minmax(0,1fr)_minmax(360px,.9fr)] items-start gap-5 max-[1120px]:grid-cols-1",
   mapAside: "sticky top-[84px] max-[1120px]:static",
-  grid: "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4",
-  gridWide: "grid grid-cols-3 gap-5 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
+  grid:
+    "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-4 gap-y-6 " +
+    "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
+  gridWide:
+    "grid grid-cols-3 gap-x-5 gap-y-6 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1 " +
+    "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
   guestUnlockShell: "relative col-span-full h-[520px] overflow-hidden rounded-[14px] border border-[#d8e1f0] bg-[#eef3fb] shadow-[0_22px_54px_-44px_rgba(7,9,42,.75)] max-[640px]:h-[480px]",
   guestUnlockPreview: "pointer-events-none grid h-full grid-cols-3 gap-5 p-5 blur-[5px] saturate-[.76] max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
   guestUnlockOverlay: "absolute inset-0 flex items-end bg-[linear-gradient(180deg,rgba(9,22,58,.04)_0%,rgba(9,22,58,.12)_34%,rgba(9,22,58,.78)_100%)] px-5 pb-9 pt-5",
@@ -251,10 +253,10 @@ const styles= {
   emptyText: "mb-4 text-[14.5px] text-muted",
 
   loadMoreWrap: "mt-7 flex flex-col items-center gap-3 max-[640px]:mt-5",
-  loadMoreText: "text-[13px] font-medium text-[#4b5875]",
+  loadMoreText: "text-[13px] font-medium text-cream/75",
   loadMoreBtn:
-    "inline-flex h-11 min-w-[172px] items-center justify-center rounded-[11px] bg-sapphire px-5 text-[14px] " +
-    "font-semibold text-paper shadow-[0_16px_34px_-22px_rgba(15,59,176,.9)] transition-colors hover:bg-sapphire-deep disabled:cursor-wait disabled:opacity-65",
+    "inline-flex h-11 min-w-[172px] items-center justify-center rounded-[11px] border border-white/70 bg-white px-5 text-[14px] " +
+    "font-semibold text-sapphire-deep shadow-[0_14px_30px_-22px_rgba(0,0,0,.7)] transition-colors hover:bg-cream disabled:cursor-wait disabled:opacity-65",
   pagination: "mt-7 flex justify-center gap-2",
   pageBtn:
     "grid h-9 min-w-9 place-items-center rounded-[9px] border border-line bg-paper px-2 text-[14px] " +

@@ -326,7 +326,7 @@ const MembershipPanel = ({ business, data }: { business: AdminBusiness; data: Cr
     <div className="divide-y divide-[#D8DFEA] border-t border-[#D8DFEA] text-[13px]">
       <InfoLine label="Paket Durumu" value={data.membership?.status ?? "Yok"} />
       <InfoLine label="Doping Bitiş" value={business.dopingUntil ? formatDateTime(business.dopingUntil) : "Yok"} />
-      <InfoLine label="Kurucu Partner" value={business.founderPartnerNumber ? `#${business.founderPartnerNumber}` : "Yok"} />
+      <InfoLine label="Kurucu Partner" value={business.founderPartner ? "Aktif" : "Yok"} />
     </div>
   </section>
 );

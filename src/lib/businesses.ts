@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { Business, GroupKey } from "./types";
+import { SOCIAL_PLATFORMS, type Business, type BusinessSocials, type GroupKey } from "./types";
 import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
 import { businessSlug } from "./business-slug";
@@ -12,7 +12,7 @@ export { businessSlug } from "./business-slug";
    toplu kazınabilir. Profil doluluk skoru sıralama için sunucuda önceden hesaplanır. */
 export function toListingBusiness(b: Business): Business {
   const rest = Object.fromEntries(
-    Object.entries(b).filter(([key]) => key !== "phone" && key !== "website")
+    Object.entries(b).filter(([key]) => key !== "phone" && key !== "website" && key !== "socials")
   ) as Business;
   return { ...rest, completeness: profileScore(b) };
 }
@@ -24,9 +24,9 @@ export function toListingBusiness(b: Business): Business {
    `details` JSON'u vergi no/TCKN gibi private alanlar taşıyabildiği için yalnızca
    rehber aramasında gereken `work_regions` JSON path olarak alınır. */
 const SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner_number,doping_until,phone,website,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,founder_partner_number,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 const LEGACY_SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 
 type Row = Pick<
   BusinessRow,
@@ -34,7 +34,18 @@ type Row = Pick<
   | "lat" | "lng" | "description" | "rating" | "reviews" | "tag"
   | "verified" | "sponsored" | "doping_until" | "phone" | "website" | "image" | "images" | "attributes"
   | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
-> & { founder_partner_number?: number | null; work_regions?: string | null };
+> & { founder_partner?: boolean | null; founder_partner_number?: number | null; work_regions?: string | null; socials?: unknown };
+
+/* socials jsonb'sini güvenle tipe çevirir — yalnız bilinen platformlar ve http(s) URL'ler. */
+function parseSocials(raw: unknown): BusinessSocials | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const out: BusinessSocials = {};
+  for (const key of SOCIAL_PLATFORMS) {
+    const val = (raw as Record<string, unknown>)[key];
+    if (typeof val === "string" && /^https?:\/\//.test(val)) out[key] = val.slice(0, 300);
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 
 /* details->>work_regions değerini güvenle şehir dizisine çevirir (virgülle ayrık string). */
 function parseWorkRegions(raw: Row["work_regions"]): string[] | undefined {
@@ -59,10 +70,11 @@ function rowToBusiness(r: Row): Business {
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
-    founderPartnerNumber: r.founder_partner_number ?? undefined,
+    founderPartner: r.founder_partner ?? false,
     dopingUntil: r.doping_until ?? undefined,
     phone: r.phone ?? undefined,
     website: r.website ?? undefined,
+    socials: parseSocials(r.socials),
     image: r.image ?? undefined,
     images: r.images ?? [],
     attributes: r.attributes ?? [],

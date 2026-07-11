@@ -19,8 +19,10 @@ export default async function MarketingLayout({
 
   return (
     <>
-      {children}
-      <SiteFooter />
+      <div className="bg-sapphire-deep">
+        {children}
+        <SiteFooter seamless />
+      </div>
       <Suspense fallback={null}>
         <PopupSlot />
       </Suspense>

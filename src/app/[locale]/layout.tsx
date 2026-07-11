@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { getMessages, type Locale } from "@/i18n/messages";
 import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 
@@ -21,7 +22,7 @@ const body = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Tourism Partner — B2B Travel Supplier Network",
+  title: "Tourism Partner - B2B Tourism Network",
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
   verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
@@ -44,11 +45,12 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const messages = await getMessages(locale as Locale);
 
   return (
     <html lang={locale} data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
       <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

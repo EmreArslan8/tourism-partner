@@ -3,6 +3,11 @@
 export type GroupKey = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik" | "gastronomi";
 export type BusinessLegalType = "company" | "individual";
 
+/** Sosyal medya platformları — businesses.socials jsonb anahtarları. */
+export const SOCIAL_PLATFORMS = ["instagram", "facebook", "linkedin", "youtube", "x"] as const;
+export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
+export type BusinessSocials = Partial<Record<SocialPlatform, string>>;
+
 export interface CategoryNode {
   slug: string;
   label: string;
@@ -32,8 +37,8 @@ export interface Business {
   verified: boolean;
   /** Premium Partner dopingi: ücretli, kalıcı öne çıkarma (admin kontrollü). */
   sponsored: boolean;
-  /** Manuel verilen Kurucu Partner kayıt numarası (1-100). Sıralama/doping etkisi yoktur. */
-  founderPartnerNumber?: number;
+  /** Admin tarafından elle verilen Kurucu Partner rozeti. */
+  founderPartner?: boolean;
   /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
       Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
   dopingUntil?: string;
@@ -42,6 +47,8 @@ export interface Business {
       telefonlar listeden toplu kazınabilir. Yetkili kişi bilgisi ASLA buraya konmaz. */
   phone?: string;
   website?: string;
+  /** Sosyal medya linkleri — yalnızca detay sayfasında gösterilir. */
+  socials?: BusinessSocials;
   /** Sunucuda önceden hesaplanan profil doluluk skoru (0–8). Liste payload'ında
       phone/website çıkarıldığı için skor sunucuda hesaplanıp taşınır. */
   completeness?: number;
@@ -153,6 +160,7 @@ export type AdminQuote = {
   city: string | null;
   district: string | null;
   dateRange: string | null;
+  validUntil: string | null;
   people: number | null;
   message: string | null;
   status: string;

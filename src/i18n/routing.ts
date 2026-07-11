@@ -17,6 +17,30 @@ export const routing = defineRouting({
       tr: "/kayit",
       en: "/register",
     },
+    "/help": {
+      tr: "/yardim",
+      en: "/help",
+    },
+    "/terms": {
+      tr: "/kullanim-kosullari",
+      en: "/terms",
+    },
+    "/privacy": {
+      tr: "/gizlilik-politikasi",
+      en: "/privacy",
+    },
+    "/kvkk": {
+      tr: "/kvkk",
+      en: "/kvkk",
+    },
+    "/forgot-password": {
+      tr: "/sifremi-unuttum",
+      en: "/forgot-password",
+    },
+    "/reset-password": {
+      tr: "/sifre-yenile",
+      en: "/reset-password",
+    },
     "/quote": {
       tr: "/teklif",
       en: "/quote",
@@ -79,6 +103,10 @@ export const routing = defineRouting({
     "/admin/talepler": {
       tr: "/admin/talepler",
       en: "/admin/requests",
+    },
+    "/admin/partnerlik": {
+      tr: "/admin/partnerlik",
+      en: "/admin/partnerships",
     },
     "/admin/onay": {
       tr: "/admin/onay",

@@ -53,15 +53,15 @@ export default async function AuthShell({ children }: { children: React.ReactNod
 
         <div className="relative flex flex-col gap-3">
           <Link
-            href={{ pathname: "/" }}
+            href={{ pathname: "/help" }}
             className="inline-flex w-fit items-center rounded-pill bg-white/12 px-4 py-2 text-[13px] font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/20"
           >
             {t("help")}
           </Link>
           <p className="flex items-center gap-3 text-[11.5px] text-white/45">
             <span>© {year} {t("brandName")}.</span>
-            <Link href={{ pathname: "/" }} className="transition-colors hover:text-white/80">{t("terms")}</Link>
-            <Link href={{ pathname: "/" }} className="transition-colors hover:text-white/80">{t("privacy")}</Link>
+            <Link href={{ pathname: "/terms" }} className="transition-colors hover:text-white/80">{t("terms")}</Link>
+            <Link href={{ pathname: "/privacy" }} className="transition-colors hover:text-white/80">{t("privacy")}</Link>
           </p>
         </div>
       </aside>

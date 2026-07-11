@@ -13,12 +13,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const fallback =
     locale === "en"
       ? {
-          title: "Tourism Partner — B2B Travel Supplier Marketplace",
+          title: "Tourism Partner - B2B Tourism Network",
           description:
             "Discover, compare and request quotes from hotels, agencies, guides, transfers, activities and health tourism suppliers — all in one B2B platform.",
         }
       : {
-          title: "Tourism Partner — B2B Turizm Tedarikçi Pazaryeri",
+          title: "Tourism Partner - B2B Turizm Ağı",
           description:
             "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi tedarikçilerini tek platformda keşfedin, karşılaştırın ve hızlıca teklif alın.",
         };

@@ -41,9 +41,9 @@ export default async function BlogIndex({
   return (
     <main className="container-px mx-auto w-full max-w-[1080px] py-12 max-[640px]:py-8">
       <header className="mb-8 max-w-[680px]">
-        <p className="eyebrow mb-2 text-terra-deep">{t("eyebrow")}</p>
-        <h1 className="heading-section text-ink">{t("title")}</h1>
-        <p className="body-muted mt-2">{t("subtitle")}</p>
+        <p className="eyebrow mb-2 !text-[#aebfff]">{t("eyebrow")}</p>
+        <h1 className="heading-section text-white">{t("title")}</h1>
+        <p className="mt-2 text-cream/75">{t("subtitle")}</p>
       </header>
 
       {posts.length === 0 ? (

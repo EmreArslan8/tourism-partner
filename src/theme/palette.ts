@@ -1,6 +1,8 @@
+/* Koyu zeminler hero-2.webp'den örneklendi: kenarlar #01094a–#020c49, baskın orta mavi
+   #0a3297, derin ton #00136b. Zemin token'ları bu görselle aynı ailede kalmalı. */
 export const palette = {
-  pine: "#07092a",
-  pineSoft: "#172178",
+  pine: "#01082f",
+  pineSoft: "#12237f",
   /* İç sayfa zemini — marka rengi sapphire'in (#0f3bb0) açık "wash"ı. Landing hero + butonlarla
      aynı mavi aileden; kartlar `paper` (beyaz) kaldığı için zeminin üstünde net öne çıkar. */
   cream: "#dbe3f5",
@@ -8,13 +10,15 @@ export const palette = {
   /* Panel/workspace zemini — sakin operasyon ekranları için eski özel zemin rengi. */
   panelBg: "#f6f9fd",
   paper: "#ffffff",
-  /* Sapphire — resmî palet. Ana: #0F3BB0 · Parlak: #004FE6 · Gece: #0A2472. */
-  sapphire: "#0f3bb0",
+  /* Sapphire — hero görseliyle aynı aile, koyu zemin. Ana: #01145D · Parlak: #004FE6 · Gece: #010B3A. */
+  sapphire: "#01145d",
   sapphireTop: "#004fe6",
-  sapphireDeep: "#0a2472",
-  terra: "#0f3bb0",
-  terraDeep: "#0a2472",
+  sapphireDeep: "#010b3a",
+  terra: "#01145d",
+  terraDeep: "#010b3a",
   gold: "#8ea2ff",
+  /* Değerlendirme yıldızları — sarı. */
+  star: "#f5b301",
   brandBlue: "#0f3bb0",
   /* Logodan örneklenen marka mavileri (TOURISM PARTNER wordmark). */
   brand: "#0a2472",
@@ -52,6 +56,7 @@ export const tailwindColors = {
   terra: palette.terra,
   "terra-deep": palette.terraDeep,
   gold: palette.gold,
+  star: palette.star,
   "brand-blue": palette.brandBlue,
   brand: palette.brand,
   "brand-deep": palette.brandDeep,

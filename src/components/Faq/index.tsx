@@ -23,7 +23,7 @@ const Faq = () => {
 
         <div className={styles.list}>
           {items.map((f) => (
-            <details className={styles.item} key={f.q}>
+            <details className={styles.item} key={f.q} name="faq">
               <summary className={styles.summary}>{f.q}</summary>
               <p className={styles.text}>{f.a}</p>
             </details>

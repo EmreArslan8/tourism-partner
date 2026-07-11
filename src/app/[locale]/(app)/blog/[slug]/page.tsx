@@ -51,11 +51,11 @@ export default async function BlogPost({
 
   return (
     <main className="container-px mx-auto w-full max-w-[760px] py-12 max-[640px]:py-8">
-      <Link href={{ pathname: "/blog" }} className="mb-6 inline-flex items-center gap-1 text-[13px] font-semibold text-muted transition-colors hover:text-terra-deep">
+      <Link href={{ pathname: "/blog" }} className="mb-6 inline-flex items-center gap-1 text-[13px] font-semibold text-cream/75 transition-colors hover:text-white">
         ‹ {t("back")}
       </Link>
 
-      <article>
+      <article className="rounded-card-lg border border-line bg-paper px-8 py-9 shadow-card max-[640px]:px-5 max-[640px]:py-6">
         <header className="mb-6">
           {post.category && (
             <span className="mb-3 inline-flex rounded-pill bg-terra/10 px-2.5 py-1 text-[11.5px] font-bold uppercase tracking-[.06em] text-terra-deep">
