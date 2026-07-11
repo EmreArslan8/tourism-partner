@@ -17,7 +17,7 @@ const Trust = () => {
         {items.map((b) => (
           <li className={styles.item} key={b.t}>
             <span className={styles.icon}>
-              <b.Icon size={27} strokeWidth={1.9} aria-hidden />
+              <b.Icon size={22} strokeWidth={1.9} aria-hidden />
             </span>
             <span className={styles.body}>
               <strong className={styles.itemTitle}>{b.t}</strong>

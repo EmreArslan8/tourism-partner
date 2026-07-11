@@ -2,14 +2,14 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { Eye, ImagePlus, LogOut, PencilLine, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Eye, ImagePlus, LoaderCircle, LogOut, PencilLine, Plus, Search, Sparkles } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
 import { cn } from "@/lib/utils";
 import { getCityOptions, getCountryOptions, getDistrictOptions } from "@/lib/regions";
-import type { GroupKey, BusinessDocument } from "@/lib/types";
+import { SOCIAL_PLATFORMS, type GroupKey, type BusinessDocument, type SocialPlatform } from "@/lib/types";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
 import { fieldsForGroup, docsForGroup } from "@/lib/business-fields";
 import { BUSINESS_DOCUMENTS_BUCKET } from "@/lib/business-document-shape";
@@ -18,6 +18,25 @@ import { upsertPanelDraftMedia } from "@/lib/business-drafts";
 import styles from "./styles";
 import { Link, type Href } from "@/i18n/navigation";
 import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness, sendPartnerRequest } from "@/lib/actions/panel";
+import type { PartnerRequestActionState } from "@/lib/actions/panel";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/common/Dialog";
+import { OverviewDashboard, getProfileScore, type PanelViewStats } from "./Overview";
+
+/* Sosyal medya platform etiketleri/örnekleri — özel isimler, çeviri gerekmez. */
+const SOCIAL_LABELS: Record<SocialPlatform, string> = {
+  instagram: "Instagram",
+  facebook: "Facebook",
+  linkedin: "LinkedIn",
+  youtube: "YouTube",
+  x: "X (Twitter)",
+};
+const SOCIAL_PLACEHOLDERS: Record<SocialPlatform, string> = {
+  instagram: "https://instagram.com/…",
+  facebook: "https://facebook.com/…",
+  linkedin: "https://linkedin.com/company/…",
+  youtube: "https://youtube.com/@…",
+  x: "https://x.com/…",
+};
 
 export type PanelBusiness = {
   id: number;
@@ -30,6 +49,7 @@ export type PanelBusiness = {
   description: string | null;
   phone: string | null;
   website: string | null;
+  socials: Record<string, string> | null;
   image: string | null;
   images: string[] | null;
   attributes: string[] | null;
@@ -38,7 +58,7 @@ export type PanelBusiness = {
   status: "pending" | "approved" | "rejected" | "active" | "expired" | "blacklisted" | "suspended";
   verified: boolean;
   sponsored: boolean;
-  founderPartnerNumber?: number;
+  founderPartner?: boolean;
   created_at: string;
 };
 
@@ -83,11 +103,137 @@ export type PanelQuote = {
   city: string | null;
   district: string | null;
   date_range: string | null;
+  valid_until: string | null;
   people: number | null;
   message: string | null;
   status: string;
   created_at: string;
 };
+
+function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerOption[] }) {
+  const t = useTranslations("panel");
+  const tc = useTranslations("cat");
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [group, setGroup] = useState("");
+  const [city, setCity] = useState("");
+  const [selectedPartner, setSelectedPartner] = useState<PanelPartnerOption | null>(null);
+  const [requestState, requestAction, requestPending] = useActionState(sendPartnerRequest, {
+    status: "idle",
+    partnerBusinessId: null,
+  } satisfies PartnerRequestActionState);
+
+  const groups = Array.from(new Set(partnerOptions.map((partner) => partner.group))).sort();
+  const cities = Array.from(new Set(partnerOptions.map((partner) => partner.city).filter(Boolean))).sort((a, b) => a.localeCompare(b, "tr"));
+  const normalizedQuery = query.trim().toLocaleLowerCase("tr-TR");
+  const filteredPartners = partnerOptions.filter((partner) => {
+    const matchesQuery = !normalizedQuery || [partner.name, partner.type, partner.city]
+      .filter(Boolean)
+      .some((value) => value.toLocaleLowerCase("tr-TR").includes(normalizedQuery));
+    return matchesQuery && (!group || partner.group === group) && (!city || partner.city === city);
+  });
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      setSelectedPartner(null);
+      setQuery("");
+      setGroup("");
+      setCity("");
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <button type="button" disabled={partnerOptions.length === 0} className={styles.partnerAddButton}>
+          <Plus size={16} aria-hidden />
+          {t("partnerAdd")}
+        </button>
+      </DialogTrigger>
+      <DialogContent
+        title={selectedPartner ? t("partnerConfirmTitle") : t("partnerPickerTitle")}
+        description={selectedPartner ? t("partnerConfirmSub", { name: selectedPartner.name }) : t("partnerPickerSub")}
+        className={styles.partnerDialog}
+      >
+        {selectedPartner && requestState.status === "success" && requestState.partnerBusinessId === selectedPartner.id ? (
+          <div className={styles.partnerResultState} role="status" aria-live="polite">
+            <span className={styles.partnerSuccessIcon}><CheckCircle2 size={24} aria-hidden /></span>
+            <div>
+              <h3>{t("partnerSendSuccessTitle")}</h3>
+              <p>{t("partnerSendSuccessSub", { name: selectedPartner.name })}</p>
+            </div>
+            <button type="button" onClick={() => handleOpenChange(false)} className={styles.compactPrimaryButton}>
+              {t("partnerDone")}
+            </button>
+          </div>
+        ) : selectedPartner ? (
+          <div className={styles.partnerConfirm}>
+            <div className={styles.partnerConfirmCard}>
+              <span className={styles.partnerPickName}>{selectedPartner.name}</span>
+              <span className={styles.partnerPickMeta}>
+                {[tc(selectedPartner.group), selectedPartner.type, selectedPartner.city].filter(Boolean).join(" · ")}
+              </span>
+            </div>
+            <p>{t("partnerConfirmHint")}</p>
+            <div className={styles.partnerDialogActions}>
+              <button type="button" onClick={() => setSelectedPartner(null)} className={styles.compactSecondaryButton}>
+                <ArrowLeft size={15} aria-hidden />
+                {t("partnerBack")}
+              </button>
+              <form action={requestAction}>
+                <input type="hidden" name="partnerBusinessId" value={selectedPartner.id} />
+                <button type="submit" disabled={requestPending} className={styles.compactPrimaryButton}>
+                  {requestPending && <LoaderCircle size={15} className="animate-spin" aria-hidden />}
+                  {requestPending ? t("partnerSending") : t("partnerConfirmSend")}
+                </button>
+              </form>
+            </div>
+            {requestState.status === "error" && requestState.partnerBusinessId === selectedPartner.id && (
+              <p className={styles.partnerSendError} role="alert">
+                <AlertCircle size={16} aria-hidden />
+                {requestState.reason === "exists" ? t("partnerAlreadyExists") : t("partnerSendError")}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className={styles.partnerPicker}>
+            <label className={styles.partnerSearch}>
+              <Search size={17} aria-hidden />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t("partnerSearchPlaceholder")}
+                autoFocus
+              />
+            </label>
+            <div className={styles.partnerFilters}>
+              <select value={group} onChange={(event) => setGroup(event.target.value)} aria-label={t("partnerGroupFilter")}>
+                <option value="">{t("partnerAllGroups")}</option>
+                {groups.map((item) => <option key={item} value={item}>{tc(item)}</option>)}
+              </select>
+              <select value={city} onChange={(event) => setCity(event.target.value)} aria-label={t("partnerCityFilter")}>
+                <option value="">{t("partnerAllCities")}</option>
+                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </div>
+            <p className={styles.partnerResultCount}>{t("partnerResultCount", { count: filteredPartners.length })}</p>
+            <div className={styles.partnerResultList}>
+              {filteredPartners.map((partner) => (
+                <button key={partner.id} type="button" onClick={() => setSelectedPartner(partner)} className={styles.partnerResultItem}>
+                  <span className={styles.partnerPickName}>{partner.name}</span>
+                  <span className={styles.partnerPickMeta}>{[tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}</span>
+                  <span className={styles.partnerResultAction}>{t("partnerSelect")}</span>
+                </button>
+              ))}
+              {filteredPartners.length === 0 && <p className={styles.partnerNoResult}>{t("partnerNoResults")}</p>}
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
@@ -133,6 +279,7 @@ const DashboardView = ({
   acceptedPartners,
   incomingPartnerRequests,
   outgoingPartnerRequests,
+  viewStats,
 }: {
   mode: "overview" | "listings" | "edit";
   business: PanelBusiness | null;
@@ -147,6 +294,7 @@ const DashboardView = ({
   acceptedPartners: PanelPartnerOption[];
   incomingPartnerRequests: PanelPartnerRequest[];
   outgoingPartnerRequests: PanelPartnerRequest[];
+  viewStats: PanelViewStats;
 }) => {
   const t = useTranslations("panel");
   const tc = useTranslations("cat");
@@ -445,10 +593,10 @@ const DashboardView = ({
               statusKey={visibleStatusKey}
               profileScore={profileScore}
               newQuoteCount={newQuoteCount}
-              listingsHref="/dashboard/listings"
               editHref={editListingHref}
-              quoteHref="/quote"
-              t={t}
+              viewStats={viewStats}
+              quotes={quotes}
+              isAgency={isAgency}
             />
           ) : hasListingDashboard && !showProfileForm && b ? (
             <ListingDashboard
@@ -613,8 +761,10 @@ const DashboardView = ({
             {/* Rehber çalışma bölgeleri (Brief §2.7): birden çok şehir; acente araması eşleşir */}
             {isGuide && (
               <label className={styles.labelCls}>
-                {t("workRegions")}
-                <span className={styles.dynHint}> · {t("workRegionsHint")}</span>
+                <span className={styles.dynLabelText}>
+                  {t("workRegions")}
+                  <span className={styles.dynHint}>· {t("workRegionsHint")}</span>
+                </span>
                 <div className="mt-1.5 flex flex-wrap gap-2">
                   {getCityOptions(selectedCountry).map((city) => {
                     const on = workRegions.includes(city);
@@ -642,6 +792,21 @@ const DashboardView = ({
             <div className={styles.twoCol}>
               <label className={styles.labelCls}>{t("phone")}<input name="phone" defaultValue={b?.phone ?? ""} className={styles.fieldCls} placeholder="+90…" /></label>
               <label className={styles.labelCls}>{t("website")}<input name="website" defaultValue={b?.website ?? ""} className={styles.fieldCls} placeholder="https://" /></label>
+            </div>
+            <span className={styles.labelCls}>{t("socialsTitle")}</span>
+            <div className={styles.twoCol}>
+              {SOCIAL_PLATFORMS.map((platform) => (
+                <label key={platform} className={styles.labelCls}>
+                  {SOCIAL_LABELS[platform]}
+                  <input
+                    name={`social_${platform}`}
+                    type="url"
+                    defaultValue={b?.socials?.[platform] ?? ""}
+                    className={styles.fieldCls}
+                    placeholder={SOCIAL_PLACEHOLDERS[platform]}
+                  />
+                </label>
+              ))}
             </div>
             <label className={styles.labelCls}>
               {t("description")}
@@ -702,18 +867,14 @@ const DashboardView = ({
                         <div className={styles.partnerRequestActions}>
                           <button
                             type="submit"
-                            name="acceptPartnerRequestId"
-                            value={request.id}
-                            formAction={respondPartnerRequest}
+                            formAction={respondPartnerRequest.bind(null, request.id, "accepted")}
                             className={styles.compactPrimaryButton}
                           >
                             {t("partnerAccept")}
                           </button>
                           <button
                             type="submit"
-                            name="rejectPartnerRequestId"
-                            value={request.id}
-                            formAction={respondPartnerRequest}
+                            formAction={respondPartnerRequest.bind(null, request.id, "rejected")}
                             className={styles.compactSecondaryButton}
                           >
                             {t("partnerReject")}
@@ -737,9 +898,7 @@ const DashboardView = ({
                         </div>
                         <button
                           type="submit"
-                          name="partnerRequestId"
-                          value={request.id}
-                          formAction={cancelPartnerRequest}
+                          formAction={cancelPartnerRequest.bind(null, request.id)}
                           className={styles.compactSecondaryButton}
                         >
                           {t("partnerCancel")}
@@ -749,27 +908,11 @@ const DashboardView = ({
                   </div>
                 )}
 
-                {partnerOptions.length === 0 ? (
-                  <p className="mt-3 text-[13px] text-muted">{t("partnersEmpty")}</p>
-                ) : (
-                  <div className={styles.partnerPickGrid}>
-                    {partnerOptions.map((partner) => (
-                      <button
-                        key={partner.id}
-                        type="submit"
-                        name="partnerBusinessId"
-                        value={partner.id}
-                        formAction={sendPartnerRequest}
-                        className={styles.partnerPickItem}
-                      >
-                        <span className={styles.partnerPickName}>{partner.name}</span>
-                        <span className={styles.partnerPickMeta}>
-                          {[t("partnerInvite"), tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div className={styles.partnerAddRow}>
+                  <PartnerPickerDialog partnerOptions={partnerOptions} />
+                  <span>{t("partnerAddHint")}</span>
+                </div>
+                {partnerOptions.length === 0 && <p className="mt-3 text-[13px] text-muted">{t("partnersEmpty")}</p>}
               </div>
             </div>
 
@@ -788,8 +931,10 @@ const DashboardView = ({
                       (f.key === "tax_no" && state.error === "invalidTaxNo");
                     return (
                     <label key={f.key} className={styles.labelCls}>
-                      {f.label[lang]}
-                      {f.hint && <span className={styles.dynHint}> · {f.hint[lang]}</span>}
+                      <span className={styles.dynLabelText}>
+                        {f.label[lang]}
+                        {f.hint && <span className={styles.dynHint}>· {f.hint[lang]}</span>}
+                      </span>
                       {f.type === "select" ? (
                         <select
                           name={`detail_${f.key}`}
@@ -1025,6 +1170,11 @@ const DashboardView = ({
                   <p className={styles.quoteSvc}>
                     {[q.service, q.date_range, q.people ? `${q.people} ${t("people")}` : null].filter(Boolean).join(" · ")}
                   </p>
+                  {q.valid_until && (
+                    <p className={styles.quoteDeadline}>
+                      {t("quoteValidUntil")}: {new Date(`${q.valid_until}T12:00:00`).toLocaleDateString("tr-TR")}
+                    </p>
+                  )}
                   <p className={styles.quoteSvc}>
                     {[q.category_type, q.country, q.city, q.district].filter(Boolean).join(" · ")}
                   </p>
@@ -1052,103 +1202,6 @@ const MetricCard = ({ label, value, detail }: { label: string; value: string | n
     <small>{detail}</small>
   </div>
 );
-
-const OverviewDashboard = ({
-  business,
-  cover,
-  statusKey,
-  profileScore,
-  newQuoteCount,
-  listingsHref,
-  editHref,
-  quoteHref,
-  t,
-}: {
-  business: PanelBusiness | null;
-  cover: string;
-  statusKey: "pending" | "approved" | "rejected";
-  profileScore: number;
-  newQuoteCount: number;
-  listingsHref: Href;
-  editHref: Href;
-  quoteHref: Href;
-  t: ReturnType<typeof useTranslations>;
-}) => (
-  <div className={styles.overviewStack}>
-    <section className={styles.overviewHero}>
-      <div>
-        <span className={styles.eyebrow}>{t("overviewLabel")}</span>
-        <h2>{business ? t("overviewReadyTitle") : t("overviewSetupTitle")}</h2>
-        <p>{business ? t("panelReadySub") : t("panelSetupSub")}</p>
-      </div>
-      <div className={styles.overviewStatus}>
-        <span>{t("statusLabel")}</span>
-        <b className={cn(styles.statusBadge, styles.statusColors[statusKey])}>{t(`status_${statusKey}`)}</b>
-      </div>
-    </section>
-
-    <div className={styles.overviewGrid}>
-      <article className={styles.overviewListingCard}>
-        <div className={styles.overviewCover}>
-          <SafeCoverImage src={cover} fallback={t("addCover")} />
-        </div>
-        <div className={styles.overviewListingBody}>
-          <span className={styles.homeCardHead}>{t("overviewNextStep")}</span>
-          <h3>{business ? t("editListing") : t("panelSetup")}</h3>
-          <p>{business ? [business.name, business.type, business.city].filter(Boolean).join(" · ") : t("overviewListingSub")}</p>
-          <div className={styles.overviewProgress}>
-            <div className={styles.overviewProgressHead}>
-              <span>{t("profileScore")}</span>
-              <b>{profileScore}%</b>
-            </div>
-            <div className={styles.progressTrack}>
-              <div className={styles.progressFill} style={{ width: `${profileScore}%` }} />
-            </div>
-          </div>
-          <div className={cn(styles.listingActions, "mt-4")}>
-            <Link href={editHref} className={styles.compactPrimaryButton}>{business ? t("editListing") : t("completeProfile")}</Link>
-            <Link href="/dashboard/listings" className={styles.compactSecondaryButton}>{t("listingDashboardTitle")}</Link>
-          </div>
-        </div>
-      </article>
-
-      <aside className={styles.overviewSide}>
-        <article className={styles.homeCard}>
-          <div className={styles.homeCardHead}>
-            <span>{t("quotesTitle")}</span>
-          </div>
-          <strong className={styles.homeNumber}>{newQuoteCount}</strong>
-          <p>{t("quotesSub", { count: newQuoteCount })}</p>
-          <Link href="/quote" className={styles.compactSecondaryButton}>{t("viewRequests")}</Link>
-        </article>
-
-        <article className={styles.homeCard}>
-          <div className={styles.homeCardHead}>
-            <span>{t("visibilityTitle")}</span>
-          </div>
-          <strong className={styles.homeNumber}>{t(`status_${statusKey}`)}</strong>
-          <p>{statusKey === "approved" ? t("visibilityPublic") : statusKey === "pending" ? t("visibilityPending") : t("visibilityRestricted")}</p>
-        </article>
-      </aside>
-    </div>
-  </div>
-);
-
-const SafeCoverImage = ({ src, fallback }: { src: string; fallback: string }) => {
-  const [failed, setFailed] = useState(false);
-  const url = businessImageUrl(src);
-  if (!url || failed)
-    return (
-      <span className="flex flex-col items-center gap-2 text-muted/60">
-        <ImagePlus size={26} strokeWidth={1.5} aria-hidden />
-        {fallback}
-      </span>
-    );
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt="" className="h-full w-full object-cover" onError={() => setFailed(true)} />
-  );
-};
 
 const ListingDashboard = ({
   business,
@@ -1190,54 +1243,37 @@ const ListingDashboard = ({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={businessImageUrl(cover) ?? ""} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span>{t("addCover")}</span>
+          <span><ImagePlus size={22} aria-hidden />{t("addCover")}</span>
         )}
       </div>
       <div className={styles.listingInfo}>
         <span className={styles.eyebrow}>{t("listingIdentity")}</span>
         <h3>{business.name}</h3>
         <p>{business.type} · {business.district}, {business.city} · {business.country}</p>
-        <div className={styles.listingChips}>
-          <span>{profileScore}% {t("profileScore")}</span>
-          <span>{galleryCount} {t("listingGallery")}</span>
-          <span>{documentsCount} {t("listingDocuments")}</span>
-          <span>{t(`status_${statusKey}`)}</span>
+        <div className={styles.listingMetrics}>
+          <div className={styles.listingProgress}>
+            <span>{t("profileScore")}</span>
+            <strong>{profileScore}%</strong>
+            <i><i style={{ width: `${profileScore}%` }} /></i>
+          </div>
+          <div className={styles.listingMetric}><span>{t("listingGallery")}</span><strong>{galleryCount}</strong></div>
+          <div className={styles.listingMetric}><span>{t("listingDocuments")}</span><strong>{documentsCount}</strong></div>
+        </div>
+        <div className={styles.listingActions}>
+          <Link href={editHref} className={styles.compactPrimaryButton}>
+            <PencilLine size={15} aria-hidden />
+            {t("editListing")}
+          </Link>
+          {previewHref && (
+            <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
+              <Eye size={15} aria-hidden />
+              {t("preview")}
+            </Link>
+          )}
         </div>
       </div>
     </div>
-
-    <div className={styles.listingNext}>
-      <b>{statusKey === "pending" ? t("listingNextPendingTitle") : t("listingNextLiveTitle")}</b>
-      <span>{statusKey === "pending" ? t("listingNextPendingText") : t("listingNextLiveText")}</span>
-    </div>
-
-    <div className={styles.listingActions}>
-      <Link href={editHref} className={styles.compactPrimaryButton}>
-        {t("editListing")}
-      </Link>
-      {previewHref && (
-        <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
-          {t("preview")}
-        </Link>
-      )}
-    </div>
   </div>
 );
-
-function getProfileScore(b: PanelBusiness | null, cover: string) {
-  const checks = [
-    b?.name,
-    b?.type,
-    b?.country,
-    b?.city,
-    b?.district,
-    b?.description,
-    b?.phone,
-    b?.website,
-    cover,
-    b?.attributes?.length,
-  ];
-  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-}
 
 export default DashboardView;

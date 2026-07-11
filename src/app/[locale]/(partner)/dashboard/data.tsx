@@ -1,5 +1,6 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getPanelUser, getPanelSession } from "@/lib/panel-auth";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
 import DashboardView, {
@@ -10,8 +11,53 @@ import DashboardView, {
   PanelPartnerRequest,
   PanelQuote,
 } from "./view";
+import type { PanelViewStats } from "./Overview";
 
 export type DashboardMode = "overview" | "listings" | "edit";
+
+const DAY_MS = 86_400_000;
+
+/* Son 7 gün + önceki 7 gün görüntülenme (impression) ve profil detay ziyareti (business).
+   page_views yalnızca service-role ile okunabildiğinden admin client kullanılır; anahtar
+   yoksa veya satır yoksa tüm sayılar 0 döner (Overview bunu sorunsuz gösterir). */
+async function loadViewStats(businessId: number): Promise<PanelViewStats> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfToday.getTime() - (6 - i) * DAY_MS);
+    return { label: d.toLocaleDateString("tr-TR", { day: "numeric", month: "short" }), impressions: 0, details: 0 };
+  });
+  const empty: PanelViewStats = { current: 0, previous: 0, days };
+
+  const admin = createAdminClient();
+  if (!admin) return empty;
+
+  const since = new Date(startOfToday.getTime() - 13 * DAY_MS);
+  const { data, error } = await admin
+    .from("page_views")
+    .select("entity_type,viewed_at")
+    .eq("entity_id", businessId)
+    .in("entity_type", ["impression", "business"])
+    .gte("viewed_at", since.toISOString());
+  if (error || !data) return empty;
+
+  let current = 0;
+  let previous = 0;
+  for (const row of data as { entity_type: string; viewed_at: string }[]) {
+    const viewed = new Date(row.viewed_at);
+    const viewedDay = new Date(viewed.getFullYear(), viewed.getMonth(), viewed.getDate());
+    const dayIndex = Math.floor((startOfToday.getTime() - viewedDay.getTime()) / DAY_MS);
+    if (dayIndex >= 0 && dayIndex <= 6) {
+      current += 1;
+      const slot = days[6 - dayIndex];
+      if (row.entity_type === "impression") slot.impressions += 1;
+      else slot.details += 1;
+    } else if (dayIndex >= 7 && dayIndex <= 13) {
+      previous += 1;
+    }
+  }
+  return { current, previous, days };
+}
 
 export async function PanelData({
   locale,
@@ -34,7 +80,7 @@ export async function PanelData({
   const { data: businessRow } = await supabase
     .from("businesses")
     .select(
-      "id,group,type,name,country,city,district,description,phone,website,image,images,attributes,details,documents,status,verified,sponsored,founder_partner_number,created_at"
+      "id,group,type,name,country,city,district,description,phone,website,socials,image,images,attributes,details,documents,status,verified,sponsored,founder_partner,created_at"
     )
     .eq("owner_id", user!.id)
     .order("id")
@@ -67,7 +113,7 @@ export async function PanelData({
     const [{ data: q }, { data: c }, { data: partnerRequests }, { data: options }] = await Promise.all([
       supabase
         .from("quotes")
-        .select("id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,people,message,status,created_at")
+        .select("id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,created_at")
         .eq("business_id", businessRow.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -144,6 +190,7 @@ export async function PanelData({
         description: businessRow.description,
         phone: businessRow.phone,
         website: businessRow.website,
+        socials: businessRow.socials ?? {},
         image: businessRow.image,
         images: businessRow.images,
         attributes: businessRow.attributes,
@@ -151,7 +198,7 @@ export async function PanelData({
         status: businessRow.status,
         verified: businessRow.verified,
         sponsored: businessRow.sponsored,
-        founderPartnerNumber: businessRow.founder_partner_number ?? undefined,
+        founderPartner: businessRow.founder_partner ?? false,
         created_at: businessRow.created_at,
         documents: await withSignedDocumentUrls(supabase, businessRow.documents),
       }
@@ -160,11 +207,16 @@ export async function PanelData({
     ? await withSignedDocumentUrls(supabase, draft.documents)
     : [];
 
+  const viewStats: PanelViewStats = businessRow
+    ? await loadViewStats(Number(businessRow.id))
+    : { current: 0, previous: 0, days: [] };
+
   return (
     <DashboardView
       mode={mode}
       business={business as PanelBusiness | null}
       quotes={quotes}
+      viewStats={viewStats}
       email={user!.email ?? ""}
       userId={userId}
       group={group}

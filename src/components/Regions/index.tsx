@@ -136,38 +136,34 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
                   key={region.city}
                   href={{ pathname: "/explore", query: { city: region.city } }}
                   className={styles.card}
+                  style={{ backgroundColor: GROUP_COLORS[region.group] }}
                 >
-                  <div className={styles.media} style={{ backgroundColor: GROUP_COLORS[region.group] }}>
-                    {image ? (
-                      <Image
-                        src={image}
-                        alt=""
-                        fill
-                        sizes="(max-width: 640px) 72vw, (max-width: 1100px) 38vw, 28vw"
-                        className={styles.img}
-                      />
-                    ) : (
-                      <div className={styles.regionMark} aria-hidden>
-                        {region.city.slice(0, 2).toLocaleUpperCase("tr-TR")}
-                      </div>
-                    )}
-                    <div className={styles.shade} />
-                    <div className={styles.body}>
-                      <h3 className={styles.city}>{region.city}</h3>
+                  {image ? (
+                    <Image
+                      src={image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 72vw, (max-width: 1100px) 38vw, 28vw"
+                      className={styles.img}
+                    />
+                  ) : (
+                    <div className={styles.regionMark} aria-hidden>
+                      {region.city.slice(0, 2).toLocaleUpperCase("tr-TR")}
                     </div>
-                  </div>
-                  <div className={styles.cardInfo}>
-                    <p className={styles.cardInfoTitle}>Bu bölgedeki keşif</p>
+                  )}
+                  <div className={styles.shade} />
+                  <div className={styles.body}>
+                    <h3 className={styles.city}>{region.city}</h3>
                     <p className={styles.cardInfoText}>
-                      {groupLabel} ağırlıklı {t("count", { count: region.count }).toLocaleLowerCase("tr-TR")}
+                      {groupLabel} ağırlıklı · {t("count", { count: region.count }).toLocaleLowerCase("tr-TR")}
                     </p>
-                      <div className={styles.chips}>
-                        {region.topGroups.map((item) => (
-                          <span key={item.key} className={styles.chip}>
-                            {tc(item.key)} <b>{item.count}</b>
-                          </span>
-                        ))}
-                      </div>
+                    <div className={styles.chips}>
+                      {region.topGroups.map((item) => (
+                        <span key={item.key} className={styles.chip}>
+                          {tc(item.key)} <b>{item.count}</b>
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </Link>
               );
