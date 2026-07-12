@@ -1,6 +1,5 @@
 import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
-import Regions from "@/components/Regions";
 import Categories from "@/components/Categories";
 import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
@@ -15,8 +14,8 @@ import styles from "./styles";
 /*
  * Anasayfa = Reels tarzı tam-sayfa panel destesi (ReelDeck).
  * Her doğrudan child = bir 100dvh panel. Sıra:
- * 1) Hero  2) Vitrin + CTA  3) Bölgeler
- * 4) Tedarikçi türleri 5) Platform turu 6) Üç adımda iş birliği  7) SSS
+ * 1) Hero  2) Vitrin + CTA  3) Tedarikçi türleri
+ * 4) Üç adımda iş birliği  5) SSS
  * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
  */
 const HomeView = ({
@@ -50,14 +49,7 @@ const HomeView = ({
         </div>
       </div>
 
-      {/* 3 — Öne çıkan bölgeler */}
-      <div className={styles.panelRegions}>
-        <div className={`${styles.inner} flex min-h-0 flex-1 flex-col`}>
-          <Regions businesses={businesses} />
-        </div>
-      </div>
-
-      {/* 4 — Tedarikçi türleri */}
+      {/* 3 — Tedarikçi türleri */}
       <div className={styles.panelCategories}>
         <div className="flex w-full flex-col justify-start gap-6 max-[1024px]:gap-5 max-[640px]:gap-6">
           <Categories businesses={businesses} />

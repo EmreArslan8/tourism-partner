@@ -10,8 +10,6 @@ const styles = {
   panelDark: "relative flex h-full w-full flex-col bg-transparent",
   heroFill: "relative min-h-0 flex-1",
   panelLight: `${panelBase} max-[640px]:justify-start`,
-  // Bölgeler: mobilde üste yaslı (uzun içerik), ≥641'de ortalı.
-  panelRegions: `${panelBase} max-[640px]:justify-start`,
   panelCategories:
     `${panelBase} justify-start pt-[clamp(24px,5vh,64px)] pb-6 ` +
     "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:justify-center " +

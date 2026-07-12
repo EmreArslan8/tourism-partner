@@ -33,6 +33,8 @@
     "group flex min-w-[68px] flex-col items-center gap-2 !text-white text-[13px] font-semibold transition-opacity hover:opacity-80",
   categoryIcon:
     "h-8 w-8 text-white stroke-white stroke-[1.55] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110",
+  gastronomyIcon:
+    "-my-1 h-10 w-10 text-white stroke-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110",
   transferIcon:
     "h-8 w-11 object-contain text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110",
   searchWrap: "mt-7 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full",

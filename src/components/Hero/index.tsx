@@ -47,8 +47,9 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
   const categoryLinks = [
     { key: "konaklama", label: t("catHotels"), icon: <Image src="/assets/icons/hotels.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "acente", label: t("catAgencies"), icon: <Image src="/assets/icons/agencies.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
-    { key: "rehber", label: t("catGuides"), icon: <Image src="/assets/icons/guides.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "ulasim", label: t("catTransfers"), icon: <Image src="/assets/icons/transfers.svg" alt="" width={44} height={39} className={styles.transferIcon} /> },
+    { key: "rehber", label: t("catGuides"), icon: <Image src="/assets/icons/guides.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
+    { key: "gastronomi", label: t("catGastro"), icon: <Image src="/assets/icons/gastronomy.svg" alt="" width={40} height={40} className={styles.gastronomyIcon} /> },
     { key: "saglik", label: t("catHealth"), icon: <Image src="/assets/icons/health-tourism.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
   ] as const;
 
