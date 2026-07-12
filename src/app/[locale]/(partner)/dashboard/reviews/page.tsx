@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Star, Inbox, PenLine } from "lucide-react";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -8,7 +8,6 @@ import DashboardTopbar from "../Topbar";
 import styles from "../styles";
 import { PartnerPanelCard } from "../_ui";
 
-const fmt = (v: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(v));
 const bizName = (r: { name: string } | { name: string }[] | null) => (Array.isArray(r) ? r[0]?.name : r?.name) ?? "—";
 
 function Stars({ value }: { value: number }) {
@@ -26,6 +25,8 @@ type Row = { id: number; rating: number; comment: string | null; created_at: str
 export default async function ReviewsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("panel");
+  const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
 
   const session = await getPanelSession();
   if (!session) redirect({ href: "/login", locale });
@@ -52,20 +53,20 @@ export default async function ReviewsPage({ params }: { params: Promise<{ locale
 
   return (
     <>
-      <DashboardTopbar title="Değerlendirmeler" />
+      <DashboardTopbar title={t("reviewsNav")} />
       <div className={styles.content}>
       <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>Değerlendirmeler</p>
-        <h1 className={styles.pageTitle}>Puanlar ve yorumlar</h1>
-        <p className={styles.pageDesc}>İşletmeniz hakkında bırakılan değerlendirmeleri görün; iş birliği yaptığınız firmalara yazdığınız yorumları yönetin.</p>
+        <p className={styles.pageEyebrow}>{t("reviewsNav")}</p>
+        <h1 className={styles.pageTitle}>{t("reviewsTitle")}</h1>
+        <p className={styles.pageDesc}>{t("reviewsDescription")}</p>
       </header>
 
       <div className="grid grid-cols-2 gap-6 max-[900px]:grid-cols-1">
         {/* Hakkımda gelen */}
         <PartnerPanelCard bodyClassName="p-5">
-          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Inbox size={17} className="text-[#1557C2]" aria-hidden /> İşletmem hakkında ({received.length})</h2>
+          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Inbox size={17} className="text-[#1557C2]" aria-hidden /> {t("reviewsReceived", { count: received.length })}</h2>
           {received.length === 0 ? (
-            <p className="text-[13px] text-muted">Henüz değerlendirme almadınız.</p>
+            <p className="text-[13px] text-muted">{t("reviewsReceivedEmpty")}</p>
           ) : (
             <ul className="grid gap-3">
               {received.map((r) => (
@@ -84,9 +85,9 @@ export default async function ReviewsPage({ params }: { params: Promise<{ locale
 
         {/* Yazdıklarım */}
         <PartnerPanelCard bodyClassName="p-5">
-          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><PenLine size={17} className="text-[#1557C2]" aria-hidden /> Yazdığım yorumlar ({written.length})</h2>
+          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><PenLine size={17} className="text-[#1557C2]" aria-hidden /> {t("reviewsWritten", { count: written.length })}</h2>
           {written.length === 0 ? (
-            <p className="text-[13px] text-muted">Henüz yorum yazmadınız. İşletme profillerinden değerlendirme bırakabilirsiniz.</p>
+            <p className="text-[13px] text-muted">{t("reviewsWrittenEmpty")}</p>
           ) : (
             <ul className="grid gap-3">
               {written.map((r) => (
@@ -98,7 +99,7 @@ export default async function ReviewsPage({ params }: { params: Promise<{ locale
                     </div>
                     <form action={deleteReview}>
                       <input type="hidden" name="id" value={r.id} />
-                      <button type="submit" className="shrink-0 rounded-lg border border-line px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:border-red-400 hover:text-red-600">Sil</button>
+                      <button type="submit" className="shrink-0 rounded-lg border border-line px-2.5 py-1 text-[11.5px] font-semibold text-muted hover:border-red-400 hover:text-red-600">{t("delete")}</button>
                     </form>
                   </div>
                   {r.comment && <p className="mt-1.5 text-[13px] leading-5 text-ink/80">{r.comment}</p>}

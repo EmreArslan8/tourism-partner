@@ -6,6 +6,8 @@ import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@
 import { businessSlug } from "@/lib/businesses";
 import { cn } from "@/lib/utils";
 import AdminNav from "./AdminNav";
+import EditableForm from "./EditableForm";
+import LocationFields from "./LocationFields";
 import AdminSearch from "./AdminSearch";
 import Logo from "@/components/Logo";
 import { CardIcon as UICardIcon } from "@/components/common/Card";
@@ -207,20 +209,49 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
   />
 );
 
-export const BusinessForm = ({ locale, business }: { locale: string; business?: AdminBusiness }) => {
+export const BusinessForm = ({
+  locale,
+  business,
+  mainExtra,
+  sideExtra,
+}: {
+  locale: string;
+  business?: AdminBusiness;
+  mainExtra?: React.ReactNode;
+  sideExtra?: React.ReactNode;
+}) => {
   const compactInput = `${input} h-11 px-3 text-[14px]`;
   const compactTextarea = `${input} min-h-[104px] px-3 py-2.5 text-[14px] leading-6`;
 
   return (
-    <form id="admin-business-profile-form" action={saveBusiness} className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-      <input type="hidden" name="locale" value={locale} />
-      {business && <input type="hidden" name="id" value={business.id} />}
+    <EditableForm
+      id="admin-business-profile-form"
+      action={saveBusiness}
+      className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"
+      persistent={
+        <>
+          <input type="hidden" name="locale" value={locale} />
+          {business && <input type="hidden" name="id" value={business.id} />}
+        </>
+      }
+    >
       <div className="grid gap-5">
         <AdminFormSection title="Temel Bilgiler">
           <div>
             <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
           </div>
           <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialType={business?.type ?? "Otel"} inputClassName={compactInput} />
+        </AdminFormSection>
+
+        <AdminFormSection title="Konum">
+          <LocationFields
+            inputClassName={compactInput}
+            defaultCountry={business?.country ?? "Türkiye"}
+            defaultCity={business?.city ?? ""}
+            defaultDistrict={business?.district ?? ""}
+            defaultLat={business?.coords[0] ?? 0}
+            defaultLng={business?.coords[1] ?? 0}
+          />
         </AdminFormSection>
 
         <AdminFormSection title="İçerik Detayları">
@@ -231,6 +262,7 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           </div>
         </AdminFormSection>
 
+        {mainExtra}
       </div>
 
       <div className="grid content-start gap-5">
@@ -241,23 +273,16 @@ export const BusinessForm = ({ locale, business }: { locale: string; business?: 
           <ToggleRow name="founderPartner" label="Kurucu Partner Rozeti" description="Firma kartında kurucu partner mührünü göster" checked={business?.founderPartner ?? false} />
         </AdminFormSection>
 
-        <AdminFormSection title="Konum">
-          <div className="grid grid-cols-2 gap-3 max-[520px]:grid-cols-1">
-            <Field label="Ülke" required><input name="country" required defaultValue={business?.country ?? "Türkiye"} className={compactInput} /></Field>
-            <Field label="Şehir" required><input name="city" required defaultValue={business?.city ?? ""} className={compactInput} /></Field>
-          </div>
-          <Field label="İlçe / Bölge" required><input name="district" required defaultValue={business?.district ?? ""} className={compactInput} /></Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Lat"><input name="lat" defaultValue={business?.coords[0] ?? 0} className={compactInput} /></Field>
-            <Field label="Lng"><input name="lng" defaultValue={business?.coords[1] ?? 0} className={compactInput} /></Field>
-          </div>
+        <AdminFormSection title="Değerlendirme">
           <div className="grid grid-cols-2 gap-3">
             <Field label="Puan"><input name="rating" defaultValue={business?.rating ?? 0} className={compactInput} /></Field>
             <Field label="Yorum"><input name="reviews" defaultValue={business?.reviews ?? 0} className={compactInput} /></Field>
           </div>
         </AdminFormSection>
+
+        {sideExtra}
       </div>
-    </form>
+    </EditableForm>
   );
 };
 

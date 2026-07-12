@@ -1,10 +1,12 @@
 import { LogOut } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { signOut } from "@/lib/actions/auth";
 import styles from "./styles";
 
 /* Alt panel sayfaları için sade üst bar (overview/listings kendi zengin
    topbar'ını view.tsx içinde kullanır). Başlık + çıkış. */
-export default function DashboardTopbar({ title, subtitle }: { title: string; subtitle?: string }) {
+export default async function DashboardTopbar({ title, subtitle }: { title: string; subtitle?: string }) {
+  const t = await getTranslations("panel");
   return (
     <div className={styles.topbar}>
       <div className={styles.topbarInner}>
@@ -16,7 +18,7 @@ export default function DashboardTopbar({ title, subtitle }: { title: string; su
           <form action={signOut}>
             <button type="submit" className={styles.compactSecondaryButton}>
               <LogOut size={15} aria-hidden />
-              Çıkış
+              {t("signOut")}
             </button>
           </form>
         </div>

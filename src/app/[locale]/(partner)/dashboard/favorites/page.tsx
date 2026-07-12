@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Heart } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -10,13 +10,16 @@ import DashboardTopbar from "../Topbar";
 import styles from "../styles";
 import { PartnerPanelCard, PartnerPanelEmptyState } from "../_ui";
 
-const groupLabel = (g: string | null) => CATEGORY_GROUPS.find((c) => c.key === g)?.label ?? "—";
-
 type FavBiz = { id: number; name: string; group: string; city: string | null; country: string | null };
 
 export default async function FavoritesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const [t, tc] = await Promise.all([getTranslations("panel"), getTranslations("cat")]);
+  const groupLabel = (g: string | null) => {
+    const group = CATEGORY_GROUPS.find((c) => c.key === g);
+    return group ? tc(group.key) : "—";
+  };
 
   const session = await getPanelSession();
   if (!session) redirect({ href: "/login", locale });
@@ -35,19 +38,19 @@ export default async function FavoritesPage({ params }: { params: Promise<{ loca
 
   return (
     <>
-      <DashboardTopbar title="Favorilerim" />
+      <DashboardTopbar title={t("favoritesNav")} />
       <div className={styles.content}>
       <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>Favoriler</p>
-        <h1 className={styles.pageTitle}>Kaydettiğim işletmeler</h1>
-        <p className={styles.pageDesc}>Sonradan çalışmak veya hızlıca ulaşmak için kaydettiğiniz iş ortakları burada listelenir.</p>
+        <p className={styles.pageEyebrow}>{t("favoritesEyebrow")}</p>
+        <h1 className={styles.pageTitle}>{t("favoritesTitle")}</h1>
+        <p className={styles.pageDesc}>{t("favoritesDescription")}</p>
       </header>
 
       {favs.length === 0 ? (
         <PartnerPanelEmptyState
           icon={<Heart size={22} aria-hidden />}
-          title="Henüz favori eklemediniz"
-          description="İşletme profillerindeki “Favorilere kaydet” ile buraya ekleyebilirsiniz."
+          title={t("favoritesEmptyTitle")}
+          description={t("favoritesEmptyDescription")}
         />
       ) : (
         <ul className="grid grid-cols-2 gap-3.5 max-[720px]:grid-cols-1">
@@ -60,7 +63,7 @@ export default async function FavoritesPage({ params }: { params: Promise<{ loca
               </Link>
               <form action={removeFavorite}>
                 <input type="hidden" name="business_id" value={b.id} />
-                <button type="submit" aria-label="Favoriden kaldır" className="shrink-0 rounded-[8px] border border-line p-1.5 text-brand transition-colors hover:bg-cream">
+                <button type="submit" aria-label={t("favoritesRemove")} className="shrink-0 rounded-[8px] border border-line p-1.5 text-brand transition-colors hover:bg-cream">
                   <Heart size={16} className="fill-current" aria-hidden />
                 </button>
               </form>

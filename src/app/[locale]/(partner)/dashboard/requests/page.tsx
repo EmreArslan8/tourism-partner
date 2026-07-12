@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Megaphone, Inbox, Send, Eye } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -11,9 +11,6 @@ import DashboardTopbar from "../Topbar";
 import styles from "../styles";
 import { PartnerPanelButton, PartnerPanelCard, PartnerPanelEmptyState, PartnerPanelField, PartnerPanelSelect, PartnerPanelTextarea } from "../_ui";
 
-const groupLabel = (g: string | null) => CATEGORY_GROUPS.find((c) => c.key === g)?.label ?? null;
-
-const fmt = (v: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(v));
 const bizName = (r: { name: string } | { name: string }[] | null) =>
   (Array.isArray(r) ? r[0]?.name : r?.name) ?? "—";
 
@@ -22,6 +19,12 @@ type Req = { id: number; title: string; description: string | null; region: stri
 export default async function RequestsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const [t, tc] = await Promise.all([getTranslations("panel"), getTranslations("cat")]);
+  const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
+  const groupLabel = (g: string | null) => {
+    const group = CATEGORY_GROUPS.find((c) => c.key === g);
+    return group ? tc(group.key) : null;
+  };
 
   const session = await getPanelSession();
   if (!session) redirect({ href: "/login", locale });
@@ -32,12 +35,12 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
   if (!biz) {
     return (
       <>
-        <DashboardTopbar title="Talep & Teklif" />
+        <DashboardTopbar title={t("requestsNav")} />
         <div className={styles.content}>
           <PartnerPanelEmptyState
-            title="Önce firma profilinizi oluşturun"
-            description="Talep açıp teklif verebilmek için önce işletme kaydınızı tamamlayın."
-            action={<Link href="/dashboard/listings" className={styles.compactPrimaryButton}>İlan yönetimine git</Link>}
+            title={t("profileRequiredTitle")}
+            description={t("requestsProfileRequired")}
+            action={<Link href="/dashboard/listings" className={styles.compactPrimaryButton}>{t("goToListings")}</Link>}
           />
         </div>
       </>
@@ -78,39 +81,39 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 
   return (
     <>
-      <DashboardTopbar title="Talep & Teklif" />
+      <DashboardTopbar title={t("requestsNav")} />
       <div className={styles.content}>
       <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>Talep &amp; Teklif</p>
-        <h1 className={styles.pageTitle}>İlan aç, teklif topla</h1>
-        <p className={styles.pageDesc}>Bölgeniz için talep/ilan oluşturun; ilgili tedarikçiler size teklif sunsun. Açık ilanlara siz de teklif verebilirsiniz.</p>
+        <p className={styles.pageEyebrow}>{t("requestsNav")}</p>
+        <h1 className={styles.pageTitle}>{t("requestsTitle")}</h1>
+        <p className={styles.pageDesc}>{t("requestsDescription")}</p>
       </header>
 
       <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-6 max-[900px]:grid-cols-1">
         {/* SOL — Talep oluştur + Taleplerim */}
         <section className="flex flex-col gap-5">
           <PartnerPanelCard bodyClassName="p-5">
-            <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Megaphone size={17} className="text-[#1557C2]" aria-hidden /> Yeni talep aç</h2>
+            <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Megaphone size={17} className="text-[#1557C2]" aria-hidden /> {t("requestsNew")}</h2>
             <form action={createB2bRequest} className="grid gap-2.5">
-              <PartnerPanelField name="title" required maxLength={160} placeholder="Örn. GAP turu için Şanlıurfa 3 gece otel talebi" />
+              <PartnerPanelField name="title" required maxLength={160} placeholder={t("requestsTitlePlaceholder")} />
               <div className="grid grid-cols-2 gap-2.5 max-[420px]:grid-cols-1">
-                <PartnerPanelField name="region" maxLength={120} placeholder="Bölge (örn. Şanlıurfa)" />
+                <PartnerPanelField name="region" maxLength={120} placeholder={t("requestsRegionPlaceholder")} />
                 <PartnerPanelSelect name="target_group" defaultValue="">
-                  <option value="">Tüm kategoriler</option>
+                  <option value="">{t("partnerAllGroups")}</option>
                   {CATEGORY_GROUPS.map((g) => (
-                    <option key={g.key} value={g.key}>{g.label}</option>
+                    <option key={g.key} value={g.key}>{tc(g.key)}</option>
                   ))}
                 </PartnerPanelSelect>
               </div>
-              <PartnerPanelTextarea name="description" rows={3} maxLength={2000} placeholder="Detaylar: tarih, kişi sayısı, konsept…" />
-              <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5">Talebi Yayınla</PartnerPanelButton>
+              <PartnerPanelTextarea name="description" rows={3} maxLength={2000} placeholder={t("requestsDetailsPlaceholder")} />
+              <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5">{t("requestsPublish")}</PartnerPanelButton>
             </form>
           </PartnerPanelCard>
 
           <PartnerPanelCard bodyClassName="p-5">
-            <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Inbox size={17} className="text-[#1557C2]" aria-hidden /> Taleplerim ({myReq.length})</h2>
+            <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Inbox size={17} className="text-[#1557C2]" aria-hidden /> {t("requestsMine", { count: myReq.length })}</h2>
             {myReq.length === 0 ? (
-              <p className="text-[13px] text-muted">Henüz talep açmadınız.</p>
+              <p className="text-[13px] text-muted">{t("requestsMineEmpty")}</p>
             ) : (
               <ul className="grid gap-3">
                 {myReq.map((r) => {
@@ -125,13 +128,13 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
                         {r.status !== "archived" && (
                           <form action={closeMyB2bRequest}>
                             <input type="hidden" name="id" value={r.id} />
-                            <button type="submit" className="shrink-0 rounded-[8px] border border-[#BFD2F2] px-2.5 py-1 text-[11.5px] font-medium text-[#1557C2] hover:bg-[#EAF2FF]">Kapat</button>
+                            <button type="submit" className="shrink-0 rounded-[8px] border border-[#BFD2F2] px-2.5 py-1 text-[11.5px] font-medium text-[#1557C2] hover:bg-[#EAF2FF]">{t("requestsClose")}</button>
                           </form>
                         )}
                       </div>
                       {offers.length > 0 && (
                         <div className="mt-2.5 grid gap-1.5 border-t border-line/70 pt-2.5">
-                          <p className="text-[11.5px] font-bold uppercase tracking-[.06em] text-terra-deep">{offers.length} teklif geldi</p>
+                          <p className="text-[11.5px] font-bold uppercase tracking-[.06em] text-terra-deep">{t("requestsOffersReceived", { count: offers.length })}</p>
                           {offers.map((o) => (
                             <div key={o.id} className="rounded-[9px] bg-white px-3 py-2 text-[12.5px]">
                               <span className="font-bold text-ink">{bizName(o.businesses)}</span>
@@ -151,9 +154,9 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 
         {/* SAĞ — Açık ilanlar (teklif ver) */}
         <PartnerPanelCard bodyClassName="p-5">
-          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Send size={17} className="text-[#1557C2]" aria-hidden /> Size uygun açık ilanlar</h2>
+          <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Send size={17} className="text-[#1557C2]" aria-hidden /> {t("requestsOpenMatches")}</h2>
           {openReq.length === 0 ? (
-            <p className="text-[13px] text-muted">Bölgeniz/kategorinizde şu an açık ilan yok.</p>
+            <p className="text-[13px] text-muted">{t("requestsOpenEmpty")}</p>
           ) : (
             <ul className="grid gap-3">
               {openReq.map((r) => (
@@ -168,15 +171,15 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
                   <p className="mt-0.5 text-[12px] font-medium text-muted">{bizName(r.businesses)} · {r.region ?? "—"} · {fmt(r.created_at)}</p>
                   {r.description && <p className="mt-1.5 text-[13px] leading-5 text-ink/80">{r.description}</p>}
                   {offered.has(r.id) ? (
-                    <p className="mt-2.5 text-[12.5px] font-bold text-emerald-700">✓ Teklif verdiniz</p>
+                    <p className="mt-2.5 text-[12.5px] font-bold text-emerald-700">✓ {t("requestsOffered")}</p>
                   ) : (
                     <form action={submitB2bOffer} className="mt-2.5 grid gap-2 border-t border-line/70 pt-2.5">
                       <input type="hidden" name="request_id" value={r.id} />
                       <div className="grid grid-cols-[1fr_140px] gap-2 max-[420px]:grid-cols-1">
-                        <PartnerPanelField name="message" required maxLength={2000} placeholder="Teklifiniz / notunuz…" />
-                        <PartnerPanelField name="price" maxLength={120} placeholder="Fiyat (ops.)" />
+                        <PartnerPanelField name="message" required maxLength={2000} placeholder={t("requestsOfferPlaceholder")} />
+                        <PartnerPanelField name="price" maxLength={120} placeholder={t("requestsPricePlaceholder")} />
                       </div>
-                      <PartnerPanelButton type="submit" variant="ghost" className="h-9 w-fit px-3.5">Teklif Ver</PartnerPanelButton>
+                      <PartnerPanelButton type="submit" variant="ghost" className="h-9 w-fit px-3.5">{t("requestsSubmitOffer")}</PartnerPanelButton>
                     </form>
                   )}
                 </li>

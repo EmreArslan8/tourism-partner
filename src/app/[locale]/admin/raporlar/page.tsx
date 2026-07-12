@@ -10,12 +10,13 @@ import {
 } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
+import { groupLabel } from "@/lib/categories";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { AdminBusiness } from "@/lib/types";
+import type { AdminBusiness, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AdminEmptyState, AdminPage, AdminPanel, adminUi } from "../_ui";
-import { ConversionFunnelChart, CountBarList, DailyTrendChart, type DayBucket } from "./charts";
+import { ConversionFunnelChart, CountBarList, DailyTrendChart, HourlyTracker, KpiSparkline, QuoteStatusDonut, type DayBucket } from "./charts";
 
 type Period = "7d" | "30d" | "month";
 
@@ -126,7 +127,13 @@ export default async function Page({
   const groupRows = densityRows(filteredBusinesses, perBusiness, (b) => b.group).slice(0, 6);
 
   const days = dailyBuckets(currentViews, period);
+  const visitorTrend = dailyVisitorBuckets(currentViews, period);
+  const quoteTrend = dailyCountBuckets(currentQuotes.map((quote) => quote.createdAt), period);
+  const totalTrend = days.map((day) => day.impressions + day.details);
+  const ctrTrend = days.map((day) => day.impressions > 0 ? (day.details / day.impressions) * 100 : 0);
   const hourly = hourlyBuckets(currentViews);
+  const hourlyPeakValue = Math.max(...hourly, 0);
+  const hourlyPeak = hourlyPeakValue > 0 ? hourly.indexOf(hourlyPeakValue) : null;
   const quoteStatuses = countBy(currentQuotes.map((q) => q.status || "new"));
   const quoteCities = countBy(
     currentQuotes.map((q) => q.city).filter((c): c is string => !!c),
@@ -152,39 +159,39 @@ export default async function Page({
       description={`Görüntülenme, dönüşüm, bölge yoğunluğu ve talep performansı. ${periodLabel} · ${rangeLabel}${selectedCity ? ` · ${selectedCity}` : ""}${selectedGroup ? ` · ${selectedGroup}` : ""}`}
     >
       {/* Global filtre barı — tüm panelleri etkiler */}
-      <AdminPanel className="mb-6" bodyClassName="p-4">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex flex-wrap items-center gap-2">
+      <AdminPanel className="mb-4 border-line/80 bg-paper/80 shadow-none" bodyClassName="p-2.5 min-[760px]:p-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-1.5 rounded-[9px] bg-cream/65 p-1">
             {PERIODS.map((p) => (
               <Link
                 key={p.value}
                 href={{ pathname: "/admin/raporlar", query: queryFor({ period: p.value }) }}
                 className={cn(
-                  "inline-flex h-9 items-center rounded-full border px-4 text-[13px] font-medium transition-colors",
+                  "inline-flex h-8 items-center rounded-[7px] border px-3 text-[12px] font-medium transition-[color,background-color,border-color,box-shadow]",
                   p.value === period
-                    ? "border-sapphire bg-sapphire text-paper"
-                    : "border-line bg-paper text-brand hover:bg-cream",
+                    ? "border-sapphire bg-sapphire text-paper shadow-card"
+                    : "border-transparent bg-transparent text-muted hover:bg-paper hover:text-brand",
                 )}
               >
                 {p.label}
               </Link>
             ))}
           </div>
-          <form method="get" className="flex flex-1 flex-wrap items-center gap-2 sm:min-w-[380px]">
+          <form method="get" className="flex min-w-0 flex-1 flex-wrap items-center gap-2 min-[760px]:justify-end">
             {period !== "7d" && <input type="hidden" name="period" value={period} />}
-            <select name="city" defaultValue={selectedCity} className={cn(adminUi.input, "w-auto min-w-[160px] flex-1")}>
+            <select name="city" defaultValue={selectedCity} className={cn(adminUi.input, "!min-h-9 w-auto min-w-[150px] flex-1 !py-1 text-[12.5px] min-[1100px]:max-w-[260px]")}>
               <option value="">Tüm bölgeler</option>
               {allCities.map((city) => <option key={city.label} value={city.label}>{city.label}</option>)}
             </select>
-            <select name="group" defaultValue={selectedGroup} className={cn(adminUi.input, "w-auto min-w-[160px] flex-1")}>
+            <select name="group" defaultValue={selectedGroup} className={cn(adminUi.input, "!min-h-9 w-auto min-w-[150px] flex-1 !py-1 text-[12.5px] min-[1100px]:max-w-[260px]")}>
               <option value="">Tüm kategoriler</option>
-              {allGroups.map((group) => <option key={group.label} value={group.label}>{group.label}</option>)}
+              {allGroups.map((group) => <option key={group.label} value={group.label}>{groupLabel(group.label as GroupKey)}</option>)}
             </select>
-            <button type="submit" className={adminUi.sapphireButton}>Filtrele</button>
+            <button type="submit" className={cn(adminUi.sapphireButton, "!h-9 !px-3.5")}>Filtrele</button>
             {hasFilter && (
               <Link
                 href={{ pathname: "/admin/raporlar", query: queryFor({ city: "", group: "" }) }}
-                className={adminUi.ghostButton}
+                className={cn(adminUi.ghostButton, "!h-9 !px-3")}
               >
                 Temizle
               </Link>
@@ -194,11 +201,11 @@ export default async function Page({
       </AdminPanel>
 
       {/* KPI satırı — önceki eşdeğer döneme göre delta */}
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard icon={<TrendingUp size={20} aria-hidden />} label="Görüntülenme" value={cur.total.toLocaleString("tr-TR")} delta={deltaPct(cur.total, prev.total)} hint="Toplam olay (impression + detay)" />
-        <KpiCard icon={<Users size={20} aria-hidden />} label="Tekil Ziyaretçi" value={cur.visitors.toLocaleString("tr-TR")} delta={deltaPct(cur.visitors, prev.visitors)} hint="Distinct ziyaretçi (bot hariç)" />
-        <KpiCard icon={<Percent size={20} aria-hidden />} label="CTR" value={cur.ctr === null ? "—" : `%${cur.ctr.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`} delta={deltaPct(cur.ctr, prev.ctr)} hint="Impression → detay oranı" />
-        <KpiCard icon={<MessageSquare size={20} aria-hidden />} label="Teklif Talebi" value={cur.quotes.toLocaleString("tr-TR")} delta={deltaPct(cur.quotes, prev.quotes)} hint="Dönem içi gelen talepler" />
+      <section className="mb-5 grid overflow-hidden rounded-[12px] border border-line bg-paper shadow-card sm:grid-cols-2 xl:grid-cols-4" aria-label="Temel performans göstergeleri">
+        <KpiCard className="border-b sm:border-r xl:border-b-0" icon={<TrendingUp size={18} aria-hidden />} label="Görüntülenme" value={cur.total.toLocaleString("tr-TR")} delta={deltaPct(cur.total, prev.total)} hint="Gösterim + profil ziyareti" trend={totalTrend} />
+        <KpiCard className="border-b xl:border-b-0 xl:border-r" icon={<Users size={18} aria-hidden />} label="Tekil Ziyaretçi" value={cur.visitors.toLocaleString("tr-TR")} delta={deltaPct(cur.visitors, prev.visitors)} hint="Bot hariç tekil ziyaretçi" trend={visitorTrend} />
+        <KpiCard className="border-b sm:border-b-0 sm:border-r" icon={<Percent size={18} aria-hidden />} label="CTR" value={cur.ctr === null ? "—" : `%${cur.ctr.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`} delta={deltaPct(cur.ctr, prev.ctr)} hint="Gösterimden profile geçiş" trend={ctrTrend} />
+        <KpiCard icon={<MessageSquare size={18} aria-hidden />} label="Teklif Talebi" value={cur.quotes.toLocaleString("tr-TR")} delta={deltaPct(cur.quotes, prev.quotes)} hint="Gelen teklif talepleri" trend={quoteTrend} />
       </section>
 
       {/* Ana satır: trend + saatlik şerit | huni */}
@@ -207,7 +214,9 @@ export default async function Page({
           <DailyTrendChart days={days} />
           <div className="mt-5 border-t border-line/80 pt-4">
             <p className="mb-2 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">Saatlik yoğunluk</p>
-            <HourlyStrip hourly={hourly} />
+            <HourlyTracker hourly={hourly} />
+            <div className="mt-2 flex justify-between text-[11px] font-semibold text-muted"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div>
+            <p className="mt-2 text-[12px] font-medium text-muted">{hourlyPeak === null ? "Henüz saatlik veri yok." : `En yoğun saat ${String(hourlyPeak).padStart(2, "0")}:00 · ${hourlyPeakValue.toLocaleString("tr-TR")} olay`}</p>
           </div>
         </AdminPanel>
 
@@ -217,11 +226,11 @@ export default async function Page({
       </div>
 
       {/* İkinci satır: en çok görüntülenen işletmeler | talep analizi */}
-      <div className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
+      <div className="mt-6 grid items-start gap-6 xl:grid-cols-[2fr_1fr]">
         <AdminPanel title="En Çok Görüntülenen İşletmeler" icon={<Eye size={18} aria-hidden />} bodyClassName="p-5">
           {topBusinesses.length > 0 ? (
-            <div className="grid gap-2">
-              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-3 pb-1 text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
+            <div>
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 border-b border-line px-2 pb-2 text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
                 <span>İşletme</span>
                 <span className="w-14 text-right">Impr.</span>
                 <span className="w-14 text-right">Detay</span>
@@ -233,7 +242,7 @@ export default async function Page({
                   <Link
                     key={row.id}
                     href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(row.id) } }}
-                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 rounded-[8px] border border-line/80 bg-cream/45 px-3 py-2 text-[13px] font-bold text-ink/80 transition-colors hover:border-sapphire/50 hover:bg-cream"
+                    className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-line/70 px-2 py-2.5 text-[13px] font-bold text-ink/80 transition-colors last:border-b-0 hover:bg-cream/55"
                   >
                     <span className="min-w-0">
                       <span className="block truncate text-ink">{row.name}</span>
@@ -252,38 +261,29 @@ export default async function Page({
         </AdminPanel>
 
         <AdminPanel title="Talep Analizi" icon={<MessageSquare size={18} aria-hidden />} bodyClassName="p-5">
-          <p className="mb-3 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">Durum dağılımı</p>
-          {quoteStatuses.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {quoteStatuses.map((row) => {
-                const meta = QUOTE_STATUS[row.label] ?? { label: row.label, cls: "bg-cream text-ink/70" };
-                return (
-                  <span key={row.label} className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[12.5px] font-bold ${meta.cls}`}>
-                    {meta.label}
-                    <span className="rounded-full bg-paper/70 px-1.5 text-[12px]">{row.count.toLocaleString("tr-TR")}</span>
-                  </span>
-                );
-              })}
+          {currentQuotes.length === 0 ? (
+            <div className="flex items-start gap-3 rounded-[10px] bg-cream/55 p-4">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-paper text-brand"><MessageSquare size={17} aria-hidden /></span>
+              <div><p className="text-[13.5px] font-semibold text-ink">Bu dönemde teklif talebi yok</p><p className="mt-1 text-[12.5px] leading-5 text-muted">Talep oluştuğunda durum ve şehir dağılımı burada gösterilecek.</p></div>
             </div>
           ) : (
-            <p className="text-[13px] font-semibold text-muted">Dönem içinde teklif talebi yok.</p>
-          )}
-          <p className="mb-3 mt-6 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">En çok talep gelen şehirler</p>
-          {quoteCities.length > 0 ? (
-            <CountBarList rows={quoteCities} />
-          ) : (
-            <p className="text-[13px] font-semibold text-muted">Şehir bilgili talep bulunamadı.</p>
+            <>
+              <p className="mb-3 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">Durum dağılımı</p>
+              <QuoteStatusDonut rows={quoteStatuses.map((row) => ({ label: QUOTE_STATUS[row.label]?.label ?? row.label, count: row.count }))} />
+              <p className="mb-3 mt-6 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">En çok talep gelen şehirler</p>
+              {quoteCities.length > 0 ? <CountBarList rows={quoteCities} /> : <p className="text-[13px] font-semibold text-muted">Şehir bilgili talep bulunamadı.</p>}
+            </>
           )}
         </AdminPanel>
       </div>
 
       {/* Üçüncü satır: bölge / kategori yoğunluğu — satırlar filtre linki */}
       <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <AdminPanel title="Bölge Yoğunluğu" icon={<MapPin size={18} aria-hidden />} bodyClassName="p-5">
-          <DensityLinkList rows={cityRows} hrefFor={(label) => ({ pathname: "/admin/raporlar" as const, query: queryFor({ city: label }) })} />
+        <AdminPanel title="Bölge Yoğunluğu" icon={<MapPin size={18} aria-hidden />} bodyClassName="p-4">
+          <DensityLinkList rows={cityRows} accent="sapphire" hrefFor={(label) => ({ pathname: "/admin/raporlar" as const, query: queryFor({ city: label }) })} />
         </AdminPanel>
-        <AdminPanel title="Kategori Yoğunluğu" icon={<BarChart3 size={18} aria-hidden />} bodyClassName="p-5">
-          <DensityLinkList rows={groupRows} hrefFor={(label) => ({ pathname: "/admin/raporlar" as const, query: queryFor({ group: label }) })} />
+        <AdminPanel title="Kategori Yoğunluğu" icon={<BarChart3 size={18} aria-hidden />} bodyClassName="p-4">
+          <DensityLinkList rows={groupRows} accent="gold" displayLabel={(label) => groupLabel(label as GroupKey)} hrefFor={(label) => ({ pathname: "/admin/raporlar" as const, query: queryFor({ group: label }) })} />
         </AdminPanel>
       </div>
     </AdminPage>
@@ -298,36 +298,43 @@ const KpiCard = ({
   value,
   delta,
   hint,
+  className,
+  trend,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   delta: number | null;
   hint: string;
+  className?: string;
+  trend: number[];
 }) => (
-  <article className={cn(adminUi.metric, "flex items-center gap-4")}>
-    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[10px] bg-cream text-brand">{icon}</span>
-    <div className="min-w-0">
-      <p className="text-[13px] font-normal text-muted">{label}</p>
-      <p className="mt-1 flex items-baseline gap-2 text-[28px] font-medium leading-none text-ink">
+  <article className={cn("group flex min-h-[104px] items-center gap-3 border-line/80 px-4 py-3.5 transition-colors hover:bg-cream/35", className)}>
+    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-sapphire/10 text-brand transition-colors group-hover:bg-sapphire group-hover:text-paper">{icon}</span>
+    <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_76px] items-end gap-2">
+      <div className="min-w-0">
+      <p className="text-[12px] font-medium text-muted">{label}</p>
+      <p className="mt-1 flex flex-wrap items-baseline gap-1.5 text-[25px] font-semibold leading-none tracking-[-.02em] text-ink">
         {value}
         <DeltaBadge delta={delta} />
       </p>
-      <p className="mt-2 text-[12.5px] font-normal text-muted">{hint}</p>
+      <p className="mt-1.5 truncate text-[11.5px] font-normal text-muted" title={hint}>{hint}</p>
+      </div>
+      <KpiSparkline values={trend} />
     </div>
   </article>
 );
 
 const DeltaBadge = ({ delta }: { delta: number | null }) => {
   if (delta === null) {
-    return <span className="rounded-full bg-cream/70 px-2 py-0.5 text-[11.5px] font-bold text-muted">—</span>;
+    return <span className="rounded-full bg-cream/70 px-1.5 py-0.5 text-[10.5px] font-semibold text-muted">—</span>;
   }
   const up = delta > 0;
   const flat = delta === 0;
   return (
     <span
       className={cn(
-        "rounded-full px-2 py-0.5 text-[11.5px] font-bold",
+        "rounded-full px-1.5 py-0.5 text-[10.5px] font-semibold",
         flat ? "bg-cream/70 text-muted" : up ? "bg-group-saglik/15 text-group-saglik" : "bg-red-50 text-red-700",
       )}
       title="Önceki eşdeğer döneme göre"
@@ -337,69 +344,57 @@ const DeltaBadge = ({ delta }: { delta: number | null }) => {
   );
 };
 
-const HourlyStrip = ({ hourly }: { hourly: number[] }) => {
-  const max = Math.max(...hourly, 1);
-  const peak = hourly.indexOf(max);
-  const hasData = Math.max(...hourly, 0) > 0;
-  return (
-    <div>
-      <div className="flex items-end gap-[3px]" style={{ height: 56 }}>
-        {hourly.map((count, hour) => {
-          const h = Math.max(2, (count / max) * 56);
-          const isPeak = hour === peak && count > 0;
-          return (
-            <div key={hour} className="flex-1" title={`${String(hour).padStart(2, "0")}:00 · ${count.toLocaleString("tr-TR")} olay`}>
-              <div className={cn("rounded-t-[2px]", isPeak ? "bg-gold" : "bg-sapphire/70")} style={{ height: h }} />
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-1.5 flex justify-between text-[11px] font-semibold text-muted">
-        <span>00:00</span>
-        <span>06:00</span>
-        <span>12:00</span>
-        <span>18:00</span>
-        <span>23:00</span>
-      </div>
-      <p className="mt-2 text-[12.5px] font-semibold text-muted">
-        {hasData
-          ? `En yoğun saat: ${String(peak).padStart(2, "0")}:00 (${max.toLocaleString("tr-TR")} olay)`
-          : "Henüz saatlik veri yok."}
-      </p>
-    </div>
-  );
-};
-
 const DensityLinkList = ({
   rows,
   hrefFor,
+  displayLabel = (label) => label,
+  accent,
 }: {
   rows: Array<{ label: string; businesses: number; views: number }>;
   hrefFor: (label: string) => { pathname: "/admin/raporlar"; query: Record<string, string> };
+  displayLabel?: (label: string) => string;
+  accent: "sapphire" | "gold";
 }) => {
   if (rows.length === 0) {
     return <p className="text-[13px] font-semibold text-muted">Veri bulunamadı.</p>;
   }
   const max = Math.max(...rows.map((r) => r.views), 1);
+  const totalViews = rows.reduce((sum, row) => sum + row.views, 0);
+  const totalBusinesses = rows.reduce((sum, row) => sum + row.businesses, 0);
+  const accentBar = accent === "gold" ? "bg-gold" : "bg-sapphire";
+  const accentSoft = accent === "gold" ? "bg-gold/20 text-ink" : "bg-sapphire/10 text-brand";
   return (
-    <div className="grid gap-2">
-      {rows.map((row) => (
+    <div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-[9px] bg-cream/55 px-3 py-2.5">
+        <span className="text-[12px] font-medium text-muted">İlk {rows.length} sonuç</span>
+        <span className="text-[12px] font-semibold text-ink">{totalBusinesses.toLocaleString("tr-TR")} işletme · {totalViews.toLocaleString("tr-TR")} görüntülenme</span>
+      </div>
+      <div className="grid gap-1">
+      {rows.map((row, index) => {
+        const share = totalViews > 0 ? (row.views / totalViews) * 100 : 0;
+        return (
         <Link
           key={row.label}
           href={hrefFor(row.label)}
-          className="group rounded-[8px] px-2 py-1.5 transition-colors hover:bg-cream/60"
+          className="group grid grid-cols-[30px_minmax(0,1fr)] gap-2.5 rounded-[9px] px-2 py-2.5 transition-colors hover:bg-cream/60"
         >
-          <div className="mb-1 flex justify-between gap-3 text-[13px] font-medium text-ink/80">
-            <span className="truncate group-hover:text-sapphire">{row.label}</span>
-            <span className="shrink-0 text-[12px] font-semibold text-muted">
-              {row.businesses.toLocaleString("tr-TR")} işletme · {row.views.toLocaleString("tr-TR")} görüntülenme
-            </span>
-          </div>
-          <div className="h-2 rounded-full bg-cream">
-            <div className="h-2 rounded-full bg-sapphire" style={{ width: `${Math.max(8, (row.views / max) * 100)}%` }} />
+          <span className={`grid h-7 w-7 place-items-center rounded-[8px] text-[11px] font-bold ${accentSoft}`}>{index + 1}</span>
+          <div className="min-w-0">
+            <div className="mb-1.5 flex items-baseline justify-between gap-3">
+              <span className="truncate text-[13px] font-semibold text-ink group-hover:text-sapphire">{displayLabel(row.label)}</span>
+              <span className="shrink-0 text-[13px] font-semibold text-ink">{row.views.toLocaleString("tr-TR")}</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-line/70">
+              <div className={`h-full rounded-full ${accentBar}`} style={{ width: `${Math.max(5, (row.views / max) * 100)}%` }} />
+            </div>
+            <div className="mt-1.5 flex justify-between gap-3 text-[11.5px] font-medium text-muted">
+              <span>{row.businesses.toLocaleString("tr-TR")} işletme</span>
+              <span>Toplamın %{share.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}&apos;i</span>
+            </div>
           </div>
         </Link>
-      ))}
+      )})}
+      </div>
     </div>
   );
 };
@@ -484,6 +479,43 @@ function dailyBuckets(views: ReportView[], period: Period): DayBucket[] {
     else if (v.entityType === "business") days[i].details += 1;
   }
   return days;
+}
+
+function dailyCountBuckets(timestamps: string[], period: Period): number[] {
+  const now = new Date();
+  const dayCount = period === "7d" ? 7 : period === "30d" ? 30 : now.getDate();
+  const keys: string[] = [];
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    keys.push(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+  }
+  const index = new Map(keys.map((key, i) => [key, i]));
+  const counts = new Array(dayCount).fill(0) as number[];
+  for (const timestamp of timestamps) {
+    const date = new Date(timestamp);
+    const i = index.get(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+    if (i != null) counts[i] += 1;
+  }
+  return counts;
+}
+
+function dailyVisitorBuckets(views: ReportView[], period: Period): number[] {
+  const now = new Date();
+  const dayCount = period === "7d" ? 7 : period === "30d" ? 30 : now.getDate();
+  const keys: string[] = [];
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    keys.push(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+  }
+  const index = new Map(keys.map((key, i) => [key, i]));
+  const visitors = Array.from({ length: dayCount }, () => new Set<string>());
+  for (const view of views) {
+    if (!view.visitorId) continue;
+    const date = new Date(view.viewedAt);
+    const i = index.get(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+    if (i != null) visitors[i].add(view.visitorId);
+  }
+  return visitors.map((day) => day.size);
 }
 
 function hourlyBuckets(views: ReportView[]): number[] {

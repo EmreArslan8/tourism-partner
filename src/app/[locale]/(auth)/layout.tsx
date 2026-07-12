@@ -1,4 +1,12 @@
+import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
+
+/* Giriş, kayıt ve şifre işlemleri arama niyetine hizmet eden açılış sayfaları
+ * değildir. Linklerin keşfi sürsün, ancak bu ince/işlemsel sayfalar SERP'e
+ * girmesin. Bu metadata auth grubundaki tüm rotalara uygulanır. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 /*
  * Auth chrome'u: site header/footer YOK. Tam ekran split-screen kabuk (AuthShell)

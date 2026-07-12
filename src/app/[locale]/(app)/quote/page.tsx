@@ -1,9 +1,31 @@
+import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import QuoteForm, { type QuoteInitialFilters } from "@/components/QuoteForm";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { getBusinessById } from "@/lib/businesses";
+import { localeAlternates } from "@/lib/seo";
+import type { SiteLocale } from "@/lib/site";
 import type { GroupKey } from "@/lib/types";
 import QuoteView from "./view";
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<QuoteSearchParams>;
+}): Promise<Metadata> {
+  const [{ locale }, filters] = await Promise.all([params, searchParams]);
+  const isFiltered = Object.values(filters).some((value) => value !== undefined && value !== "");
+
+  return {
+    // ?cat=, ?type=, ?city= ve ?s= gibi varyasyonlar aynı formun önceden
+    // doldurulmuş kopyalarıdır; ayrı arama sonucu olmamalıdır.
+    robots: isFiltered ? { index: false, follow: true } : { index: true, follow: true },
+    // Parametrelerden bağımsız olarak temiz teklif URL'sini kanonik tut.
+    alternates: localeAlternates(locale as SiteLocale, "/quote"),
+  };
+}
 
 const QuotePage = async ({
   params,

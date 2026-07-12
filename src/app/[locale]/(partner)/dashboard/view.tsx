@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { AlertCircle, ArrowLeft, CheckCircle2, Eye, ImagePlus, LoaderCircle, LogOut, PencilLine, Plus, Search, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, ImagePlus, Images, LoaderCircle, LogOut, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
@@ -37,6 +37,8 @@ const SOCIAL_PLACEHOLDERS: Record<SocialPlatform, string> = {
   youtube: "https://youtube.com/@…",
   x: "https://x.com/…",
 };
+
+type EditSection = "basic" | "media" | "services" | "partners" | "company" | "documents" | "contacts";
 
 export type PanelBusiness = {
   id: number;
@@ -320,6 +322,7 @@ const DashboardView = ({
   const [gallery, setGallery] = useState<string[]>(b?.images ?? draft?.gallery ?? []);
   const [documents, setDocuments] = useState<BusinessDocument[]>(b?.documents ?? draft?.documents ?? []);
   const [contactRows, setContactRows] = useState<PanelContact[]>(contacts ?? []);
+  const [activeEditSection, setActiveEditSection] = useState<EditSection>("basic");
 
   const addContact = () =>
     setContactRows((rows) => (rows.length >= 10 ? rows : [...rows, { full_name: "", title: "", phone: "", email: "" }]));
@@ -357,12 +360,23 @@ const DashboardView = ({
   const hasListingDashboard = !!b && (statusKey === "pending" || statusKey === "approved" || statusKey === "active");
   const showProfileForm = mode === "edit";
   const isOverview = mode === "overview";
+  const isListingForm = showProfileForm || (!isOverview && !hasListingDashboard);
   const editListingHref: Href = b
     ? { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } }
     : "/dashboard/listings/new";
   const previewHref: Href | null = b
     ? { pathname: "/supplier/[id]", params: { id: businessSlug(b) } }
     : null;
+  const editSections = [
+    { key: "basic" as const, label: t("editTabBasic"), Icon: Building2, complete: Boolean((b?.name || meta.firm_name) && selectedCountry && selectedCity && selectedDistrict) },
+    { key: "media" as const, label: t("editTabMedia"), Icon: Images, complete: Boolean(cover) },
+    { key: "services" as const, label: t("editTabServices"), Icon: SlidersHorizontal, complete: selectedAttrs.size > 0 },
+    { key: "partners" as const, label: t("editTabPartners"), Icon: Users, complete: acceptedPartners.length > 0 },
+    ...(dynFields.length > 0 ? [{ key: "company" as const, label: isGuide ? t("guideFieldsTitle") : t("editTabCompany"), Icon: BriefcaseBusiness, complete: dynFields.every((field) => Boolean(detailValues[field.key])) }] : []),
+    ...(docFields.length > 0 ? [{ key: "documents" as const, label: t("editTabDocuments"), Icon: FileCheck2, complete: docFields.filter((field) => field.required).every((field) => documents.some((doc) => doc.kind === field.kind)) }] : []),
+    { key: "contacts" as const, label: t("editTabContacts"), Icon: Users, complete: contactRows.some((contact) => contact.full_name.trim().length > 0) },
+  ];
+  const completedEditSections = editSections.filter((section) => section.complete).length;
 
   useEffect(() => {
     if (!state.ok || typeof window === "undefined") return;
@@ -526,7 +540,7 @@ const DashboardView = ({
 
         <div className={styles.content}>
 
-      {!showProfileForm && !isOverview && (
+      {!isListingForm && !isOverview && (
       <section className={styles.hero} id="overview">
         <div>
           <span className={styles.eyebrow}><Sparkles size={13} aria-hidden />{t("overview")}</span>
@@ -561,14 +575,14 @@ const DashboardView = ({
       </section>
       )}
 
-      {!showProfileForm && !isOverview && (statusKey === "pending" || isRestricted) && (
+      {!isListingForm && !isOverview && (statusKey === "pending" || isRestricted) && (
         <section className={cn(styles.notice, isRestricted && styles.noticeDanger)}>
           <b>{statusKey === "pending" ? t("pendingNoticeTitle") : t("restrictedNoticeTitle")}</b>
           <span>{statusKey === "pending" ? t("pendingNoticeText") : t("restrictedNoticeText")}</span>
         </section>
       )}
 
-      {!showProfileForm && !isOverview && (
+      {!isListingForm && !isOverview && (
       <section className={styles.statsGrid}>
         <MetricCard label={t("profileScore")} value={`${profileScore}%`} detail={t("profileScoreSub")} />
         <MetricCard
@@ -584,8 +598,8 @@ const DashboardView = ({
       </section>
       )}
 
-      <div className={cn(styles.grid, (showProfileForm || isOverview) && styles.editGrid)}>
-        <section className={cn(isOverview ? styles.overviewSection : showProfileForm ? styles.editSection : styles.section)} id="profile">
+      <div className={cn(styles.grid, (isListingForm || isOverview) && styles.editGrid)}>
+        <section className={cn(isOverview ? styles.overviewSection : isListingForm ? styles.editSection : styles.section)} id="profile">
           {isOverview ? (
             <OverviewDashboard
               business={b}
@@ -614,6 +628,7 @@ const DashboardView = ({
             <>
               <div className={styles.editIntro}>
                 <div>
+                  <span className={styles.editIntroEyebrow}>{t("listingDashboardTitle")}</span>
                   <h2 className={styles.sectionTitle}>{isAgency ? t("agencyProfileTitle") : t("editTitle")}</h2>
                   <p className={styles.sectionSub}>{isAgency ? t("agencyProfileSub") : t("editSub")}</p>
                 </div>
@@ -636,7 +651,39 @@ const DashboardView = ({
               value={JSON.stringify(contactRows.filter((row) => row.full_name.trim()))}
             />
 
-            <div className={styles.formSection}>
+            <div className={styles.editProgress}>
+              <div>
+                <span>{t("profileScore")}</span>
+                <strong>{profileScore}%</strong>
+              </div>
+              <div className={styles.editProgressTrack} aria-hidden>
+                <i style={{ width: `${profileScore}%` }} />
+              </div>
+              <p>{t("sectionsComplete", { completed: completedEditSections, total: editSections.length })}</p>
+            </div>
+
+            <div className={styles.editTabs} role="tablist" aria-label={t("listingSections")}>
+              {editSections.map(({ key, label, Icon, complete }) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeEditSection === key}
+                  aria-controls={`listing-panel-${key}`}
+                  onClick={() => setActiveEditSection(key)}
+                  className={cn(styles.editTab, activeEditSection === key && styles.editTabActive)}
+                >
+                  <Icon size={16} aria-hidden />
+                  <span>{label}</span>
+                  {complete && <CheckCircle2 size={14} className={styles.editTabCheck} aria-label={t("complete")} />}
+                </button>
+              ))}
+            </div>
+
+            <div className={styles.editFormLayout}>
+              <div className={styles.editFormMain}>
+
+            <div id="listing-panel-media" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "media" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("mediaSectionTitle")}</h3>
             <div className={styles.photoWrap}>
               <span className={styles.labelCls}>{t("photos")}</span>
@@ -691,7 +738,7 @@ const DashboardView = ({
             </div>
             </div>
 
-            <div className={styles.basicFormSection}>
+            <div id="listing-panel-basic" role="tabpanel" className={cn(styles.basicFormSection, activeEditSection !== "basic" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("basicInfoSectionTitle")}</h3>
             <label className={styles.labelCls}>
               {t("name")}
@@ -814,7 +861,7 @@ const DashboardView = ({
             </label>
             </div>
 
-            <div className={styles.formSection}>
+            <div id="listing-panel-services" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "services" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("servicesSectionTitle")}</h3>
             <div className={styles.checklist}>
               <span className={styles.labelCls}>{isAgency ? t("agencyServices") : t("services")}</span>
@@ -834,7 +881,7 @@ const DashboardView = ({
             </div>
             </div>
 
-            <div className={styles.formSection}>
+            <div id="listing-panel-partners" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "partners" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("partnersTitle")}</h3>
               <div className={styles.dynBox}>
                 <span className={styles.labelCls}>{t("partnersTitle")}</span>
@@ -918,7 +965,7 @@ const DashboardView = ({
 
             {/* Kategori-bazlı dinamik alanlar (vergi no, ünvan, kapasite, rehber TCKN/sicil…) */}
             {dynFields.length > 0 && (
-              <div className={styles.formSection}>
+              <div id="listing-panel-company" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "company" && styles.hiddenSection)}>
                 <h3 className={styles.formSectionTitle}>{isGuide ? t("guideFieldsTitle") : t("companyFieldsTitle")}</h3>
               <div className={styles.dynBox}>
                 <span className={styles.labelCls}>
@@ -972,7 +1019,7 @@ const DashboardView = ({
 
             {/* Evrak yükleme — kategoriye göre zorunlu/opsiyonel belgeler */}
             {docFields.length > 0 && (
-              <div className={styles.formSection}>
+              <div id="listing-panel-documents" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "documents" && styles.hiddenSection)}>
                 <h3 className={styles.formSectionTitle}>{t("documentsTitle")}</h3>
               <div className={styles.dynBox}>
                 <span className={styles.labelCls}>{t("documentsTitle")}</span>
@@ -1028,7 +1075,7 @@ const DashboardView = ({
             )}
 
             {/* Yetkili kişiler — one-to-many; ASLA public profilde gösterilmez. */}
-            <div className={styles.formSection}>
+            <div id="listing-panel-contacts" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "contacts" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("contactsTitle")}</h3>
               <div className={styles.dynBox}>
                 <span className={styles.labelCls}>{t("contactsTitle")}</span>
@@ -1096,6 +1143,32 @@ const DashboardView = ({
               </div>
             </div>
 
+              </div>
+
+              <aside className={styles.publishChecklist} aria-label={t("publishChecklist")}>
+                <div className={styles.publishChecklistHead}>
+                  <span>{t("publishChecklist")}</span>
+                  <strong>{completedEditSections}/{editSections.length}</strong>
+                </div>
+                <p>{t("formProgressHint")}</p>
+                <div className={styles.publishChecklistItems}>
+                  {editSections.map(({ key, label, complete }) => (
+                    <button key={key} type="button" onClick={() => setActiveEditSection(key)}>
+                      {complete ? <CheckCircle2 size={16} aria-hidden /> : <AlertCircle size={16} aria-hidden />}
+                      <span>{label}</span>
+                      <small>{complete ? t("complete") : t("incomplete")}</small>
+                    </button>
+                  ))}
+                </div>
+                {previewHref && (
+                  <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
+                    <Eye size={15} aria-hidden />
+                    {t("preview")}
+                  </Link>
+                )}
+              </aside>
+            </div>
+
             {state.ok && <p className={styles.success}>{t("saved")}</p>}
             {state.error && state.error !== "invalidTckn" && state.error !== "invalidTaxNo" && (
               <p className={styles.error}>{state.error === "invalidRegion" ? t("invalidRegion") : t("error")}</p>
@@ -1116,7 +1189,7 @@ const DashboardView = ({
           )}
         </section>
 
-        {!showProfileForm && !isOverview && (
+        {!isListingForm && !isOverview && (
         <aside className={styles.sideStack}>
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>{isAgency ? t("agencyWorkTitle") : t("supplierWorkTitle")}</h2>

@@ -31,12 +31,12 @@ export default function DashboardSidebar({ email }: { email: string }) {
   const items: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/dashboard/listings", icon: Building2, label: t("listingDashboardTitle"), match: "/dashboard/listings" },
-    { href: "/dashboard/requests", icon: FileText, label: "Talep & Teklif", match: "/dashboard/requests" },
+    { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
-    { href: "/dashboard/favorites", icon: Heart, label: "Favorilerim", match: "/dashboard/favorites" },
-    { href: "/dashboard/reviews", icon: Star, label: "Değerlendirmeler", match: "/dashboard/reviews" },
-    { href: "/dashboard/doping", icon: Rocket, label: "Doping", match: "/dashboard/doping" },
-    { href: "/dashboard/support", icon: LifeBuoy, label: "Destek", match: "/dashboard/support" },
+    { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
+    { href: "/dashboard/reviews", icon: Star, label: t("reviewsNav"), match: "/dashboard/reviews" },
+    { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping" },
+    { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
   ];
 
   const isActive = (match: string, exact?: boolean) =>
