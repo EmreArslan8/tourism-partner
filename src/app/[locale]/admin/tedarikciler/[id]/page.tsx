@@ -4,25 +4,16 @@ import {
   Activity,
   Ban,
   BarChart3,
-  CalendarDays,
-  CheckCircle2,
   Eye,
-  ExternalLink,
   FileCheck2,
   GalleryHorizontal,
   History,
-  MapPin,
   MessageSquareText,
-  PauseCircle,
   Search,
   Star,
-  Trash2,
-  UserRoundCog,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { BusinessForm, Empty, QuoteList, panel } from "../../_components";
-import { adminUi } from "../../_ui";
-import { updateBusinessStatus } from "@/lib/actions/admin";
 import { getCrmBusinessDetail, type CrmBusinessDetailData } from "@/lib/admin-crm-data";
 import type { AdminBusiness } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
@@ -30,6 +21,7 @@ import { businessImageUrl } from "@/lib/business-images";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { cn } from "@/lib/utils";
 import BusinessDetailTabs from "./BusinessDetailTabs";
+import SupplierHeader from "./SupplierHeader";
 
 type TabKey =
   | "ozet"
@@ -61,11 +53,29 @@ export default async function AdminBusinessDetailPage({
   const activeTab = normalizeTab(requestedTab);
   const publicHref = { pathname: "/supplier/[id]" as const, params: { id: businessSlug(business) } };
 
+  const cover = businessImageUrl(business.image);
+  const joined = business.createdAt
+    ? new Intl.DateTimeFormat("tr-TR", { month: "short", year: "numeric" }).format(new Date(business.createdAt))
+    : "Tarih yok";
+
   return (
     <div className="mx-auto w-full max-w-[1320px]">
-      <BusinessDetailHeader business={business} locale={locale} publicHref={publicHref} />
+      <SupplierHeader
+        id={business.id}
+        name={business.name}
+        type={business.type}
+        city={business.city}
+        country={business.country}
+        cover={cover}
+        joined={joined}
+        status={business.status}
+        founderPartner={Boolean(business.founderPartner)}
+        sponsored={Boolean(business.sponsored)}
+        locale={locale}
+        publicHref={publicHref}
+      />
 
-      <div className="sticky top-0 z-20 mb-5 border-b border-[#D8DFEA] bg-[#F6F8FC]/95 backdrop-blur">
+      <div className="sticky top-[70px] z-20 mb-5 border-b border-[#D8DFEA] bg-[#F6F8FC]/95 backdrop-blur">
         <BusinessDetailTabs activeTab={activeTab} />
       </div>
 
@@ -78,95 +88,6 @@ export default async function AdminBusinessDetailPage({
     </div>
   );
 }
-
-const BusinessDetailHeader = ({
-  business,
-  locale,
-  publicHref,
-}: {
-  business: AdminBusiness;
-  locale: string;
-  publicHref: { pathname: "/supplier/[id]"; params: { id: string } };
-}) => {
-  const cover = businessImageUrl(business.image);
-  const joined = business.createdAt ? new Intl.DateTimeFormat("tr-TR", { month: "short", year: "numeric" }).format(new Date(business.createdAt)) : "Tarih yok";
-
-  return (
-    <header className="mb-3 grid gap-4 border-b border-[#D8DFEA] pb-4 xl:grid-cols-[minmax(0,1fr)_auto]">
-      <div className="flex min-w-0 gap-3">
-        <div className="h-[74px] w-[74px] shrink-0 overflow-hidden rounded-[7px] border border-[#D8DFEA] bg-cream">
-          {cover ? (
-            <img src={cover} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <div className="grid h-full w-full place-items-center text-[11px] font-bold uppercase tracking-[.08em] text-muted">TP</div>
-          )}
-        </div>
-        <div className="min-w-0">
-          <Link href="/admin/tedarikciler" className="mb-1 inline-flex text-[12px] font-medium text-brand hover:underline">
-            İşletmeler CRM
-          </Link>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-[4px] border border-[#D8DFEA] bg-white px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-[.08em] text-muted">{business.type}</span>
-            <span className="text-[13px] font-semibold text-muted">ID: #{business.id}</span>
-          </div>
-          <h1 className="mt-1 truncate text-[27px] font-extrabold leading-tight text-ink">{business.name}</h1>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5 text-[12.5px] font-semibold text-muted">
-            <span className="inline-flex items-center gap-1.5"><MapPin size={14} aria-hidden />{business.city}, {business.country}</span>
-            <span className="inline-flex items-center gap-1.5"><CalendarDays size={14} aria-hidden />Kayıt {joined}</span>
-            <Link href={publicHref} className="inline-flex items-center gap-1.5 text-ink hover:text-brand">
-              <ExternalLink size={14} aria-hidden />Public profili gör
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2 self-center rounded-[8px] border border-[#D8DFEA] bg-white p-2 shadow-[0_1px_2px_rgba(15,23,42,0.06)]">
-        <StatusActionForm id={business.id} locale={locale} status="approved" label="Onayla" icon={<CheckCircle2 size={16} aria-hidden />} active={isLive(business)} />
-        <StatusActionForm id={business.id} locale={locale} status="suspended" label="Askıya Al" icon={<PauseCircle size={16} aria-hidden />} active={business.status === "suspended"} />
-        <StatusActionForm id={business.id} locale={locale} status="blacklisted" label="Yayından Kaldır" icon={<Trash2 size={16} aria-hidden />} danger active={business.status === "blacklisted"} />
-        <Link href="/admin/tedarikciler" className="inline-flex h-9 items-center rounded-[7px] border border-[#D8DFEA] px-3 text-[12.5px] font-bold text-ink hover:bg-cream">Listeye Dön</Link>
-        <button form="admin-business-profile-form" type="submit" className="inline-flex h-9 items-center rounded-[7px] bg-sapphire px-3 text-[12.5px] font-bold text-white hover:bg-sapphire/90">Kaydet</button>
-      </div>
-    </header>
-  );
-};
-
-const StatusActionForm = ({
-  id,
-  locale,
-  status,
-  label,
-  icon,
-  active = false,
-  danger = false,
-}: {
-  id: number;
-  locale: string;
-  status: string;
-  label: string;
-  icon: React.ReactNode;
-  active?: boolean;
-  danger?: boolean;
-}) => (
-  <form action={updateBusinessStatus}>
-    <input type="hidden" name="id" value={id} />
-    <input type="hidden" name="locale" value={locale} />
-    <input type="hidden" name="status" value={status} />
-    <button
-      type="submit"
-      className={cn(
-        "inline-flex h-9 items-center gap-2 rounded-[7px] px-3 text-[12.5px] font-bold transition-colors",
-        active && !danger && "bg-ink text-paper",
-        !active && !danger && "text-muted hover:bg-cream hover:text-ink",
-        danger && "text-red-600 hover:bg-red-50",
-        active && danger && "bg-red-600 text-white hover:bg-red-700",
-      )}
-    >
-      {icon}
-      {label}
-    </button>
-  </form>
-);
 
 const OverviewTab = ({ business, data }: { business: AdminBusiness; data: CrmBusinessDetailData }) => (
   <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -198,13 +119,12 @@ const OverviewTab = ({ business, data }: { business: AdminBusiness; data: CrmBus
 );
 
 const ProfileTab = ({ locale, business, data }: { locale: string; business: AdminBusiness; data: CrmBusinessDetailData }) => (
-  <div className="grid gap-5">
-    <BusinessForm locale={locale} business={business} />
-    <div className="grid gap-5 lg:grid-cols-2">
-      <MembershipPanel business={business} data={data} />
-      <ModerationPanel business={business} />
-    </div>
-  </div>
+  <BusinessForm
+    locale={locale}
+    business={business}
+    mainExtra={<MembershipPanel business={business} data={data} />}
+    sideExtra={<ModerationPanel business={business} />}
+  />
 );
 
 const DocumentsTab = ({ business }: { business: AdminBusiness }) => {
