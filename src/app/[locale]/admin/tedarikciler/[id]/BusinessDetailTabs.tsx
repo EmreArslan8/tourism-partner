@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition, type ReactNode } from "react";
+import { useMemo, useState, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   BriefcaseBusiness,
@@ -36,15 +36,12 @@ export default function BusinessDetailTabs({ activeTab }: { activeTab: TabKey })
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [pendingTab, setPendingTab] = useState<TabKey | null>(null);
-
-  useEffect(() => {
-    setPendingTab(null);
-  }, [activeTab]);
+  const effectivePendingTab = isPending ? pendingTab : null;
 
   const currentParams = useMemo(() => new URLSearchParams(searchParams.toString()), [searchParams]);
 
   const goToTab = (tab: TabKey) => {
-    if (tab === activeTab || pendingTab) return;
+    if (tab === activeTab || effectivePendingTab) return;
 
     const nextParams = new URLSearchParams(currentParams);
     if (tab === "ozet") {
@@ -64,8 +61,8 @@ export default function BusinessDetailTabs({ activeTab }: { activeTab: TabKey })
     <nav className="overflow-x-auto" aria-label="İşletme detay modülleri">
       <div className="grid min-w-[760px] grid-cols-6">
         {TABS.map((tab) => {
-          const selected = activeTab === tab.key && !pendingTab;
-          const loading = pendingTab === tab.key || (isPending && pendingTab === tab.key);
+          const selected = activeTab === tab.key && !effectivePendingTab;
+          const loading = effectivePendingTab === tab.key;
 
           return (
             <button
@@ -73,7 +70,7 @@ export default function BusinessDetailTabs({ activeTab }: { activeTab: TabKey })
               type="button"
               onClick={() => goToTab(tab.key)}
               aria-current={selected ? "page" : undefined}
-              disabled={Boolean(pendingTab)}
+              disabled={Boolean(effectivePendingTab)}
               className={cn(
                 "relative inline-flex h-11 items-center justify-center gap-2 whitespace-nowrap border-b-2 px-2 text-[12.5px] font-extrabold transition-colors disabled:cursor-wait",
                 selected ? "border-ink text-ink" : "border-transparent text-muted hover:border-[#D8DFEA] hover:text-ink",

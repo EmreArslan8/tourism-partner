@@ -1,7 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { CATEGORY_GROUPS } from "@/lib/categories";
@@ -11,7 +10,8 @@ import { cn } from "@/lib/utils";
 import { dopingRank } from "@/lib/listing";
 import { useRegions } from "@/lib/geo";
 import type { Business, GroupKey, Sort } from "@/lib/types";
-import type { ExploreIndexItem, ExploreMapItem } from "@/lib/explore-search";
+import { EXPLORE_PAGE_SIZE, type ExploreIndexItem, type ExploreMapItem } from "@/lib/explore-search";
+import { serializeExploreFilters } from "@/lib/explore-filters";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
@@ -99,27 +99,28 @@ const ListingView = ({
   const tc = useTranslations("cat");
   const tCommon = useTranslations("common");
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const [groups, setGroups] = useState<Set<GroupKey>>(new Set(initialGroups));
-  const [types, setTypes] = useState<Set<string>>(new Set(initialTypes));
-  const [country, setCountry] = useState(initialCountry);
-  const [city, setCity] = useState(initialCity);
-  const [district, setDistrict] = useState(initialDistrict);
-  const [q, setQ] = useState(initialQ);
-  const [attrs, setAttrs] = useState<Set<string>>(new Set(initialAttrs));
-  const [sort, setSort] = useState<Sort>(initialSort);
-  const [page, setPage] = useState(serverPage);
+  const groups = useMemo(() => new Set(initialGroups), [initialGroups]);
+  const types = useMemo(() => new Set(initialTypes), [initialTypes]);
+  const attrs = useMemo(() => new Set(initialAttrs), [initialAttrs]);
+  const country = initialCountry;
+  const city = initialCity;
+  const district = initialDistrict;
+  const sort = initialSort;
+  const [qDraft, setQDraft] = useState(initialQ);
+  const committedQRef = useRef(initialQ);
+  const pendingQEchoesRef = useRef(new Set<string>());
+  const serverQRef = useRef(initialQ);
+  const suppressDeferredQRef = useRef(false);
   const [view, setView] = useState<"list" | "map">("list");
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleItems, setVisibleItems] = useState<Business[]>(items);
   const resultKeyRef = useRef("");
-  const urlSyncReadyRef = useRef(false);
 
-  // Yazarken URL'e yazmayı geciktir (doğal debounce); sunucu isteği arka planda.
-  const deferredQ = useDeferredValue(q);
+  // Yazarken URL güncellemesini deferred render'a bırak; sunucu isteği arka planda.
+  const deferredQ = useDeferredValue(qDraft);
 
   // Ülke/şehir/ilçe seçenekleri TAM dünya listesinden (public/geo chunk'ları) —
   // MVP: tüm bölgeler seçilebilir görünmeli; tedarikçisi olmayan bölge boş sonuç verir.
@@ -132,74 +133,128 @@ const ListingView = ({
   const promptCountries = useMemo(() => uniqSorted(index.map((b) => b.country)), [index]);
 
   // Kelime araması yapılıyorsa ülke seçimi zorunlu (önce konum akışı).
-  const needsCountry = deferredQ.trim() !== "" && country === "all";
-  const shownPage = Math.min(page, pageCount);
-  const resultKey = useMemo(
-    () =>
-      JSON.stringify({
-        groups: initialGroups,
-        types: initialTypes,
-        country: initialCountry,
-        city: initialCity,
-        district: initialDistrict,
-        q: initialQ,
-        sort: initialSort,
-        attrs: initialAttrs,
-      }),
-    [initialGroups, initialTypes, initialCountry, initialCity, initialDistrict, initialQ, initialSort, initialAttrs]
-  );
+  const needsCountry = qDraft.trim() !== "" && country === "all";
+  const shownPage = Math.min(serverPage, pageCount);
   const shownCount = Math.min(visibleItems.length, total);
   const hasMore = pageCount > 1 && shownPage < pageCount && shownCount < total;
 
+  const resultKey = useMemo(
+    () => JSON.stringify({
+      groups: initialGroups,
+      types: initialTypes,
+      country: initialCountry,
+      city: initialCity,
+      district: initialDistrict,
+      q: initialQ,
+      sort: initialSort,
+      attrs: initialAttrs,
+    }),
+    [initialGroups, initialTypes, initialCountry, initialCity, initialDistrict, initialQ, initialSort, initialAttrs],
+  );
+
   useEffect(() => {
     const changedResultSet = resultKeyRef.current !== resultKey;
-    if (changedResultSet || serverPage <= 1) {
+    if (changedResultSet) {
       resultKeyRef.current = resultKey;
       setVisibleItems(items);
       return;
     }
-    setVisibleItems((prev) => {
-      const next = new Map(prev.map((item) => [item.id, item]));
+    setVisibleItems((previous) => {
+      const prefix = previous.slice(0, (serverPage - 1) * EXPLORE_PAGE_SIZE);
+      const next = new Map(prefix.map((item) => [item.id, item]));
       items.forEach((item) => next.set(item.id, item));
       return [...next.values()];
     });
   }, [items, resultKey, serverPage]);
 
-  function toggleGroup(g: GroupKey) {
-    setGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(g)) next.delete(g);
-      else next.add(g);
-      const stillValid = new Set(
-        CATEGORY_GROUPS.filter((cg) => next.has(cg.key)).flatMap((cg) => cg.children.map((c) => c.label))
-      );
-      setTypes((prevT) => new Set([...prevT].filter((ty) => stillValid.has(ty))));
-      return next;
+  useEffect(() => {
+    if (serverQRef.current === initialQ) return;
+    serverQRef.current = initialQ;
+    suppressDeferredQRef.current = true;
+    if (pendingQEchoesRef.current.delete(initialQ)) return;
+    committedQRef.current = initialQ;
+    setQDraft(initialQ);
+  }, [initialQ]);
+
+  type FilterPatch = Partial<{
+    groups: Iterable<GroupKey>;
+    types: Iterable<string>;
+    country: string;
+    city: string;
+    district: string;
+    q: string;
+    attrs: Iterable<string>;
+    sort: Sort;
+    page: number;
+  }>;
+
+  const replaceFilters = useCallback((patch: FilterPatch) => {
+    const nextGroups = [...(patch.groups ?? groups)];
+    const nextTypes = [...(patch.types ?? types)];
+    const nextAttrs = [...(patch.attrs ?? attrs)];
+    const nextCountry = patch.country ?? country;
+    const nextCity = patch.city ?? city;
+    const nextDistrict = patch.district ?? district;
+    const nextQ = (patch.q ?? committedQRef.current).trim();
+    const nextSort = patch.sort ?? sort;
+    const nextPage = patch.page ?? 1;
+    const query = serializeExploreFilters({
+      groups: nextGroups,
+      types: nextTypes,
+      country: nextCountry,
+      city: nextCity,
+      district: nextDistrict,
+      q: nextQ,
+      attrs: nextAttrs,
+      sort: nextSort,
+      page: nextPage,
     });
-    setPage(1);
+
+    committedQRef.current = nextQ;
+    if (patch.q !== undefined && nextQ !== initialQ) pendingQEchoesRef.current.add(nextQ);
+
+    startTransition(() => {
+      router.replace({ pathname: "/explore", query }, { scroll: false });
+    });
+  }, [attrs, city, country, district, groups, initialQ, router, sort, startTransition, types]);
+
+  useEffect(() => {
+    if (suppressDeferredQRef.current) {
+      suppressDeferredQRef.current = false;
+      return;
+    }
+    const nextQ = deferredQ.trim();
+    if (nextQ !== qDraft.trim() || nextQ === committedQRef.current) return;
+    replaceFilters({ q: nextQ, page: 1 });
+  }, [deferredQ, qDraft, replaceFilters]);
+
+  function toggleGroup(g: GroupKey) {
+    const next = new Set(groups);
+    if (next.has(g)) next.delete(g);
+    else next.add(g);
+    const stillValid = new Set(
+      CATEGORY_GROUPS.filter((cg) => next.has(cg.key)).flatMap((cg) => cg.children.map((c) => c.label))
+    );
+    replaceFilters({
+      groups: next,
+      types: [...types].filter((ty) => stillValid.has(ty)),
+      page: 1,
+    });
   }
   function toggleType(ty: string) {
-    setTypes((prev) => {
-      const next = new Set(prev);
-      if (next.has(ty)) next.delete(ty);
-      else next.add(ty);
-      return next;
-    });
-    setPage(1);
+    const next = new Set(types);
+    if (next.has(ty)) next.delete(ty);
+    else next.add(ty);
+    replaceFilters({ types: next, page: 1 });
   }
   function toggleAttr(slug: string) {
-    setAttrs((prev) => {
-      const next = new Set(prev);
-      if (next.has(slug)) next.delete(slug);
-      else next.add(slug);
-      return next;
-    });
-    setPage(1);
+    const next = new Set(attrs);
+    if (next.has(slug)) next.delete(slug);
+    else next.add(slug);
+    replaceFilters({ attrs: next, page: 1 });
   }
   function pickCity(v: string) {
-    setCity(v);
-    setDistrict("all");
-    setPage(1);
+    replaceFilters({ city: v, district: "all", page: 1 });
   }
   function handlePick(s: Suggestion) {
     if (s.kind === "business") {
@@ -210,57 +265,34 @@ const ListingView = ({
       });
       return;
     }
-    setQ("");
+    setQDraft("");
     if (s.kind === "region") {
-      setCountry("all");
-      setCity(s.city);
-      setDistrict(s.district ?? "all");
+      replaceFilters({ country: "all", city: s.city, district: s.district ?? "all", q: "", page: 1 });
     } else if (s.kind === "group") {
-      if (!groups.has(s.value)) toggleGroup(s.value);
+      if (!groups.has(s.value)) replaceFilters({ groups: new Set(groups).add(s.value), q: "", page: 1 });
     } else if (s.kind === "type") {
       const g = CATEGORY_GROUPS.find((cg) => cg.children.some((c) => c.label === s.value));
-      if (g) setGroups((prev) => new Set(prev).add(g.key));
-      if (!types.has(s.value)) toggleType(s.value);
+      const nextGroups = new Set(groups);
+      const nextTypes = new Set(types);
+      if (g) nextGroups.add(g.key);
+      nextTypes.add(s.value);
+      replaceFilters({ groups: nextGroups, types: nextTypes, q: "", page: 1 });
     }
-    setPage(1);
   }
   function reset() {
-    setGroups(new Set());
-    setTypes(new Set());
-    setCountry("all");
-    setCity("all");
-    setDistrict("all");
-    setQ("");
-    setAttrs(new Set());
-    setSort("featured");
-    setPage(1);
+    setQDraft("");
+    replaceFilters({
+      groups: [],
+      types: [],
+      country: "all",
+      city: "all",
+      district: "all",
+      q: "",
+      attrs: [],
+      sort: "featured",
+      page: 1,
+    });
   }
-
-  // Filtre/sayfa durumunu URL'e yaz → sunucu yeni sonuçları döner. useTransition ile
-  // giriş akıcı kalır, sunucu compute arka planda çalışır (anlık his + ölçek).
-  useEffect(() => {
-    const p = new URLSearchParams();
-    if (groups.size) p.set("cat", [...groups].join(","));
-    if (types.size) p.set("type", [...types].join(","));
-    if (country !== "all") p.set("country", country);
-    if (city !== "all") p.set("city", city);
-    if (district !== "all") p.set("district", district);
-    if (deferredQ.trim()) p.set("q", deferredQ.trim());
-    if (attrs.size) p.set("attr", [...attrs].join(","));
-    if (sort !== "featured") p.set("sort", sort);
-    if (page > 1) p.set("page", String(page));
-    const qs = p.toString();
-    if (!urlSyncReadyRef.current) {
-      urlSyncReadyRef.current = true;
-      return;
-    }
-    if (qs !== (searchParams?.toString() ?? "")) {
-      startTransition(() => {
-        router.replace({ pathname: "/explore", query: Object.fromEntries(p) }, { scroll: false });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, attrs, sort, page]);
 
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
@@ -269,21 +301,21 @@ const ListingView = ({
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
   attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: facetLabel(slug) }));
-  if (q.trim()) tags.push({ kind: "q", value: "", label: `“${q.trim()}”` });
+  if (qDraft.trim()) tags.push({ kind: "q", value: "", label: `“${qDraft.trim()}”` });
 
   function removeTag(kind: string, value: string) {
     if (kind === "group") toggleGroup(value as GroupKey);
     else if (kind === "type") toggleType(value);
     else if (kind === "country") {
-      setCountry("all");
-      setCity("all");
-      setDistrict("all");
+      replaceFilters({ country: "all", city: "all", district: "all", page: 1 });
     }
     else if (kind === "city") pickCity("all");
-    else if (kind === "district") setDistrict("all");
+    else if (kind === "district") replaceFilters({ district: "all", page: 1 });
     else if (kind === "attr") toggleAttr(value);
-    else if (kind === "q") setQ("");
-    setPage(1);
+    else if (kind === "q") {
+      setQDraft("");
+      replaceFilters({ q: "", page: 1 });
+    }
   }
 
   const hasNoDatabaseResults = !isGuest && index.length === 0;
@@ -302,7 +334,7 @@ const ListingView = ({
             key={c}
             type="button"
             className={styles.countryChip}
-            onClick={() => { setCountry(c); setCity("all"); setDistrict("all"); setPage(1); }}
+            onClick={() => replaceFilters({ country: c, city: "all", district: "all", page: 1 })}
           >
             {c}
           </button>
@@ -385,7 +417,7 @@ const ListingView = ({
             type="button"
             className={styles.loadMoreBtn}
             disabled={isPending}
-            onClick={() => setPage(Math.min(shownPage + 1, pageCount))}
+            onClick={() => replaceFilters({ page: Math.min(shownPage + 1, pageCount) })}
           >
             {isPending ? t("loadingMore") : t("loadMore")}
           </button>
@@ -415,9 +447,9 @@ const ListingView = ({
     countries,
     cities,
     districts,
-    onCountry: (v: string) => { setCountry(v); setCity("all"); setDistrict("all"); setPage(1); },
+    onCountry: (v: string) => replaceFilters({ country: v, city: "all", district: "all", page: 1 }),
     onCity: pickCity,
-    onDistrict: (v: string) => { setDistrict(v); setPage(1); },
+    onDistrict: (v: string) => replaceFilters({ district: v, page: 1 }),
   };
 
   return (
@@ -446,7 +478,7 @@ const ListingView = ({
               groups={[...groups]}
               selected={attrs}
               onToggle={toggleAttr}
-              onClear={() => { setAttrs(new Set()); setPage(1); }}
+              onClear={() => replaceFilters({ attrs: [], page: 1 })}
             />
           </CategoryCatalog>
         </aside>
@@ -458,20 +490,20 @@ const ListingView = ({
               country={country}
               city={city}
               district={district}
-              q={q}
+              q={qDraft}
               countries={countries}
               cities={cities}
               districts={districts}
               onCountry={selectProps.onCountry}
               onCity={selectProps.onCity}
               onDistrict={selectProps.onDistrict}
-              onQ={(v) => { setQ(v); setPage(1); }}
+              onQ={setQDraft}
               onPick={handlePick}
             />
           </div>
           <div className={styles.toolbar}>
             <div className={styles.toolbarSearch}>
-              <SearchBox businesses={index} value={q} onChange={(v) => { setQ(v); setPage(1); }} onPick={handlePick} />
+              <SearchBox businesses={index} value={qDraft} onChange={setQDraft} onPick={handlePick} />
             </div>
             <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
               {t("suggestCategories")}
@@ -527,7 +559,7 @@ const ListingView = ({
           <div className={styles.sortWrap}>
             <label className={styles.sortLabel} htmlFor="sort">{t("sortLabel")}</label>
             <span className={styles.sortSelectWrap}>
-              <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => { setSort(e.target.value as Sort); setPage(1); }}>
+              <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => replaceFilters({ sort: e.target.value as Sort, page: 1 })}>
                 <option value="featured">{t("sortFeatured")}</option>
                 <option value="az">{t("sortAz")}</option>
               </select>
@@ -563,7 +595,7 @@ const ListingView = ({
           groups={[...groups]}
           selected={attrs}
           onToggle={toggleAttr}
-          onClear={() => { setAttrs(new Set()); setPage(1); }}
+          onClear={() => replaceFilters({ attrs: [], page: 1 })}
         />
       </BottomSheet>
     </div>

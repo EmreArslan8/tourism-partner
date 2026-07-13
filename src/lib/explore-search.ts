@@ -11,7 +11,7 @@ import type { ExploreInitialFilters } from "@/lib/explore-filters";
    (davranış birebir korunur), ama compute sunucuda olur.
 
    İstemciye dönenler:
-   - items      : yalnızca AKTİF SAYFA (kartlar için tam nesne)
+   - items      : yalnızca aktif sayfa (kartlar için tam nesne)
    - total/page : sayaç + sayfa bilgisi (sayfalama sunucuda)
    - facets     : grup/tür facet sayaçları (filtreye duyarlı, sunucuda hesaplı)
    - mapItems   : TÜM filtrelenmiş sonuç ama HAFİF (harita pinleri için)

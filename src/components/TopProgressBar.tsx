@@ -8,11 +8,6 @@ import { createPortal } from "react-dom";
    Tüm state güncellemeleri zamanlayıcı callback'lerinde (effect içinde senkron setState yok). */
 export default function TopProgressBar({ active }: { active: boolean }) {
   const [progress, setProgress] = useState(0);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (active) {
@@ -41,7 +36,7 @@ export default function TopProgressBar({ active }: { active: boolean }) {
     };
   }, [active]);
 
-  if (!mounted || progress <= 0) return null;
+  if (progress <= 0 || typeof document === "undefined") return null;
 
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[80] h-[4px] bg-terra/10" aria-hidden>

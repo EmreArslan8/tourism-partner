@@ -4,7 +4,7 @@ import ListingView from "@/components/ListingView";
 import SuggestionRail from "@/components/SuggestionRail";
 import { getExploreResults, getExploreViewerKind } from "@/lib/explore-search";
 import { getCrossCategorySuggestions } from "@/lib/suggestions";
-import { parseExploreFilters, type ExploreSearchParams } from "@/lib/explore-filters";
+import { parseExploreFilters, parseExplorePage, type ExploreSearchParams } from "@/lib/explore-filters";
 import { localeAlternates } from "@/lib/seo";
 import { getPageSeo, PAGE_SLUGS } from "@/lib/pages";
 import type { SiteLocale } from "@/lib/site";
@@ -67,11 +67,11 @@ export default async function ExplorePage({
   );
 }
 
-/* searchParams + useSearchParams(ListingView) runtime erişimleri — <Suspense> altında. */
+/* searchParams server'da okunur; ListingView URL'yi yalnız kullanıcı aksiyonlarında değiştirir. */
 async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchParams> }) {
   const sp = await searchParams;
   const filters = parseExploreFilters(sp);
-  const pageNum = Math.max(1, Number(sp.page) || 1);
+  const pageNum = parseExplorePage(sp.page);
 
   // Viewer'ı bir kez hesapla; sonuç + öneri sorgularını PARALEL çalıştır (birbirini beklemesin).
   // getBusinesses her ikisinde de cache'li — tek DB okuması paylaşılır.
