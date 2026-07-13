@@ -1,11 +1,14 @@
 import { Link } from "@/i18n/navigation";
 import { DataTable, type Column } from "@/components/common";
-import type { AdminData, AdminQuote } from "@/lib/types";
+import type { AdminBusiness, AdminData, AdminMembership, AdminQuote } from "@/lib/types";
+import { EXPIRY_WARNING_DAYS, latestMembershipByBusiness, membershipDaysLeft, membershipState } from "@/lib/membership";
 import { AdminActionButton, AdminHero, AdminMetric, AdminPage, AdminPanel } from "./_ui";
 
 interface Props {
   data: AdminData;
 }
+
+type ExpiringRow = { business: AdminBusiness; membership: AdminMembership; days: number };
 
 const AdminView = ({ data }: Props) => {
   const pendingBusinesses = data.businesses.filter((b) => b.status === "pending").length;
@@ -15,6 +18,16 @@ const AdminView = ({ data }: Props) => {
   const recentQuotes = data.quotes.slice(0, 5);
   const pendingReview = data.businesses
     .filter((business) => business.status === "pending")
+    .slice(0, 5);
+
+  // Üyelik süresi son 2 haftaya girmiş (henüz bitmemiş) işletmeler.
+  const businessById = new Map(data.businesses.map((business) => [business.id, business]));
+  const expiringSoon: ExpiringRow[] = [...latestMembershipByBusiness(data.memberships).values()]
+    .filter((membership) => membershipState(membership) === "expiring")
+    .map((membership) => ({ business: businessById.get(membership.businessId), membership }))
+    .filter((row): row is { business: AdminBusiness; membership: AdminMembership } => Boolean(row.business))
+    .map((row) => ({ business: row.business, membership: row.membership, days: membershipDaysLeft(row.membership.endsAt) }))
+    .sort((a, b) => a.days - b.days)
     .slice(0, 5);
 
   return (
@@ -117,6 +130,56 @@ const AdminView = ({ data }: Props) => {
               },
             ] satisfies Column<(typeof pendingReview)[number]>[]}
           />
+          </div>
+        </AdminPanel>
+      </div>
+
+      {/* Üyelik süresi son 2 hafta kalan işletmeler */}
+      <div className="mt-5">
+        <AdminPanel
+          title="Üyelik Süresi Son 2 Hafta Kalan İşletmeler"
+          tone="amber"
+          icon={<Svg size={18}><path d="M8 2v4M16 2v4M3 10h18" /><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M12 14v3l2 1" /></Svg>}
+          action={<Link href="/admin/tedarikciler" className="shrink-0 text-[12px] font-medium text-brand hover:underline">Tümünü Gör</Link>}
+        >
+          <div className="overflow-x-auto">
+            <DataTable
+              data={expiringSoon}
+              getRowKey={(row) => row.business.id}
+              empty={`Üyeliğine ${EXPIRY_WARNING_DAYS} gün veya daha az kalan işletme yok.`}
+              minWidth={520}
+              columns={[
+                { key: "firm", header: "Firma", cell: (row) => <span className="font-medium text-ink">{row.business.name}</span> },
+                { key: "city", header: "Şehir", cell: (row) => <span className="text-muted">{row.business.city}</span> },
+                {
+                  key: "left",
+                  header: "Kalan",
+                  cell: (row) => (
+                    <span className={row.days <= 3 ? "font-semibold text-red-600" : "font-semibold text-amber-700"}>
+                      {row.days <= 0 ? "Bugün" : `${row.days} gün`}
+                    </span>
+                  ),
+                },
+                {
+                  key: "contact",
+                  header: "İletişim",
+                  align: "right",
+                  cell: (row) =>
+                    row.business.phone ? (
+                      <a href={`tel:${row.business.phone}`} className="text-[12px] font-semibold text-brand hover:underline">
+                        {row.business.phone}
+                      </a>
+                    ) : (
+                      <Link
+                        href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(row.business.id) } }}
+                        className="rounded-[8px] border border-line px-3 py-1 text-[12px] font-medium text-brand transition-colors hover:bg-cream"
+                      >
+                        Aç
+                      </Link>
+                    ),
+                },
+              ] satisfies Column<ExpiringRow>[]}
+            />
           </div>
         </AdminPanel>
       </div>

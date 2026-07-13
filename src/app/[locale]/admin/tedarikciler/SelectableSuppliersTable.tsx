@@ -121,7 +121,7 @@ const SelectableSuppliersTable = ({
               </div>
             ),
           },
-          { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={b.type} /> },
+          { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={b.type} extra={(b.serviceTypes?.length ?? 0) - 1} /> },
           { key: "city", header: "Şehir", cell: (b) => <span className="font-medium text-ink">{b.city}</span> },
           { key: "status", header: "Durum", cell: (b) => <StatusPill status={b.status} /> },
           {
@@ -171,9 +171,14 @@ const SelectableSuppliersTable = ({
   );
 };
 
-const CategoryPill = ({ group, label }: { group: GroupKey; label: string }) => {
+const CategoryPill = ({ group, label, extra = 0 }: { group: GroupKey; label: string; extra?: number }) => {
   const tone = CATEGORY_TONES[group] ?? "bg-slate-100 text-slate-700";
-  return <span className={cn("inline-flex max-w-[150px] truncate rounded-full px-2.5 py-1 text-[12px] font-medium leading-5", tone)}>{label}</span>;
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span className={cn("inline-flex max-w-[150px] truncate rounded-full px-2.5 py-1 text-[12px] font-medium leading-5", tone)}>{label}</span>
+      {extra > 0 && <span className="rounded-full bg-cream px-1.5 py-0.5 text-[11px] font-bold text-muted">+{extra}</span>}
+    </span>
+  );
 };
 
 const StatusPill = ({ status }: { status: BusinessLifecycleStatus }) => {

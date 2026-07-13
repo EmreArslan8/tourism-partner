@@ -17,14 +17,14 @@ const styles = {
   workspace: "min-w-0",
   content: `${panelUi.page} px-5 pb-12 pt-7 min-[760px]:px-7 min-[1040px]:px-9`,
   topbar:
-    "sticky top-0 z-20 border-b border-line bg-paper/94 px-5 py-4 shadow-card backdrop-blur min-[760px]:px-7 min-[1040px]:px-9",
+    "sticky top-0 z-40 border-b border-line bg-paper px-5 py-4 shadow-card min-[760px]:px-7 min-[1040px]:px-9",
   topbarInner:
-    `${panelUi.page} flex min-h-[56px] items-center justify-between gap-4`,
+    `${panelUi.page} grid min-h-[56px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 max-[680px]:grid-cols-1`,
   topbarText: "min-w-0",
   header: "mb-5 flex flex-wrap items-center justify-between gap-3",
   title: "truncate font-body text-[24px] font-medium leading-tight tracking-normal text-ink min-[760px]:text-[28px]",
   email: "mt-1 truncate text-[13.5px] font-normal leading-5 text-muted",
-  actions: "flex shrink-0 flex-wrap items-center justify-end gap-2",
+  actions: "flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>a]:shrink-0 [&>button]:shrink-0 [&>form]:shrink-0 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap max-[680px]:justify-start",
   pageEyebrow: panelUi.eyebrow,
   pageTitle: "text-[34px] font-medium leading-tight tracking-[0] text-ink",
   pageDesc: "mt-2 max-w-[760px] text-[14px] font-normal leading-6 text-muted",

@@ -9,11 +9,12 @@ import AdminNav from "./AdminNav";
 import EditableForm from "./EditableForm";
 import LocationFields from "./LocationFields";
 import AdminSearch from "./AdminSearch";
+import AdminChipInput from "./AdminChipInput";
 import Logo from "@/components/Logo";
 import { CardIcon as UICardIcon } from "@/components/common/Card";
 import DataTable, { type Column } from "@/components/common/DataTable";
 import Field from "@/components/common/Field";
-import { Bell, CircleHelp, LogOut, Mail, Plus } from "lucide-react";
+import { CircleHelp, LogOut, Plus } from "lucide-react";
 import { AdminMetric, AdminPageHeader, adminUi } from "./_ui";
 import BusinessCategoryFields from "./BusinessCategoryFields";
 
@@ -139,13 +140,6 @@ export const AdminShell = ({
             Yeni İşletme Kaydı
           </Link>
 
-          <button type="button" className="relative grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-line bg-paper text-muted transition-colors hover:bg-cream hover:text-brand" aria-label="Bildirimler">
-            <Bell size={18} aria-hidden />
-            <span className="absolute right-[9px] top-[8px] h-2 w-2 rounded-full bg-red-600 ring-2 ring-paper" />
-          </button>
-          <button type="button" className="grid h-10 w-10 shrink-0 place-items-center rounded-[8px] border border-line bg-paper text-muted transition-colors hover:bg-cream hover:text-brand" aria-label="Mesajlar">
-            <Mail size={18} aria-hidden />
-          </button>
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-cream text-[13px] font-semibold text-brand" title={who}>
             {initial}
           </div>
@@ -196,7 +190,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
               {b.name}
             </Link>
             <div className="mt-1 text-[12px] text-muted">
-              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartner ? " · Kurucu Partner" : ""}
+              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartner ? " · Kurucu Üye" : ""}
             </div>
           </div>
         ),
@@ -240,7 +234,7 @@ export const BusinessForm = ({
           <div>
             <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
           </div>
-          <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialType={business?.type ?? "Otel"} inputClassName={compactInput} />
+          <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialServices={business?.serviceTypes ?? []} initialType={business?.type ?? ""} inputClassName={compactInput} />
         </AdminFormSection>
 
         <AdminFormSection title="Konum">
@@ -249,6 +243,7 @@ export const BusinessForm = ({
             defaultCountry={business?.country ?? "Türkiye"}
             defaultCity={business?.city ?? ""}
             defaultDistrict={business?.district ?? ""}
+            defaultAddress={business?.details?.address ?? ""}
             defaultLat={business?.coords[0] ?? 0}
             defaultLng={business?.coords[1] ?? 0}
           />
@@ -257,8 +252,8 @@ export const BusinessForm = ({
         <AdminFormSection title="İçerik Detayları">
           <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={compactTextarea} /></Field>
           <div className="grid grid-cols-[minmax(180px,.35fr)_minmax(0,.65fr)] gap-3 max-[820px]:grid-cols-1">
-            <Field label="Etiket"><input name="tag" defaultValue={business?.tag ?? ""} className={compactInput} /></Field>
-            <Field label="Filtre özellikleri" hint="virgülle ayır"><input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={compactInput} /></Field>
+            <AdminChipInput name="tag" label="Etiket" initialValue={business?.tag ?? ""} placeholder="Etiket ekle" maxItems={1} />
+            <AdminChipInput name="attributes" label="Filtre özellikleri" hint="Enter veya virgül ile ekle" initialValue={business?.attributes ?? []} placeholder="komisyonlu, dil-en, para-eur" />
           </div>
         </AdminFormSection>
 
@@ -270,7 +265,7 @@ export const BusinessForm = ({
           <Field label="Sistem Durumu"><select name="status" defaultValue={business?.status ?? "pending"} className={compactInput}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
           <ToggleRow name="verified" label="Doğrulanmış İşletme" description="Belgeleri onaylanmış tesis" checked={business?.verified ?? false} />
           <ToggleRow name="sponsored" label="Sponsor / Premium" description="Arama sonuçlarında öne çıkar" checked={business?.sponsored ?? false} />
-          <ToggleRow name="founderPartner" label="Kurucu Partner Rozeti" description="Firma kartında kurucu partner mührünü göster" checked={business?.founderPartner ?? false} />
+          <ToggleRow name="founderPartner" label="Kurucu Üye Rozeti" description="Firma kartında kurucu üye mührünü göster" checked={business?.founderPartner ?? false} />
         </AdminFormSection>
 
         <AdminFormSection title="Değerlendirme">

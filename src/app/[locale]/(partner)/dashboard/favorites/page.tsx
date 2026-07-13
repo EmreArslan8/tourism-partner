@@ -40,12 +40,6 @@ export default async function FavoritesPage({ params }: { params: Promise<{ loca
     <>
       <DashboardTopbar title={t("favoritesNav")} />
       <div className={styles.content}>
-      <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>{t("favoritesEyebrow")}</p>
-        <h1 className={styles.pageTitle}>{t("favoritesTitle")}</h1>
-        <p className={styles.pageDesc}>{t("favoritesDescription")}</p>
-      </header>
-
       {favs.length === 0 ? (
         <PartnerPanelEmptyState
           icon={<Heart size={22} aria-hidden />}

@@ -108,7 +108,7 @@ export default function SupplierHeader({
               {founderPartner && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#0e2745] px-2 py-0.5 text-[11px] font-bold text-[#ffb957] ring-1 ring-inset ring-[#ffb957]/40">
                   <FounderMedal className="h-3 w-3" />
-                  Kurucu Partner
+                  Kurucu Üye
                 </span>
               )}
               {sponsored && (
@@ -121,7 +121,7 @@ export default function SupplierHeader({
 
             <div className="mt-1 flex items-center gap-2">
               <h1 className="truncate text-[26px] font-extrabold leading-tight text-ink">{name}</h1>
-              {founderPartner && <FounderMedal className="h-7 w-7 shrink-0" title="Kurucu Partner" />}
+              {founderPartner && <FounderMedal className="h-7 w-7 shrink-0" title="Kurucu Üye" />}
             </div>
 
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] font-semibold text-muted">
@@ -190,7 +190,7 @@ export default function SupplierHeader({
   );
 }
 
-/* Kartlarda (SupplierCard) kullanılan kurucu partner mührü — aynı görsel. */
+/* Kartlarda (SupplierCard) kullanılan kurucu üye mührü — aynı görsel. */
 const FounderMedal = ({ className, title }: { className?: string; title?: string }) => (
   <svg viewBox="0 0 48 54" className={className} role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true}>
     {title && <title>{title}</title>}
@@ -281,12 +281,12 @@ const DangerMenu = ({ id, locale, active }: { id: number; locale: string; active
               className="flex w-full items-center gap-2 rounded-[7px] px-3 py-2 text-left text-[13px] font-bold text-red-600 transition-colors hover:bg-red-50"
             >
               <Trash2 size={16} aria-hidden />
-              {active ? "Blacklist'te" : "Yayından Kaldır"}
+              {active ? "Kara listede" : "Yayından Kaldır"}
             </button>
           ) : (
             <div className="px-2 py-1">
               <p className="text-[12.5px] font-semibold text-ink">İşletme yayından kaldırılsın mı?</p>
-              <p className="mt-1 text-[12px] text-muted">Public profil erişime kapanır ve blacklist'e alınır.</p>
+              <p className="mt-1 text-[12px] text-muted">Public profil erişime kapanır ve kara listeye alınır.</p>
               <div className="mt-3 flex gap-2">
                 <form action={updateBusinessStatus} className="flex-1">
                   <input type="hidden" name="id" value={id} />

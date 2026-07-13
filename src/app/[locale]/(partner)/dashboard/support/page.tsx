@@ -45,12 +45,6 @@ export default async function SupportPage({ params }: { params: Promise<{ locale
     <>
       <DashboardTopbar title={t("supportNav")} />
       <div className={styles.content}>
-      <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>{t("supportNav")}</p>
-        <h1 className={styles.pageTitle}>{t("supportTitle")}</h1>
-        <p className={styles.pageDesc}>{t("supportDescription")}</p>
-      </header>
-
       <PartnerPanelCard bodyClassName="p-5">
         <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><LifeBuoy size={17} className="text-[#1557C2]" aria-hidden /> {t("supportNew")}</h2>
         <form action={createSupportTicket} className="grid gap-2.5">

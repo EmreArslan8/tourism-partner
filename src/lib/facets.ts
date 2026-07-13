@@ -6,40 +6,6 @@ import type { Business, GroupKey, Facet } from "./types";
    scope: "common" → her kategoride görünür; GroupKey[] → ilgili grup seçiliyse görünür. */
 
 export const FACETS: Facet[] = [
-  // ——— ORTAK (ticari) — projenin asıl ayrıştırıcısı ———
-  {
-    key: "vade", label: "Ödeme / vade", scope: "common",
-    options: [
-      { slug: "pesin", label: "Peşin" },
-      { slug: "vadeli", label: "Vadeli" },
-      { slug: "cari-hesap", label: "Cari hesap" },
-    ],
-  },
-  {
-    key: "kontenjan", label: "Kontenjan modeli", scope: "common",
-    options: [
-      { slug: "garanti-kontenjan", label: "Garanti kontenjan" },
-      { slug: "allotment", label: "Allotment" },
-      { slug: "talep-uzerine", label: "Talep üzerine" },
-    ],
-  },
-  {
-    key: "calisma", label: "Çalışma şekli", scope: "common",
-    options: [
-      { slug: "komisyonlu", label: "Komisyonlu" },
-      { slug: "esnek-iptal", label: "Esnek iptal" },
-      { slug: "anlik-kontenjan", label: "Anlık kontenjan (online)" },
-    ],
-  },
-  {
-    key: "para", label: "Para birimi", scope: "common",
-    options: [
-      { slug: "para-try", label: "₺ TRY" },
-      { slug: "para-eur", label: "€ EUR" },
-      { slug: "para-usd", label: "$ USD" },
-    ],
-  },
-
   // ——— KONAKLAMA ———
   {
     key: "yildiz", label: "Yıldız", scope: ["konaklama"],
@@ -72,14 +38,6 @@ export const FACETS: Facet[] = [
 
   // ——— ACENTE & DMC ———
   {
-    key: "belge", label: "İşletme belgesi", scope: ["acente"],
-    options: [
-      { slug: "a-grubu", label: "A grubu" },
-      { slug: "b-grubu", label: "B grubu" },
-      { slug: "c-grubu", label: "C grubu" },
-    ],
-  },
-  {
     key: "pazar", label: "Çalışılan pazar", scope: ["acente"],
     options: [
       { slug: "pazar-avrupa", label: "Avrupa" },
@@ -88,46 +46,8 @@ export const FACETS: Facet[] = [
       { slug: "pazar-uzakdogu", label: "Uzak Doğu" },
     ],
   },
-  {
-    key: "uzmanlik-acente", label: "Uzmanlık", scope: ["acente"],
-    options: [
-      { slug: "kultur-turu", label: "Kültür turu" },
-      { slug: "mice", label: "MICE" },
-      { slug: "mavi-yolculuk", label: "Mavi yolculuk" },
-      { slug: "okul-gezisi", label: "Okul gezisi" },
-    ],
-  },
-
-  // ——— REHBER (Brief §6 Rehber Özel Matrisi) ———
-  {
-    key: "uzmanlik-rehber", label: "Uzmanlık", scope: ["rehber"],
-    options: [
-      { slug: "uz-tarihi", label: "Kültür ve Arkeoloji" },
-      { slug: "uz-gastronomi", label: "Gastronomi" },
-      { slug: "uz-doga", label: "Doğa, Macera & Trekking" },
-      { slug: "uz-inanc", label: "İnanç & Mitoloji" },
-      { slug: "uz-lifestyle", label: "Lifestyle" },
-    ],
-  },
-  {
-    key: "rehber-hizmet", label: "Hizmet şekli", scope: ["rehber"],
-    options: [
-      { slug: "rh-paket-tur", label: "Paket tur" },
-      { slug: "rh-munferit", label: "Münferit" },
-      { slug: "rh-gunubirlik", label: "Günübirlik" },
-      { slug: "rh-mice", label: "MICE" },
-    ],
-  },
 
   // ——— ULAŞIM ———
-  {
-    key: "tasima-belge", label: "Taşıma belgesi", scope: ["ulasim"],
-    options: [
-      { slug: "d2-belgesi", label: "D2 belgesi" },
-      { slug: "kabis-kaydi", label: "KABİS kaydı" },
-      { slug: "yetkili-transfer", label: "Yetkili transfer" },
-    ],
-  },
   {
     key: "arac-tipi", label: "Araç tipi", scope: ["ulasim"],
     options: [
@@ -135,36 +55,6 @@ export const FACETS: Facet[] = [
       { slug: "minibus", label: "Minibüs" },
       { slug: "otobus", label: "Otobüs" },
       { slug: "rent-a-car", label: "Rent A Car" },
-    ],
-  },
-
-  // ——— AKTİVİTE & DENEYİM ———
-  {
-    key: "lisans", label: "Lisans / güvenlik", scope: ["aktivite"],
-    options: [{ slug: "lisansli", label: "Lisanslı işletme" }],
-  },
-  {
-    key: "aktivite-satis", label: "Satış modeli", scope: ["aktivite"],
-    options: [
-      { slug: "blok-satis", label: "Blok satış" },
-      { slug: "gunluk-operasyon", label: "Günlük operasyon" },
-      { slug: "acente-paneli", label: "Acente paneli" },
-    ],
-  },
-
-  // ——— SAĞLIK ———
-  {
-    key: "akreditasyon", label: "Akreditasyon", scope: ["saglik"],
-    options: [
-      { slug: "jci", label: "JCI" },
-      { slug: "iso", label: "ISO" },
-    ],
-  },
-  {
-    key: "paket", label: "Paket", scope: ["saglik"],
-    options: [
-      { slug: "paket-konaklama-transfer", label: "Konaklama + transfer dahil" },
-      { slug: "refakat-tercuman", label: "Refakat / tercüman" },
     ],
   },
 

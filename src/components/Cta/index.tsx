@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
-import { ArrowRight, Crown } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import styles from "./styles";
 
 const Cta = () => {
@@ -10,10 +11,7 @@ const Cta = () => {
     <section className={styles.section}>
       <div className={styles.panel}>
         <div className={styles.content}>
-          <span className={styles.badge}>
-            <Crown size={14} strokeWidth={2.4} aria-hidden />
-            Premium Partner
-          </span>
+          <PremiumPartnerBadge className={styles.badge} />
           <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.sub}>{t("sub")}</p>
         </div>

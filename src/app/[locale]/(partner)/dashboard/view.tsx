@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
 import { cn } from "@/lib/utils";
-import { getCityOptions, getCountryOptions, getDistrictOptions } from "@/lib/regions";
+import { useRegions } from "@/lib/geo";
 import { SOCIAL_PLATFORMS, type GroupKey, type BusinessDocument, type SocialPlatform } from "@/lib/types";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
 import { fieldsForGroup, docsForGroup } from "@/lib/business-fields";
@@ -20,6 +20,7 @@ import { Link, type Href } from "@/i18n/navigation";
 import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness, sendPartnerRequest } from "@/lib/actions/panel";
 import type { PartnerRequestActionState } from "@/lib/actions/panel";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/common/Dialog";
+import ServiceMultiSelect from "@/components/ServiceMultiSelect";
 import { OverviewDashboard, getProfileScore, type PanelViewStats } from "./Overview";
 
 /* Sosyal medya platform etiketleri/örnekleri — özel isimler, çeviri gerekmez. */
@@ -44,6 +45,7 @@ export type PanelBusiness = {
   id: number;
   group: string;
   type: string;
+  serviceTypes?: string[];
   name: string;
   country: string;
   city: string;
@@ -61,6 +63,8 @@ export type PanelBusiness = {
   verified: boolean;
   sponsored: boolean;
   founderPartner?: boolean;
+  contactCount?: number;
+  partnerActionCount?: number;
   created_at: string;
 };
 
@@ -329,12 +333,9 @@ const DashboardView = ({
   const removeContact = (index: number) => setContactRows((rows) => rows.filter((_, i) => i !== index));
   const updateContact = (index: number, key: keyof PanelContact, value: string) =>
     setContactRows((rows) => rows.map((row, i) => (i === index ? { ...row, [key]: value } : row)));
-  const countryOptions = getCountryOptions();
-  const defaultCountry = countryOptions.includes(b?.country ?? "") ? b?.country ?? "" : "Türkiye";
-  const defaultCityOptions = getCityOptions(defaultCountry);
-  const defaultCity = defaultCityOptions.includes(b?.city ?? "") ? b?.city ?? "" : "";
-  const defaultDistrictOptions = getDistrictOptions(defaultCountry, defaultCity);
-  const defaultDistrict = defaultDistrictOptions.includes(b?.district ?? "") ? b?.district ?? "" : "";
+  const defaultCountry = b?.country || "Türkiye";
+  const defaultCity = b?.city ?? "";
+  const defaultDistrict = b?.district ?? "";
   const [selectedCountry, setSelectedCountry] = useState(defaultCountry);
   const [selectedCity, setSelectedCity] = useState(defaultCity);
   const [selectedDistrict, setSelectedDistrict] = useState(defaultDistrict);
@@ -353,10 +354,20 @@ const DashboardView = ({
 
   const facets = visibleFacets([group as GroupKey]);
   const selectedAttrs = new Set(b?.attributes ?? []);
-  const profileScore = getProfileScore(b, cover);
+  const hasContactPerson = contactRows.some((contact) => contact.full_name.trim().length > 0);
+  const hasPartnerAction =
+    acceptedPartners.length > 0 || incomingPartnerRequests.length > 0 || outgoingPartnerRequests.length > 0;
+  const scoredBusiness = b
+    ? {
+        ...b,
+        contactCount: hasContactPerson ? 1 : 0,
+        partnerActionCount: hasPartnerAction ? 1 : 0,
+      }
+    : null;
+  const profileScore = getProfileScore(scoredBusiness, cover);
   const newQuoteCount = quotes.filter((quote) => quote.status === "new").length;
-  const cityOptions = getCityOptions(selectedCountry);
-  const districtOptions = getDistrictOptions(selectedCountry, selectedCity);
+  const { countries: countryOptions, cities: cityOptions, districts: districtOptions } =
+    useRegions(selectedCountry, selectedCity, selectedDistrict);
   const hasListingDashboard = !!b && (statusKey === "pending" || statusKey === "approved" || statusKey === "active");
   const showProfileForm = mode === "edit";
   const isOverview = mode === "overview";
@@ -371,10 +382,10 @@ const DashboardView = ({
     { key: "basic" as const, label: t("editTabBasic"), Icon: Building2, complete: Boolean((b?.name || meta.firm_name) && selectedCountry && selectedCity && selectedDistrict) },
     { key: "media" as const, label: t("editTabMedia"), Icon: Images, complete: Boolean(cover) },
     { key: "services" as const, label: t("editTabServices"), Icon: SlidersHorizontal, complete: selectedAttrs.size > 0 },
-    { key: "partners" as const, label: t("editTabPartners"), Icon: Users, complete: acceptedPartners.length > 0 },
+    { key: "partners" as const, label: t("editTabPartners"), Icon: Users, complete: hasPartnerAction },
     ...(dynFields.length > 0 ? [{ key: "company" as const, label: isGuide ? t("guideFieldsTitle") : t("editTabCompany"), Icon: BriefcaseBusiness, complete: dynFields.every((field) => Boolean(detailValues[field.key])) }] : []),
     ...(docFields.length > 0 ? [{ key: "documents" as const, label: t("editTabDocuments"), Icon: FileCheck2, complete: docFields.filter((field) => field.required).every((field) => documents.some((doc) => doc.kind === field.kind)) }] : []),
-    { key: "contacts" as const, label: t("editTabContacts"), Icon: Users, complete: contactRows.some((contact) => contact.full_name.trim().length > 0) },
+    { key: "contacts" as const, label: t("editTabContacts"), Icon: Users, complete: hasContactPerson },
   ];
   const completedEditSections = editSections.filter((section) => section.complete).length;
 
@@ -602,7 +613,7 @@ const DashboardView = ({
         <section className={cn(isOverview ? styles.overviewSection : isListingForm ? styles.editSection : styles.section)} id="profile">
           {isOverview ? (
             <OverviewDashboard
-              business={b}
+              business={scoredBusiness}
               cover={cover}
               statusKey={visibleStatusKey}
               profileScore={profileScore}
@@ -744,10 +755,18 @@ const DashboardView = ({
               {t("name")}
               <input name="name" required defaultValue={b?.name ?? meta.firm_name} className={styles.fieldCls} />
             </label>
-            <label className={styles.labelCls}>
-              {t("type")}
-              <input name="type" defaultValue={b?.type ?? meta.biz_type} className={styles.fieldCls} />
-            </label>
+            <div className={styles.labelCls}>
+              <span>{t("servicesMultiLabel")}</span>
+              <ServiceMultiSelect
+                group={group as GroupKey}
+                initialServices={b?.serviceTypes ?? []}
+                initialType={b?.type ?? meta.biz_type ?? ""}
+                className="mt-1.5"
+              />
+            </div>
+            <div className="mt-2 grid gap-2">
+              <h4 className="text-[13px] font-semibold text-muted">{t("addressSectionTitle")}</h4>
+            </div>
             <div className={styles.threeCol}>
               <label className={styles.labelCls}>
                 {t("country")}
@@ -763,8 +782,8 @@ const DashboardView = ({
                   }}
                 >
                   <option value="">{t("countryPlaceholder")}</option>
-                  {countryOptions.map((country) => (
-                    <option key={country} value={country}>{country}</option>
+                  {countryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
               </label>
@@ -813,7 +832,7 @@ const DashboardView = ({
                   <span className={styles.dynHint}>· {t("workRegionsHint")}</span>
                 </span>
                 <div className="mt-1.5 flex flex-wrap gap-2">
-                  {getCityOptions(selectedCountry).map((city) => {
+                  {cityOptions.map((city) => {
                     const on = workRegions.includes(city);
                     return (
                       <button
@@ -1151,6 +1170,7 @@ const DashboardView = ({
                   <strong>{completedEditSections}/{editSections.length}</strong>
                 </div>
                 <p>{t("formProgressHint")}</p>
+                <p>{t("founderBadgeRequirement")}</p>
                 <div className={styles.publishChecklistItems}>
                   {editSections.map(({ key, label, complete }) => (
                     <button key={key} type="button" onClick={() => setActiveEditSection(key)}>

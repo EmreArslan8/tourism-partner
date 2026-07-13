@@ -2,12 +2,13 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
+import { replaceBusinessServices } from "@/lib/business-services";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
 import { ALL_DETAIL_KEYS, docsForGroup } from "@/lib/business-fields";
 import { BUSINESS_DOCUMENTS_BUCKET, persistableDocuments } from "@/lib/business-document-shape";
 import { BUSINESS_IMAGES_BUCKET, storagePathFromBusinessImage } from "@/lib/business-images";
-import { isValidRegion } from "@/lib/regions";
+import { isValidRegion } from "@/lib/geo-server";
 import { isValidTCKN, isValidVKN } from "@/lib/validators";
 import { businessSlug } from "@/lib/business-slug";
 import { SOCIAL_PLATFORMS, type GroupKey, type ActionState, type BusinessDocument, type BusinessSocials } from "@/lib/types";
@@ -191,7 +192,7 @@ export async function saveMyBusiness(
   const country = clean(formData.get("country"), 80) ?? "";
   const city = clean(formData.get("city"), 80) ?? "";
   const district = clean(formData.get("district"), 80) ?? "";
-  if (!country || !city || !district || !isValidRegion(country, city, district)) {
+  if (!country || !city || !district || !(await isValidRegion(country, city, district))) {
     return { ok: false, error: "invalidRegion" };
   }
 
@@ -251,9 +252,12 @@ export async function saveMyBusiness(
     documents = [];
   }
 
-  const payloadType = clean(formData.get("type"), 80) ?? "";
+  // Çoklu hizmet seçimi (business_services). İlk seçilen birincil → type.
+  const rawServices = formData.getAll("services").map((value) => String(value));
+  const payloadType = rawServices.length > 0 ? serviceLabel(rawServices[0]) : clean(formData.get("type"), 80) ?? "";
   const meta = user.user_metadata ?? {};
   const requestedGroup = groupFromMetadata(meta.biz_group);
+  let savedGroup: GroupKey = requestedGroup;
 
   const payload = {
     name,
@@ -296,6 +300,7 @@ export async function saveMyBusiness(
       if (!currentBusiness) return { ok: false, error: "notFound" };
 
       const effectiveGroup = groupFromMetadata(currentBusiness.group);
+      savedGroup = effectiveGroup;
       const effectiveType = payload.type || currentBusiness.type || "";
       payload.documents = filterAllowedDocuments(payload.documents, effectiveGroup, effectiveType);
 
@@ -358,6 +363,11 @@ export async function saveMyBusiness(
 
     }
 
+    // Çoklu hizmetleri senkronize et (form açıkça hizmet gönderdiyse).
+    if (savedBusinessId && rawServices.length > 0) {
+      await replaceBusinessServices(supabase, savedBusinessId, savedGroup, rawServices);
+    }
+
     if (draftKey) {
       await supabase
         .from("business_drafts")
@@ -399,6 +409,7 @@ function revalidatePartnerRequests() {
   revalidatePath("/[locale]/dashboard", "page");
   revalidatePath("/[locale]/dashboard/listings", "page");
   revalidateTag("business-partners", "max");
+  revalidateTag("businesses", "max");
 }
 
 export type PartnerRequestActionState = {

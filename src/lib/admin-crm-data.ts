@@ -1,12 +1,13 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminAccess } from "@/lib/admin-auth";
+import { getServiceSlugs, getServiceSlugsByBusiness } from "@/lib/business-services";
 import type { AdminAuditLog, AdminBusiness, AdminMembership, AdminPageView, AdminQuote, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
 import { businessesToCsv } from "@/lib/admin-crm";
 
 const BUSINESS_SELECT =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,doping_until,phone,website,image,attributes,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,doping_until,phone,website,image,attributes,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -33,6 +34,7 @@ type BusinessRow = {
   website: string | null;
   image: string | null;
   attributes: string[] | null;
+  details: Record<string, string> | null;
   status: BusinessLifecycleStatus;
   seo_title: string | null;
   seo_description: string | null;
@@ -46,8 +48,9 @@ export type CrmListData = {
   businesses: AdminBusiness[];
   total: number;
   memberships: AdminMembership[];
-  expiringBusinesses: AdminBusiness[];
-  expiringMemberships: AdminMembership[];
+  /* Üyelik süresi tamamen dolmuş (ends_at geçmiş) işletmeler — CRM "sonlanan" bölümü. */
+  expiredBusinesses: AdminBusiness[];
+  expiredMemberships: AdminMembership[];
   cities: string[];
   activeHotels: number;
   activeAgencies: number;
@@ -74,8 +77,8 @@ const EMPTY_CRM_LIST: CrmListData = {
   businesses: [],
   total: 0,
   memberships: [],
-  expiringBusinesses: [],
-  expiringMemberships: [],
+  expiredBusinesses: [],
+  expiredMemberships: [],
   cities: [],
   activeHotels: 0,
   activeAgencies: 0,
@@ -95,31 +98,33 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
     .order("created_at", { ascending: false })
     .range(offset, offset + filters.limit - 1));
   const citiesPromise = supabase.from("businesses").select("city").order("city", { ascending: true });
-  const expiringPromise = supabase
+  // Süresi tamamen dolmuş üyelikler: ends_at bugünden önce (cron gecikse de tarih baz alınır).
+  const nowIso = new Date().toISOString();
+  const expiredPromise = supabase
     .from("business_memberships")
     .select("id,business_id,plan,status,starts_at,ends_at")
-    .neq("status", "expired")
-    .order("ends_at", { ascending: true })
-    .limit(25);
+    .lt("ends_at", nowIso)
+    .order("ends_at", { ascending: false })
+    .limit(50);
   const activeCountsPromise = Promise.all([
     supabase.from("businesses").select("id", { count: "exact", head: true }).in("status", ["approved", "active"]).eq("group", "konaklama"),
     supabase.from("businesses").select("id", { count: "exact", head: true }).in("status", ["approved", "active"]).eq("group", "acente"),
   ]);
 
-  const [visible, citiesRes, expiringRes, activeCounts] = await Promise.all([
+  const [visible, citiesRes, expiredRes, activeCounts] = await Promise.all([
     visiblePromise,
     citiesPromise,
-    expiringPromise,
+    expiredPromise,
     activeCountsPromise,
   ]);
 
   const businesses = visible.businesses;
   const visibleIds = businesses.map((business) => business.id);
-  const expiringRows = expiringRes.data ?? [];
-  const expiringIds = expiringRows.map((row) => Number(row.business_id));
-  const membershipBusinessIds = Array.from(new Set([...visibleIds, ...expiringIds]));
+  const expiredRows = expiredRes.data ?? [];
+  const expiredIds = expiredRows.map((row) => Number(row.business_id));
+  const membershipBusinessIds = Array.from(new Set([...visibleIds, ...expiredIds]));
 
-  const [membershipsRes, expiringBusinessesRes] = await Promise.all([
+  const [membershipsRes, expiredBusinessesRes] = await Promise.all([
     membershipBusinessIds.length > 0
       ? supabase
           .from("business_memberships")
@@ -127,24 +132,38 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
           .in("business_id", membershipBusinessIds)
           .order("ends_at", { ascending: true })
       : Promise.resolve({ data: [], error: null }),
-    expiringIds.length > 0
-      ? supabase.from("businesses").select(BUSINESS_SELECT).in("id", expiringIds)
+    expiredIds.length > 0
+      ? supabase.from("businesses").select(BUSINESS_SELECT).in("id", expiredIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
 
   if (citiesRes.error) throw new Error(citiesRes.error.message);
-  if (expiringRes.error) throw new Error(expiringRes.error.message);
+  if (expiredRes.error) throw new Error(expiredRes.error.message);
   if (membershipsRes.error) throw new Error(membershipsRes.error.message);
-  if (expiringBusinessesRes.error) throw new Error(expiringBusinessesRes.error.message);
+  if (expiredBusinessesRes.error) throw new Error(expiredBusinessesRes.error.message);
   if (activeCounts[0].error) throw new Error(activeCounts[0].error.message);
   if (activeCounts[1].error) throw new Error(activeCounts[1].error.message);
 
+  // expiredBusinesses'i en yeni bitenler önde olacak şekilde (expiredRows sırası) döndür.
+  const expiredBusinessMap = new Map(
+    ((expiredBusinessesRes.data ?? []) as BusinessRow[]).map((row) => [row.id, rowToAdminBusiness(row)]),
+  );
+
+  // Görünür işletmelere çoklu hizmetleri ekle (CRM listesinde rozet için).
+  const serviceMap = await getServiceSlugsByBusiness(supabase, visibleIds);
+  const businessesWithServices = businesses.map((business) => ({
+    ...business,
+    serviceTypes: serviceMap.get(business.id) ?? [],
+  }));
+
   return {
-    businesses,
+    businesses: businessesWithServices,
     total: visible.total,
     memberships: mapMemberships(membershipsRes.data ?? []),
-    expiringBusinesses: ((expiringBusinessesRes.data ?? []) as BusinessRow[]).map(rowToAdminBusiness),
-    expiringMemberships: mapMemberships(expiringRows),
+    expiredBusinesses: expiredIds
+      .map((id) => expiredBusinessMap.get(id))
+      .filter((business): business is AdminBusiness => Boolean(business)),
+    expiredMemberships: mapMemberships(expiredRows),
     cities: Array.from(new Set((citiesRes.data ?? []).map((row) => String(row.city)).filter(Boolean))).sort((a, b) => a.localeCompare(b, "tr")),
     activeHotels: activeCounts[0].count ?? 0,
     activeAgencies: activeCounts[1].count ?? 0,
@@ -203,8 +222,13 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
   if (quotesRes.error) throw new Error(quotesRes.error.message);
   if (pageViewsRes.error) throw new Error(pageViewsRes.error.message);
 
+  const businessBase = businessRes.data ? rowToAdminBusiness(businessRes.data as BusinessRow) : null;
+  const business = businessBase
+    ? { ...businessBase, serviceTypes: await getServiceSlugs(supabase, businessBase.id) }
+    : null;
+
   return {
-    business: businessRes.data ? rowToAdminBusiness(businessRes.data as BusinessRow) : null,
+    business,
     membership: membershipRes.data ? mapMembership(membershipRes.data) : null,
     auditLogs: mapAuditLogs(auditRes.data ?? []),
     contacts: (contactsRes.data ?? []).map((row) => ({
@@ -310,6 +334,7 @@ function rowToAdminBusiness(row: BusinessRow): AdminBusiness {
     website: row.website ?? undefined,
     image: row.image ?? undefined,
     attributes: row.attributes ?? [],
+    details: row.details ?? {},
     status: row.status,
     seoTitle: row.seo_title ?? undefined,
     seoDescription: row.seo_description ?? undefined,

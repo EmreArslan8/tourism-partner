@@ -4,6 +4,7 @@
 // Tek kaynak: dikey boşluğu değiştirmek için yalnızca burayı düzenle.
 const panelBase =
   "container-px flex h-full w-full flex-col items-center justify-center overflow-hidden bg-transparent py-8 " +
+  "min-[1440px]:py-10 min-[1800px]:py-12 " +
   "max-[1120px]:justify-start max-[900px]:py-6 max-[640px]:py-5";
 
 const styles = {
@@ -12,6 +13,7 @@ const styles = {
   panelLight: `${panelBase} max-[640px]:justify-start`,
   panelCategories:
     `${panelBase} justify-start pt-[clamp(24px,5vh,64px)] pb-6 ` +
+    "min-[1440px]:pt-[clamp(42px,6vh,92px)] min-[1800px]:pt-[clamp(54px,7vh,112px)] " +
     "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:justify-center " +
     "[@media_(min-width:641px)_and_(max-width:1100px)_and_(orientation:portrait)]:py-6",
   panelTour: panelBase,
@@ -21,7 +23,7 @@ const styles = {
   inner: "w-full",
   innerWide: "h-full min-h-0 w-full",
   // SSS paneli: üstte FAQ, altta güven rozetleri (rozetler kendi aralarında yan yana).
-  faqStack: "flex w-full flex-col gap-8 max-[1024px]:gap-7 max-[860px]:gap-6 max-[640px]:gap-5",
+  faqStack: "flex w-full flex-col gap-8 min-[1440px]:gap-10 min-[1800px]:gap-12 max-[1024px]:gap-7 max-[860px]:gap-6 max-[640px]:gap-5",
 } as const;
 
 export default styles;

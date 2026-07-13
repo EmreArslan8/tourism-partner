@@ -24,6 +24,8 @@ export default async function AdminBusinessesPage({
       cities={data.cities}
       activeHotels={data.activeHotels}
       activeAgencies={data.activeAgencies}
+      expiredBusinesses={data.expiredBusinesses}
+      expiredMemberships={data.expiredMemberships}
       locale={locale}
     />
   );

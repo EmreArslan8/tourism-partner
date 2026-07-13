@@ -3,15 +3,17 @@
 const styles= {
   head: "mb-6 py-2 max-[1120px]:mb-4 max-[640px]:mb-3",
   eyebrow: "mb-1 block text-[10.5px] font-bold uppercase tracking-[.1em] text-[#aebfff]",
-  title: "whitespace-nowrap font-display text-[44px] font-medium leading-[1.05] tracking-[-.03em] text-white max-[900px]:text-[38px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
+  title: "whitespace-nowrap font-display text-[44px] font-medium leading-[1.05] tracking-[-.03em] text-white min-[1440px]:text-[54px] min-[1800px]:text-[62px] max-[900px]:text-[38px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
   topSearch: "mb-5 max-[1120px]:hidden",
 
   bar:
     "sticky top-[86px] z-40 grid grid-cols-[minmax(320px,1.8fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)] " +
     "items-center gap-0 rounded-[12px] border border-line bg-paper/95 px-3 py-0 backdrop-blur-xl " +
     "[&>*]:min-w-0 [&>*]:py-1 [&>*+*]:border-l [&>*+*]:border-[#e1e6ef] [&>*+*]:pl-3 " +
+    "min-[1440px]:top-[94px] min-[1440px]:grid-cols-[minmax(420px,1.9fr)_minmax(170px,.75fr)_minmax(170px,.75fr)_minmax(180px,.8fr)] min-[1440px]:rounded-[14px] min-[1440px]:px-4 " +
+    "min-[1800px]:grid-cols-[minmax(500px,2fr)_minmax(190px,.75fr)_minmax(190px,.75fr)_minmax(200px,.8fr)] " +
     "max-[1280px]:grid-cols-[minmax(260px,1.4fr)_repeat(3,minmax(132px,1fr))]",
-  field: "field h-[50px]",
+  field: "field h-[50px] min-[1440px]:h-[58px] min-[1800px]:h-[62px]",
   selectWrap: "relative block min-w-0",
   selectControl:
     "w-full appearance-none !rounded-[8px] !border-0 !bg-transparent !pl-3.5 !pr-9 text-[14.5px] font-medium " +
@@ -48,12 +50,11 @@ const styles= {
   active: "mt-3 flex flex-wrap items-center gap-2",
   activeLabel: "text-[12.5px] font-semibold text-cream/80",
   tag:
-    "inline-flex items-center gap-1.5 rounded-pill border-[1.5px] border-terra/30 bg-terra/10 " +
-    "px-2.5 py-1 text-[12.5px] font-semibold text-white transition-colors hover:bg-terra/25",
-  tagX: "text-[14px] leading-none opacity-70",
+    "inline-flex items-center gap-1.5 rounded-pill border border-white bg-white " +
+    "px-2.5 py-1 text-[12.5px] font-semibold text-[#10265f] shadow-[0_8px_18px_-16px_rgba(0,0,0,.65)] transition-colors hover:bg-cream",
+  tagX: "text-[14px] leading-none text-[#10265f]/60",
   clearTag:
-    "rounded-pill border-[1.5px] border-white/30 bg-white/10 px-2.5 py-1 text-[12.5px] " +
-    "font-bold text-white transition-colors hover:border-white/55 hover:bg-white/15",
+    "px-1 py-1 text-[12.5px] font-semibold text-white underline underline-offset-4 transition-colors hover:text-cream",
 
   // Hizmet/koşul facet paneli (sol kenar — filtreleme motoru)
   facetWrap: "mt-3 flex flex-col rounded-[14px] border border-line bg-paper p-2 shadow-card",
@@ -116,7 +117,7 @@ const styles= {
     "inline-flex h-5 min-w-5 items-center justify-center rounded-pill bg-cream-deep px-1.5 text-[11.5px] font-bold text-muted",
 
   // Sol katalog + içerik düzeni
-  layout: "grid grid-cols-[240px_minmax(0,1fr)] items-start gap-5 max-[1120px]:grid-cols-1 max-[1120px]:gap-0",
+  layout: "grid grid-cols-[240px_minmax(0,1fr)] items-start gap-5 min-[1440px]:grid-cols-[280px_minmax(0,1fr)] min-[1440px]:gap-7 min-[1800px]:grid-cols-[310px_minmax(0,1fr)] min-[1800px]:gap-8 max-[1120px]:grid-cols-1 max-[1120px]:gap-0",
   content: "min-w-0",
   catalogAside: "self-start pr-1 max-[1120px]:hidden",
 
@@ -182,24 +183,27 @@ const styles= {
   sheetFilters: "flex flex-col gap-2.5",
   regionMobileHide: "max-[1000px]:hidden",
 
-  shell: "grid grid-cols-[minmax(0,1fr)_minmax(360px,.9fr)] items-start gap-5 max-[1120px]:grid-cols-1",
+  shell: "grid grid-cols-[minmax(0,1fr)_minmax(360px,.9fr)] items-start gap-5 min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(430px,.82fr)] min-[1440px]:gap-7 min-[1800px]:grid-cols-[minmax(0,1fr)_minmax(500px,.78fr)] min-[1800px]:gap-8 max-[1120px]:grid-cols-1",
   mapAside: "sticky top-[84px] max-[1120px]:static",
   grid:
     "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-4 gap-y-6 " +
+    "min-[1440px]:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] min-[1440px]:gap-x-6 min-[1440px]:gap-y-8 " +
+    "min-[1800px]:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] min-[1800px]:gap-x-7 " +
     "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
   gridWide:
     "grid grid-cols-3 gap-x-5 gap-y-6 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1 " +
+    "min-[1600px]:grid-cols-4 min-[1600px]:gap-x-6 min-[1800px]:gap-x-7 min-[1800px]:gap-y-8 " +
     "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
-  guestUnlockShell: "relative col-span-full h-[520px] overflow-hidden rounded-[14px] border border-[#d8e1f0] bg-[#eef3fb] shadow-[0_22px_54px_-44px_rgba(7,9,42,.75)] max-[640px]:h-[480px]",
-  guestUnlockPreview: "pointer-events-none grid h-full grid-cols-3 gap-5 p-5 blur-[5px] saturate-[.76] max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1",
+  guestUnlockShell: "relative h-[480px] overflow-hidden rounded-[10px] border border-[#d8e1f0] bg-[#eef3fb] shadow-[0_22px_54px_-44px_rgba(7,9,42,.75)] min-[1440px]:h-[540px] min-[1800px]:h-[580px] max-[640px]:h-[460px]",
+  guestUnlockPreview: "pointer-events-none grid h-full grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-5 p-5 blur-[5px] saturate-[.76] max-[640px]:grid-cols-1",
   guestUnlockOverlay: "absolute inset-0 flex items-end bg-[linear-gradient(180deg,rgba(9,22,58,.04)_0%,rgba(9,22,58,.12)_34%,rgba(9,22,58,.78)_100%)] px-5 pb-9 pt-5",
-  guestUnlockPanel: "flex w-full items-center gap-4 rounded-[14px] border border-white/18 bg-[#10265f]/88 px-5 py-4 text-left shadow-[0_18px_44px_-26px_rgba(3,9,29,.85)] backdrop-blur-xl max-[640px]:flex-wrap max-[640px]:gap-3 max-[640px]:px-4",
+  guestUnlockPanel: "flex w-full flex-wrap items-center gap-4 rounded-[12px] border border-white/18 bg-[#10265f]/88 px-5 py-4 text-left shadow-[0_18px_44px_-26px_rgba(3,9,29,.85)] backdrop-blur-xl max-[640px]:gap-3 max-[640px]:px-4",
   guestUnlockIcon: "grid h-11 w-11 shrink-0 place-items-center rounded-[11px] bg-white/12 text-white",
-  guestUnlockCopy: "min-w-0 flex-1",
+  guestUnlockCopy: "min-w-[180px] flex-1",
   guestUnlockEyebrow: "text-[10px] font-bold uppercase tracking-[.14em] text-[#b9c9fa]",
   guestUnlockTitle: "mt-1 font-display text-[22px] font-medium leading-[1.12] tracking-[-.018em] text-white max-[640px]:text-[20px]",
   guestUnlockText: "mt-1.5 text-[13px] leading-5 text-[#d2dcf6]",
-  guestUnlockCta: "inline-flex h-10 shrink-0 items-center justify-center rounded-[9px] bg-white px-4 text-[13px] font-bold text-[#10265f] shadow-[0_10px_24px_-16px_rgba(0,0,0,.8)] transition-transform hover:-translate-y-px hover:bg-[#eef3ff] max-[640px]:ml-[59px]",
+  guestUnlockCta: "ml-auto inline-flex h-10 shrink-0 items-center justify-center rounded-[9px] bg-white px-4 text-[13px] font-bold text-[#10265f] shadow-[0_10px_24px_-16px_rgba(0,0,0,.8)] transition-transform hover:-translate-y-px hover:bg-[#eef3ff]",
 
   // Hibrit erişim bandı (misafir kullanıcı — toplu kartlar kapalı, yalnız sayı açık)
   gate:

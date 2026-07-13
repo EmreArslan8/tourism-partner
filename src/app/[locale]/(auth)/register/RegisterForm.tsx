@@ -67,7 +67,10 @@ const RegisterForm = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [intent, setIntent] = useState<Intent | "">(""); // "" = henüz seçilmedi
   const [group, setGroup] = useState<string>(""); // "service" akışında seçilen grup
-  const [category, setCategory] = useState<string>(""); // seçilen alt kategori slug'ı
+  const [services, setServices] = useState<string[]>([]); // seçilen alt kategori slug'ları (çoklu)
+  const category = services[0] ?? ""; // birincil = ilk seçilen
+  const toggleService = (slug: string) =>
+    setServices((current) => (current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug]));
   const [sector, setSector] = useState("");
   const [sectorNote, setSectorNote] = useState("");
   const [email, setEmail] = useState(""); // verify ekranında göstermek için
@@ -125,7 +128,7 @@ const RegisterForm = () => {
   const choose = (key: Intent) => {
     setIntent(key);
     setGroup("");
-    setCategory("");
+    setServices([]);
     setSector("");
     setSectorNote("");
     window.setTimeout(() => swap(() => setStep(2), "forward"), 180);
@@ -235,7 +238,7 @@ const RegisterForm = () => {
           {intent === "buyer" && (
             <fieldset>
               <legend className="mb-3 text-[13px] font-semibold text-ink">{t("sectorLabel")}</legend>
-              <div role="radiogroup" aria-label={t("sectorLabel")} className="grid grid-cols-3 gap-3 max-[640px]:grid-cols-2 max-[420px]:grid-cols-1">
+              <div role="group" aria-label={t("sectorLabel")} className="grid grid-cols-3 gap-3 max-[640px]:grid-cols-2 max-[420px]:grid-cols-1">
                 {SECTORS.filter((s) => s !== "diger").map((s) => {
                   const on = sector === s && !sectorNote.trim();
                   const Icon = SECTOR_ICON[s];
@@ -243,7 +246,7 @@ const RegisterForm = () => {
                     <button
                       key={s}
                       type="button"
-                      role="radio"
+                      role="checkbox"
                       aria-checked={on}
                       onClick={() => {
                         setSector(on ? "" : s);
@@ -301,7 +304,7 @@ const RegisterForm = () => {
                           type="button"
                           onClick={() => {
                             setGroup(g.key);
-                            setCategory("");
+                            setServices([]);
                           }}
                           className="grid min-h-[118px] place-items-center rounded-[7px] border-2 border-line bg-white px-3 py-4 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-terra/55"
                         >
@@ -320,7 +323,7 @@ const RegisterForm = () => {
                       type="button"
                       onClick={() => {
                         setGroup("");
-                        setCategory("");
+                        setServices([]);
                       }}
                       className="inline-flex items-center gap-1 text-[13px] font-semibold !text-[#33415f] transition-colors hover:!text-terra"
                     >
@@ -332,15 +335,15 @@ const RegisterForm = () => {
                     {serviceGroups
                       .find((g) => g.key === group)
                       ?.children.map((c) => {
-                        const on = category === c.slug;
+                        const on = services.includes(c.slug);
                         const Icon = GROUP_ICON[group];
                         return (
                           <button
                             key={c.slug}
                             type="button"
-                            role="radio"
+                            role="checkbox"
                             aria-checked={on}
-                            onClick={() => setCategory(on ? "" : c.slug)}
+                            onClick={() => toggleService(c.slug)}
                             className={cn(
                               "grid min-h-[96px] place-items-center rounded-[7px] border-2 bg-white px-3 py-3 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px",
                               on
@@ -393,6 +396,7 @@ const RegisterForm = () => {
           <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
           <input type="hidden" name="accountType" value={accountType} />
           <input type="hidden" name="category" value={category} />
+          <input type="hidden" name="services" value={services.join(",")} />
           <input type="hidden" name="sector" value={sectorValue} />
 
           <Input name="name" label={intent === "buyer" ? t("nameBuyer") : t("name")} type="text" required placeholder={t("namePh")} />

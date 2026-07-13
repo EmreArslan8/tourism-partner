@@ -1,6 +1,6 @@
 /* HowItWorks — tek sahnede iki rol ve üç adımlı canlı workflow. */
 const styles = {
-  section: "py-7 max-[640px]:py-4",
+  section: "py-7 min-[1440px]:py-9 min-[1800px]:py-10 max-[640px]:py-4",
   headline:
     "mb-6 flex items-end justify-between gap-8 max-[860px]:items-start max-[860px]:flex-col max-[860px]:gap-2 max-[640px]:mb-4",
   eyebrow: "eyebrow mb-1.5 !text-[#9db4ff] max-[640px]:hidden",
@@ -11,14 +11,16 @@ const styles = {
   stage:
     "grid h-[520px] min-h-0 grid-cols-[minmax(390px,.86fr)_minmax(480px,1.14fr)] overflow-hidden rounded-[28px] border border-white/15 bg-white/[.045] " +
     "shadow-[0_34px_90px_-54px_rgba(0,0,0,.92)] backdrop-blur-sm " +
+    "min-[1440px]:h-[620px] min-[1440px]:grid-cols-[minmax(460px,.86fr)_minmax(580px,1.14fr)] " +
+    "min-[1800px]:h-[690px] min-[1800px]:grid-cols-[minmax(520px,.86fr)_minmax(650px,1.14fr)] " +
     "max-[1050px]:h-[500px] max-[1050px]:grid-cols-[minmax(340px,.9fr)_minmax(400px,1.1fr)] " +
     "max-[860px]:h-auto max-[860px]:min-h-0 max-[860px]:grid-cols-1 max-[640px]:rounded-[20px] max-[640px]:border-0",
-  controls: "flex min-w-0 flex-col p-6 max-[1050px]:p-5 max-[640px]:p-3",
+  controls: "flex min-w-0 flex-col p-6 min-[1440px]:p-8 min-[1800px]:p-9 max-[1050px]:p-5 max-[640px]:p-3",
   tabs: "grid grid-cols-2 gap-1 rounded-[14px] border border-white/10 bg-black/10 p-1",
   tab:
-    "flex h-[38px] items-center justify-center gap-1.5 rounded-[9px] border border-transparent px-2.5 text-[12px] font-bold !text-white/[.72] transition-all hover:border-white/10 hover:bg-white/[.055] hover:!text-white [&>svg]:h-3.5 [&>svg]:w-3.5",
+    "flex h-[38px] items-center justify-center gap-1.5 rounded-[9px] border border-transparent px-2.5 text-[12px] font-bold !text-white/[.72] transition-all hover:border-white/10 hover:bg-white/[.055] hover:!text-white [&>svg]:h-3.5 [&>svg]:w-3.5 min-[1440px]:h-11 min-[1440px]:text-[13.5px] min-[1800px]:h-12 min-[1800px]:text-[14.5px]",
   tabActive:
-    "flex h-[38px] items-center justify-center gap-1.5 rounded-[9px] bg-white px-2.5 text-[12px] font-extrabold text-sapphire-deep shadow-[0_8px_20px_-16px_rgba(0,0,0,.75)] transition-all [&>svg]:h-3.5 [&>svg]:w-3.5",
+    "flex h-[38px] items-center justify-center gap-1.5 rounded-[9px] bg-white px-2.5 text-[12px] font-extrabold text-sapphire-deep shadow-[0_8px_20px_-16px_rgba(0,0,0,.75)] transition-all [&>svg]:h-3.5 [&>svg]:w-3.5 min-[1440px]:h-11 min-[1440px]:text-[13.5px] min-[1800px]:h-12 min-[1800px]:text-[14.5px]",
 
   steps: "relative mt-4 grid flex-1 auto-rows-fr gap-1.5 before:absolute before:bottom-[52px] before:left-[21px] before:top-[52px] before:w-px before:bg-white/12 before:content-[''] " +
     "max-[640px]:hidden",
@@ -26,9 +28,11 @@ const styles = {
   stepItem: "relative z-10",
   step:
     "grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-transparent px-2 py-2.5 text-left transition-all duration-200 hover:bg-white/[.055] " +
+    "min-[1440px]:min-h-[104px] min-[1440px]:grid-cols-[52px_minmax(0,1fr)_26px] min-[1440px]:gap-4 min-[1440px]:px-3 min-[1800px]:min-h-[116px] " +
     "max-[640px]:min-h-0 max-[640px]:grid-cols-1 max-[640px]:place-items-center max-[640px]:gap-0.5 max-[640px]:rounded-[10px] max-[640px]:px-1 max-[640px]:py-1 max-[640px]:text-center",
   stepActive:
     "grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-white/30 bg-white/[.085] px-2 py-2.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,.05)] transition-all duration-200 " +
+    "min-[1440px]:min-h-[104px] min-[1440px]:grid-cols-[52px_minmax(0,1fr)_26px] min-[1440px]:gap-4 min-[1440px]:px-3 min-[1800px]:min-h-[116px] " +
     "max-[640px]:min-h-0 max-[640px]:grid-cols-1 max-[640px]:place-items-center max-[640px]:gap-0.5 max-[640px]:rounded-[10px] max-[640px]:px-1 max-[640px]:py-1 max-[640px]:text-center",
   stepMarker:
     "grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-sapphire-deep text-[11px] font-black text-white/45 max-[640px]:h-6 max-[640px]:w-6 max-[640px]:text-[8px]",
@@ -37,9 +41,9 @@ const styles = {
   stepMarkerComplete:
     "grid h-11 w-11 place-items-center rounded-full border border-[#9db4ff]/45 bg-[#9db4ff]/15 text-[#c7d3f0] max-[640px]:h-6 max-[640px]:w-6 max-[640px]:[&_svg]:h-3 max-[640px]:[&_svg]:w-3",
   stepCopy: "min-w-0",
-  stepTitle: "block text-[15px] font-extrabold leading-tight text-white max-[640px]:line-clamp-2 max-[640px]:text-[9px] max-[640px]:leading-[1.1]",
+  stepTitle: "block text-[15px] font-extrabold leading-tight text-white min-[1440px]:text-[17px] min-[1800px]:text-[18px] max-[640px]:line-clamp-2 max-[640px]:text-[9px] max-[640px]:leading-[1.1]",
   stepDesc:
-    "mt-1 block overflow-hidden text-[12px] font-medium leading-[1.45] text-[#c7d3f0]/[.82] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] max-[640px]:hidden",
+    "mt-1 block overflow-hidden text-[12px] font-medium leading-[1.45] text-[#c7d3f0]/[.82] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] min-[1440px]:text-[13.5px] min-[1800px]:text-[14.5px] max-[640px]:hidden",
   stepIcon: "text-[#9db4ff] opacity-[.82] max-[640px]:hidden",
   cta:
     "mt-4 inline-flex h-[52px] items-center justify-between rounded-[13px] bg-white px-5 text-[14px] font-extrabold text-sapphire-deep shadow-[0_16px_34px_-24px_rgba(0,0,0,.72)] transition-all hover:bg-cream hover:px-[22px] active:scale-[.99] max-[640px]:hidden",
@@ -47,7 +51,7 @@ const styles = {
 
   preview:
     "relative m-3 ml-0 flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-white/20 bg-[linear-gradient(145deg,rgba(255,255,255,.98),rgba(231,238,255,.94))] text-ink " +
-    "shadow-[0_28px_70px_-40px_rgba(0,0,0,.9)] max-[860px]:m-3 max-[860px]:mt-0 max-[860px]:min-h-[390px] " +
+    "shadow-[0_28px_70px_-40px_rgba(0,0,0,.9)] min-[1440px]:m-4 min-[1440px]:ml-0 min-[1800px]:m-5 min-[1800px]:ml-0 max-[860px]:m-3 max-[860px]:mt-0 max-[860px]:min-h-[390px] " +
     "max-[640px]:mx-3 max-[640px]:mb-3 max-[640px]:h-[360px] max-[640px]:min-h-[360px] max-[640px]:max-h-[360px] max-[640px]:rounded-[22px] max-[640px]:border-white/35",
   previewGlow:
     "pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(closest-side,rgba(53,66,238,.16),transparent_70%)]",

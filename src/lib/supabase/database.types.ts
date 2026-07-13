@@ -190,6 +190,26 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["business_partners"]["Insert"]>;
         Relationships: [];
       };
+      business_services: {
+        Row: {
+          id: number;
+          business_id: number;
+          group_key: BusinessGroup;
+          service_slug: string;
+          is_primary: boolean;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          group_key: BusinessGroup;
+          service_slug: string;
+          is_primary?: boolean;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["business_services"]["Insert"]>;
+        Relationships: [];
+      };
       business_partner_requests: {
         Row: {
           id: number;

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPanelUser, getPanelSession } from "@/lib/panel-auth";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
+import { getServiceSlugs } from "@/lib/business-services";
 import DashboardView, {
   PanelBusiness,
   PanelContact,
@@ -201,6 +202,7 @@ export async function PanelData({
         founderPartner: businessRow.founder_partner ?? false,
         created_at: businessRow.created_at,
         documents: await withSignedDocumentUrls(supabase, businessRow.documents),
+        serviceTypes: await getServiceSlugs(supabase, businessRow.id),
       }
     : null;
   const signedDraftDocuments = draft

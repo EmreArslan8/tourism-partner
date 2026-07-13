@@ -248,9 +248,13 @@ export async function getAdminContentExtras(): Promise<AdminContentExtras> {
 }
 
 export async function getCategoryTree(): Promise<CategoryGroup[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("categories");
+
   if (!hasEnv()) return CATEGORY_GROUPS;
 
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("categories")
     .select("id,parent_id,group_key,label,slug,sort_order,is_active,created_at,updated_at")
@@ -258,7 +262,10 @@ export async function getCategoryTree(): Promise<CategoryGroup[]> {
     .order("sort_order", { ascending: true })
     .order("label", { ascending: true });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[platform-data] categories okunamadı, fallback kullanılıyor:", error.message);
+    return CATEGORY_GROUPS;
+  }
   if (!data || data.length === 0) return CATEGORY_GROUPS;
 
   return rowsToCategoryGroups(data);
@@ -296,10 +303,12 @@ export async function getAdminCategoryGroups(): Promise<AdminCategoryGroup[]> {
 function rowsToCategoryGroups(rows: CategoryRow[]): CategoryGroup[] {
   const groupLabels = new Map<GroupKey, string>();
   const children = new Map<GroupKey, CategoryGroup["children"]>();
+  const databaseRoots = new Set<GroupKey>();
 
   for (const row of rows) {
     if (!children.has(row.group_key)) children.set(row.group_key, []);
     if (row.parent_id === null) {
+      databaseRoots.add(row.group_key);
       groupLabels.set(row.group_key, row.label);
     } else {
       children.get(row.group_key)?.push({ slug: row.slug, label: row.label });
@@ -309,6 +318,6 @@ function rowsToCategoryGroups(rows: CategoryRow[]): CategoryGroup[] {
   return CATEGORY_GROUPS.map((fallback) => ({
     key: fallback.key,
     label: groupLabels.get(fallback.key) ?? fallback.label,
-    children: children.get(fallback.key)?.length ? children.get(fallback.key)! : fallback.children,
+    children: databaseRoots.has(fallback.key) ? (children.get(fallback.key) ?? []) : fallback.children,
   }));
 }

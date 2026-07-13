@@ -5,6 +5,7 @@ import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
 import type { FeaturedFacetTag } from "@/lib/facets";
+import { serviceLabel } from "@/lib/categories";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
@@ -48,8 +49,8 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
             {b.founderPartner && (
               <span
                 className={styles.founderBadge}
-                title="Kurucu Partner"
-                aria-label="Kurucu Partner"
+                title="Kurucu Üye"
+                aria-label="Kurucu Üye"
               >
                 <BadgeCheck size={28} strokeWidth={2.35} aria-hidden />
               </span>
@@ -79,6 +80,19 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
             <h2 id="profile-about" className={styles.svcTitle}>{t("about")}</h2>
             <AboutText text={b.desc} className={styles.desc} />
           </section>
+
+          {(b.serviceTypes?.length ?? 0) > 1 && (
+            <section className={styles.svcCard} aria-labelledby="profile-service-types">
+              <h2 id="profile-service-types" className={styles.svcTitle}>Sunulan Hizmetler</h2>
+              <div className="flex flex-wrap gap-2">
+                {b.serviceTypes!.map((slug) => (
+                  <span key={slug} className="inline-flex items-center rounded-full border border-line bg-cream/50 px-3 py-1.5 text-[13px] font-medium text-ink">
+                    {serviceLabel(slug)}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
           {services.length > 0 && (
             <section className={styles.svcCard} aria-labelledby="profile-services">

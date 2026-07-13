@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 
 const SupplierGallery = ({
   images,
@@ -112,9 +113,7 @@ const SupplierGallery = ({
       </div>
 
       {sponsored && (
-        <span className="absolute right-4 top-4 z-[2] rounded-pill bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-[.06em] text-pine shadow-[0_12px_28px_-20px_rgba(7,9,42,.45)]">
-          {adLabel}
-        </span>
+        <PremiumPartnerBadge label={adLabel} className="absolute right-4 top-4 z-[2]" />
       )}
 
       {images.length > 1 && (

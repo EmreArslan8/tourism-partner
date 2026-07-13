@@ -26,14 +26,14 @@ export function getProfileChecklist(b: PanelBusiness | null, cover: string) {
   return [
     { key: "name", done: Boolean(b?.name) },
     { key: "type", done: Boolean(b?.type) },
-    { key: "country", done: Boolean(b?.country) },
-    { key: "city", done: Boolean(b?.city) },
-    { key: "district", done: Boolean(b?.district) },
+    { key: "address", done: Boolean(b?.country && b?.city && b?.district) },
     { key: "description", done: Boolean(b?.description) },
     { key: "phone", done: Boolean(b?.phone) },
     { key: "website", done: Boolean(b?.website) },
     { key: "cover", done: Boolean(cover) },
     { key: "attributes", done: Boolean(b?.attributes?.length) },
+    { key: "contacts", done: Boolean((b?.contactCount ?? 0) > 0) },
+    { key: "partners", done: Boolean((b?.partnerActionCount ?? 0) > 0) },
   ] as const;
 }
 

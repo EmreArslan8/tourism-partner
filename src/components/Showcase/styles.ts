@@ -1,6 +1,6 @@
 /* Showcase — tam genişlikte tek-tek kayan carousel (sol galeri / sağ bilgi). */
 const styles = {
-  head: "mb-4 flex items-end justify-between gap-4 max-[560px]:mb-[9.6px] max-[560px]:gap-[12.8px] [@media(max-height:720px)]:mb-2.5",
+  head: "mb-4 flex items-end justify-between gap-4 min-[1440px]:mb-6 min-[1800px]:mb-7 max-[560px]:mb-[9.6px] max-[560px]:gap-[12.8px] [@media(max-height:720px)]:mb-2.5",
   copy: "section-copy",
   /* Koyu (sapphire degrade) zemin üstünde başlıklar beyaz. */
   eyebrow: "eyebrow mb-2 !text-[#9db4ff] max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
@@ -11,6 +11,7 @@ const styles = {
   arrow:
     "grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/95 text-sapphire-deep " +
     "shadow-[0_12px_28px_-18px_rgba(0,0,0,.7)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-sapphire " +
+    "min-[1440px]:h-12 min-[1440px]:w-12 min-[1800px]:h-14 min-[1800px]:w-14 " +
     "max-[560px]:h-8 max-[560px]:w-8 max-[560px]:[&_svg]:h-[14.4px] max-[560px]:[&_svg]:w-[14.4px]",
 
   viewport: "overflow-hidden",
@@ -18,6 +19,7 @@ const styles = {
   slide: "min-w-full px-0.5 py-1 max-[560px]:px-[1.6px] max-[560px]:py-0",
   panel:
     "grid grid-cols-[1.1fr_1fr] gap-5 " +
+    "min-[1440px]:gap-7 min-[1800px]:gap-8 " +
     "max-[860px]:grid-cols-1 max-[860px]:gap-0 max-[860px]:overflow-hidden max-[860px]:rounded-card-lg " +
     "max-[860px]:border max-[860px]:border-line max-[860px]:shadow-card",
 
@@ -25,11 +27,13 @@ const styles = {
      böylece kart + CTA aynı 100dvh panele sığar, alttan kırpılmaz) */
   gallery:
     "relative min-h-[360px] overflow-hidden rounded-card-lg shadow-[0_26px_70px_-36px_rgba(0,0,0,.88)] ring-1 ring-white/15 " +
+    "min-[1440px]:min-h-[460px] min-[1800px]:min-h-[520px] " +
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
     "max-[640px]:min-h-0 max-[640px]:h-[34dvh]",
   galleryImg: "object-cover",
   placeholder:
     "grid h-full min-h-[360px] place-items-center text-[13px] font-bold text-white/90 " +
+    "min-[1440px]:min-h-[460px] min-[1800px]:min-h-[520px] " +
     "max-[860px]:min-h-[300px] max-[640px]:min-h-0",
   thumbs: "absolute inset-x-0 bottom-0 flex gap-2 p-3 max-[640px]:hidden",
   // Mobil: galeri swipe nokta göstergesi
@@ -48,9 +52,11 @@ const styles = {
   /* SAĞ — bilgiler (ayrı box) */
   info:
     "flex flex-col gap-3 rounded-card-lg border border-white/30 bg-white/[.94] p-6 shadow-[0_26px_70px_-38px_rgba(0,0,0,.78)] backdrop-blur-xl " +
+    "min-[1440px]:gap-4 min-[1440px]:p-8 min-[1800px]:gap-5 min-[1800px]:p-9 " +
     "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-1.5 max-[560px]:p-3.5",
   name:
     "font-display text-[28px] font-semibold leading-[1.12] tracking-[0] text-ink " +
+    "min-[1440px]:text-[34px] min-[1800px]:text-[38px] " +
     "max-[980px]:text-[25px] max-[560px]:text-[1.08rem] max-[560px]:leading-[1.12]",
   categoryText:
     "-mt-1 text-[13px] font-semibold leading-tight text-brand/72 " +

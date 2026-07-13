@@ -26,12 +26,6 @@ export default async function DopingPage({ params }: { params: Promise<{ locale:
     <>
       <DashboardTopbar title={t("dopingNav")} />
       <div className={styles.content}>
-      <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>{t("dopingNav")}</p>
-        <h1 className={styles.pageTitle}>{t("dopingTitle")}</h1>
-        <p className={styles.pageDesc}>{t("dopingDescription")}</p>
-      </header>
-
       {!biz ? (
         <PartnerPanelEmptyState
           title={t("profileRequiredTitle")}

@@ -1,8 +1,10 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { SOCIAL_PLATFORMS, type Business, type BusinessSocials, type GroupKey } from "./types";
+import { createAdminClient } from "./supabase/admin";
 import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
 import { businessSlug } from "./business-slug";
+import { getServiceSlugsByBusiness } from "./business-services";
 import { profileScore } from "./listing";
 import { PUBLIC_BUSINESS_STATUSES } from "./business-visibility";
 export { businessSlug } from "./business-slug";
@@ -14,7 +16,8 @@ export function toListingBusiness(b: Business): Business {
   const rest = Object.fromEntries(
     Object.entries(b).filter(([key]) => key !== "phone" && key !== "website" && key !== "socials")
   ) as Business;
-  return { ...rest, completeness: profileScore(b) };
+  const completeness = profileScore(b);
+  return { ...rest, completeness, founderPartner: Boolean(b.founderPartner) };
 }
 
 /* Firma veri erişim katmanı (server). Supabase'den okur.
@@ -54,8 +57,49 @@ function parseWorkRegions(raw: Row["work_regions"]): string[] | undefined {
   return list.length ? list : undefined;
 }
 
-function rowToBusiness(r: Row): Business {
-  return {
+async function getPublicProfileCounts(ids: number[]) {
+  const contactCounts = new Map<number, number>();
+  const partnerCounts = new Map<number, number>();
+  if (ids.length === 0) return { contactCounts, partnerCounts };
+
+  const admin = createAdminClient();
+  if (!admin) return { contactCounts, partnerCounts };
+
+  const { data: contacts, error: contactError } = await admin
+    .from("business_contacts")
+    .select("business_id")
+    .in("business_id", ids);
+  if (contactError) {
+    console.error(`[businesses] business_contacts count failed: ${contactError.message}`);
+  } else {
+    for (const contact of contacts ?? []) {
+      const id = Number(contact.business_id);
+      contactCounts.set(id, (contactCounts.get(id) ?? 0) + 1);
+    }
+  }
+
+  const { data: links, error: linkError } = await admin
+    .from("business_partner_requests")
+    .select("requester_business_id,receiver_business_id")
+    .in("status", ["pending", "accepted"])
+    .or(`requester_business_id.in.(${ids.join(",")}),receiver_business_id.in.(${ids.join(",")})`);
+  if (linkError) {
+    console.error(`[businesses] business_partner_requests count failed: ${linkError.message}`);
+  } else {
+    const idSet = new Set(ids);
+    for (const link of links ?? []) {
+      const requesterId = Number(link.requester_business_id);
+      const receiverId = Number(link.receiver_business_id);
+      if (idSet.has(requesterId)) partnerCounts.set(requesterId, (partnerCounts.get(requesterId) ?? 0) + 1);
+      if (idSet.has(receiverId)) partnerCounts.set(receiverId, (partnerCounts.get(receiverId) ?? 0) + 1);
+    }
+  }
+
+  return { contactCounts, partnerCounts };
+}
+
+function rowToBusiness(r: Row, counts?: { contactCount?: number; partnerCount?: number }): Business {
+  const base: Business = {
     id: r.id,
     group: normalizeBusinessGroup(r.group),
     type: r.type,
@@ -70,7 +114,9 @@ function rowToBusiness(r: Row): Business {
     tag: r.tag ?? "",
     verified: r.verified,
     sponsored: r.sponsored,
-    founderPartner: r.founder_partner ?? false,
+    founderPartner: false,
+    contactCount: counts?.contactCount ?? 0,
+    partnerCount: counts?.partnerCount ?? 0,
     dopingUntil: r.doping_until ?? undefined,
     phone: r.phone ?? undefined,
     website: r.website ?? undefined,
@@ -84,6 +130,12 @@ function rowToBusiness(r: Row): Business {
     seoKeywords: r.seo_keywords ?? undefined,
     canonicalPath: r.canonical_path ?? undefined,
     ogImage: r.og_image ?? undefined,
+  };
+  const completeness = profileScore(base);
+  return {
+    ...base,
+    completeness,
+    founderPartner: Boolean(r.founder_partner),
   };
 }
 
@@ -137,7 +189,17 @@ export async function getBusinesses(): Promise<Business[]> {
     console.error(`[businesses] getBusinesses DB hatası; seed fallback kapalı, boş sonuç dönülüyor: ${error.message}`);
     return [];
   }
-  return ((data ?? []) as Row[]).map(rowToBusiness);
+  const rows = (data ?? []) as Row[];
+  const { contactCounts, partnerCounts } = await getPublicProfileCounts(rows.map((row) => Number(row.id)));
+  const businesses = rows.map((row) =>
+    rowToBusiness(row, {
+      contactCount: contactCounts.get(Number(row.id)) ?? 0,
+      partnerCount: partnerCounts.get(Number(row.id)) ?? 0,
+    }),
+  );
+  // Çoklu hizmetleri tek sorguda ekle (business_services).
+  const serviceMap = await getServiceSlugsByBusiness(supabase, businesses.map((b) => b.id));
+  return businesses.map((b) => ({ ...b, serviceTypes: serviceMap.get(b.id) ?? [] }));
 }
 
 export async function getBusinessById(id: number | string): Promise<Business | null> {
@@ -172,10 +234,15 @@ export async function getBusinessById(id: number | string): Promise<Business | n
     return null;
   }
   if (!data) return null;
-  return rowToBusiness(data as Row);
+  const idNumber = Number(data.id);
+  const { contactCounts, partnerCounts } = await getPublicProfileCounts([idNumber]);
+  return rowToBusiness(data as Row, {
+    contactCount: contactCounts.get(idNumber) ?? 0,
+    partnerCount: partnerCounts.get(idNumber) ?? 0,
+  });
 }
 
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {
   const businesses = await getBusinesses();
-  return businesses.find((business) => businessSlug(business) === slug) ?? null;
+  return businesses.find((item) => businessSlug(item) === slug) ?? null;
 }

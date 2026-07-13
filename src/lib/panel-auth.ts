@@ -12,6 +12,7 @@ export type PanelBusinessLite = {
   group: BusinessGroup;
   city: string | null;
   country: string | null;
+  district: string | null;
   status: string;
   sponsored: boolean;
   doping_until: string | null;
@@ -60,7 +61,7 @@ export const getPanelBusiness = cache(async (): Promise<PanelBusinessLite | null
   const supabase = await createClient();
   const { data } = await supabase
     .from("businesses")
-    .select("id,name,group,city,country,status,sponsored,doping_until")
+    .select("id,name,group,city,country,district,status,sponsored,doping_until")
     .eq("owner_id", user.id)
     .order("id")
     .limit(1)

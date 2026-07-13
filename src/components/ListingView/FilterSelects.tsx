@@ -1,35 +1,30 @@
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import type { CountryOption } from "@/lib/geo";
 import styles from "./styles";
 
 const FilterSelects = ({
   country,
   city,
   district,
-  minRating,
   countries,
   cities,
   districts,
   onCountry,
   onCity,
   onDistrict,
-  onMinRating,
   stack = false,
-  showRating = true,
 }: {
   country: string;
   city: string;
   district: string;
-  minRating: number;
-  countries: string[];
+  countries: CountryOption[];
   cities: string[];
   districts: string[];
   onCountry: (v: string) => void;
   onCity: (v: string) => void;
   onDistrict: (v: string) => void;
-  onMinRating: (v: number) => void;
   stack?: boolean;
-  showRating?: boolean;
 }) => {
   const t = useTranslations("listing");
   const field = cn(styles.field, styles.selectControl, "peer", stack && "!w-full");
@@ -46,7 +41,7 @@ const FilterSelects = ({
       <span className={selectWrap}>
         <select aria-label={t("allCountries")} className={field} value={country} onChange={(e) => onCountry(e.target.value)}>
           <option value="all">{t("allCountries")}</option>
-          {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+          {countries.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
         {chevron}
       </span>
@@ -70,17 +65,6 @@ const FilterSelects = ({
         </select>
         {chevron}
       </span>
-      {showRating && (
-        <span className={selectWrap}>
-          <select aria-label={t("minRating")} className={field} value={minRating} onChange={(e) => onMinRating(Number(e.target.value))}>
-            <option value={0}>{t("minRating")}: {t("anyRating")}</option>
-            <option value={4}>{t("minRating")}: 4.0+</option>
-            <option value={4.5}>{t("minRating")}: 4.5+</option>
-            <option value={4.8}>{t("minRating")}: 4.8+</option>
-          </select>
-          {chevron}
-        </span>
-      )}
     </>
   );
 

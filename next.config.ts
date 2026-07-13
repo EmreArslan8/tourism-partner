@@ -59,6 +59,12 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      {
+        // Coğrafya chunk'ları (ülke/şehir/ilçe) nadiren değişir — agresif cache.
+        // Yenileme: scripts/build-geo.mjs + deploy; en geç 1 saat sonra taze veri.
+        source: "/geo/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }],
+      },
     ];
   },
 };

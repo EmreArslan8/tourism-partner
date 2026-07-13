@@ -117,7 +117,7 @@ const Slide = ({ business }: { business: Business }) => {
             >
               {tv("detail")}
             </Button>
-            <Link href={{ pathname: "/quote" }} className={styles.quote}>{tv("requestQuote")}</Link>
+            <Link href={{ pathname: "/quote", query: { s: business.id.toString() } }} className={styles.quote}>{tv("requestQuote")}</Link>
           </div>
         </div>
       </div>

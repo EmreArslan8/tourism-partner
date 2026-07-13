@@ -1,6 +1,7 @@
 import SearchBox, { type Suggestion } from "./SearchBox";
 import FilterSelects from "./FilterSelects";
 import type { Business } from "@/lib/types";
+import type { CountryOption } from "@/lib/geo";
 import styles from "./styles";
 
 const FilterBar = ({
@@ -9,7 +10,6 @@ const FilterBar = ({
   city,
   district,
   q,
-  minRating,
   countries,
   cities,
   districts,
@@ -18,15 +18,13 @@ const FilterBar = ({
   onDistrict,
   onQ,
   onPick,
-  onMinRating,
 }: {
   businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
   country: string;
   city: string;
   district: string;
   q: string;
-  minRating: number;
-  countries: string[];
+  countries: CountryOption[];
   cities: string[];
   districts: string[];
   onCountry: (v: string) => void;
@@ -34,7 +32,6 @@ const FilterBar = ({
   onDistrict: (v: string) => void;
   onQ: (v: string) => void;
   onPick: (s: Suggestion) => void;
-  onMinRating: (v: number) => void;
 }) => {
   return (
     <div className={styles.bar}>
@@ -45,15 +42,12 @@ const FilterBar = ({
         country={country}
         city={city}
         district={district}
-        minRating={minRating}
         countries={countries}
         cities={cities}
         districts={districts}
         onCountry={onCountry}
         onCity={onCity}
         onDistrict={onDistrict}
-        onMinRating={onMinRating}
-        showRating={false}
       />
     </div>
   );

@@ -2,8 +2,9 @@ import { Link } from "@/i18n/navigation";
 import { PageHeader } from "../_components";
 import { AdminMetric, AdminPanel, adminUi } from "../_ui";
 import SelectableSuppliersTable from "./SelectableSuppliersTable";
+import ExpiredMembershipsSection from "./ExpiredMembershipsSection";
 import type { CrmFilters } from "@/lib/admin-crm";
-import type { AdminBusiness } from "@/lib/types";
+import type { AdminBusiness, AdminMembership } from "@/lib/types";
 
 interface Props {
   businesses: AdminBusiness[];
@@ -12,6 +13,8 @@ interface Props {
   cities: string[];
   activeHotels: number;
   activeAgencies: number;
+  expiredBusinesses: AdminBusiness[];
+  expiredMemberships: AdminMembership[];
   locale: string;
 }
 
@@ -22,6 +25,8 @@ const AdminSuppliersView = ({
   cities,
   activeHotels,
   activeAgencies,
+  expiredBusinesses,
+  expiredMemberships,
   locale,
 }: Props) => {
   const visibleBusinesses = businesses;
@@ -76,6 +81,12 @@ const AdminSuppliersView = ({
           businesses={visibleBusinesses}
           total={total}
           filters={filters}
+          locale={locale}
+        />
+
+        <ExpiredMembershipsSection
+          businesses={expiredBusinesses}
+          memberships={expiredMemberships}
           locale={locale}
         />
       </section>

@@ -55,12 +55,6 @@ export default async function ReviewsPage({ params }: { params: Promise<{ locale
     <>
       <DashboardTopbar title={t("reviewsNav")} />
       <div className={styles.content}>
-      <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>{t("reviewsNav")}</p>
-        <h1 className={styles.pageTitle}>{t("reviewsTitle")}</h1>
-        <p className={styles.pageDesc}>{t("reviewsDescription")}</p>
-      </header>
-
       <div className="grid grid-cols-2 gap-6 max-[900px]:grid-cols-1">
         {/* Hakkımda gelen */}
         <PartnerPanelCard bodyClassName="p-5">

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
             "Discover, compare and request quotes from hotels, agencies, guides, transfers, activities and health tourism suppliers — all in one B2B platform.",
         }
       : {
-          title: "Tourism Partner - B2B Turizm Ağı",
+          title: "Tourism Partner - B2B Tourism Network",
           description:
             "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi tedarikçilerini tek platformda keşfedin, karşılaştırın ve hızlıca teklif alın.",
         };

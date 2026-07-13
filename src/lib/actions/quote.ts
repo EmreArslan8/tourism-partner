@@ -6,7 +6,7 @@ import { sendEmail, escapeHtml } from "@/lib/email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
-import { getCityOptions, getDistrictOptions } from "@/lib/regions";
+import { isValidCity, isValidDistrict } from "@/lib/geo-server";
 import { normalizeTr } from "@/lib/utils";
 import { isPublicBusinessStatus, PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { ActionState, GroupKey } from "@/lib/types";
@@ -94,16 +94,6 @@ function resolveCategory(group: string | null, type: string | null) {
   const child = category.children.find((item) => item.label === type || item.slug === type);
   if (!child) return null;
   return { group: category.key, type: child.label };
-}
-
-function isValidCity(country: string | null, city: string | null) {
-  return Boolean(country && city && getCityOptions(country).includes(city));
-}
-
-function isValidDistrict(country: string | null, city: string | null, district: string | null) {
-  if (!district) return true;
-  if (!country || !city) return false;
-  return getDistrictOptions(country, city).includes(district);
 }
 
 function cleanList(value: FormDataEntryValue | null, allowed?: Set<string>) {
@@ -222,7 +212,11 @@ export async function submitQuote(
   };
 
   if (!businessId) {
-    if (!selectedCategory || !isValidCity(country, city) || !isValidDistrict(country, city, district)) {
+    const [cityOk, districtOk] = await Promise.all([
+      isValidCity(country ?? "", city ?? ""),
+      isValidDistrict(country ?? "", city ?? "", district ?? ""),
+    ]);
+    if (!selectedCategory || !cityOk || !districtOk) {
       return { ok: false, error: "missing" };
     }
   }

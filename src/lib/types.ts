@@ -11,6 +11,9 @@ export type BusinessSocials = Partial<Record<SocialPlatform, string>>;
 export interface CategoryNode {
   slug: string;
   label: string;
+  /** Görseldeki alt-başlık grubu (ör. "Otel", "Alternatif Konaklama", "Klinikler").
+      Yalnızca UI gruplaması için; boşsa düz listelenir. */
+  section?: string;
 }
 
 export interface CategoryGroup {
@@ -23,8 +26,10 @@ export interface Business {
   id: number;
   group: GroupKey;
   legalType?: BusinessLegalType;
-  /** Alt kategori / tür etiketi, ör. "Otel", "Villa", "Diş Kliniği" */
+  /** Alt kategori / tür etiketi, ör. "Otel", "Villa", "Diş Kliniği" (birincil hizmet) */
   type: string;
+  /** Çoklu hizmet slug'ları (business_services). Birincil önce; boş olabilir. */
+  serviceTypes?: string[];
   name: string;
   country: string;
   city: string;
@@ -37,8 +42,11 @@ export interface Business {
   verified: boolean;
   /** Premium Partner dopingi: ücretli, kalıcı öne çıkarma (admin kontrollü). */
   sponsored: boolean;
-  /** Admin tarafından elle verilen Kurucu Partner rozeti. */
+  /** Admin tarafından elle verilen Kurucu Üye rozeti; public'te tam profil şartıyla gösterilir. */
   founderPartner?: boolean;
+  /** Public rozet/profil skoru için sunucuda hesaplanan sayımlar; kişi detayları payload'a inmez. */
+  contactCount?: number;
+  partnerCount?: number;
   /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
       Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
   dopingUntil?: string;
@@ -49,7 +57,7 @@ export interface Business {
   website?: string;
   /** Sosyal medya linkleri — yalnızca detay sayfasında gösterilir. */
   socials?: BusinessSocials;
-  /** Sunucuda önceden hesaplanan profil doluluk skoru (0–8). Liste payload'ında
+  /** Sunucuda önceden hesaplanan profil doluluk skoru (0–100). Liste payload'ında
       phone/website çıkarıldığı için skor sunucuda hesaplanıp taşınır. */
   completeness?: number;
   /** Kart kapak görseli (public/ altı yol). Yoksa gruba göre varsayılan kullanılır. */

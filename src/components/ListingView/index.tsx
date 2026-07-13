@@ -9,6 +9,7 @@ import { businessSlug } from "@/lib/business-slug";
 import { facetLabel } from "@/lib/facets";
 import { cn } from "@/lib/utils";
 import { dopingRank } from "@/lib/listing";
+import { useRegions } from "@/lib/geo";
 import type { Business, GroupKey, Sort } from "@/lib/types";
 import type { ExploreIndexItem, ExploreMapItem } from "@/lib/explore-search";
 import dynamic from "next/dynamic";
@@ -33,6 +34,25 @@ const MapPanel = dynamic(() => import("@/components/MapPanel"), {
 
 const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
 
+const guestUnlockWideSpan = (itemCount: number) => cn(
+  "col-span-1",
+  itemCount % 2 === 0
+    ? "min-[641px]:max-[1180px]:col-span-2"
+    : "min-[641px]:max-[1180px]:col-span-1",
+  itemCount % 3 === 0
+    ? "min-[1181px]:max-[1599px]:col-span-3"
+    : itemCount % 3 === 1
+      ? "min-[1181px]:max-[1599px]:col-span-2"
+      : "min-[1181px]:max-[1599px]:col-span-1",
+  itemCount % 4 === 0
+    ? "min-[1600px]:col-span-4"
+    : itemCount % 4 === 1
+      ? "min-[1600px]:col-span-3"
+      : itemCount % 4 === 2
+        ? "min-[1600px]:col-span-2"
+        : "min-[1600px]:col-span-1"
+);
+
 /* Keşfet listesi — SUNUCU-GÜDÜMLÜ.
    Filtre/sıralama/sayfalama artık `lib/explore-search.getExploreResults` içinde (sunucu).
    Bu bileşen yalnız: kontrol state'i tutar, değişimi URL'e yazar (useTransition ile anlık his),
@@ -54,7 +74,6 @@ const ListingView = ({
   initialCity = "all",
   initialDistrict = "all",
   initialQ = "",
-  initialMinRating = 0,
   initialSort = "featured",
   initialAttrs = [],
 }: {
@@ -73,7 +92,6 @@ const ListingView = ({
   initialCity?: string;
   initialDistrict?: string;
   initialQ?: string;
-  initialMinRating?: number;
   initialSort?: Sort;
   initialAttrs?: string[];
 }) => {
@@ -90,7 +108,6 @@ const ListingView = ({
   const [city, setCity] = useState(initialCity);
   const [district, setDistrict] = useState(initialDistrict);
   const [q, setQ] = useState(initialQ);
-  const [minRating, setMinRating] = useState(initialMinRating);
   const [attrs, setAttrs] = useState<Set<string>>(new Set(initialAttrs));
   const [sort, setSort] = useState<Sort>(initialSort);
   const [page, setPage] = useState(serverPage);
@@ -99,23 +116,20 @@ const ListingView = ({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [visibleItems, setVisibleItems] = useState<Business[]>(items);
   const resultKeyRef = useRef("");
+  const urlSyncReadyRef = useRef(false);
 
   // Yazarken URL'e yazmayı geciktir (doğal debounce); sunucu isteği arka planda.
   const deferredQ = useDeferredValue(q);
 
-  // İl/ilçe/ülke seçenekleri hafif index'ten (tüm veri değil).
-  const countries = useMemo(() => uniqSorted(index.map((b) => b.country)), [index]);
-  const cities = useMemo(
-    () => uniqSorted(index.filter((b) => country === "all" || b.country === country).map((b) => b.city)),
-    [index, country]
+  // Ülke/şehir/ilçe seçenekleri TAM dünya listesinden (public/geo chunk'ları) —
+  // MVP: tüm bölgeler seçilebilir görünmeli; tedarikçisi olmayan bölge boş sonuç verir.
+  const { countries, cities, districts } = useRegions(
+    country === "all" ? "" : country,
+    city === "all" ? "" : city,
+    district === "all" ? "" : district,
   );
-  const districts = useMemo(
-    () =>
-      city === "all"
-        ? []
-        : uniqSorted(index.filter((b) => (country === "all" || b.country === country) && b.city === city).map((b) => b.district)),
-    [index, city, country]
-  );
+  // "Önce ülke seç" istem çipleri: 250 ülke değil, tedarikçisi olan ülkeler.
+  const promptCountries = useMemo(() => uniqSorted(index.map((b) => b.country)), [index]);
 
   // Kelime araması yapılıyorsa ülke seçimi zorunlu (önce konum akışı).
   const needsCountry = deferredQ.trim() !== "" && country === "all";
@@ -129,11 +143,10 @@ const ListingView = ({
         city: initialCity,
         district: initialDistrict,
         q: initialQ,
-        minRating: initialMinRating,
         sort: initialSort,
         attrs: initialAttrs,
       }),
-    [initialGroups, initialTypes, initialCountry, initialCity, initialDistrict, initialQ, initialMinRating, initialSort, initialAttrs]
+    [initialGroups, initialTypes, initialCountry, initialCity, initialDistrict, initialQ, initialSort, initialAttrs]
   );
   const shownCount = Math.min(visibleItems.length, total);
   const hasMore = pageCount > 1 && shownPage < pageCount && shownCount < total;
@@ -218,7 +231,6 @@ const ListingView = ({
     setCity("all");
     setDistrict("all");
     setQ("");
-    setMinRating(0);
     setAttrs(new Set());
     setSort("featured");
     setPage(1);
@@ -234,18 +246,21 @@ const ListingView = ({
     if (city !== "all") p.set("city", city);
     if (district !== "all") p.set("district", district);
     if (deferredQ.trim()) p.set("q", deferredQ.trim());
-    if (minRating > 0) p.set("rating", String(minRating));
     if (attrs.size) p.set("attr", [...attrs].join(","));
     if (sort !== "featured") p.set("sort", sort);
     if (page > 1) p.set("page", String(page));
     const qs = p.toString();
+    if (!urlSyncReadyRef.current) {
+      urlSyncReadyRef.current = true;
+      return;
+    }
     if (qs !== (searchParams?.toString() ?? "")) {
       startTransition(() => {
         router.replace({ pathname: "/explore", query: Object.fromEntries(p) }, { scroll: false });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, types, country, city, district, deferredQ, minRating, attrs, sort, page]);
+  }, [groups, types, country, city, district, deferredQ, attrs, sort, page]);
 
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
@@ -253,7 +268,6 @@ const ListingView = ({
   if (country !== "all") tags.push({ kind: "country", value: country, label: country });
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
-  if (minRating > 0) tags.push({ kind: "rating", value: "", label: `★ ${minRating}+` });
   attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: facetLabel(slug) }));
   if (q.trim()) tags.push({ kind: "q", value: "", label: `“${q.trim()}”` });
 
@@ -267,26 +281,12 @@ const ListingView = ({
     }
     else if (kind === "city") pickCity("all");
     else if (kind === "district") setDistrict("all");
-    else if (kind === "rating") setMinRating(0);
     else if (kind === "attr") toggleAttr(value);
     else if (kind === "q") setQ("");
     setPage(1);
   }
 
   const hasNoDatabaseResults = !isGuest && index.length === 0;
-  const quoteQuery = useMemo(() => {
-    const query: Record<string, string> = {};
-    if (groups.size) query.cat = [...groups].join(",");
-    if (types.size) query.type = [...types].join(",");
-    if (country !== "all") query.country = country;
-    if (city !== "all") query.city = city;
-    if (district !== "all") query.district = district;
-    if (deferredQ.trim()) query.q = deferredQ.trim();
-    if (minRating > 0) query.rating = String(minRating);
-    if (attrs.size) query.attr = [...attrs].join(",");
-    return query;
-  }, [groups, types, country, city, district, deferredQ, minRating, attrs]);
-
   const countryPrompt = (
     <div className={styles.countryAsk}>
       <div className={styles.countryAskIcon} aria-hidden>
@@ -297,7 +297,7 @@ const ListingView = ({
       <h3 className={styles.countryAskTitle}>{t("countryAskTitle")}</h3>
       <p className={styles.countryAskText}>{t("countryAskText")}</p>
       <div className={styles.countryAskChips}>
-        {countries.map((c) => (
+        {promptCountries.map((c) => (
           <button
             key={c}
             type="button"
@@ -311,7 +311,7 @@ const ListingView = ({
     </div>
   );
 
-  const resultsColumn = (gridClass: string) => (
+  const resultsColumn = (gridClass: string, fillGuestRow = false) => (
     <div
       aria-busy={isPending}
       className={cn("transition-opacity duration-200", isPending && "pointer-events-none opacity-55")}
@@ -352,7 +352,7 @@ const ListingView = ({
             </SupplierCard>
           ))}
           {isGuest && fullTotal > total && (
-            <article className={styles.guestUnlockShell}>
+            <article className={cn(styles.guestUnlockShell, fillGuestRow ? guestUnlockWideSpan(visibleItems.length) : "col-span-full")}>
               <div className={styles.guestUnlockPreview} aria-hidden>
                 {lockedPreviewItems.map((business) => (
                   <SupplierCard key={business.id} business={business} showStars>{null}</SupplierCard>
@@ -406,21 +406,18 @@ const ListingView = ({
   const activeRefine =
     (country !== "all" ? 1 : 0) +
     (city !== "all" ? 1 : 0) +
-    (district !== "all" ? 1 : 0) +
-    (minRating > 0 ? 1 : 0);
+    (district !== "all" ? 1 : 0);
 
   const selectProps = {
     country,
     city,
     district,
-    minRating,
     countries,
     cities,
     districts,
     onCountry: (v: string) => { setCountry(v); setCity("all"); setDistrict("all"); setPage(1); },
     onCity: pickCity,
     onDistrict: (v: string) => { setDistrict(v); setPage(1); },
-    onMinRating: (v: number) => { setMinRating(v); setPage(1); },
   };
 
   return (
@@ -450,9 +447,6 @@ const ListingView = ({
               selected={attrs}
               onToggle={toggleAttr}
               onClear={() => { setAttrs(new Set()); setPage(1); }}
-              minRating={minRating}
-              onMinRating={(v) => { setMinRating(v); setPage(1); }}
-              ratingLabel={t("minRating")}
             />
           </CategoryCatalog>
         </aside>
@@ -465,7 +459,6 @@ const ListingView = ({
               city={city}
               district={district}
               q={q}
-              minRating={minRating}
               countries={countries}
               cities={cities}
               districts={districts}
@@ -474,7 +467,6 @@ const ListingView = ({
               onDistrict={selectProps.onDistrict}
               onQ={(v) => { setQ(v); setPage(1); }}
               onPick={handlePick}
-              onMinRating={selectProps.onMinRating}
             />
           </div>
           <div className={styles.toolbar}>
@@ -537,7 +529,6 @@ const ListingView = ({
             <span className={styles.sortSelectWrap}>
               <select id="sort" className={styles.sortSelect} value={sort} onChange={(e) => { setSort(e.target.value as Sort); setPage(1); }}>
                 <option value="featured">{t("sortFeatured")}</option>
-                <option value="rating">{t("sortRating")}</option>
                 <option value="az">{t("sortAz")}</option>
               </select>
               <svg className={styles.sortChevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -556,7 +547,7 @@ const ListingView = ({
               </aside>
             </div>
           ) : (
-            resultsColumn(styles.gridWide)
+            resultsColumn(styles.gridWide, true)
           )}
           </>
           )}

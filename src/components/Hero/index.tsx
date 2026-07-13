@@ -3,7 +3,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
-import type { Business } from "@/lib/types";
 import styles from "./styles";
 
 const commonImageProps = {
@@ -41,7 +40,7 @@ const {
   quality: 85,
 });
 
-const Hero = ({ businesses }: { businesses: Business[] }) => {
+const Hero = () => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
   const categoryLinks = [
@@ -76,7 +75,7 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
         <p className={styles.mobileIntro}>{t("quickSub")}</p>
         <nav className={styles.categories} aria-label={t("categoryNavLabel")}>
           {categoryLinks.map(({ key, label, icon }) => (
-            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} className={styles.categoryLink}>
+            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} prefetch={false} className={styles.categoryLink}>
               {icon}
               <span>{label}</span>
             </Link>
@@ -84,7 +83,7 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
         </nav>
 
         <div className={styles.searchWrap}>
-          <HeroSearch businesses={businesses} />
+          <HeroSearch />
         </div>
 
         {/* Aramaya alternatif olarak kullanıcı ihtiyacını paylaşır ve uygun firmalardan teklif alır. */}
@@ -103,7 +102,7 @@ const Hero = ({ businesses }: { businesses: Business[] }) => {
 
         <nav className={styles.mobileCategories} aria-label={t("categoryNavLabel")}>
           {categoryLinks.map(({ key, label, icon }) => (
-            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} className={styles.mobileCategoryLink}>
+            <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} prefetch={false} className={styles.mobileCategoryLink}>
               {icon}
               <span>{label}</span>
             </Link>

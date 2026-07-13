@@ -10,10 +10,7 @@ const styles = {
     "max-[560px]:gap-2 max-[560px]:rounded-[12px] max-[560px]:border-white/10 max-[560px]:bg-none max-[560px]:bg-white/[.05] max-[560px]:px-4 max-[560px]:py-3 max-[560px]:shadow-none max-[560px]:backdrop-blur-0 max-[560px]:before:hidden max-[560px]:after:hidden",
   content: "section-copy min-w-0 text-white",
   /* Premium Partner rozeti — doping teklifinin görsel karşılığı. */
-  badge:
-    "mb-3 inline-flex items-center gap-1.5 rounded-full border border-star/60 bg-star/15 px-3 py-1 " +
-    "text-[11.5px] font-extrabold uppercase tracking-[.08em] text-star [&>svg]:text-star " +
-    "max-[560px]:hidden",
+  badge: "mb-3 max-[560px]:hidden",
   title:
     "max-w-none whitespace-nowrap font-display text-[28px] font-semibold leading-[1.05] text-white " +
     "max-[980px]:text-[24px] max-[720px]:whitespace-normal max-[560px]:hidden",

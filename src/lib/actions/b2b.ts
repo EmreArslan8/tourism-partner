@@ -13,6 +13,41 @@ function groupOrNull(value: FormDataEntryValue | null): GroupKey | null {
   return CATEGORY_GROUPS.some((g) => g.key === v) ? (v as GroupKey) : null;
 }
 
+function cleanDate(value: FormDataEntryValue | null) {
+  const raw = String(value ?? "").trim();
+  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
+}
+
+function dateRangeValue(formData: FormData) {
+  const start = cleanDate(formData.get("dateStart"));
+  const end = cleanDate(formData.get("dateEnd"));
+  if (start && end) return `${start} - ${end}`;
+  return start ?? end ?? null;
+}
+
+function composeRequestDescription(formData: FormData) {
+  const type = clean(formData.get("target_type"), 120);
+  const country = clean(formData.get("country"), 80);
+  const city = clean(formData.get("city"), 80);
+  const district = clean(formData.get("district"), 80);
+  const dateRange = dateRangeValue(formData);
+  const validUntil = cleanDate(formData.get("validUntil"));
+  const peopleRaw = String(formData.get("people") ?? "").trim();
+  const people = peopleRaw && /^\d+$/.test(peopleRaw) ? Math.min(Number(peopleRaw), 100000) : null;
+  const details = clean(formData.get("description"), 1600);
+
+  const rows = [
+    ["Hizmet türü", type],
+    ["Bölge", [country, city, district].filter(Boolean).join(" / ") || null],
+    ["Tarih aralığı", dateRange],
+    ["Teklif son tarihi", validUntil],
+    ["Kişi sayısı", people != null ? String(people) : null],
+  ].filter(([, value]) => value);
+
+  const summary = rows.map(([label, value]) => `${label}: ${value}`).join("\n");
+  return [summary, details].filter(Boolean).join("\n\n");
+}
+
 /* Brief §7/§8 "Talep & Teklif Sistemi": giriş yapmış işletme (acente) bölge için
    talep/ilan açar; ilgili tedarikçiler bu ilana teklif sunar; talep sahibine
    teklif geldiğinde otomatik e-posta gider. */
@@ -77,8 +112,14 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
   if (!biz) return;
 
   const title = clean(formData.get("title"), 160);
-  const description = clean(formData.get("description"), 2000);
-  const region = clean(formData.get("region"), 120);
+  const description = clean(composeRequestDescription(formData), 2000);
+  const region = clean(
+    [formData.get("country"), formData.get("city"), formData.get("district")]
+      .map((value) => clean(value, 80))
+      .filter(Boolean)
+      .join(" / ") || formData.get("region"),
+    120,
+  );
   const targetGroup = groupOrNull(formData.get("target_group"));
   if (!title) return;
 

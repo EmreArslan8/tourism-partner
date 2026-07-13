@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Megaphone, Inbox, Send, Eye } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
@@ -6,10 +7,13 @@ import { getPanelSession, getPanelBusiness } from "@/lib/panel-auth";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import { createB2bRequest, submitB2bOffer, closeMyB2bRequest } from "@/lib/actions/b2b";
+import { DateRangePicker, SingleDatePicker } from "@/components/FormDatePickers";
 import B2bViewTracker from "@/components/B2bViewTracker";
 import DashboardTopbar from "../Topbar";
 import styles from "../styles";
 import { PartnerPanelButton, PartnerPanelCard, PartnerPanelEmptyState, PartnerPanelField, PartnerPanelSelect, PartnerPanelTextarea } from "../_ui";
+import RequestsLoading from "./loading";
+import RequestRegionFields from "./RequestRegionFields";
 
 const bizName = (r: { name: string } | { name: string }[] | null) =>
   (Array.isArray(r) ? r[0]?.name : r?.name) ?? "—";
@@ -19,7 +23,16 @@ type Req = { id: number; title: string; description: string | null; region: stri
 export default async function RequestsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [t, tc] = await Promise.all([getTranslations("panel"), getTranslations("cat")]);
+
+  return (
+    <Suspense fallback={<RequestsLoading />}>
+      <RequestsContent locale={locale} />
+    </Suspense>
+  );
+}
+
+async function RequestsContent({ locale }: { locale: string }) {
+  const [t, tq, tc] = await Promise.all([getTranslations("panel"), getTranslations("quote"), getTranslations("cat")]);
   const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
   const groupLabel = (g: string | null) => {
     const group = CATEGORY_GROUPS.find((c) => c.key === g);
@@ -83,29 +96,64 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
     <>
       <DashboardTopbar title={t("requestsNav")} />
       <div className={styles.content}>
-      <header className="mb-7 max-w-[680px]">
-        <p className={styles.pageEyebrow}>{t("requestsNav")}</p>
-        <h1 className={styles.pageTitle}>{t("requestsTitle")}</h1>
-        <p className={styles.pageDesc}>{t("requestsDescription")}</p>
-      </header>
-
-      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] gap-6 max-[900px]:grid-cols-1">
+      <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(360px,.85fr)] gap-6 max-[980px]:grid-cols-1">
         {/* SOL — Talep oluştur + Taleplerim */}
         <section className="flex flex-col gap-5">
           <PartnerPanelCard bodyClassName="p-5">
             <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Megaphone size={17} className="text-[#1557C2]" aria-hidden /> {t("requestsNew")}</h2>
-            <form action={createB2bRequest} className="grid gap-2.5">
-              <PartnerPanelField name="title" required maxLength={160} placeholder={t("requestsTitlePlaceholder")} />
-              <div className="grid grid-cols-2 gap-2.5 max-[420px]:grid-cols-1">
-                <PartnerPanelField name="region" maxLength={120} placeholder={t("requestsRegionPlaceholder")} />
-                <PartnerPanelSelect name="target_group" defaultValue="">
-                  <option value="">{t("partnerAllGroups")}</option>
-                  {CATEGORY_GROUPS.map((g) => (
-                    <option key={g.key} value={g.key}>{tc(g.key)}</option>
-                  ))}
-                </PartnerPanelSelect>
+            <form action={createB2bRequest} className="grid gap-3">
+              <label className={styles.labelCls}>
+                {t("requestsTitleLabel")}
+                <PartnerPanelField name="title" required maxLength={160} placeholder={t("requestsTitlePlaceholder")} />
+              </label>
+              <div className="grid grid-cols-2 gap-2.5 max-[620px]:grid-cols-1">
+                <label className={styles.labelCls}>
+                  {tq("category")}
+                  <PartnerPanelSelect name="target_group" defaultValue="">
+                    <option value="">{t("partnerAllGroups")}</option>
+                    {CATEGORY_GROUPS.map((g) => (
+                      <option key={g.key} value={g.key}>{tc(g.key)}</option>
+                    ))}
+                  </PartnerPanelSelect>
+                </label>
+                <label className={styles.labelCls}>
+                  {tq("type")}
+                  <PartnerPanelSelect name="target_type" defaultValue="">
+                    <option value="">{tq("select")}</option>
+                    {CATEGORY_GROUPS.map((g) => (
+                      <optgroup key={g.key} label={tc(g.key)}>
+                        {g.children.map((item) => (
+                          <option key={item.slug} value={item.label}>{item.label}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </PartnerPanelSelect>
+                </label>
               </div>
-              <PartnerPanelTextarea name="description" rows={3} maxLength={2000} placeholder={t("requestsDetailsPlaceholder")} />
+              <RequestRegionFields defaultCountry={biz.country ?? "Türkiye"} defaultCity={biz.city ?? ""} defaultDistrict={biz.district ?? ""} />
+              <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(220px,.9fr)_minmax(120px,.55fr)] gap-2.5 max-[760px]:grid-cols-1">
+                <DateRangePicker
+                  label={tq("dateRange")}
+                  startLabel={tq("dateStart")}
+                  endLabel={tq("dateEnd")}
+                  clearLabel={tq("dateClear")}
+                  doneLabel={tq("dateDone")}
+                />
+                <SingleDatePicker
+                  label={tq("validUntil")}
+                  placeholder={tq("dateSelect")}
+                  clearLabel={tq("dateClear")}
+                  doneLabel={tq("dateDone")}
+                />
+                <label className={styles.labelCls}>
+                  {tq("people")}
+                  <PartnerPanelField name="people" type="number" min={1} placeholder="0" />
+                </label>
+              </div>
+              <label className={styles.labelCls}>
+                {tq("message")}
+                <PartnerPanelTextarea name="description" rows={4} maxLength={1600} placeholder={t("requestsDetailsPlaceholder")} />
+              </label>
               <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5">{t("requestsPublish")}</PartnerPanelButton>
             </form>
           </PartnerPanelCard>
@@ -124,6 +172,7 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
                         <div className="min-w-0">
                           <p className="text-[14px] font-bold text-ink">{r.title}</p>
                           <p className="mt-0.5 text-[12px] font-medium text-muted">{r.region ?? "—"} · {fmt(r.created_at)} · <Eye size={11} className="inline" aria-hidden /> {r.view_count}</p>
+                          {r.description && <p className="mt-1.5 whitespace-pre-line text-[13px] leading-5 text-ink/80">{r.description}</p>}
                         </div>
                         {r.status !== "archived" && (
                           <form action={closeMyB2bRequest}>
@@ -169,7 +218,7 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
                     )}
                   </div>
                   <p className="mt-0.5 text-[12px] font-medium text-muted">{bizName(r.businesses)} · {r.region ?? "—"} · {fmt(r.created_at)}</p>
-                  {r.description && <p className="mt-1.5 text-[13px] leading-5 text-ink/80">{r.description}</p>}
+                  {r.description && <p className="mt-1.5 whitespace-pre-line text-[13px] leading-5 text-ink/80">{r.description}</p>}
                   {offered.has(r.id) ? (
                     <p className="mt-2.5 text-[12.5px] font-bold text-emerald-700">✓ {t("requestsOffered")}</p>
                   ) : (

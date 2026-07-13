@@ -3,7 +3,8 @@
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
+import { replaceBusinessServices } from "@/lib/business-services";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -93,6 +94,13 @@ export async function signUp(
   const cat = accountType === "supplier" ? resolveCategory(category!) : null;
   if (accountType === "supplier" && !cat) return { ok: false, error: "category" };
 
+  // Çoklu hizmet seçimi (business_services). Birincil (category) her zaman dahil.
+  const serviceSlugs =
+    cat
+      ? [...new Set([category!, ...String(formData.get("services") ?? "").split(",").map((s) => s.trim())])]
+          .filter((slug) => slug && isServiceOfGroup(slug, cat.group))
+      : [];
+
   const locale = await getLocale();
 
   const supabase = await createClient();
@@ -107,7 +115,7 @@ export async function signUp(
         firm_name: name,
         account_type: accountType,
         ...(sector ? { sector } : {}),
-        ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category } : {}),
+        ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category, service_slugs: serviceSlugs } : {}),
       },
     },
   });
@@ -124,7 +132,7 @@ export async function signUp(
   // alıcı ise kayıt oluşturmadan keşfete yönlendir.
   if (data.session && data.user) {
     if (cat) {
-      await supabase.from("businesses").insert({
+      const { data: created } = await supabase.from("businesses").insert({
         owner_id: data.user.id,
         group: cat.group,
         type: cat.typeLabel,
@@ -133,7 +141,10 @@ export async function signUp(
         city: "",
         district: "",
         status: "pending",
-      });
+      }).select("id").single();
+      if (created?.id && serviceSlugs.length > 0) {
+        await replaceBusinessServices(supabase, created.id, cat.group, serviceSlugs);
+      }
     }
     redirect({ href: accountType === "buyer" ? "/explore" : "/dashboard", locale });
   }

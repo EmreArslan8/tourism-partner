@@ -22,7 +22,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const sp = await searchParams;
   const isFiltered = Boolean(
-    sp.cat || sp.type || sp.city || sp.country || sp.district || sp.q || sp.rating || sp.attr || sp.sort || sp.page,
+    sp.cat || sp.type || sp.city || sp.country || sp.district || sp.q || sp.attr || sp.sort || sp.page,
   );
   // Kod içi varsayılan (şablon); admin `/admin/icerik`'te "explore" slug'ıyla üzerine yazabilir.
   const fallback =
@@ -99,7 +99,6 @@ async function Listing({ searchParams }: { searchParams: Promise<ExploreSearchPa
         initialCity={filters.city}
         initialDistrict={filters.district}
         initialQ={filters.q}
-        initialMinRating={filters.minRating}
         initialAttrs={filters.attrs}
         initialSort={filters.sort}
       />

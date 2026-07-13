@@ -3,11 +3,13 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import type { Business } from "@/lib/types";
+import { useRegions } from "@/lib/geo";
 import styles from "./styles";
 
 
-const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
+/* Hero arama — ülke/şehir/ilçe TAM dünya listesinden gelir (public/geo chunk'ları),
+   kayıtlı tedarikçi verisinden değil (MVP: tüm bölgeler seçilebilir görünmeli). */
+const HeroSearch = () => {
   const router = useRouter();
   const t = useTranslations("hero");
   const [country, setCountry] = useState("Türkiye");
@@ -16,21 +18,11 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
   const [q, setQ] = useState("");
   const cityDisabled = country === "all";
   const districtDisabled = cityDisabled || city === "all";
-  const countries = [...new Set(businesses.map((b) => b.country))].sort((a, b) =>
-    a.localeCompare(b, "tr")
+  const { countries, cities, districts } = useRegions(
+    country === "all" ? "" : country,
+    city === "all" ? "" : city,
+    district === "all" ? "" : district,
   );
-  const cities =
-    country === "all"
-      ? []
-      : [...new Set(businesses.filter((b) => b.country === country).map((b) => b.city))].sort((a, b) =>
-          a.localeCompare(b, "tr")
-        );
-  const districts =
-    districtDisabled
-      ? []
-      : [...new Set(businesses.filter((b) => b.country === country && b.city === city).map((b) => b.district))].sort((a, b) =>
-          a.localeCompare(b, "tr")
-        );
 
   function go(e: React.FormEvent) {
     e.preventDefault();
@@ -64,7 +56,7 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
 
       <span className={`hs-divider ${styles.divider}`} aria-hidden="true" />
 
-      <div className={`hs-field ${styles.field}`}>
+      <div className={`hs-field ${styles.field} ${styles.fieldSelect}`}>
         <label htmlFor="heroCountry" className={styles.label}>{t("countryLabel")}</label>
         <span className={styles.selectShell}>
           <svg className={styles.selectIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -82,7 +74,7 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
             }}
           >
             <option value="all">{t("allCountries")}</option>
-            {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+            {countries.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
           <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="m6 9 6 6 6-6" />
@@ -92,7 +84,7 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
 
       <span className={`hs-divider ${styles.divider} ${cityDisabled ? styles.hiddenStep : ""}`} aria-hidden="true" />
 
-      <div className={`hs-field ${styles.field} ${cityDisabled ? styles.hiddenStep : ""}`}>
+      <div className={`hs-field ${styles.field} ${styles.fieldSelect} ${cityDisabled ? styles.hiddenStep : ""}`}>
         <label htmlFor="heroCity" className={styles.label}>{t("cityLabel")}</label>
         <span className={styles.selectShell}>
           <svg className={styles.selectIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -120,7 +112,7 @@ const HeroSearch = ({ businesses }: { businesses: Business[] }) => {
 
       <span className={`hs-divider ${styles.divider} ${districtDisabled ? styles.hiddenStep : ""}`} aria-hidden="true" />
 
-      <div className={`hs-field ${styles.field} ${districtDisabled ? styles.hiddenStep : ""}`}>
+      <div className={`hs-field ${styles.field} ${styles.fieldSelect} ${districtDisabled ? styles.hiddenStep : ""}`}>
         <label htmlFor="heroDistrict" className={styles.label}>{t("districtLabel")}</label>
         <span className={styles.selectShell}>
           <select

@@ -100,6 +100,7 @@ export async function createCategory(formData: FormData): Promise<void> {
   if (error) throw new Error(error.message);
   await writeAdminAudit(context, "category.create", "category", data?.id ?? null, payload);
 
+  revalidateTag("categories", "max");
   revalidatePath(`/${loc(formData)}/admin/kategoriler`);
 }
 
@@ -117,6 +118,7 @@ export async function deleteCategory(formData: FormData): Promise<void> {
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) throw new Error(error.message);
   await writeAdminAudit(context, "category.delete", "category", id, undefined, oldValue ?? null);
+  revalidateTag("categories", "max");
   revalidatePath(`/${loc(formData)}/admin/kategoriler`);
 }
 
@@ -135,6 +137,7 @@ export async function renameCategory(formData: FormData): Promise<void> {
   const { error } = await supabase.from("categories").update({ label }).eq("id", id);
   if (error) throw new Error(error.message);
   await writeAdminAudit(context, "category.rename", "category", id, { label }, oldValue ?? null);
+  revalidateTag("categories", "max");
   revalidatePath(`/${loc(formData)}/admin/kategoriler`);
 }
 

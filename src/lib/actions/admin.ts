@@ -3,7 +3,8 @@
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceLabel } from "@/lib/categories";
+import { replaceBusinessServices } from "@/lib/business-services";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
@@ -86,6 +87,10 @@ function listValue(formData: FormData, key: string): string[] {
     .slice(0, 40);
 }
 
+function isRecord(value: unknown): value is Record<string, string> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function groupValue(formData: FormData): GroupKey {
   const value = String(formData.get("group") ?? "");
   if (CATEGORY_GROUPS.some((group) => group.key === value)) return value as GroupKey;
@@ -132,9 +137,24 @@ export async function saveBusiness(formData: FormData): Promise<void> {
     const { supabase } = context;
     const id = String(formData.get("id") ?? "").trim();
     const locale = clean(formData.get("locale"), 8);
+    const group = groupValue(formData);
+    // Çoklu hizmet seçimi (business_services). İlk seçilen birincil → type.
+    const serviceSlugs = formData
+      .getAll("services")
+      .map((value) => String(value))
+      .filter((slug) => isServiceOfGroup(slug, group));
+    const primaryType = serviceSlugs.length > 0 ? serviceLabel(serviceSlugs[0]) : clean(formData.get("type"), 120) ?? "";
+    const address = clean(formData.get("address"), 260);
+    let details: Record<string, string> = {};
+    if (id) {
+      const { data } = await supabase.from("businesses").select("details").eq("id", Number(id)).maybeSingle();
+      details = isRecord(data?.details) ? data.details : {};
+    }
+    if (address) details.address = address;
+    else delete details.address;
     const payload = {
-      group: groupValue(formData),
-      type: clean(formData.get("type"), 120) ?? "",
+      group,
+      type: primaryType,
       name: clean(formData.get("name"), 160) ?? "",
       country: clean(formData.get("country"), 80) ?? "",
       city: clean(formData.get("city"), 80) ?? "",
@@ -149,6 +169,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       sponsored: boolValue(formData, "sponsored"),
       founder_partner: boolValue(formData, "founderPartner"),
       attributes: listValue(formData, "attributes"),
+      details,
       status: lifecycleStatusValue(formData),
       seo_title: clean(formData.get("seoTitle"), 90),
       seo_description: clean(formData.get("seoDescription"), 180),
@@ -161,12 +182,22 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       throw new Error("Zorunlu alanlar eksik.");
     }
 
-    const result = id
-      ? await supabase.from("businesses").update(payload).eq("id", Number(id))
-      : await supabase.from("businesses").insert(payload);
+    let businessId = id ? Number(id) : null;
+    if (id) {
+      const { error } = await supabase.from("businesses").update(payload).eq("id", Number(id));
+      if (error) throw new Error(error.message);
+    } else {
+      const { data, error } = await supabase.from("businesses").insert(payload).select("id").single();
+      if (error) throw new Error(error.message);
+      businessId = data?.id ?? null;
+    }
 
-    if (result.error) throw new Error(result.error.message);
-    await logAdminAction(context, id ? "business.update" : "business.create", "business", id || null, payload);
+    // Çoklu hizmetleri senkronize et (yalnızca form açıkça hizmet gönderdiyse).
+    if (businessId != null && serviceSlugs.length > 0) {
+      await replaceBusinessServices(supabase, businessId, group, serviceSlugs);
+    }
+
+    await logAdminAction(context, id ? "business.update" : "business.create", "business", id || null, { ...payload, services: serviceSlugs });
     revalidateAdmin(locale);
   } catch (error) {
     throw error;

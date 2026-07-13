@@ -2,6 +2,7 @@
    ListingView yalnızca state tutar; süzme/sıralama/skor burada yaşar. */
 import type { Business, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
+import { serviceLabel } from "./categories";
 import { normalizeTr } from "./utils";
 import { isPremiumVisible, premiumVisibilityRank } from "./business-visibility";
 
@@ -17,22 +18,27 @@ export function isDoped(b: Business): boolean {
   return isPremiumVisible(b);
 }
 
-/* Profil doluluk skoru (0–8) — dolu profiller arama sonuçlarında üst sırada.
+/* Profil doluluk skoru (0–100) — dolu profiller arama sonuçlarında üst sırada.
    Doluluk hem alıcıya daha iyi bilgi verir hem işletmeyi profil tamamlamaya teşvik eder.
    Liste payload'ında phone/website istemciye gönderilmediğinden skor sunucuda önceden
    hesaplanıp `completeness` olarak taşınır; varsa o kullanılır. */
 export function profileScore(b: Business): number {
   if (typeof b.completeness === "number") return b.completeness;
-  let s = 0;
-  if (b.desc && b.desc.trim().length > 20) s++;
-  if (b.image) s++;
-  if (b.attributes && b.attributes.length > 0) s++;
-  if (b.phone) s++;
-  if (b.website) s++;
-  if (b.tag) s++;
-  if (b.coords && (b.coords[0] !== 0 || b.coords[1] !== 0)) s++;
-  if (b.reviews > 0) s++;
-  return s;
+  // Partner panelindeki checklist ile birebir aynı koşullar kullanılmalı; aksi hâlde
+  // panel %100 gösterirken public kart Kurucu Üye rozetini yanlışlıkla gizler.
+  const checks = [
+    Boolean(b.name),
+    Boolean(b.type),
+    Boolean(b.country && b.city && b.district),
+    Boolean(b.desc),
+    Boolean(b.phone),
+    Boolean(b.website),
+    Boolean(b.image),
+    Boolean(b.attributes && b.attributes.length > 0),
+    Boolean((b.contactCount ?? 0) > 0),
+    Boolean((b.partnerCount ?? 0) > 0),
+  ];
+  return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }
 
 /* Alaka skoru: isimde geçen +3, tür +2, etiket/şehir/ilçe +1. `needle` normalize edilmiş olmalı. */
@@ -41,6 +47,8 @@ export function scoreBusiness(b: Business, needle: string): number {
   let s = 0;
   if (normalizeTr(b.name).includes(needle)) s += 3;
   if (normalizeTr(b.type).includes(needle)) s += 2;
+  // Çoklu hizmetler de aramada eşleşsin (ör. "incoming" → o hizmeti veren acente).
+  if ((b.serviceTypes ?? []).some((slug) => normalizeTr(serviceLabel(slug)).includes(needle))) s += 2;
   if (normalizeTr(b.tag).includes(needle)) s += 1;
   if (normalizeTr(b.city).includes(needle)) s += 1;
   if (normalizeTr(b.district).includes(needle)) s += 1;
@@ -55,7 +63,8 @@ export function businessPasses(
   opts: { ignoreGroup?: boolean; ignoreType?: boolean } = {}
 ): boolean {
   if (!opts.ignoreGroup && f.groups.size && !f.groups.has(b.group)) return false;
-  if (!opts.ignoreType && f.types.size && !f.types.has(b.type)) return false;
+  // Tür filtresi çoklu-hizmete duyarlı: işletmenin herhangi bir hizmeti eşleşirse geçer.
+  if (!opts.ignoreType && f.types.size && !businessTypeLabels(b).some((label) => f.types.has(label))) return false;
   if (f.country !== "all" && b.country !== f.country) return false;
   // Şehir filtresi: rehber, çalışma bölgeleri arasında aranan şehir varsa da eşleşir
   // (Brief §2.7: rehber birden çok bölgede hizmet verir, acente ona göre arar).
@@ -115,10 +124,21 @@ export function facetCounts(
   const opts = key === "group" ? { ignoreGroup: true, ignoreType: true } : { ignoreType: true };
   const acc: Record<string, number> = {};
   businesses.forEach((b) => {
-    if (businessPasses(b, needle, f, opts)) {
-      const k = b[key];
-      acc[k] = (acc[k] ?? 0) + 1;
+    if (!businessPasses(b, needle, f, opts)) return;
+    if (key === "group") {
+      acc[b.group] = (acc[b.group] ?? 0) + 1;
+    } else {
+      // Tür facet'i: işletme her hizmeti için ayrı sayılır (çoklu-hizmet).
+      for (const label of businessTypeLabels(b)) acc[label] = (acc[label] ?? 0) + 1;
     }
   });
   return acc;
+}
+
+/** İşletmenin tür etiketleri: birincil type + tüm çoklu hizmetler (slug→label). Tekilleştirilmiş. */
+export function businessTypeLabels(b: Business): string[] {
+  const labels = new Set<string>();
+  if (b.type) labels.add(b.type);
+  for (const slug of b.serviceTypes ?? []) labels.add(serviceLabel(slug));
+  return [...labels];
 }

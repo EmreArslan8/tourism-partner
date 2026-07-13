@@ -12,6 +12,7 @@ import Badge from "@/components/common/Badge";
 import ImpressionTracker from "@/components/ImpressionTracker";
 import FavoriteButton from "@/components/FavoriteButton";
 import Logo from "@/components/Logo";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 
 /* Ortak tedarikçi kartı. `flag` rozeti, `showStars` puan yıldızları,
    `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır.
@@ -38,7 +39,8 @@ const SupplierCard = ({
   const cover = businessImageUrl(business.image);
   const [imageFailed, setImageFailed] = useState(false);
   const hasCover = Boolean(cover && !imageFailed);
-  const flagLabel = business.sponsored ? tCommon("ad") : flag;
+  const flagLabel = flag;
+  const hasRating = showStars && business.rating > 0 && business.reviews > 0;
 
   return (
     <article className={`${styles.card} relative`}>
@@ -66,11 +68,18 @@ const SupplierCard = ({
         <div className={styles.favorite}>
           <FavoriteButton businessId={business.id} variant="icon" />
         </div>
-        {flagLabel && <Badge className={styles.flag}>{flagLabel}</Badge>}
+        {business.sponsored ? (
+          <PremiumPartnerBadge label={tCommon("ad")} className={styles.flag} />
+        ) : (
+          flagLabel && <Badge className={styles.flag}>{flagLabel}</Badge>
+        )}
       </div>
       <div className={styles.body}>
         <div className={styles.tags}>
           <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
+          {(business.serviceTypes?.length ?? 0) > 1 && (
+            <Badge className={styles.badge}>+{business.serviceTypes!.length - 1} hizmet</Badge>
+          )}
         </div>
         <div className={styles.nameWrap}>
           <h3 className={styles.name}>{business.name}</h3>
@@ -93,7 +102,7 @@ const SupplierCard = ({
         </div>
         <p className={styles.loc}>
           <span>{business.district}, {business.city} · {business.country}</span>
-          {showStars && <span className={styles.rating}><span className="text-star">★</span> {business.rating.toFixed(1)}</span>}
+          {hasRating && <span className={styles.rating}><span className="text-star">★</span> {business.rating.toFixed(1)}</span>}
         </p>
         <p className={styles.desc}>{business.desc}</p>
         <div className={`${styles.foot} relative z-[2]`}>

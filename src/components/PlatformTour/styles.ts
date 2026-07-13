@@ -1,8 +1,9 @@
 const styles = {
   section:
     "grid w-full grid-cols-[minmax(330px,.68fr)_minmax(620px,1.32fr)] items-center gap-10 " +
+    "min-[1440px]:grid-cols-[minmax(420px,.68fr)_minmax(760px,1.32fr)] min-[1440px]:gap-14 min-[1800px]:grid-cols-[minmax(500px,.68fr)_minmax(860px,1.32fr)] min-[1800px]:gap-16 " +
     "max-[1120px]:grid-cols-1 max-[1120px]:gap-7",
-  copy: "max-w-[560px] max-[1120px]:max-w-[760px]",
+  copy: "max-w-[560px] min-[1440px]:max-w-[660px] min-[1800px]:max-w-[720px] max-[1120px]:max-w-[760px]",
   eyebrow: "eyebrow mb-3 text-[#2563EB]",
   title:
     "font-display text-[clamp(34px,4vw,58px)] font-semibold leading-[1] tracking-normal text-[#0B1C30]",
@@ -13,6 +14,7 @@ const styles = {
     "relative min-w-0 overflow-hidden rounded-[28px] border border-[#DCE6F2] bg-white " +
     "px-8 py-7 shadow-[0_30px_86px_-58px_rgba(7,9,42,.56)] " +
     "before:pointer-events-none before:absolute before:inset-x-8 before:top-[118px] before:h-px before:bg-[#D8E3F0] " +
+    "min-[1440px]:px-10 min-[1440px]:py-9 min-[1440px]:before:top-[136px] min-[1800px]:px-12 min-[1800px]:py-10 min-[1800px]:before:top-[148px] " +
     "max-[760px]:px-5 max-[760px]:py-5 max-[760px]:before:hidden",
   visualTop:
     "relative z-10 mb-8 flex items-start justify-between gap-6 " +
@@ -22,9 +24,11 @@ const styles = {
     "max-[760px]:[&_strong]:text-left",
   flow:
     "relative z-10 grid grid-cols-[minmax(150px,1fr)_44px_minmax(210px,.9fr)_44px_minmax(150px,1fr)] items-center gap-3 " +
+    "min-[1440px]:grid-cols-[minmax(190px,1fr)_52px_minmax(260px,.9fr)_52px_minmax(190px,1fr)] min-[1440px]:gap-4 min-[1800px]:grid-cols-[minmax(220px,1fr)_56px_minmax(300px,.9fr)_56px_minmax(220px,1fr)] " +
     "max-[760px]:grid-cols-1 max-[760px]:gap-3",
   flowNode:
     "min-h-[152px] rounded-[20px] border border-[#DCE6F2] bg-[#FBFCFF] p-5 " +
+    "min-[1440px]:min-h-[180px] min-[1440px]:p-6 min-[1800px]:min-h-[204px] min-[1800px]:p-7 " +
     "max-[760px]:min-h-0 " +
     "[&_span]:grid [&_span]:h-11 [&_span]:w-11 [&_span]:place-items-center [&_span]:rounded-[14px] [&_span]:bg-[#EEF4FF] [&_span]:text-[#0057D9] " +
     "[&_small]:mt-6 [&_small]:block [&_small]:text-[12px] [&_small]:font-extrabold [&_small]:uppercase [&_small]:tracking-[.11em] [&_small]:text-[#64748B] " +

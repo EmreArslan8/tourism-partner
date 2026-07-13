@@ -30,7 +30,7 @@ const HomeView = ({
       {/* 1 — Hero (tam-bleed, panelin tamamını kaplar) */}
       <div className={styles.panelDark}>
         <div className={styles.heroFill}>
-          <Hero businesses={businesses} />
+          <Hero />
         </div>
       </div>
 

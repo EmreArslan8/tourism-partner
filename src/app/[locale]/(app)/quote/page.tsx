@@ -3,6 +3,7 @@ import { setRequestLocale } from "next-intl/server";
 import QuoteForm, { type QuoteInitialFilters } from "@/components/QuoteForm";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { getBusinessById } from "@/lib/businesses";
+import { ALL_FACET_SLUGS } from "@/lib/facets";
 import { localeAlternates } from "@/lib/seo";
 import type { SiteLocale } from "@/lib/site";
 import type { GroupKey } from "@/lib/types";
@@ -76,7 +77,6 @@ function parseQuoteFilters(sp: QuoteSearchParams): QuoteInitialFilters {
     ? CATEGORY_GROUPS.find((item) => item.key === group)?.children.map((child) => child.label) ?? []
     : [];
   const primaryType = types.find((type) => validTypesForGroup.includes(type)) ?? types[0];
-  const rating = Number(sp.rating);
   return {
     group,
     types: [primaryType, ...types.filter((type) => type !== primaryType)].filter(Boolean),
@@ -84,8 +84,7 @@ function parseQuoteFilters(sp: QuoteSearchParams): QuoteInitialFilters {
     city: sp.city && sp.city !== "all" ? sp.city : undefined,
     district: sp.district && sp.district !== "all" ? sp.district : undefined,
     q: sp.q?.trim() || undefined,
-    minRating: Number.isFinite(rating) ? rating : undefined,
-    attrs: sp.attr?.split(",").filter(Boolean) ?? [],
+    attrs: sp.attr?.split(",").filter((slug) => ALL_FACET_SLUGS.has(slug)) ?? [],
   };
 }
 

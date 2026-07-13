@@ -194,6 +194,70 @@
            disabled:cursor-not-allowed disabled:opacity-55;
   }
 
+  @media (min-width: 1440px) {
+    .container-px {
+      @apply max-w-[1720px] px-10;
+    }
+    .heading-section {
+      font-size: 2.35rem;
+      line-height: 1.14;
+    }
+    .heading-page {
+      font-size: 2.75rem;
+      line-height: 1.14;
+    }
+    .heading-panel,
+    .heading-card {
+      font-size: 2.15rem;
+      line-height: 1.15;
+    }
+    .heading-subsection {
+      font-size: 1.4rem;
+    }
+    .body-lead {
+      font-size: 1.2rem;
+    }
+    .body-muted,
+    .section-desc {
+      font-size: 1rem;
+    }
+    .btn {
+      @apply px-7 py-3 text-[15.5px];
+    }
+    .btn-sm {
+      @apply px-5 py-2.5 text-[14.5px];
+    }
+    .btn-lg {
+      @apply px-9 py-5 text-[17px];
+    }
+    .field {
+      @apply px-4 text-[15.5px];
+    }
+  }
+
+  @media (min-width: 1800px) {
+    .container-px {
+      @apply max-w-[1840px] px-12;
+    }
+    .heading-section {
+      font-size: 2.65rem;
+    }
+    .heading-page {
+      font-size: 3.1rem;
+    }
+    .heading-panel,
+    .heading-card {
+      font-size: 2.35rem;
+    }
+    .body-lead {
+      font-size: 1.28rem;
+    }
+    .body-muted,
+    .section-desc {
+      font-size: 1.0625rem;
+    }
+  }
+
   @media (max-width: 560px) {
     .eyebrow {
       @apply text-eyebrow-compact;
@@ -252,6 +316,35 @@
   }
   to {
     transform: scaleX(1);
+  }
+}
+
+@keyframes tp-skeleton-wave {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.tp-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.52), transparent);
+  animation: tp-skeleton-wave 1.85s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-skeleton::after {
+    animation: none;
   }
 }
 
