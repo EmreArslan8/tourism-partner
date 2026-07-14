@@ -17,8 +17,8 @@ export default function Error({
 
   return (
     <main className="container-px flex min-h-[60vh] flex-col items-center justify-center gap-4 py-20 text-center">
-      <h1 className="text-[clamp(24px,3vw,36px)] text-pine">Bir şeyler ters gitti</h1>
-      <p className="max-w-[480px] text-[15px] leading-7 text-muted">
+      <h1 className="heading-section text-pine">Bir şeyler ters gitti</h1>
+      <p className="body-muted max-w-[480px]">
         Beklenmedik bir hata oluştu. Lütfen tekrar deneyin; sorun sürerse biraz sonra
         yeniden ziyaret edin.
       </p>

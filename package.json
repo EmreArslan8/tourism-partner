@@ -10,24 +10,43 @@
     "gen:types": "supabase gen types typescript --project-id \"$SUPABASE_PROJECT_ID\" --schema public > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.17",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
+    "@tremor/react": "^3.18.7",
     "@types/leaflet": "^1.9.21",
+    "@types/sanitize-html": "^2.16.1",
+    "clsx": "^2.1.1",
+    "driver.js": "^1.6.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "next-intl": "^4.13.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-day-picker": "^10.0.1",
+    "react-dom": "19.2.4",
+    "sanitize-html": "^2.17.5",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.185.1",
+    "three-globe": "^2.45.2"
   },
   "devDependencies": {
+    "@types/google.maps": "^3.65.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.0",
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "postcss": "^8.5.15",
     "tailwindcss": "^3.4.19",
     "typescript": "^5"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.16"
+    }
   }
 }

@@ -1,7 +1,8 @@
 import { useTranslations } from "next-intl";
+import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import styles from "./styles";
-import Button from "../common/Button";
 
 const Cta = () => {
   const t = useTranslations("cta");
@@ -9,19 +10,15 @@ const Cta = () => {
   return (
     <section className={styles.section}>
       <div className={styles.panel}>
-        <div className={styles.glow} aria-hidden />
-
         <div className={styles.content}>
+          <PremiumPartnerBadge className={styles.badge} />
           <h2 className={styles.title}>{t("title")}</h2>
           <p className={styles.sub}>{t("sub")}</p>
         </div>
-
         <div className={styles.actions}>
-          <Button href={{ pathname: "/register" } as any} variant="cream" size="lg" className="!rounded-xl">
-            {t("button")}
-          </Button>
-          <Link href={{ pathname: "/login" } as any} className={styles.secondary}>
-            {t("secondary")}
+          <Link href="/register" className={styles.primary}>
+            <span>{t("button")}</span>
+            <ArrowRight size={17} strokeWidth={2.4} aria-hidden />
           </Link>
         </div>
       </div>

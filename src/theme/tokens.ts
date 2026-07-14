@@ -1,5 +1,19 @@
+/*
+ * Akışkan boşluk ölçeği — rem+vw clamp, 375px → 1280px bandında interpole.
+ * Bölüm/blok dikey ritmini breakpoint yığını olmadan ölçeklemek için.
+ * Kullanım: py-fluid-section, gap-fluid-md gibi.
+ */
+export const spacing = {
+  "fluid-section": "clamp(2.5rem, 1.8rem + 3vw, 5rem)", // 40 → 80px
+  "fluid-block": "clamp(1.5rem, 1.1rem + 1.7vw, 3rem)", // 24 → 48px
+  "fluid-md": "clamp(1rem, 0.8rem + 0.9vw, 1.75rem)", // 16 → 28px
+  "fluid-sm": "clamp(0.75rem, 0.65rem + 0.4vw, 1rem)", // 12 → 16px
+} as const;
+
 export const borderRadius = {
-  card: "14px",
+  button: "12px",
+  card: "12px",       // standart kart yüzeyi — tüm projede rounded-card ile kullanılır
+  "card-lg": "16px",  // büyük/vitrin kartları (Showcase paneli, Categories ilk kart)
   pill: "999px",
 } as const;
 

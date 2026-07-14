@@ -16,6 +16,7 @@ const MobileSearch = () => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
   const router = useRouter();
+  type RouterHref = Parameters<typeof router.push>[0];
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,15 +35,17 @@ const MobileSearch = () => {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const query = q.trim() ? { q: q.trim() } : {};
-    router.push({ pathname: "/explore", query } as any);
+    const href: RouterHref = q.trim()
+      ? { pathname: "/explore", query: { q: q.trim() } }
+      : { pathname: "/explore" };
+    router.push(href);
     setOpen(false);
   };
 
-  const chips = [
-    { label: t("pop1"), q: { pathname: "/explore", query: { city: "İstanbul", cat: "konaklama" } } },
-    { label: t("pop2"), q: { pathname: "/explore", query: { city: "Nevşehir", q: "balon" } } },
-    { label: t("pop3"), q: { pathname: "/explore", query: { city: "Antalya", cat: "acente" } } },
+  const chips: Array<{ label: string; href: RouterHref }> = [
+    { label: t("pop1"), href: { pathname: "/explore", query: { city: "İstanbul", cat: "konaklama" } } },
+    { label: t("pop2"), href: { pathname: "/explore", query: { city: "Nevşehir", q: "balon" } } },
+    { label: t("pop3"), href: { pathname: "/explore", query: { city: "Antalya", cat: "acente" } } },
   ];
 
   return (
@@ -87,7 +90,7 @@ const MobileSearch = () => {
                 <button
                   key={c.label}
                   type="button"
-                  onClick={() => { router.push(c.q as any); setOpen(false); }}
+                  onClick={() => { router.push(c.href); setOpen(false); }}
                   className="rounded-pill border border-line bg-paper px-3 py-1.5 text-[13px] font-semibold text-ink/80 active:bg-cream"
                 >
                   {c.label}

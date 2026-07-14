@@ -1,0 +1,33 @@
+import { Suspense } from "react";
+import { setRequestLocale } from "next-intl/server";
+import SiteHeader from "@/components/Header";
+import SiteFooter from "@/components/Footer";
+import PopupSlot from "@/components/SitePopup/PopupSlot";
+
+/*
+ * Uygulama (iç sayfa) chrome'u: opak header (footer ile aynı sapphire) + footer.
+ * Header server component; etkileşim parçaları (NavLinks, MobileMenu, LocaleSwitcher) client ada.
+ */
+export default async function AppLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  return (
+    <>
+      <SiteHeader />
+      <div className="min-h-screen bg-sapphire-deep">
+        {children}
+      </div>
+      <SiteFooter />
+      <Suspense fallback={null}>
+        <PopupSlot />
+      </Suspense>
+    </>
+  );
+}

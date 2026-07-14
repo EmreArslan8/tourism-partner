@@ -1,5 +1,5 @@
  const styles = {
-  grid: "grid grid-cols-[minmax(0,1fr)_420px] gap-6 max-[1100px]:grid-cols-1",
+  editGrid: "grid grid-cols-[minmax(0,1fr)_440px] items-start gap-6 max-[1100px]:grid-cols-1",
   sectionTitle: "text-[24px]",
   sectionSub: "text-[13.5px] text-muted",
   formTitle: "text-[24px]",

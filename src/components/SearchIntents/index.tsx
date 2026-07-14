@@ -1,0 +1,54 @@
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import SectionHeader from "@/components/common/SectionHeader";
+import styles from "./styles";
+
+/* Hazır arama rotaları — kategori panelinin ikinci bileşeni.
+   Her chip /explore'a önceden kurulmuş filtrelerle (kategori + şehir/arama) gider. */
+type Intent = {
+  key: string;
+  query: { cat?: string; city?: string; q?: string };
+};
+
+const INTENTS: Intent[] = [
+  { key: "intentIstanbulHotels", query: { cat: "konaklama", city: "İstanbul" } },
+  { key: "intentCappadociaGuides", query: { cat: "rehber", city: "Nevşehir" } },
+  { key: "intentAntalyaAgencies", query: { cat: "acente", city: "Antalya" } },
+  { key: "intentActivities", query: { cat: "aktivite" } },
+];
+
+const SearchIntents = () => {
+  const t = useTranslations("categories");
+
+  return (
+    <section className={styles.section} aria-label={t("intentTitle")} data-tour="search-intents">
+      <SectionHeader
+        className={styles.copy}
+        eyebrow={t("spotlightKicker")}
+        title={t("intentTitle")}
+        desc={t("intentSub")}
+        titleAs="h3"
+        eyebrowClassName={styles.eyebrow}
+        titleClassName={styles.title}
+        descClassName={styles.sub}
+      />
+
+      <div className={styles.chips}>
+        {INTENTS.map((it) => (
+          <Link
+            key={it.key}
+            href={{ pathname: "/explore", query: it.query }}
+            className={styles.chip}
+          >
+            <span>{t(it.key)}</span>
+            <svg className={styles.chipArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default SearchIntents;

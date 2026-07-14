@@ -1,55 +1,115 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { GROUP_COLORS, GROUP_COVER } from "@/lib/categories";
+import { Link, type Href } from "@/i18n/navigation";
+import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
+import { businessImageUrl } from "@/lib/business-images";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 import Badge from "@/components/common/Badge";
+import ImpressionTracker from "@/components/ImpressionTracker";
+import FavoriteButton from "@/components/FavoriteButton";
+import Logo from "@/components/Logo";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 
 /* Ortak tedarikçi kartı. `flag` rozeti, `showStars` puan yıldızları,
-   `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır. */
+   `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır.
+   `impressionId` verilirse kart ekrana gelince impression sayılır (arama listesi).
+   `href` verilirse kartın gövdesi (görsel + metin) komple tıklanır → detay; alttaki
+   butonlar (Detay/Teklif) üstte kalıp kendi aksiyonlarını korur (stretched-link). */
 const SupplierCard = ({
   business,
   flag = null,
   showStars = false,
+  impressionId,
+  href,
   children,
 }: {
   business: Business;
   flag?: string | null;
   showStars?: boolean;
+  impressionId?: number;
+  href?: Href;
   children: ReactNode;
 }) => {
   const tc = useTranslations("cat");
-  const tv = useTranslations("common");
-  const cover = business.image ?? GROUP_COVER[business.group];
-  
+  const ts = useTranslations("service");
+  const tCommon = useTranslations("common");
+  const cover = businessImageUrl(business.image);
+  const businessTypeKey = serviceTranslationKey(business.type);
+  const [imageFailed, setImageFailed] = useState(false);
+  const hasCover = Boolean(cover && !imageFailed);
+  const flagLabel = flag;
+  const hasRating = showStars && business.rating > 0 && business.reviews > 0;
+
   return (
-    <article className={styles.card}>
+    <article className={`${styles.card} relative`}>
+      {impressionId != null && <ImpressionTracker id={impressionId} />}
+      {href && (
+        <Link href={href} aria-label={business.name} className="absolute inset-0 z-[1] rounded-card" />
+      )}
       <div className={styles.cover} style={{ backgroundColor: GROUP_COLORS[business.group] }}>
-        <Image
-          src={cover}
-          alt={business.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 320px"
-          className={styles.coverImg}
-        />
+        {hasCover && cover ? (
+          <Image
+            src={cover}
+            alt={business.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 320px"
+            className={styles.coverImg}
+            onError={() => setImageFailed(true)}
+          />
+        ) : (
+          <div className={styles.placeholder}>
+            <span className={styles.placeholderLogo}><Logo href={null} height={34} variant="light" /></span>
+            <span className={styles.placeholderLabel}>Tourism Partner</span>
+          </div>
+        )}
         <span className={styles.coverGrad} aria-hidden />
-        {flag && <Badge variant="gold" className={styles.flag}>{flag}</Badge>}
-        {showStars && <Badge variant="muted" className={styles.coverRating}>★ {business.rating.toFixed(1)}</Badge>}
+        <div className={styles.favorite}>
+          <FavoriteButton businessId={business.id} variant="icon" />
+        </div>
+        {business.sponsored ? (
+          <PremiumPartnerBadge label={tCommon("ad")} className={styles.flag} />
+        ) : (
+          flagLabel && <Badge className={styles.flag}>{flagLabel}</Badge>
+        )}
       </div>
       <div className={styles.body}>
         <div className={styles.tags}>
-          <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
-          {business.verified && (
-            <span className={styles.verified}>✓ {tv("verified")}</span>
+          <Badge className={styles.badge}>{tc(business.group)} · {businessTypeKey ? ts(businessTypeKey) : business.type}</Badge>
+          {(business.serviceTypes?.length ?? 0) > 1 && (
+            <Badge className={styles.badge}>+{business.serviceTypes!.length - 1} hizmet</Badge>
           )}
         </div>
-        <h3 className={styles.name}>{business.name}</h3>
+        <div className={styles.nameWrap}>
+          <h3 className={styles.name}>{business.name}</h3>
+          {business.founderPartner && (
+            <span
+              className={styles.partnerMedal}
+              title={tCommon("founderPartner")}
+              aria-label={tCommon("founderPartner")}
+              tabIndex={0}
+            >
+              <svg viewBox="0 0 48 54" aria-hidden>
+                <path d="M13 30v18l11-5 11 5V30Z" fill="#ffb957" />
+                <path d="M17.5 32.5v8.7l6.5-3 6.5 3v-8.7Z" fill="#0e2745" />
+                <circle cx="24" cy="20" r="16" fill="#0e2745" stroke="#ffb957" strokeWidth="5" />
+                <path d="m24 9 3.2 6.5 7.2 1-5.2 5 1.2 7.1-6.4-3.4-6.4 3.4 1.2-7.1-5.2-5 7.2-1Z" fill="#ffb957" />
+              </svg>
+              <span className={styles.partnerTooltip} role="tooltip">{tCommon("founderPartnerTooltip")}</span>
+            </span>
+          )}
+        </div>
         <p className={styles.loc}>
           <span>{business.district}, {business.city} · {business.country}</span>
+          {hasRating && <span className={styles.rating}><span className="text-star">★</span> {business.rating.toFixed(1)}</span>}
         </p>
         <p className={styles.desc}>{business.desc}</p>
-        <div className={styles.foot}>{children}</div>
+        <div className={`${styles.foot} relative z-[2]`}>
+          <div className={styles.actions}>{children}</div>
+        </div>
       </div>
     </article>
   );

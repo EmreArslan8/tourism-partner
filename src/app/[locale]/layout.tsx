@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
+import { getMessages, type Locale } from "@/i18n/messages";
+import { SITE_URL } from "@/lib/site";
 import "../globals.css";
-import SiteChrome from "@/components/SiteChrome";
 
 const display = Inter({
   subsets: ["latin", "latin-ext"],
@@ -20,9 +21,14 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tourism Partner — B2B Travel Supplier Network",
+  metadataBase: new URL(SITE_URL),
+  title: "Tourism Partner - B2B Tourism Network",
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
+  verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
+  // Marka/statik sayfalar (ana sayfa, keşfet) her zaman indekslenebilir — .com Google'da çıksın.
+  // Sahte tedarikçi PROFİL sayfaları ayrıca noindex (bkz. supplier/[id]/page.tsx).
+  robots: { index: true, follow: true },
 };
 
 export function generateStaticParams() {
@@ -39,13 +45,12 @@ export default async function LocaleLayout({
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
+  const messages = await getMessages(locale as Locale);
 
   return (
     <html lang={locale} data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
       <body>
-        <NextIntlClientProvider>
-          <SiteChrome>{children}</SiteChrome>
-        </NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

@@ -11,7 +11,7 @@ export default function RootNotFound() {
         alignItems: "center",
         justifyContent: "center",
         background: "#f7f4ec",
-        color: "#172178",
+        color: "#12237f",
         fontFamily: "system-ui, sans-serif",
         padding: 24,
         textAlign: "center",

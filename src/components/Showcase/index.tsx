@@ -1,49 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { GROUP_COVER, GROUP_COLORS } from "@/lib/categories";
-import { FACETS } from "@/lib/facets";
+import SectionHeader from "@/components/common/SectionHeader";
+import { businessSlug } from "@/lib/business-slug";
+import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
+import { realBusinessImages } from "@/lib/business-images";
+import { featuredFacetTags } from "@/lib/facets";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import styles from "./styles";
 
-/* facet slug → etiket (hizmet/koşul çiplerini göstermek için). */
-const FACET_LABEL = new Map<string, string>();
-FACETS.forEach((f) => f.options.forEach((o) => FACET_LABEL.set(o.slug, o.label)));
-
-/* Demo galeri havuzu — gerçekte işletmenin yüklediği galeri gelecek. */
-const POOL = [
-  "/assets/cards/hotel-1.jpg", "/assets/cards/hotel-2.jpg", "/assets/cards/hotel-3.jpg",
-  "/assets/cards/resort-1.jpg", "/assets/cards/yacht-1.jpg", "/assets/cards/balloon-1.jpg",
-  "/assets/cards/agency-1.jpg", "/assets/cards/guide-1.jpg", "/assets/cards/clinic-1.jpg",
-];
-const galleryFor = (b: Business): string[] => {
-  const cover = b.image ?? GROUP_COVER[b.group];
-  const n = POOL.length;
-  return [cover, POOL[b.id % n], POOL[(b.id + 3) % n], POOL[(b.id + 6) % n]];
-};
+const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
 
 /* Tek slide: solda galeri (kendi aktif görsel state'i), sağda bilgiler. */
 const Slide = ({ business }: { business: Business }) => {
   const tc = useTranslations("cat");
   const tv = useTranslations("common");
   const ts = useTranslations("supplier");
+  const tService = useTranslations("service");
   const imgs = galleryFor(business);
   const [act, setAct] = useState(0);
-  const services = (business.attributes ?? [])
-    .map((s) => FACET_LABEL.get(s))
-    .filter(Boolean)
-    .slice(0, 6) as string[];
+  const touchX = useRef<number | null>(null);
+
+  /* Mobilde galeriyi yatay kaydırarak görsel değiştir (thumbnail'e basmaya gerek yok). */
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 40) {
+      const n = imgs.length;
+      setAct((p) => (dx < 0 ? (p + 1) % n : (p - 1 + n) % n));
+    }
+    touchX.current = null;
+  };
+  const businessTypeKey = serviceTranslationKey(business.type);
+  const businessType = businessTypeKey ? tService(businessTypeKey) : business.type;
+  const services = [
+    businessType,
+    ...featuredFacetTags(business, 5).map((tag) => tag.label),
+  ];
 
   return (
-    <div className={styles.slide}>
+    <div className={styles.slide} data-tour="supplier-showcase">
       <div className={styles.panel}>
         {/* SOL — galeri */}
-        <div className={styles.gallery} style={{ backgroundColor: GROUP_COLORS[business.group] }}>
-          <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
+        <div
+          className={styles.gallery}
+          style={{ backgroundColor: GROUP_COLORS[business.group] }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          {imgs[act] ? (
+            <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
+          ) : (
+            <div className={styles.placeholder}>Görsel bekleniyor</div>
+          )}
+          {business.sponsored && <PremiumPartnerBadge label={tv("ad")} className={styles.premium} />}
+          {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
           <div className={styles.thumbs}>
             {imgs.map((src, i) => (
               <button
@@ -57,21 +76,18 @@ const Slide = ({ business }: { business: Business }) => {
               </button>
             ))}
           </div>
+          {/* Mobil: kaydırma göstergesi (nokta) */}
+          <div className={styles.galleryDots} aria-hidden>
+            {imgs.map((_, i) => (
+              <span key={i} className={i === act ? styles.galleryDotActive : styles.galleryDot} />
+            ))}
+          </div>
         </div>
 
         {/* SAĞ — bilgiler */}
         <div className={styles.info}>
-          <div className={styles.infoTop}>
-            <span className={styles.cat}>{tc(business.group)} · {business.type}</span>
-            {business.verified && (
-              <span className={styles.verified}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                {tv("verified")}
-              </span>
-            )}
-          </div>
-
           <h3 className={styles.name}>{business.name}</h3>
+          <p className={styles.categoryText}>{tc(business.group)} · {businessType}</p>
 
           <div className={styles.meta}>
             <span className={styles.metaItem}>
@@ -92,14 +108,21 @@ const Slide = ({ business }: { business: Business }) => {
             <div className={styles.services}>
               <span className={styles.servicesLabel}>{ts("services")}</span>
               <div className={styles.chips}>
-                {services.map((s) => <span key={s} className={styles.chip}>{s}</span>)}
+                {services.map((s, idx) => <span key={`${s}-${idx}`} className={styles.chip}>{s}</span>)}
               </div>
             </div>
           )}
 
           <div className={styles.foot}>
-            <Button href="/login" variant="solid" size="sm">{tv("detailLogin")}</Button>
-            <Link href={{ pathname: "/quote" }} className={styles.quote}>{tv("requestQuote")}</Link>
+            <Button
+              href={{ pathname: "/supplier/[id]", params: { id: businessSlug(business) } }}
+              variant="solid"
+              size="md"
+              className={styles.detailButton}
+            >
+              {tv("detail")}
+            </Button>
+            <Link href={{ pathname: "/quote", query: { s: business.id.toString() } }} className={styles.quote}>{tv("requestQuote")}</Link>
           </div>
         </div>
       </div>
@@ -110,7 +133,7 @@ const Slide = ({ business }: { business: Business }) => {
 /* Öne çıkan iş ortakları — tam genişlikte, tek tek kayan carousel. */
 const Showcase = ({ businesses }: { businesses: Business[] }) => {
   const t = useTranslations("showcase");
-  const items = businesses.filter((b) => b.sponsored).slice(0, 5);
+  const items = businesses.filter((b) => b.sponsored && galleryFor(b).length > 0).slice(0, 5);
   const [i, setI] = useState(0);
 
   if (items.length === 0) return null;
@@ -119,10 +142,15 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
   return (
     <section id="vitrin">
       <div className={styles.head}>
-        <div>
-          <span className={styles.eyebrow}>{t("eyebrow")}</span>
-          <h2 className={styles.title}>{t("title")}</h2>
-        </div>
+        <SectionHeader
+          className={styles.copy}
+          eyebrow={t("eyebrow")}
+          title={t("title")}
+          desc={t("sub")}
+          eyebrowClassName={styles.eyebrow}
+          titleClassName={styles.title}
+          descClassName={styles.sub}
+        />
         <div className={styles.nav}>
           <button type="button" aria-label="Önceki" className={styles.arrow} onClick={() => go(-1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
@@ -137,12 +165,6 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
         <div className={styles.track} style={{ transform: `translateX(-${i * 100}%)` }}>
           {items.map((b) => <Slide key={b.id} business={b} />)}
         </div>
-      </div>
-
-      <div className={styles.dots}>
-        {items.map((b, idx) => (
-          <button key={b.id} type="button" aria-label={`Slide ${idx + 1}`} onClick={() => setI(idx)} className={idx === i ? styles.dotActive : styles.dot} />
-        ))}
       </div>
     </section>
   );

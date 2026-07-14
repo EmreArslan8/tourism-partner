@@ -10,20 +10,9 @@ const AdminApprovalsPage = async ({
   const { locale } = await params;
   setRequestLocale(locale);
   const data = await getAdminData();
-  const pendingBusinesses = data.businesses.filter(
-    (business) => business.status === "pending",
-  );
-  const pendingApplications = data.applications.filter(
-    (application) => application.status === "pending",
-  );
 
-  return (
-    <ApprovalsView
-      pendingBusinesses={pendingBusinesses}
-      pendingApplications={pendingApplications}
-      locale={locale}
-    />
-  );
+  // Onay havuzu = gerçek işletme kayıtları (kayıt + panelden gelen evrak/detayla).
+  return <ApprovalsView applications={data.applications} businesses={data.businesses} locale={locale} />;
 };
 
 export default AdminApprovalsPage;

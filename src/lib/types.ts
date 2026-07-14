@@ -1,10 +1,19 @@
 /* Ortak tip tanımları — Faz 1 (seed veri). İleride Supabase şemasıyla eşlenecek. */
 
-export type GroupKey = "konaklama" | "acente" | "rehber" | "eglence" | "saglik";
+export type GroupKey = "konaklama" | "acente" | "ulasim" | "rehber" | "aktivite" | "saglik" | "gastronomi";
+export type BusinessLegalType = "company" | "individual";
+
+/** Sosyal medya platformları — businesses.socials jsonb anahtarları. */
+export const SOCIAL_PLATFORMS = ["instagram", "facebook", "linkedin", "youtube", "x"] as const;
+export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
+export type BusinessSocials = Partial<Record<SocialPlatform, string>>;
 
 export interface CategoryNode {
   slug: string;
   label: string;
+  /** Görseldeki alt-başlık grubu (ör. "Otel", "Alternatif Konaklama", "Klinikler").
+      Yalnızca UI gruplaması için; boşsa düz listelenir. */
+  section?: string;
 }
 
 export interface CategoryGroup {
@@ -16,8 +25,11 @@ export interface CategoryGroup {
 export interface Business {
   id: number;
   group: GroupKey;
-  /** Alt kategori / tür etiketi, ör. "Otel", "Villa", "Diş Kliniği" */
+  legalType?: BusinessLegalType;
+  /** Alt kategori / tür etiketi, ör. "Otel", "Villa", "Diş Kliniği" (birincil hizmet) */
   type: string;
+  /** Çoklu hizmet slug'ları (business_services). Birincil önce; boş olabilir. */
+  serviceTypes?: string[];
   name: string;
   country: string;
   city: string;
@@ -28,12 +40,35 @@ export interface Business {
   reviews: number;
   tag: string;
   verified: boolean;
-  /** Landing vitrininde reklam olarak gösterilsin mi (bizim seçimimiz) */
+  /** Premium Partner dopingi: ücretli, kalıcı öne çıkarma (admin kontrollü). */
   sponsored: boolean;
+  /** Admin tarafından elle verilen Kurucu Üye rozeti; public'te tam profil şartıyla gösterilir. */
+  founderPartner?: boolean;
+  /** Public rozet/profil skoru için sunucuda hesaplanan sayımlar; kişi detayları payload'a inmez. */
+  contactCount?: number;
+  partnerCount?: number;
+  /** Doping bitiş zamanı (ISO). Gelecekteyse işletme "öne çıkan" sayılır.
+      Yeni işletme onaylandığında otomatik 24 saatlik hoş geldin dopingi de bunu kullanır. */
+  dopingUntil?: string;
+  /** Kurum (firma) iletişim — YALNIZCA detay sayfasında gösterilir (Brief §6A).
+      Liste/istemci payload'ına gönderilmez (bkz. toListingBusiness) — aksi halde
+      telefonlar listeden toplu kazınabilir. Yetkili kişi bilgisi ASLA buraya konmaz. */
+  phone?: string;
+  website?: string;
+  /** Sosyal medya linkleri — yalnızca detay sayfasında gösterilir. */
+  socials?: BusinessSocials;
+  /** Sunucuda önceden hesaplanan profil doluluk skoru (0–100). Liste payload'ında
+      phone/website çıkarıldığı için skor sunucuda hesaplanıp taşınır. */
+  completeness?: number;
   /** Kart kapak görseli (public/ altı yol). Yoksa gruba göre varsayılan kullanılır. */
   image?: string;
+  /** İşletmenin kendi galeri görselleri. */
+  images?: string[];
   /** Filtreleme facet slug'ları (hizmet/özellik/ticari şartlar). Bkz. lib/facets.ts */
   attributes?: string[];
+  /** Rehber çalışma bölgeleri (şehir adları) — acente araması bu şehirlerle de eşleşir.
+      Yalnızca rehber kategorisinde dolu; details.work_regions'tan türetilir. */
+  workRegions?: string[];
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
@@ -59,7 +94,6 @@ export interface ListingFilters {
   country: string;
   city: string;
   district: string;
-  verifiedOnly: boolean;
   minRating: number;
   attrs: Set<string>;
 }
@@ -67,10 +101,41 @@ export interface ListingFilters {
 // --- Action Types ---
 export type ActionState = { ok: boolean; error?: string };
 
+export type BusinessDocument = {
+  kind: string;
+  name: string;
+  /** Permanent private storage path for new document records. */
+  path?: string;
+  /** Signed URL for display, or legacy public URL. Not stored as the canonical value. */
+  url?: string;
+};
+
 // --- Admin Types ---
+export type BusinessLifecycleStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "active"
+  | "expired"
+  | "blacklisted"
+  | "suspended";
+
 export type AdminBusiness = Business & {
-  status: "pending" | "approved" | "rejected";
+  status: BusinessLifecycleStatus;
   createdAt?: string;
+  /** Onay incelemesi için: panelde yüklenen evraklar + dinamik alanlar. */
+  documents?: BusinessDocument[];
+  details?: Record<string, string>;
+};
+
+export type AdminApplicationDoc = {
+  /** Belge etiketi, ör. "TÜRSAB Belgesi" */
+  label: string;
+  /** Yüklendi mi; false ise kartta "Eksik" olarak kırmızı gösterilir. */
+  uploaded: boolean;
+  /** Yüklü belgenin görüntüleme URL'i (varsa) */
+  url?: string;
 };
 
 export type AdminApplication = {
@@ -81,6 +146,12 @@ export type AdminApplication = {
   categoryLabel: string | null;
   status: "pending" | "approved" | "rejected";
   createdAt: string;
+  /** Aşağıdakiler opsiyoneldir — applications tablosu henüz tutmuyorsa boş geçilir,
+      kart bu alanları yalnızca veri varsa gösterir. */
+  contactPerson?: string;
+  phone?: string;
+  address?: string;
+  documents?: AdminApplicationDoc[];
 };
 
 export type AdminQuote = {
@@ -89,8 +160,15 @@ export type AdminQuote = {
   name: string;
   company: string | null;
   email: string;
+  phone: string | null;
   service: string | null;
+  categoryGroup: string | null;
+  categoryType: string | null;
+  country: string | null;
+  city: string | null;
+  district: string | null;
   dateRange: string | null;
+  validUntil: string | null;
   people: number | null;
   message: string | null;
   status: string;
@@ -114,6 +192,41 @@ export type ContentPage = {
   updatedAt: string;
 };
 
+export type AdminMembership = {
+  id: number;
+  businessId: number;
+  plan: string;
+  status: "trial" | "active" | "expired" | "cancelled";
+  startsAt: string;
+  endsAt: string;
+};
+
+export type AdminPageView = {
+  id: number;
+  entityType: string;
+  entityId: number | null;
+  visitorId: string | null;
+  viewedAt: string;
+};
+
+export type AdminSystemBackup = {
+  id: number;
+  status: "pending" | "running" | "completed" | "failed";
+  completedAt: string | null;
+  createdAt: string;
+};
+
+export type AdminAuditLog = {
+  id: number;
+  adminId: string | null;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+};
+
 export type AdminData = {
   mode: "supabase" | "demo";
   userEmail?: string;
@@ -122,4 +235,8 @@ export type AdminData = {
   applications: AdminApplication[];
   quotes: AdminQuote[];
   pages: ContentPage[];
+  memberships: AdminMembership[];
+  pageViews: AdminPageView[];
+  lastBackup: AdminSystemBackup | null;
+  auditLogs: AdminAuditLog[];
 };

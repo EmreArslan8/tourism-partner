@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CATEGORY_GROUPS, GROUP_COLORS } from "@/lib/categories";
+import { CATEGORY_GROUPS, GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { cn, normalizeTr } from "@/lib/utils";
 import type { Business, GroupKey } from "@/lib/types";
 import styles from "./styles";
@@ -23,13 +23,14 @@ const SearchBox = ({
   onChange,
   onPick,
 }: {
-  businesses: Business[];
+  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
   value: string;
   onChange: (v: string) => void;
   onPick: (s: Suggestion) => void;
 }) => {
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const wrapRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -40,7 +41,10 @@ const SearchBox = ({
 
     const bizMatches: Suggestion[] = businesses.filter((b) => normalizeTr(b.name).includes(needle))
       .slice(0, MAX_BUSINESS)
-      .map((b) => ({ kind: "business", id: b.id, label: b.name, sub: `${b.city} · ${b.type}` }));
+      .map((b) => {
+        const typeKey = serviceTranslationKey(b.type);
+        return { kind: "business", id: b.id, label: b.name, sub: `${b.city} · ${typeKey ? ts(typeKey) : b.type}` };
+      });
 
     const seen = new Set<string>();
     const regions: Suggestion[] = [];
@@ -63,7 +67,10 @@ const SearchBox = ({
     for (const g of CATEGORY_GROUPS) {
       for (const c of g.children) {
         if (cats.length >= MAX_CAT) break;
-        if (normalizeTr(c.label).includes(needle)) cats.push({ kind: "type", value: c.label, label: c.label });
+        const label = ts(c.slug);
+        if (normalizeTr(label).includes(needle) || normalizeTr(c.label).includes(needle)) {
+          cats.push({ kind: "type", value: c.label, label });
+        }
       }
     }
 
@@ -72,7 +79,7 @@ const SearchBox = ({
       { key: "suggestRegions", label: t("suggestRegions"), items: regions },
       { key: "suggestCategories", label: t("suggestCategories"), items: cats },
     ].filter((s) => s.items.length > 0);
-  }, [value, t, tc, businesses]);
+  }, [value, t, tc, ts, businesses]);
 
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 
@@ -198,7 +205,7 @@ const Icon = ({ kind, className }: { kind: Suggestion["kind"]; className: string
     );
   // business
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01" />
     </svg>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
-import { getAdminData } from "@/lib/admin";
+import { getAdminAccess } from "@/lib/admin-auth";
 import { AdminAccessDenied, AdminShell } from "./_components";
 
 export const metadata: Metadata = {
@@ -29,7 +29,7 @@ export default async function AdminLayout({
 }
 
 async function AdminGate({ children }: { children: React.ReactNode }) {
-  const data = await getAdminData();
+  const data = await getAdminAccess();
   if (!data.isAdmin) return <AdminAccessDenied />;
   return <AdminShell data={data}>{children}</AdminShell>;
 }

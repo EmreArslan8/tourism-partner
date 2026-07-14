@@ -1,47 +1,97 @@
-import { BusinessForm, BusinessTable, PageHeader, panel } from "../_components";
-import styles from "./styles";
-import type { AdminBusiness } from "@/lib/types";
+import { Link } from "@/i18n/navigation";
+import { PageHeader } from "../_components";
+import { AdminMetric, AdminPanel, adminUi } from "../_ui";
+import SelectableSuppliersTable from "./SelectableSuppliersTable";
+import ExpiredMembershipsSection from "./ExpiredMembershipsSection";
+import type { CrmFilters } from "@/lib/admin-crm";
+import type { AdminBusiness, AdminMembership } from "@/lib/types";
 
 interface Props {
   businesses: AdminBusiness[];
+  total: number;
+  filters: CrmFilters;
+  cities: string[];
+  activeHotels: number;
+  activeAgencies: number;
+  expiredBusinesses: AdminBusiness[];
+  expiredMemberships: AdminMembership[];
   locale: string;
 }
 
-const AdminSuppliersView = ({ businesses, locale }: Props) => {
-  const firstBusiness = businesses[0];
+const AdminSuppliersView = ({
+  businesses,
+  total,
+  filters,
+  cities,
+  activeHotels,
+  activeAgencies,
+  expiredBusinesses,
+  expiredMemberships,
+  locale,
+}: Props) => {
+  const visibleBusinesses = businesses;
 
   return (
-    <>
-      <PageHeader
-        eyebrow="Tedarikçiler"
-        title="Tedarikçi yönetimi"
-        description="Firma bilgisi, kategori, konum, görsel, yayın durumu, sponsor/doğrulama ve tedarikçi SEO alanlarını buradan yönet."
-      />
+    <div className="mx-auto w-full max-w-[1440px] space-y-5">
+      <section className="min-w-0">
+        <PageHeader
+          eyebrow="İşletmeler"
+          title="İşletmeler (CRM)"
+          description="Sistemdeki tüm kayıtlı B2B acente ve otelleri yönetin."
+        />
 
-      <section className={panel}>
-        <div className="mb-4">
-          <h2 className={styles.sectionTitle}>Kayıt formu</h2>
-          <p className={styles.sectionSub}>ID boşsa yeni tedarikçi açılır; ID doluysa mevcut kayıt güncellenir.</p>
+        <div className="mb-5 grid gap-3 lg:grid-cols-3">
+          <AdminMetric label="Toplam İşletme" value={total} />
+          <AdminMetric label="Aktif Otel" value={activeHotels} tone="emerald" />
+          <AdminMetric label="Aktif Acente" value={activeAgencies} tone="blue" />
         </div>
-        <BusinessForm locale={locale} business={firstBusiness} />
-      </section>
 
-      <section className={cn(panel, "mt-6")}>
-        <div className={styles.allHeader}>
-          <div>
-            <h2 className={styles.sectionTitle}>Tüm tedarikçiler</h2>
-            <p className={styles.sectionSub}>Liste üzerinden kayıt durumlarını ve eksikleri takip et.</p>
-          </div>
-          <span className={styles.badge}>
-            {businesses.length} kayıt
-          </span>
-        </div>
-        <BusinessTable businesses={businesses} />
+        <AdminPanel className="mb-5" bodyClassName="p-3">
+          <form action="" className="grid gap-2 lg:grid-cols-[minmax(220px,1fr)_180px_170px_170px_auto_auto] lg:items-center">
+            <input name="q" defaultValue={filters.q} placeholder="Firma adı, VKN veya ID" className={adminUi.input} />
+            <select name="group" defaultValue={filters.group} className={adminUi.input}>
+              <option value="all">Tüm Kategoriler</option>
+              <option value="konaklama">Konaklama</option>
+              <option value="acente">Acente</option>
+              <option value="ulasim">Ulaşım</option>
+              <option value="rehber">Rehber</option>
+              <option value="aktivite">Aktivite / Deneyim</option>
+              <option value="saglik">Sağlık</option>
+              <option value="gastronomi">Gastronomi</option>
+            </select>
+            <select name="city" defaultValue={filters.city} className={adminUi.input}>
+              <option value="">Tüm Şehirler</option>
+              {cities.map((city) => <option key={city} value={city}>{city}</option>)}
+            </select>
+            <select name="status" defaultValue={filters.status} className={adminUi.input}>
+              <option value="all">Tüm Durumlar</option>
+              <option value="approved">Aktif</option>
+              <option value="pending">Beklemede</option>
+              <option value="suspended">Askıda</option>
+              <option value="blacklisted">Blacklist</option>
+            </select>
+            <button className={adminUi.sapphireButton} type="submit">Filtrele</button>
+            <Link href="/admin/tedarikciler" className={adminUi.ghostButton}>
+              Temizle
+            </Link>
+          </form>
+        </AdminPanel>
+
+        <SelectableSuppliersTable
+          businesses={visibleBusinesses}
+          total={total}
+          filters={filters}
+          locale={locale}
+        />
+
+        <ExpiredMembershipsSection
+          businesses={expiredBusinesses}
+          memberships={expiredMemberships}
+          locale={locale}
+        />
       </section>
-    </>
+    </div>
   );
 };
-
-import { cn } from "@/lib/utils";
 
 export default AdminSuppliersView;

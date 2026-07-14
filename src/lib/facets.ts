@@ -1,4 +1,4 @@
-import type { GroupKey, Facet, FacetOption } from "./types";
+import type { Business, GroupKey, Facet } from "./types";
 
 /* Filtreleme motoru — facet (öznitelik) kayıt defteri.
    Tüm çok-seçim facet'ler `business.attributes` slug'ları üzerinden çalışır.
@@ -6,40 +6,6 @@ import type { GroupKey, Facet, FacetOption } from "./types";
    scope: "common" → her kategoride görünür; GroupKey[] → ilgili grup seçiliyse görünür. */
 
 export const FACETS: Facet[] = [
-  // ——— ORTAK (ticari) — projenin asıl ayrıştırıcısı ———
-  {
-    key: "vade", label: "Ödeme / vade", scope: "common",
-    options: [
-      { slug: "pesin", label: "Peşin" },
-      { slug: "vadeli", label: "Vadeli" },
-      { slug: "cari-hesap", label: "Cari hesap" },
-    ],
-  },
-  {
-    key: "kontenjan", label: "Kontenjan modeli", scope: "common",
-    options: [
-      { slug: "garanti-kontenjan", label: "Garanti kontenjan" },
-      { slug: "allotment", label: "Allotment" },
-      { slug: "talep-uzerine", label: "Talep üzerine" },
-    ],
-  },
-  {
-    key: "calisma", label: "Çalışma şekli", scope: "common",
-    options: [
-      { slug: "komisyonlu", label: "Komisyonlu" },
-      { slug: "esnek-iptal", label: "Esnek iptal" },
-      { slug: "anlik-kontenjan", label: "Anlık kontenjan (online)" },
-    ],
-  },
-  {
-    key: "para", label: "Para birimi", scope: "common",
-    options: [
-      { slug: "para-try", label: "₺ TRY" },
-      { slug: "para-eur", label: "€ EUR" },
-      { slug: "para-usd", label: "$ USD" },
-    ],
-  },
-
   // ——— KONAKLAMA ———
   {
     key: "yildiz", label: "Yıldız", scope: ["konaklama"],
@@ -72,14 +38,6 @@ export const FACETS: Facet[] = [
 
   // ——— ACENTE & DMC ———
   {
-    key: "belge", label: "İşletme belgesi", scope: ["acente"],
-    options: [
-      { slug: "a-grubu", label: "A grubu" },
-      { slug: "b-grubu", label: "B grubu" },
-      { slug: "c-grubu", label: "C grubu" },
-    ],
-  },
-  {
     key: "pazar", label: "Çalışılan pazar", scope: ["acente"],
     options: [
       { slug: "pazar-avrupa", label: "Avrupa" },
@@ -88,54 +46,15 @@ export const FACETS: Facet[] = [
       { slug: "pazar-uzakdogu", label: "Uzak Doğu" },
     ],
   },
-  {
-    key: "uzmanlik-acente", label: "Uzmanlık", scope: ["acente"],
-    options: [
-      { slug: "kultur-turu", label: "Kültür turu" },
-      { slug: "mice", label: "MICE" },
-      { slug: "mavi-yolculuk", label: "Mavi yolculuk" },
-      { slug: "okul-gezisi", label: "Okul gezisi" },
-    ],
-  },
 
-  // ——— REHBER ———
+  // ——— ULAŞIM ———
   {
-    key: "uzmanlik-rehber", label: "Uzmanlık", scope: ["rehber"],
+    key: "arac-tipi", label: "Araç tipi", scope: ["ulasim"],
     options: [
-      { slug: "uz-tarihi", label: "Tarihi / arkeoloji" },
-      { slug: "uz-doga", label: "Doğa / trekking" },
-      { slug: "uz-kruvaziyer", label: "Kruvaziyer" },
-      { slug: "uz-muze", label: "Müze" },
-    ],
-  },
-
-  // ——— EĞLENCE ———
-  {
-    key: "lisans", label: "Lisans / güvenlik", scope: ["eglence"],
-    options: [{ slug: "lisansli", label: "Lisanslı işletme" }],
-  },
-  {
-    key: "eglence-satis", label: "Satış modeli", scope: ["eglence"],
-    options: [
-      { slug: "blok-satis", label: "Blok satış" },
-      { slug: "gunluk-operasyon", label: "Günlük operasyon" },
-      { slug: "acente-paneli", label: "Acente paneli" },
-    ],
-  },
-
-  // ——— SAĞLIK ———
-  {
-    key: "akreditasyon", label: "Akreditasyon", scope: ["saglik"],
-    options: [
-      { slug: "jci", label: "JCI" },
-      { slug: "iso", label: "ISO" },
-    ],
-  },
-  {
-    key: "paket", label: "Paket", scope: ["saglik"],
-    options: [
-      { slug: "paket-konaklama-transfer", label: "Konaklama + transfer dahil" },
-      { slug: "refakat-tercuman", label: "Refakat / tercüman" },
+      { slug: "vip-arac", label: "VIP araç" },
+      { slug: "minibus", label: "Minibüs" },
+      { slug: "otobus", label: "Otobüs" },
+      { slug: "rent-a-car", label: "Rent A Car" },
     ],
   },
 
@@ -156,7 +75,9 @@ export const FACETS: Facet[] = [
 // slug → facet key ve slug → etiket eşlemeleri (gruplama ve aktif etiketler için)
 const SLUG_TO_FACET: Record<string, string> = {};
 const SLUG_TO_LABEL: Record<string, string> = {};
+const FACET_ORDER: Record<string, number> = {};
 for (const f of FACETS) {
+  FACET_ORDER[f.key] = FACET_ORDER[f.key] ?? Object.keys(FACET_ORDER).length;
   for (const o of f.options) {
     SLUG_TO_FACET[o.slug] = f.key;
     SLUG_TO_LABEL[o.slug] = o.label;
@@ -183,4 +104,37 @@ export function attrsPass(businessAttrs: string[] | undefined, selected: Set<str
     (byFacet[k] ??= []).push(slug);
   }
   return Object.values(byFacet).every((slugs) => slugs.some((s) => has.has(s)));
+}
+
+export type FeaturedFacetTag = { slug: string; label: string; facetKey: string };
+
+/**
+ * İşletme detayında / vitrin kartında gösterilecek öne çıkan çipler.
+ * Kaynak: `business.attributes` slug'ları.
+ * Sıralama: önce ortak facet'ler, sonra grup facet'leri; aynı facet içinde admin sırası korunur.
+ */
+export function featuredFacetTags(
+  business: Pick<Business, "group" | "attributes">,
+  limit = 6
+): FeaturedFacetTag[] {
+  const attrs = business.attributes ?? [];
+  const visibleFacetKeys = new Set(visibleFacets([business.group]).map((f) => f.key));
+  const seen = new Set<string>();
+  const tags = attrs.flatMap((slug, index) => {
+    const facetKey = SLUG_TO_FACET[slug];
+    if (!facetKey || !visibleFacetKeys.has(facetKey) || seen.has(slug)) return [];
+    seen.add(slug);
+    return [{
+      slug,
+      label: SLUG_TO_LABEL[slug] ?? slug,
+      facetKey,
+      facetOrder: FACET_ORDER[facetKey] ?? Number.MAX_SAFE_INTEGER,
+      index,
+    }];
+  });
+
+  return tags
+    .sort((a, b) => a.facetOrder - b.facetOrder || a.index - b.index)
+    .slice(0, limit)
+    .map(({ slug, label, facetKey }) => ({ slug, label, facetKey }));
 }

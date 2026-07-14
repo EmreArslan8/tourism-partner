@@ -1,6 +1,7 @@
 import SearchBox, { type Suggestion } from "./SearchBox";
 import FilterSelects from "./FilterSelects";
 import type { Business } from "@/lib/types";
+import type { CountryOption } from "@/lib/geo";
 import styles from "./styles";
 
 const FilterBar = ({
@@ -9,8 +10,6 @@ const FilterBar = ({
   city,
   district,
   q,
-  verifiedOnly,
-  minRating,
   countries,
   cities,
   districts,
@@ -19,17 +18,13 @@ const FilterBar = ({
   onDistrict,
   onQ,
   onPick,
-  onVerified,
-  onMinRating,
 }: {
-  businesses: Business[];
+  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
   country: string;
   city: string;
   district: string;
   q: string;
-  verifiedOnly: boolean;
-  minRating: number;
-  countries: string[];
+  countries: CountryOption[];
   cities: string[];
   districts: string[];
   onCountry: (v: string) => void;
@@ -37,29 +32,23 @@ const FilterBar = ({
   onDistrict: (v: string) => void;
   onQ: (v: string) => void;
   onPick: (s: Suggestion) => void;
-  onVerified: (v: boolean) => void;
-  onMinRating: (v: number) => void;
 }) => {
   return (
     <div className={styles.bar}>
+      <div className={styles.barSearch}>
+        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
+      </div>
       <FilterSelects
         country={country}
         city={city}
         district={district}
-        verifiedOnly={verifiedOnly}
-        minRating={minRating}
         countries={countries}
         cities={cities}
         districts={districts}
         onCountry={onCountry}
         onCity={onCity}
         onDistrict={onDistrict}
-        onVerified={onVerified}
-        onMinRating={onMinRating}
       />
-      <div className={styles.barSearch}>
-        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
-      </div>
     </div>
   );
 };

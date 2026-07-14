@@ -1,4 +1,5 @@
 import { businessSlug } from "@/lib/businesses";
+import { getPathname } from "@/i18n/navigation";
 import { BusinessForm, Metric, PageHeader, StatusPill, panel, seoScore } from "../_components";
 import styles from "./styles";
 import type { AdminBusiness, ContentPage } from "@/lib/types";
@@ -50,7 +51,13 @@ const AdminSeoView = ({ businesses, pages, locale }: Props) => {
                     <td className={cn(styles.td, styles.name)}>{business.name}</td>
                     <td className={styles.td}>{business.seoTitle ? `${business.seoTitle.length} krk` : "Eksik"}</td>
                     <td className={styles.td}>{business.seoDescription ? `${business.seoDescription.length} krk` : "Eksik"}</td>
-                    <td className={styles.td}>{business.canonicalPath || `/supplier/${businessSlug(business)}`}</td>
+                    <td className={styles.td}>
+                      {business.canonicalPath ||
+                        getPathname({
+                          locale,
+                          href: { pathname: "/supplier/[id]", params: { id: businessSlug(business) } },
+                        })}
+                    </td>
                     <td className={styles.td}>
                       <StatusPill value={business.seoTitle && business.seoDescription ? "complete" : "pending"} />
                     </td>

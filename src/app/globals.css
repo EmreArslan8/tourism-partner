@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------- shadcn/ui token'ları (CSS değişkenleri) ----------
+   Yalnızca shadcn bileşenlerinin kullandığı renkler. Public sitenin
+   gövde/temel stillerini DEĞİŞTİRMEZ (body override eklenmedi). */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 217 89% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 32% 95%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 214 32% 95%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 214 32% 95%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 217 89% 50%;
+}
+
 /* ---------- temel katman ---------- */
 @layer base {
   * {
@@ -11,8 +36,26 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-cream text-ink font-body leading-relaxed antialiased;
-    overflow-x: hidden;
+    @apply bg-sapphire text-ink font-body leading-relaxed antialiased;
+    /* Sayfa zemini düz renk değil, hero-2.webp ile aynı aileden degrade.
+       Doküman üstü hero fotoğrafının altında kaldığı için degrade hero'nun
+       bittiği koyulukta (pine ≈ fotoğrafın alt kenarı) başlar, sayfa ortasında
+       hafifçe sapphire'e aydınlanır, footer'a doğru tekrar gece tonuna iner.
+       Işıma hotspot değil; fark edilmeyecek kadar hafif bir yıkama. */
+    background-image:
+      radial-gradient(100% 50% at 70% 30%, rgba(0, 79, 230, 0.08) 0%, rgba(0, 79, 230, 0) 60%),
+      linear-gradient(
+        180deg,
+        theme("colors.pine") 0%,
+        theme("colors.pine") 18%,
+        theme("colors.sapphire-deep") 40%,
+        theme("colors.sapphire") 58%,
+        theme("colors.sapphire-deep") 80%,
+        theme("colors.pine") 100%
+      );
+    /* clip (hidden değil): yatay taşmayı engeller ama scroll konteyneri OLUŞTURMAZ,
+       böylece sticky sidebar viewport'a göre sabit kalır (hidden bunu bozuyordu). */
+    overflow-x: clip;
   }
   h1, h2, h3, h4 {
     @apply font-display font-medium leading-tight tracking-heading;
@@ -34,7 +77,7 @@
 /* ---------- yeniden kullanılan bileşen sınıfları ---------- */
 @layer components {
   .container-px {
-    @apply mx-auto w-full max-w-[1480px] px-8 max-[560px]:px-5;
+    @apply mx-auto w-full max-w-[1600px] px-8 max-[560px]:px-4;
   }
   /* Sapphire gradyanlar — tek kaynak (palette.ts). Sabit hex yerine bu sınıflar kullanılır. */
   .bg-sapphire-grad {
@@ -45,13 +88,83 @@
     /* Footer / CTA gibi derin kapanış yüzeyleri: ana → gece → en derin */
     background-image: linear-gradient(160deg, theme("colors.sapphire") 0%, theme("colors.brand") 55%, theme("colors.brand-deep") 100%);
   }
+  .eyebrow {
+    @apply block text-eyebrow font-bold uppercase text-brand/75;
+  }
+  .heading-hero {
+    @apply font-display text-hero font-semibold;
+  }
+  .heading-section {
+    @apply font-display text-section font-semibold;
+  }
+  .heading-page {
+    @apply font-display text-page font-semibold;
+  }
+  .heading-panel {
+    @apply font-display text-panel font-semibold;
+  }
+  .heading-subsection {
+    @apply font-display text-subsection font-semibold;
+  }
+  .heading-card {
+    @apply font-display text-card font-semibold;
+  }
+  .title-on-image {
+    @apply font-display text-title-on-image font-semibold text-white;
+  }
+  .body-lead {
+    @apply text-lead text-ink/70;
+  }
+  .body-muted {
+    @apply text-body-base text-ink/70;
+  }
+  .section-copy {
+    @apply text-left;
+  }
+  .section-desc {
+    @apply mt-2 text-body-base text-ink/70;
+  }
+  .body-small {
+    @apply text-small text-ink/60;
+  }
+  .meta-text {
+    @apply text-meta text-ink/60;
+  }
+  .label-pill {
+    @apply text-label-pill font-bold uppercase;
+  }
+  .step-number-text {
+    @apply text-step-number font-black leading-none tracking-[-.02em];
+  }
+  .step-title-text {
+    @apply text-step-title font-semibold text-current;
+  }
+  .step-desc-text {
+    @apply text-step-desc text-current opacity-90;
+  }
+  .inline-action-text {
+    @apply text-[14px] font-semibold;
+  }
+  .rating-star-text {
+    @apply text-rating-star;
+  }
+  .btn-compact-sm,
+  .btn-compact-lg {
+    /* Responsive button size modifiers. Base size still comes from Button's size prop. */
+  }
   .btn {
-    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-button
            border border-transparent px-[22px] py-[11px] text-[14.5px] font-semibold
            transition-all duration-200 ease-brand;
   }
   .btn-sm {
-    @apply px-4 py-[9px] text-[13.5px];
+    @apply px-4 py-[9px] text-[13.5px] font-semibold;
+  }
+  .btn-md {
+    @apply px-[22px] py-[11px] text-[14.5px] font-semibold;
+  }
+  .btn-lg {
+    @apply px-8 py-4 text-base font-semibold;
   }
   .btn-block {
     @apply w-full;
@@ -65,13 +178,135 @@
   .btn-outline {
     @apply border-line text-ink hover:border-pine;
   }
+  .btn-secondary {
+    @apply border-line bg-paper text-brand hover:border-brand hover:bg-cream;
+  }
+  .btn-elevated {
+    @apply shadow-[0_18px_34px_-22px_rgba(43,80,216,.8)] hover:-translate-y-px;
+  }
   .btn-cream {
     @apply bg-cream text-pine hover:-translate-y-px hover:bg-white;
   }
   /* Ortak form alanı görünümü (input/select/textarea). Yükseklik/genişlik kullanım yerinde. */
   .field {
-    @apply rounded-[11px] border-[1.5px] border-line bg-cream px-3.5 text-[14.5px] transition-colors
-           focus:border-terra focus:outline-none disabled:cursor-not-allowed disabled:opacity-55;
+    @apply rounded-[11px] border-[1.5px] border-ink/25 bg-white px-3.5 text-[14.5px] transition-[border-color,box-shadow,background-color]
+           hover:border-ink/45 focus:border-ink focus:outline-none focus:ring-4 focus:ring-ink/10
+           disabled:cursor-not-allowed disabled:opacity-55;
+  }
+
+  @media (min-width: 1440px) {
+    .container-px {
+      @apply max-w-[1720px] px-10;
+    }
+    .heading-section {
+      font-size: 2.35rem;
+      line-height: 1.14;
+    }
+    .heading-page {
+      font-size: 2.75rem;
+      line-height: 1.14;
+    }
+    .heading-panel,
+    .heading-card {
+      font-size: 2.15rem;
+      line-height: 1.15;
+    }
+    .heading-subsection {
+      font-size: 1.4rem;
+    }
+    .body-lead {
+      font-size: 1.2rem;
+    }
+    .body-muted,
+    .section-desc {
+      font-size: 1rem;
+    }
+    .btn {
+      @apply px-7 py-3 text-[15.5px];
+    }
+    .btn-sm {
+      @apply px-5 py-2.5 text-[14.5px];
+    }
+    .btn-lg {
+      @apply px-9 py-5 text-[17px];
+    }
+    .field {
+      @apply px-4 text-[15.5px];
+    }
+  }
+
+  @media (min-width: 1800px) {
+    .container-px {
+      @apply max-w-[1840px] px-12;
+    }
+    .heading-section {
+      font-size: 2.65rem;
+    }
+    .heading-page {
+      font-size: 3.1rem;
+    }
+    .heading-panel,
+    .heading-card {
+      font-size: 2.35rem;
+    }
+    .body-lead {
+      font-size: 1.28rem;
+    }
+    .body-muted,
+    .section-desc {
+      font-size: 1.0625rem;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .eyebrow {
+      @apply text-eyebrow-compact;
+    }
+    .heading-section {
+      @apply text-section-compact;
+    }
+    .heading-panel {
+      @apply text-panel-compact;
+    }
+    .heading-card {
+      @apply text-card-compact;
+    }
+    .title-on-image {
+      @apply text-title-on-image-mobile;
+    }
+    .body-muted {
+      @apply text-body-compact;
+    }
+    .section-desc {
+      @apply text-body-compact;
+    }
+    .meta-text {
+      @apply text-meta-compact;
+    }
+    .label-pill {
+      @apply text-label-pill-compact;
+    }
+    .step-number-text {
+      @apply text-step-number-compact;
+    }
+    .step-title-text {
+      @apply text-step-title-compact;
+    }
+    .step-desc-text {
+      @apply text-step-desc-compact;
+    }
+    .inline-action-text {
+      @apply text-[11.2px];
+    }
+    .rating-star-text {
+      @apply text-rating-star-compact;
+    }
+    .btn-compact-sm {
+      @apply gap-[6.4px] px-[12.8px] py-[7.2px] text-[10.8px];
+    }
+    .btn-compact-lg {
+      @apply gap-[6.4px] px-[18px] py-[10px] text-[12.8px];
+    }
   }
 }
 
@@ -81,5 +316,269 @@
   }
   to {
     transform: scaleX(1);
+  }
+}
+
+@keyframes tp-skeleton-wave {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.tp-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.tp-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.52), transparent);
+  animation: tp-skeleton-wave 1.85s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-skeleton::after {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   Home product tour (Driver.js) — minimal themed runtime styles.
+   Driver JS is lazy-loaded; only these tiny class rules live globally.
+   ============================================================ */
+.driver-active .driver-overlay {
+  pointer-events: none;
+}
+.driver-active.driver-no-scroll {
+  overflow: hidden;
+}
+.driver-active * {
+  pointer-events: none;
+}
+.driver-active .driver-active-element,
+.driver-active .driver-active-element *,
+.driver-popover,
+.driver-popover * {
+  pointer-events: auto;
+}
+.driver-overlay {
+  animation: tp-tour-fade 0.24s ease-out;
+}
+.driver-popover {
+  all: unset;
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 1000000000;
+  width: min(330px, calc(100vw - 28px));
+  color: #132033;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 255, 0.96));
+  box-shadow: 0 30px 90px -34px rgba(4, 12, 32, 0.75);
+  padding: 16px;
+  animation: tp-tour-pop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.driver-popover * {
+  box-sizing: border-box;
+}
+.driver-popover-title {
+  display: block;
+  margin: 0;
+  padding-right: 28px;
+  color: #0b1c30;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.22;
+}
+.driver-popover-title[style*="block"] + .driver-popover-description {
+  margin-top: 8px;
+}
+.driver-popover-description {
+  display: block;
+  color: #526074;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+.driver-popover-close-btn {
+  all: unset;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 999px;
+  color: #64748b;
+  font-size: 19px;
+  line-height: 1;
+}
+.driver-popover-close-btn:hover,
+.driver-popover-close-btn:focus-visible {
+  background: #edf2f7;
+  color: #0b1c30;
+}
+.driver-popover-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 15px;
+}
+.driver-popover-progress-text {
+  color: #7b8798;
+  font-size: 12px;
+  font-weight: 800;
+}
+.driver-popover-navigation-btns {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  gap: 7px;
+}
+.driver-popover-footer-btn {
+  all: unset;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 900;
+  line-height: 1;
+}
+.driver-popover-prev-btn {
+  border: 1px solid #d8e0ec;
+  color: #334155;
+  background: #fff;
+}
+.driver-popover-next-btn {
+  color: #fff;
+  background: #0057d9;
+  box-shadow: 0 14px 28px -18px rgba(0, 87, 217, 0.7);
+}
+.driver-popover-footer .driver-popover-btn-disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.driver-popover-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 5px solid #fff;
+}
+.driver-popover-arrow-side-over,
+.driver-popover-arrow-none,
+.driver-popover-arrow-side-center {
+  display: none;
+}
+.driver-popover-arrow-side-left {
+  left: 100%;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+.driver-popover-arrow-side-right {
+  right: 100%;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+.driver-popover-arrow-side-top {
+  top: 100%;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+.driver-popover-arrow-side-bottom {
+  bottom: 100%;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-left-color: transparent;
+}
+.driver-active-element-parent-no-scroll {
+  overflow: hidden !important;
+}
+.driver-no-interaction,
+.driver-no-interaction * {
+  pointer-events: none !important;
+}
+
+@keyframes tp-tour-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes tp-tour-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+/* ============================================================
+   View Transitions — auth wizard adım geçişi (native, 0 KB).
+   Kök geçişi susturulur; yalnızca "auth-step" grubu yaylı morph olur.
+   ============================================================ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* Grup boyutunu MORPH etme → dikey kayma olmasın (boyut anında değişir, sadece yatay slide+fade kalır) */
+::view-transition-group(auth-step) {
+  animation: none;
+}
+/* İleri (varsayılan): eski sola gider, yeni sağdan gelir — yumuşak/uzun */
+::view-transition-old(auth-step) {
+  animation: vt-step-out-left 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(auth-step) {
+  animation: vt-step-in-right 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Geri: eski sağa gider, yeni soldan gelir */
+html.vt-back::view-transition-old(auth-step) {
+  animation: vt-step-out-right 0.42s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+html.vt-back::view-transition-new(auth-step) {
+  animation: vt-step-in-left 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vt-step-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-11px);
+  }
+}
+@keyframes vt-step-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+@keyframes vt-step-out-right {
+  to {
+    opacity: 0;
+    transform: translateX(11px);
+  }
+}
+@keyframes vt-step-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(auth-step),
+  ::view-transition-old(auth-step),
+  ::view-transition-new(auth-step) {
+    animation: none;
   }
 }

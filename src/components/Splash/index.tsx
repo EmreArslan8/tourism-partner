@@ -38,7 +38,7 @@ const Splash = () => {
     <div className={`${styles.overlay} ${phase === "leaving" ? styles.leaving : ""}`} role="presentation">
       <div className={styles.inner}>
         <Image
-          src="/assets/logo.jpeg"
+          src="/assets/logo.webp"
           alt="Tourism Partner"
           width={192}
           height={192}

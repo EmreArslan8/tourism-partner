@@ -1,24 +1,65 @@
-import { Link, type Href } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStatus } from "@/lib/actions/admin";
 import { signOut } from "@/lib/actions/auth";
-import type { AdminApplication, AdminBusiness, AdminData, AdminQuote, ContentPage } from "@/lib/types";
+import type { AdminAccess } from "@/lib/admin-auth";
+import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { cn } from "@/lib/utils";
+import AdminNav from "./AdminNav";
+import EditableForm from "./EditableForm";
+import LocationFields from "./LocationFields";
+import AdminSearch from "./AdminSearch";
+import AdminChipInput from "./AdminChipInput";
+import Logo from "@/components/Logo";
+import { CardIcon as UICardIcon } from "@/components/common/Card";
+import DataTable, { type Column } from "@/components/common/DataTable";
+import Field from "@/components/common/Field";
+import { CircleHelp, LogOut, Plus } from "lucide-react";
+import { AdminMetric, AdminPageHeader, adminUi } from "./_ui";
+import BusinessCategoryFields from "./BusinessCategoryFields";
 
-export const panel =
-  "rounded-[8px] border border-[#d9ded7] bg-white p-5 shadow-[0_20px_60px_-48px_rgba(16,24,40,.55)]";
-export const label = "flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-[.06em] text-[#66746b]";
-export const input = "field min-h-[42px] w-full rounded-[8px] border-[#d8ded7] bg-white normal-case tracking-normal text-ink";
+/* ============================================================
+   Admin kart bileşenleri — tek kaynak olarak ortak common/Card'a delege eder.
+   (Admin'in props-API CardHeader'ı korunur; altyapı common kit'ten gelir.)
+   ============================================================ */
+export type ChipTone = "blue" | "amber" | "emerald" | "red" | "violet";
+const toIconTone = (t?: ChipTone): "blue" | "amber" | "emerald" | "red" =>
+  t === "amber" || t === "emerald" || t === "red" ? t : "blue";
+
+export const IconChip = ({ tone = "blue", children }: { tone?: ChipTone; children: React.ReactNode }) => (
+  <UICardIcon tone={toIconTone(tone)}>{children}</UICardIcon>
+);
+
+export const Card = ({ className, children }: { className?: string; children: React.ReactNode }) => (
+  <section className={`overflow-hidden ${adminUi.panel} ${className ?? ""}`}>
+    {children}
+  </section>
+);
+
+export const CardHeader = ({
+  icon,
+  tone,
+  title,
+  action,
+}: {
+  icon?: React.ReactNode;
+  tone?: ChipTone;
+  title: string;
+  action?: React.ReactNode;
+}) => (
+  <div className="flex items-center justify-between gap-3 border-b border-line/80 px-5 py-4">
+    <div className="flex min-w-0 items-center gap-3">
+      {icon && <UICardIcon tone={toIconTone(tone)}>{icon}</UICardIcon>}
+      <h3 className="truncate text-[15px] font-medium tracking-[0] text-ink">{title}</h3>
+    </div>
+    {action}
+  </div>
+);
+
+export const panel = `${adminUi.panel} p-5`;
+export const label = "flex flex-col gap-1.5 text-[11px] font-semibold uppercase tracking-[.06em] text-muted";
+export const input = adminUi.input;
 export const textarea = `${input} min-h-[110px] py-3`;
-
-const navItems: { href: Href; label: string; hint: string; mark: string }[] = [
-  { href: "/admin", label: "Dashboard", hint: "Genel durum", mark: "D" },
-  { href: "/admin/tedarikciler", label: "Tedarikçiler", hint: "İçerik, yayın, görsel", mark: "T" },
-  { href: "/admin/seo", label: "SEO", hint: "Meta, canonical, OG", mark: "S" },
-  { href: "/admin/onay", label: "Onay bekleyenler", hint: "Başvuru ve firma", mark: "O" },
-  { href: "/admin/teklifler", label: "Teklifler", hint: "RFQ takibi", mark: "R" },
-  { href: "/admin/icerik", label: "İçerik sayfaları", hint: "Landing ve metinler", mark: "I" },
-];
 
 export const AdminAccessDenied = () => {
   return (
@@ -29,7 +70,7 @@ export const AdminAccessDenied = () => {
         <p className="mt-3 text-[14.5px] text-muted">
           İçerik, SEO, tedarikçi, başvuru ve teklif yönetimi için admin hesabıyla giriş yapmalısın.
         </p>
-        <Link href="/login" className="btn btn-solid mt-5">Giriş yap</Link>
+        <Link href="/login" className={`mt-5 ${adminUi.sapphireButton}`}>Giriş yap</Link>
       </section>
     </main>
   );
@@ -39,246 +80,267 @@ export const AdminShell = ({
   data,
   children,
 }: {
-  data: AdminData;
+  data: AdminAccess;
   children: React.ReactNode;
 }) => {
-  const pendingBusinesses = data.businesses.filter((b) => b.status === "pending").length;
-  const pendingApplications = data.applications.filter((a) => a.status === "pending").length;
-  const newQuotes = data.quotes.filter((q) => q.status === "new").length;
+  const who = data.mode === "demo" ? "Demo veri modu" : data.userEmail ?? "Admin";
+  const initial = (data.userEmail ?? "A").charAt(0).toUpperCase();
 
   return (
-    <main className="min-h-screen w-full bg-[#eef2ed] pb-6 pt-5 max-[560px]:pt-3">
-      <div className="grid w-full grid-cols-[272px_minmax(0,1fr)] gap-5 max-[980px]:grid-cols-1">
-        <aside className="top-5 h-fit overflow-hidden rounded-r-[8px] border-y border-r border-[#d7ded5] bg-white text-ink shadow-[0_28px_80px_-58px_rgba(16,24,40,.65)] lg:sticky">
-          <div className="border-b border-line bg-[#f8faf7] p-5">
-            <p className="text-[10px] font-bold uppercase tracking-[.14em] text-terra">Tourism Partner</p>
-            <h1 className="mt-1 text-[24px] text-pine">Admin Console</h1>
-            <p className="mt-2 truncate text-[12.5px] text-muted">
-              {data.mode === "demo" ? "Demo veri modu" : data.userEmail}
-            </p>
-          </div>
-          <nav className="flex flex-col gap-1 p-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="group grid grid-cols-[32px_minmax(0,1fr)] items-center gap-3 rounded-[8px] px-2.5 py-2.5 text-ink transition hover:bg-[#f1f4ef] hover:text-terra"
-              >
-                <span className="grid h-8 w-8 place-items-center rounded-[7px] border border-[#d8ded7] bg-[#f3f6f2] text-[12px] font-black text-terra group-hover:border-terra group-hover:bg-terra group-hover:text-white">
-                  {item.mark}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[14px] font-bold">{item.label}</span>
-                  <span className="block truncate text-[12px] text-muted">{item.hint}</span>
-                </span>
-              </Link>
-            ))}
-          </nav>
-          <div className="grid grid-cols-3 gap-2 border-t border-line p-3">
-            <MiniStat label="Onay" value={pendingBusinesses + pendingApplications} />
-            <MiniStat label="RFQ" value={newQuotes} />
-            <MiniStat label="SEO" value={seoScore(data.businesses)} />
-          </div>
-          <form action={signOut} className="border-t border-line p-3">
-            <button className="btn btn-outline btn-block btn-sm" type="submit">Çıkış</button>
+    <div className="flex min-h-screen w-full bg-panel-bg text-ink">
+      <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-line bg-paper/90 md:flex">
+        <div className="flex h-[92px] items-center px-6">
+          <Logo href="/admin" height={42} priority className="max-w-[165px]" />
+        </div>
+
+        <AdminNav />
+
+        <div className="mt-auto border-t border-line/80 px-5 pb-6 pt-4">
+          <Link
+            href="/admin/tedarikciler"
+            className="mb-4 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-sapphire text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep"
+          >
+            <Plus size={16} strokeWidth={2.4} aria-hidden />
+            Yeni İşletme Kaydı
+          </Link>
+          <Link
+            href="/admin/destek"
+            className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
+          >
+            <CircleHelp size={17} aria-hidden />
+            Destek
+          </Link>
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
+            >
+              <LogOut size={17} aria-hidden />
+              Çıkış Yap
+            </button>
           </form>
-        </aside>
-        <section className="min-w-0 rounded-l-[8px] border-y border-l border-[#d7ded5] bg-[#f8faf7] p-5 shadow-[0_24px_90px_-68px_rgba(16,24,40,.6)] max-[560px]:p-3">
-          {children}
-        </section>
-      </div>
-    </main>
+        </div>
+      </aside>
+
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col">
+        {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye
+            arka plan/çizgi yok ve içerik üstüne binmeyecek şekilde akışta durur. */}
+        <header className="sticky top-0 z-30 flex h-[70px] items-center gap-3 border-b border-line/80 bg-panel-bg/90 px-5 backdrop-blur md:px-8">
+          <span className="shrink-0 text-[15px] font-semibold text-brand md:hidden">B2B</span>
+
+          {/* Geniş arama — satırın büyük kısmını kaplar */}
+          <AdminSearch />
+
+          {/* Yeni İşletme Kaydı */}
+          <Link
+            href="/admin/tedarikciler"
+            className="hidden h-10 shrink-0 items-center gap-2 rounded-[8px] bg-sapphire px-4 text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep sm:inline-flex"
+          >
+            <Plus size={16} strokeWidth={2.4} aria-hidden />
+            Yeni İşletme Kaydı
+          </Link>
+
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-cream text-[13px] font-semibold text-brand" title={who}>
+            {initial}
+          </div>
+        </header>
+
+        <div className="flex-1 px-5 pb-8 pt-5 md:px-8">{children}</div>
+      </main>
+    </div>
   );
 };
 
 export const PageHeader = ({
-  eyebrow,
   title,
   description,
   action,
 }: {
-  eyebrow: string;
+  /** @deprecated Artık gösterilmiyor; çağrı yerleri geriye uyum için hâlâ geçebilir. */
+  eyebrow?: string;
   title: string;
   description: string;
   action?: React.ReactNode;
 }) => {
   return (
-    <header className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-[#d8ded7] pb-5">
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-[.12em] text-terra">{eyebrow}</p>
-        <h2 className="mt-1 text-[clamp(28px,3vw,40px)]">{title}</h2>
-        <p className="mt-2 max-w-[760px] text-[14px] text-muted">{description}</p>
-      </div>
-      {action}
-    </header>
+    <AdminPageHeader title={title} description={description} action={action} />
   );
 };
 
 export const Metric = ({ title, value, hint }: { title: string; value: number | string; hint: string }) => {
   return (
-    <div className="relative overflow-hidden rounded-[8px] border border-[#d9ded7] bg-white p-4 shadow-[0_16px_48px_-40px_rgba(16,24,40,.55)]">
-      <span className="absolute inset-x-0 top-0 h-[3px] bg-terra" aria-hidden />
-      <p className="text-[11px] font-bold uppercase tracking-[.08em] text-[#66746b]">{title}</p>
-      <p className="mt-2 text-[30px] font-semibold leading-none text-pine">{value}</p>
-      <p className="mt-2 text-[12px] text-muted">{hint}</p>
-    </div>
+    <AdminMetric label={title} value={value} hint={hint} />
   );
 };
 
-const MiniStat = ({ label, value }: { label: string; value: number | string }) => {
-  return (
-    <div className="rounded-[7px] border border-[#d8ded7] bg-[#f3f6f2] px-2 py-2 text-center">
-      <p className="text-[15px] font-bold text-pine">{value}</p>
-      <p className="text-[10px] uppercase tracking-[.06em] text-muted">{label}</p>
-    </div>
-  );
-};
-
-export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) => {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[900px] border-separate border-spacing-0 text-left text-[13px]">
-        <thead className="bg-[#f1f4ef] text-[11px] uppercase tracking-[.06em] text-[#66746b]">
-          <tr>
-            <th className="border-b border-line px-3 py-2">ID</th>
-            <th className="border-b border-line px-3 py-2">Firma</th>
-            <th className="border-b border-line px-3 py-2">Kategori</th>
-            <th className="border-b border-line px-3 py-2">Durum</th>
-            <th className="border-b border-line px-3 py-2">SEO</th>
-            <th className="border-b border-line px-3 py-2">Konum</th>
-          </tr>
-        </thead>
-        <tbody>
-          {businesses.map((business) => (
-            <tr key={business.id} className="align-top transition hover:bg-[#fbfcfb]">
-              <td className="border-b border-line px-3 py-3 font-bold text-pine">#{business.id}</td>
-              <td className="border-b border-line px-3 py-3">
-                <Link 
-                  href={{ pathname: "/supplier/[id]", params: { id: businessSlug(business) } }} 
-                  className="font-bold text-ink hover:text-terra"
-                >
-                  {business.name}
-                </Link>
-                <div className="mt-1 text-[12px] text-muted">
-                  {business.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {business.sponsored ? "Sponsor" : "Organik"}
-                </div>
-              </td>
-              <td className="border-b border-line px-3 py-3">{business.group} · {business.type}</td>
-              <td className="border-b border-line px-3 py-3"><StatusPill value={business.status} /></td>
-              <td className="border-b border-line px-3 py-3">{business.seoTitle && business.seoDescription ? "Tam" : "Eksik"}</td>
-              <td className="border-b border-line px-3 py-3">{business.city}, {business.country}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
-
-export const BusinessForm = ({ locale, business }: { locale: string; business?: AdminBusiness }) => {
-  return (
-    <form action={saveBusiness} className="grid gap-4">
-      <input type="hidden" name="locale" value={locale} />
-      <div className="grid grid-cols-[110px_minmax(0,1fr)_minmax(0,1fr)] gap-3 max-[720px]:grid-cols-1">
-        <label className={label}>ID<input name="id" defaultValue={business?.id ?? ""} placeholder="Yeni için boş" className={input} /></label>
-        <label className={label}>Firma adı<input name="name" required defaultValue={business?.name ?? ""} className={input} /></label>
-        <label className={label}>Tür<input name="type" required defaultValue={business?.type ?? ""} className={input} /></label>
-      </div>
-      <div className="grid grid-cols-4 gap-3 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
-        <label className={label}>Grup<select name="group" defaultValue={business?.group ?? "konaklama"} className={input}>{CATEGORY_GROUPS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}</select></label>
-        <label className={label}>Durum<select name="status" defaultValue={business?.status ?? "pending"} className={input}><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="rejected">Reddedildi</option></select></label>
-        <label className={label}>Ülke<input name="country" required defaultValue={business?.country ?? "Türkiye"} className={input} /></label>
-        <label className={label}>Şehir<input name="city" required defaultValue={business?.city ?? ""} className={input} /></label>
-      </div>
-      <div className="grid grid-cols-5 gap-3 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1">
-        <label className={label}>İlçe<input name="district" required defaultValue={business?.district ?? ""} className={input} /></label>
-        <label className={label}>Lat<input name="lat" defaultValue={business?.coords[0] ?? 0} className={input} /></label>
-        <label className={label}>Lng<input name="lng" defaultValue={business?.coords[1] ?? 0} className={input} /></label>
-        <label className={label}>Puan<input name="rating" defaultValue={business?.rating ?? 0} className={input} /></label>
-        <label className={label}>Yorum<input name="reviews" defaultValue={business?.reviews ?? 0} className={input} /></label>
-      </div>
-      <label className={label}>Açıklama<textarea name="description" defaultValue={business?.desc ?? ""} className={textarea} /></label>
-      <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-        <label className={label}>Kapak görseli<input name="image" defaultValue={business?.image ?? ""} placeholder="/assets/cards/hotel-1.jpg" className={input} /></label>
-        <label className={label}>Etiket<input name="tag" defaultValue={business?.tag ?? ""} className={input} /></label>
-      </div>
-      <label className={label}>Filtre özellikleri<input name="attributes" defaultValue={(business?.attributes ?? []).join(", ")} placeholder="komisyonlu, dil-en, para-eur" className={input} /></label>
-      <div className="grid grid-cols-2 gap-3 max-[560px]:grid-cols-1">
-        <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="verified" defaultChecked={business?.verified ?? false} /> Doğrulanmış</label>
-        <label className="flex items-center gap-2 text-[13px] font-bold"><input type="checkbox" name="sponsored" defaultChecked={business?.sponsored ?? false} /> Sponsor</label>
-      </div>
-      <div className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
-        <h3 className="mb-3 text-[18px]">SEO metadata</h3>
-        <div className="grid gap-3">
-          <label className={label}>SEO başlık<input name="seoTitle" defaultValue={business?.seoTitle ?? ""} className={input} /></label>
-          <label className={label}>SEO açıklama<textarea name="seoDescription" defaultValue={business?.seoDescription ?? ""} className={`${textarea} min-h-[80px]`} /></label>
-          <label className={label}>Anahtar kelimeler<input name="seoKeywords" defaultValue={(business?.seoKeywords ?? []).join(", ")} className={input} /></label>
-          <div className="grid grid-cols-2 gap-3 max-[720px]:grid-cols-1">
-            <label className={label}>Canonical path<input name="canonicalPath" defaultValue={business?.canonicalPath ?? ""} placeholder="/supplier/kaya-palas-hotel" className={input} /></label>
-            <label className={label}>OG görsel<input name="ogImage" defaultValue={business?.ogImage ?? business?.image ?? ""} className={input} /></label>
+export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) => (
+  <DataTable
+    data={businesses}
+    getRowKey={(b) => b.id}
+    empty="Kayıt yok."
+    minWidth={900}
+    columns={[
+      { key: "id", header: "ID", cell: (b) => <span className="font-bold text-pine">#{b.id}</span> },
+      {
+        key: "firm",
+        header: "Firma",
+        cell: (b) => (
+          <div>
+            <Link href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }} className="font-bold text-ink hover:text-terra">
+              {b.name}
+            </Link>
+            <div className="mt-1 text-[12px] text-muted">
+              {b.verified ? "Doğrulanmış" : "Doğrulanmamış"} · {b.sponsored ? "Sponsor" : "Organik"}{b.founderPartner ? " · Kurucu Üye" : ""}
+            </div>
           </div>
-        </div>
+        ),
+      },
+      { key: "cat", header: "Kategori", cell: (b) => `${b.group} · ${b.type}` },
+      { key: "status", header: "Durum", cell: (b) => <StatusPill value={b.status} /> },
+      { key: "seo", header: "SEO", cell: (b) => (b.seoTitle && b.seoDescription ? "Tam" : "Eksik") },
+      { key: "loc", header: "Konum", cell: (b) => `${b.city}, ${b.country}` },
+    ] satisfies Column<AdminBusiness>[]}
+  />
+);
+
+export const BusinessForm = ({
+  locale,
+  business,
+  mainExtra,
+  sideExtra,
+}: {
+  locale: string;
+  business?: AdminBusiness;
+  mainExtra?: React.ReactNode;
+  sideExtra?: React.ReactNode;
+}) => {
+  const compactInput = `${input} h-11 px-3 text-[14px]`;
+  const compactTextarea = `${input} min-h-[104px] px-3 py-2.5 text-[14px] leading-6`;
+
+  return (
+    <EditableForm
+      id="admin-business-profile-form"
+      action={saveBusiness}
+      className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"
+      persistent={
+        <>
+          <input type="hidden" name="locale" value={locale} />
+          {business && <input type="hidden" name="id" value={business.id} />}
+        </>
+      }
+    >
+      <div className="grid gap-5">
+        <AdminFormSection title="Temel Bilgiler">
+          <div>
+            <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
+          </div>
+          <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialServices={business?.serviceTypes ?? []} initialType={business?.type ?? ""} inputClassName={compactInput} />
+        </AdminFormSection>
+
+        <AdminFormSection title="Konum">
+          <LocationFields
+            inputClassName={compactInput}
+            defaultCountry={business?.country ?? "Türkiye"}
+            defaultCity={business?.city ?? ""}
+            defaultDistrict={business?.district ?? ""}
+            defaultAddress={business?.details?.address ?? ""}
+            defaultLat={business?.coords[0] ?? 0}
+            defaultLng={business?.coords[1] ?? 0}
+          />
+        </AdminFormSection>
+
+        <AdminFormSection title="İçerik Detayları">
+          <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={compactTextarea} /></Field>
+          <div className="grid grid-cols-[minmax(180px,.35fr)_minmax(0,.65fr)] gap-3 max-[820px]:grid-cols-1">
+            <AdminChipInput name="tag" label="Etiket" initialValue={business?.tag ?? ""} placeholder="Etiket ekle" maxItems={1} />
+            <AdminChipInput name="attributes" label="Filtre özellikleri" hint="Enter veya virgül ile ekle" initialValue={business?.attributes ?? []} placeholder="komisyonlu, dil-en, para-eur" />
+          </div>
+        </AdminFormSection>
+
+        {mainExtra}
       </div>
-      <button className="btn btn-solid justify-self-start" type="submit">Tedarikçiyi kaydet</button>
-    </form>
+
+      <div className="grid content-start gap-5">
+        <AdminFormSection title="Operasyon">
+          <Field label="Sistem Durumu"><select name="status" defaultValue={business?.status ?? "pending"} className={compactInput}><option value="draft">Taslak</option><option value="pending">Beklemede</option><option value="approved">Yayında</option><option value="active">Aktif</option><option value="rejected">Reddedildi</option><option value="expired">Süresi Bitti</option><option value="blacklisted">Blacklist</option><option value="suspended">Askıda</option></select></Field>
+          <ToggleRow name="verified" label="Doğrulanmış İşletme" description="Belgeleri onaylanmış tesis" checked={business?.verified ?? false} />
+          <ToggleRow name="sponsored" label="Sponsor / Premium" description="Arama sonuçlarında öne çıkar" checked={business?.sponsored ?? false} />
+          <ToggleRow name="founderPartner" label="Kurucu Üye Rozeti" description="Firma kartında kurucu üye mührünü göster" checked={business?.founderPartner ?? false} />
+        </AdminFormSection>
+
+        <AdminFormSection title="Değerlendirme">
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Puan"><input name="rating" defaultValue={business?.rating ?? 0} className={compactInput} /></Field>
+            <Field label="Yorum"><input name="reviews" defaultValue={business?.reviews ?? 0} className={compactInput} /></Field>
+          </div>
+        </AdminFormSection>
+
+        {sideExtra}
+      </div>
+    </EditableForm>
   );
 };
+
+const AdminFormSection = ({ title, className, children }: { title: string; className?: string; children: React.ReactNode }) => (
+  <section className={cn("overflow-hidden rounded-[8px] border border-line bg-paper shadow-card", className)}>
+    <div className="flex min-h-11 items-center border-b border-line bg-cream/35 px-4">
+      <h3 className="text-[15px] font-extrabold text-ink">{title}</h3>
+    </div>
+    <div className="grid gap-3 p-4">{children}</div>
+  </section>
+);
+
+const ToggleRow = ({ name, label, description, checked }: { name: string; label: string; description: string; checked: boolean }) => (
+  <label className="flex items-center justify-between gap-4 border-b border-line pb-3 last:border-b-0 last:pb-0">
+    <span>
+      <span className="block text-[13px] font-extrabold text-ink">{label}</span>
+      <span className="mt-0.5 block text-[12px] font-medium text-muted">{description}</span>
+    </span>
+    <input type="checkbox" name={name} defaultChecked={checked} className="h-5 w-5 shrink-0 accent-sapphire" />
+  </label>
+);
 
 export const ContentForm = ({ locale, page }: { locale: string; page?: ContentPage }) => {
   return (
     <form action={saveContentPage} className="grid gap-3">
       <input type="hidden" name="locale" value={locale} />
-      <label className={label}>Slug<input name="slug" required defaultValue={page?.slug ?? "homepage"} className={input} /></label>
-      <label className={label}>Durum<select name="status" defaultValue={page?.status ?? "draft"} className={input}><option value="draft">Taslak</option><option value="published">Yayında</option><option value="archived">Arşiv</option></select></label>
-      <label className={label}>Başlık<input name="title" required defaultValue={page?.title ?? ""} className={input} /></label>
-      <label className={label}>Özet<textarea name="excerpt" defaultValue={page?.excerpt ?? ""} className={`${textarea} min-h-[78px]`} /></label>
-      <label className={label}>İçerik<textarea name="body" defaultValue={page?.body ?? ""} className={`${textarea} min-h-[180px]`} /></label>
-      <label className={label}>SEO başlık<input name="seoTitle" defaultValue={page?.seoTitle ?? ""} className={input} /></label>
-      <label className={label}>SEO açıklama<textarea name="seoDescription" defaultValue={page?.seoDescription ?? ""} className={`${textarea} min-h-[78px]`} /></label>
-      <label className={label}>Anahtar kelimeler<input name="seoKeywords" defaultValue={(page?.seoKeywords ?? []).join(", ")} className={input} /></label>
-      <label className={label}>Canonical<input name="canonicalPath" defaultValue={page?.canonicalPath ?? ""} className={input} /></label>
-      <label className={label}>OG görsel<input name="ogImage" defaultValue={page?.ogImage ?? ""} className={input} /></label>
-      <button className="btn btn-solid justify-self-start" type="submit">İçeriği kaydet</button>
+      <Field label="Slug" required><input name="slug" required defaultValue={page?.slug ?? "homepage"} className={input} /></Field>
+      <Field label="Durum"><select name="status" defaultValue={page?.status ?? "draft"} className={input}><option value="draft">Taslak</option><option value="published">Yayında</option><option value="archived">Arşiv</option></select></Field>
+      <Field label="Başlık" required><input name="title" required defaultValue={page?.title ?? ""} className={input} /></Field>
+      <Field label="Özet"><textarea name="excerpt" defaultValue={page?.excerpt ?? ""} className={`${textarea} min-h-[78px]`} /></Field>
+      <Field label="İçerik"><textarea name="body" defaultValue={page?.body ?? ""} className={`${textarea} min-h-[180px]`} /></Field>
+      <Field label="SEO başlık"><input name="seoTitle" defaultValue={page?.seoTitle ?? ""} className={input} /></Field>
+      <Field label="SEO açıklama"><textarea name="seoDescription" defaultValue={page?.seoDescription ?? ""} className={`${textarea} min-h-[78px]`} /></Field>
+      <Field label="Anahtar kelimeler"><input name="seoKeywords" defaultValue={(page?.seoKeywords ?? []).join(", ")} className={input} /></Field>
+      <Field label="Canonical"><input name="canonicalPath" defaultValue={page?.canonicalPath ?? ""} className={input} /></Field>
+      <Field label="OG görsel"><input name="ogImage" defaultValue={page?.ogImage ?? ""} className={input} /></Field>
+      <button className={`${adminUi.sapphireButton} justify-self-start`} type="submit">İçeriği kaydet</button>
     </form>
   );
 };
 
-export const ContentTable = ({ pages }: { pages: ContentPage[] }) => {
-  if (pages.length === 0) return <Empty text="Henüz içerik sayfası yok." />;
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[720px] border-separate border-spacing-0 text-left text-[13px]">
-        <thead className="bg-[#f1f4ef] text-[11px] uppercase tracking-[.06em] text-[#66746b]">
-          <tr>
-            <th className="border-b border-line px-3 py-2">Slug</th>
-            <th className="border-b border-line px-3 py-2">Başlık</th>
-            <th className="border-b border-line px-3 py-2">Dil</th>
-            <th className="border-b border-line px-3 py-2">Durum</th>
-            <th className="border-b border-line px-3 py-2">SEO</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pages.map((page) => (
-            <tr key={page.id} className="transition hover:bg-[#fbfcfb]">
-              <td className="border-b border-line px-3 py-3 font-bold">{page.slug}</td>
-              <td className="border-b border-line px-3 py-3">{page.title}</td>
-              <td className="border-b border-line px-3 py-3">{page.locale}</td>
-              <td className="border-b border-line px-3 py-3"><StatusPill value={page.status} /></td>
-              <td className="border-b border-line px-3 py-3">{page.seoTitle && page.seoDescription ? "Tam" : "Eksik"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+export const ContentTable = ({ pages }: { pages: ContentPage[] }) => (
+  <DataTable
+    data={pages}
+    getRowKey={(p) => p.id}
+    empty="Henüz içerik sayfası yok."
+    minWidth={720}
+    columns={[
+      { key: "slug", header: "Slug", cell: (p) => <span className="font-bold">{p.slug}</span> },
+      { key: "title", header: "Başlık", cell: (p) => p.title },
+      { key: "locale", header: "Dil", cell: (p) => p.locale },
+      { key: "status", header: "Durum", cell: (p) => <StatusPill value={p.status} /> },
+      { key: "seo", header: "SEO", cell: (p) => (p.seoTitle && p.seoDescription ? "Tam" : "Eksik") },
+    ] satisfies Column<ContentPage>[]}
+  />
+);
 
 export const ApplicationList = ({ applications, locale }: { applications: AdminApplication[]; locale: string }) => {
   if (applications.length === 0) return <Empty text="Henüz başvuru yok." />;
   return (
     <div className="grid gap-3">
       {applications.map((application) => (
-        <form key={application.id} action={updateApplicationStatus} className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
+        <form key={application.id} action={updateApplicationStatus} className="rounded-[8px] border border-line bg-cream/45 p-4">
           <input type="hidden" name="id" value={application.id} />
           <input type="hidden" name="locale" value={locale} />
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -295,7 +357,7 @@ export const ApplicationList = ({ applications, locale }: { applications: AdminA
               <option value="approved">Onaylandı</option>
               <option value="rejected">Reddedildi</option>
             </select>
-            <button className="btn btn-pine btn-sm" type="submit">Güncelle</button>
+            <button className={adminUi.sapphireButton} type="submit">Güncelle</button>
           </div>
         </form>
       ))}
@@ -308,19 +370,23 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
   return (
     <div className="grid gap-3">
       {quotes.map((quote) => (
-        <form key={quote.id} action={updateQuoteStatus} className="rounded-[8px] border border-[#d8ded7] bg-[#f3f6f2] p-4">
+        <form key={quote.id} action={updateQuoteStatus} className="rounded-[8px] border border-line bg-cream/45 p-4">
           <input type="hidden" name="id" value={quote.id} />
           <input type="hidden" name="locale" value={locale} />
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-[17px]">{quote.name}</h3>
-              <p className="text-[13px] text-muted">{quote.email} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
+              <p className="text-[13px] text-muted">{quote.email} · {quote.phone ?? "Telefon yok"} · {quote.company ?? "Şirket yok"} · {quote.service ?? "Genel talep"}</p>
               <p className="mt-1 text-[12px] text-muted">
                 {quote.businessId ? `Tedarikçi #${quote.businessId}` : "Genel"} · {quote.people ?? 0} kişi · {formatDate(quote.createdAt)}
               </p>
+              <p className="mt-1 text-[12px] text-muted">
+                {[quote.categoryType, quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || "Filtre yok"}
+              </p>
+              {quote.validUntil && <p className="mt-1 text-[12px] font-semibold text-amber-700">Teklif son tarihi: {formatDate(quote.validUntil)}</p>}
               {quote.message && <p className="mt-2 text-[13px] text-muted">{quote.message}</p>}
             </div>
-            <span className="rounded-pill bg-white px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>
+            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>
           </div>
           <div className="mt-3 grid grid-cols-[160px_minmax(0,1fr)_auto] gap-2 max-[640px]:grid-cols-1">
             <select name="status" defaultValue={quote.status} className={input}>
@@ -330,7 +396,7 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
               <option value="lost">Kaybedildi</option>
             </select>
             <input name="internalNote" defaultValue={quote.internalNote ?? ""} placeholder="İç not" className={input} />
-            <button className="btn btn-pine btn-sm" type="submit">Kaydet</button>
+            <button className={adminUi.sapphireButton} type="submit">Kaydet</button>
           </div>
         </form>
       ))}
@@ -340,16 +406,31 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
 
 export const StatusPill = ({ value }: { value: string }) => {
   const tone =
-    value === "approved" || value === "published"
-      ? "bg-group-acente/10 text-group-acente"
-      : value === "rejected" || value === "archived" || value === "lost"
-        ? "bg-red-50 text-red-700"
-        : "bg-gold/20 text-pine";
-  return <span className={`rounded-[999px] px-3 py-1 text-[12px] font-bold ${tone}`}>{value}</span>;
+    value === "approved" || value === "published" || value === "active" || value === "won"
+      ? "bg-emerald-100 text-emerald-800"
+      : value === "rejected" || value === "archived" || value === "lost" || value === "blacklisted"
+        ? "bg-red-100 text-red-700"
+        : "bg-amber-100 text-amber-800";
+  return <span className={`rounded-full px-3 py-1 text-[12px] font-bold ${tone}`}>{value}</span>;
 };
 
+export const ComingSoon = ({ eyebrow, title, note }: { eyebrow: string; title: string; note?: string }) => (
+  <>
+    <PageHeader eyebrow={eyebrow} title={title} description={note ?? "Bu modül yakında eklenecek."} />
+    <div className="grid place-items-center rounded-xl border border-dashed border-line bg-paper px-6 py-24 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-cream text-brand">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+      </div>
+      <h3 className="mt-4 text-[20px] font-bold text-ink">Yakında</h3>
+      <p className="mt-1.5 max-w-[420px] text-[14px] text-muted">
+        Bu sekmenin tasarımı hazırlandıkça eklenecek. Menüde yerini şimdiden aldı.
+      </p>
+    </div>
+  </>
+);
+
 export const Empty = ({ text }: { text: string }) => {
-  return <p className="rounded-[8px] border border-dashed border-[#d8ded7] bg-[#f3f6f2] p-4 text-[13.5px] text-muted">{text}</p>;
+  return <p className="rounded-[8px] border border-dashed border-line bg-cream/45 p-4 text-[13.5px] text-muted">{text}</p>;
 };
 
 export const seoScore = (businesses: AdminBusiness[]): string => {

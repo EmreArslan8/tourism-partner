@@ -56,3 +56,9 @@ next-env.d.ts
 *.pdf
 /PROJE_YONERGESI.md
 /hero.png
+
+# statik tasarım taslakları (repoya girmez)
+admin-panel-static-design/
+output/
+
+.claude/
