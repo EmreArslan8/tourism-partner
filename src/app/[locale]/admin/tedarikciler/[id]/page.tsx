@@ -247,7 +247,7 @@ const MembershipPanel = ({
       <div className="px-4 py-4">
         <div className="flex items-start">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[18px] font-extrabold leading-tight text-ink">{business.sponsored ? "Premium İş Ortağı" : planName}</p>
+            <p className="truncate text-[18px] font-extrabold leading-tight text-ink">{business.sponsored ? "Premium Partner" : planName}</p>
             <span className={cn("mt-2 inline-flex rounded-full px-2.5 py-1 text-[11.5px] font-extrabold", business.sponsored ? "bg-emerald-100 text-emerald-700" : "bg-[#E8EEFB] text-[#5B6683]")}>
               {business.sponsored ? "Aktif" : membership ? membershipStatusLabel(membership.status) : statusLabel(business.status)}
             </span>
