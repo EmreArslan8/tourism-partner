@@ -156,14 +156,31 @@ export async function signUp(
 /* Doğrulama e-postasını yeniden gönder (verify ekranındaki "tekrar gönder"). */
 export async function resendSignupEmail(email: string): Promise<{ ok: boolean; error?: string }> {
   const clean = email.trim();
-  if (!isEmail(clean)) return { ok: false, error: "email" };
-  const allowed = await checkRateLimit({
-    scope: "auth-resend",
-    limit: 3,
-    windowSeconds: 10 * 60,
-    identity: [clean.toLowerCase()],
+  const masked = clean.replace(/^(.{2}).*(@.*)$/, "$1***$2");
+  if (!isEmail(clean)) {
+    console.warn("[auth-resend] geçersiz e-posta", { email: masked });
+    return { ok: false, error: "email" };
+  }
+  console.info("[auth-resend] başlıyor", {
+    email: masked,
+    siteUrl: SITE_URL,
+    supabaseConfigured: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
   });
-  if (!allowed) return { ok: false, error: "rate" };
+  const resendRateLimitDisabled = process.env.AUTH_RESEND_RATE_LIMIT_DISABLED === "true";
+  if (!resendRateLimitDisabled) {
+    const allowed = await checkRateLimit({
+      scope: "auth-resend",
+      limit: 3,
+      windowSeconds: 10 * 60,
+      identity: [clean.toLowerCase()],
+    });
+    if (!allowed) {
+      console.warn("[auth-resend] rate limit", { email: masked });
+      return { ok: false, error: "rate" };
+    }
+  } else {
+    console.warn("[auth-resend] uygulama rate limit geçici olarak kapalı");
+  }
 
   const locale = await getLocale();
   const supabase = await createClient();
@@ -172,7 +189,16 @@ export async function resendSignupEmail(email: string): Promise<{ ok: boolean; e
     email: clean,
     options: { emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}` },
   });
-  if (error) return { ok: false, error: "generic" };
+  if (error) {
+    console.error("[auth-resend] Supabase başarısız", {
+      email: masked,
+      status: error.status,
+      code: error.code,
+      message: error.message,
+    });
+    return { ok: false, error: error.status === 429 ? "rate" : "generic" };
+  }
+  console.info("[auth-resend] Supabase kabul etti", { email: masked, redirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}` });
   return { ok: true };
 }
 

@@ -1,9 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { sendEmail } from "@/lib/email";
-import { quoteNotificationEmail } from "@/lib/email-templates/quote-notification";
+import { processRecentQuoteEmailDeliveries } from "@/lib/email-delivery";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
@@ -11,80 +9,8 @@ import { isValidCity, isValidDistrict } from "@/lib/geo-server";
 import { normalizeTr } from "@/lib/utils";
 import { isPublicBusinessStatus, PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { ActionState, GroupKey } from "@/lib/types";
-import { SITE_URL } from "@/lib/site";
 import { isEmail, isBot, clean } from "./validate";
 
-type QuotePayload = {
-  name: string;
-  email: string;
-  phone: string;
-  company: string | null;
-  service: string | null;
-  dateRange: string | null;
-  validUntil: string;
-  people: number | null;
-  message: string | null;
-  categoryGroup: string | null;
-  categoryType: string | null;
-  country: string | null;
-  city: string | null;
-  district: string | null;
-};
-
-/* Teklif geldiğinde işletme sahibine otomatik e-posta. Sahibin e-postası
-   auth.users'tadır; service-role client ile okunur. Anahtarlar yoksa veya
-   herhangi bir hata olursa sessizce atlanır — teklif kaydı asla etkilenmez. */
-async function notifyOwnerOfQuote(
-  businessId: number,
-  q: QuotePayload,
-): Promise<void> {
-  try {
-    const admin = createAdminClient();
-    if (!admin) return;
-
-    const { data: biz } = await admin
-      .from("businesses")
-      .select("name, owner_id")
-      .eq("id", businessId)
-      .maybeSingle();
-    if (!biz?.owner_id) return;
-
-    const { data: userRes } = await admin.auth.admin.getUserById(biz.owner_id);
-    const to = userRes?.user?.email;
-    if (!to) return;
-
-    const notification = quoteNotificationEmail({
-      businessName: biz.name,
-      senderName: q.name,
-      senderEmail: q.email,
-      senderPhone: q.phone,
-      company: q.company,
-      service: q.service,
-      category: q.categoryType,
-      location: [q.country, q.city, q.district].filter(Boolean).join(" · ") || null,
-      dateRange: q.dateRange,
-      validUntil: q.validUntil,
-      people: q.people,
-      message: q.message,
-      dashboardUrl: `${SITE_URL}/tr/dashboard/requests`,
-      logoUrl: `${SITE_URL}/assets/logo.webp`,
-    });
-
-    const result = await sendEmail({
-      to,
-      subject: notification.subject,
-      html: notification.html,
-      text: notification.text,
-      replyTo: q.email,
-    });
-    if (!result.ok) {
-      console.error("[quote-email] Bildirim gönderilemedi:", result.error ?? (result.skipped ? "E-posta env değişkenleri eksik." : "Bilinmeyen hata."));
-    }
-  } catch (error) {
-    // Bildirim hatası teklif kaydını etkilemez; operasyon logunda görünür kalır.
-    console.error("[quote-email] Bildirim akışı hata verdi:", error instanceof Error ? error.message : "Bilinmeyen hata.");
-  }
-}
 
 function resolveCategory(group: string | null, type: string | null) {
   const category = CATEGORY_GROUPS.find((item) => item.key === group);
@@ -192,23 +118,6 @@ export async function submitQuote(
   const filterQ = clean(formData.get("filterQ"), 160);
   const filterRatingRaw = Number(formData.get("filterRating"));
   const filterRating = Number.isFinite(filterRatingRaw) ? Math.max(0, Math.min(5, filterRatingRaw)) : 0;
-  const payload: QuotePayload = {
-    name,
-    email,
-    phone,
-    company,
-    service,
-    dateRange,
-    validUntil,
-    people,
-    message,
-    categoryGroup: selectedCategory?.group ?? null,
-    categoryType: selectedCategory?.type ?? null,
-    country,
-    city,
-    district,
-  };
-
   if (!businessId) {
     const [cityOk, districtOk] = await Promise.all([
       isValidCity(country ?? "", city ?? ""),
@@ -221,6 +130,7 @@ export async function submitQuote(
 
   try {
     const supabase = await createClient();
+    const submissionStartedAt = new Date().toISOString();
     let targetBusinessIds = businessId ? [businessId] : [];
     if (businessId) {
       const { data: directTarget, error: directError } = await supabase
@@ -279,7 +189,14 @@ export async function submitQuote(
     if (error) return { ok: false, error: error.message };
 
     // Teklif kaydı başarılı → işletme sahibine otomatik bildirim (varsa).
-    await Promise.all(targetBusinessIds.map((targetBusinessId) => notifyOwnerOfQuote(targetBusinessId, payload)));
+    // Outbox trigger'ı aynı transaction'da teslimat işini oluşturur; burada
+    // sadece ilk denemeyi hızlandırıyoruz. Cron, düşen işleri yeniden dener.
+    const delivery = await processRecentQuoteEmailDeliveries(email, targetBusinessIds, submissionStartedAt);
+    console.info("[quote-submit] DB kaydı tamamlandı, mail sonucu", { targetCount: targetBusinessIds.length, delivery });
+    if (process.env.REQUIRE_QUOTE_EMAIL === "true" && delivery.sent + delivery.sentFallback < targetBusinessIds.length) {
+      console.error("[quote-submit] REQUIRE_QUOTE_EMAIL nedeniyle başarı dönülmedi", { targetCount: targetBusinessIds.length, delivery });
+      return { ok: false, error: "email" };
+    }
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "unknown" };

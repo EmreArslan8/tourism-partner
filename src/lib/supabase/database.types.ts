@@ -402,6 +402,7 @@ export interface Database {
           description: string | null;
           region: string | null;
           target_group: BusinessGroup | null;
+          target_types: string[];
           status: B2BRequestStatus;
           view_count: number;
           moderation_note: string | null;
@@ -415,6 +416,7 @@ export interface Database {
           description?: string | null;
           region?: string | null;
           target_group?: BusinessGroup | null;
+          target_types?: string[];
           status?: B2BRequestStatus;
           view_count?: number;
           moderation_note?: string | null;

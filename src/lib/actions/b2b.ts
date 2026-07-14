@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import { clean } from "./validate";
 
@@ -25,8 +25,13 @@ function dateRangeValue(formData: FormData) {
   return start ?? end ?? null;
 }
 
-function composeRequestDescription(formData: FormData) {
-  const type = clean(formData.get("target_type"), 120);
+function targetTypesValue(formData: FormData) {
+  const allowed = new Set(CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => child.slug)));
+  return [...new Set(formData.getAll("target_types").map((value) => String(value).trim()).filter((value) => allowed.has(value)))].slice(0, 40);
+}
+
+function composeRequestDescription(formData: FormData, targetTypes: string[]) {
+  const type = targetTypes.map(serviceLabel).join(", ") || null;
   const country = clean(formData.get("country"), 80);
   const city = clean(formData.get("city"), 80);
   const district = clean(formData.get("district"), 80);
@@ -112,7 +117,8 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
   if (!biz) return;
 
   const title = clean(formData.get("title"), 160);
-  const description = clean(composeRequestDescription(formData), 2000);
+  const targetTypes = targetTypesValue(formData);
+  const description = clean(composeRequestDescription(formData, targetTypes), 2000);
   const region = clean(
     [formData.get("country"), formData.get("city"), formData.get("district")]
       .map((value) => clean(value, 80))
@@ -129,6 +135,7 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
     description,
     region,
     target_group: targetGroup,
+    target_types: targetTypes,
     status: "published",
   });
   revalidatePath("/[locale]/dashboard/requests", "page");

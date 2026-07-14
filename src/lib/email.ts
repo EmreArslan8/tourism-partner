@@ -6,12 +6,28 @@
      EMAIL_FROM="Tourism Partner <bildirim@alanadiniz.com>"  (doğrulanmış gönderici) */
 
 type SendArgs = { to: string; subject: string; html: string; text?: string; replyTo?: string };
-type SendResult = { ok: boolean; skipped?: boolean; error?: string };
+type SendResult = { ok: boolean; skipped?: boolean; error?: string; id?: string };
+
+function maskEmail(value: string) {
+  const [local, domain] = value.split("@");
+  return local && domain ? `${local.slice(0, 2)}***@${domain}` : "<invalid-email>";
+}
 
 export async function sendEmail({ to, subject, html, text, replyTo }: SendArgs): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
-  if (!key || !from) return { ok: false, skipped: true };
+  const startedAt = Date.now();
+  console.info("[resend] request başlıyor", {
+    to: maskEmail(to),
+    fromConfigured: Boolean(from),
+    apiKeyConfigured: Boolean(key),
+    subject,
+  });
+  if (!key || !from) {
+    const error = "RESEND_API_KEY veya EMAIL_FROM eksik";
+    console.error("[resend] request gönderilmedi", { error });
+    return { ok: false, skipped: true, error };
+  }
 
   try {
     const res = await fetch("https://api.resend.com/emails", {
@@ -23,11 +39,17 @@ export async function sendEmail({ to, subject, html, text, replyTo }: SendArgs):
       body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo }),
     });
     if (!res.ok) {
-      return { ok: false, error: `Resend ${res.status}: ${await res.text()}` };
+      const error = `Resend ${res.status}: ${await res.text()}`;
+      console.error("[resend] API başarısız", { status: res.status, durationMs: Date.now() - startedAt, error });
+      return { ok: false, error };
     }
-    return { ok: true };
+    const body = (await res.json()) as { id?: string };
+    console.info("[resend] API başarılı", { status: res.status, durationMs: Date.now() - startedAt, id: body.id, to: maskEmail(to) });
+    return { ok: true, id: body.id };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "unknown" };
+    const error = e instanceof Error ? e.message : "unknown";
+    console.error("[resend] network/exception", { durationMs: Date.now() - startedAt, error });
+    return { ok: false, error };
   }
 }
 

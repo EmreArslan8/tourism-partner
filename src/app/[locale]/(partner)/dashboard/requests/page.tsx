@@ -4,16 +4,17 @@ import { Megaphone, Inbox, Send, Eye } from "lucide-react";
 import { Link, redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPanelSession, getPanelBusiness } from "@/lib/panel-auth";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceTranslationKey } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
 import { createB2bRequest, submitB2bOffer, closeMyB2bRequest } from "@/lib/actions/b2b";
 import { DateRangePicker, SingleDatePicker } from "@/components/FormDatePickers";
 import B2bViewTracker from "@/components/B2bViewTracker";
 import DashboardTopbar from "../Topbar";
 import styles from "../styles";
-import { PartnerPanelButton, PartnerPanelCard, PartnerPanelEmptyState, PartnerPanelField, PartnerPanelSelect, PartnerPanelTextarea } from "../_ui";
+import { PartnerPanelButton, PartnerPanelCard, PartnerPanelEmptyState, PartnerPanelField, PartnerPanelTextarea } from "../_ui";
 import RequestsLoading from "./loading";
 import RequestRegionFields from "./RequestRegionFields";
+import RequestCategoryFields from "./RequestCategoryFields";
 
 const bizName = (r: { name: string } | { name: string }[] | null) =>
   (Array.isArray(r) ? r[0]?.name : r?.name) ?? "—";
@@ -67,7 +68,7 @@ async function RequestsContent({ locale }: { locale: string }) {
 
   const [{ data: myReqRaw }, { data: openReqRaw }, { data: myOffersRaw }] = await Promise.all([
     supabase.from("b2b_requests").select("id,title,description,region,status,view_count,created_at").eq("business_id", biz.id).order("created_at", { ascending: false }),
-    supabase.from("b2b_requests").select("id,title,description,region,target_group,status,view_count,created_at,business_id,businesses(name)").eq("status", "published").neq("business_id", biz.id).order("created_at", { ascending: false }).limit(80),
+    supabase.from("b2b_requests").select("id,title,description,region,target_group,target_types,status,view_count,created_at,business_id,businesses(name)").eq("status", "published").neq("business_id", biz.id).order("created_at", { ascending: false }).limit(80),
     supabase.from("b2b_offers").select("request_id").eq("business_id", biz.id),
   ]);
 
@@ -86,15 +87,17 @@ async function RequestsContent({ locale }: { locale: string }) {
 
   // Açık ilanları tedarikçiye göre filtrele (Brief §7: "ilgili bölgedeki işletmeler"):
   // hedef kategori boş veya benim grubumla eşleşmeli; bölge boş veya şehrim/ülkemle örtüşmeli.
-  type OpenReq = Req & { target_group: GroupKey | null; business_id: number; businesses: { name: string } | { name: string }[] | null };
+  type OpenReq = Req & { target_group: GroupKey | null; target_types: string[]; business_id: number; businesses: { name: string } | { name: string }[] | null };
   const myGroup = biz.group as GroupKey;
+  const myTypeSlug = serviceTranslationKey(biz.type) ?? biz.type;
   const myCity = (biz.city ?? "").toLocaleLowerCase("tr");
   const myCountry = (biz.country ?? "").toLocaleLowerCase("tr");
   const openReq = ((openReqRaw ?? []) as unknown as OpenReq[]).filter((r) => {
     const groupOk = !r.target_group || r.target_group === myGroup;
+    const typeOk = !r.target_types?.length || r.target_types.includes(myTypeSlug) || r.target_types.includes(biz.type);
     const reg = (r.region ?? "").toLocaleLowerCase("tr");
     const regionOk = !reg || (!!myCity && (reg.includes(myCity) || myCity.includes(reg))) || (!!myCountry && reg.includes(myCountry));
-    return groupOk && regionOk;
+    return groupOk && typeOk && regionOk;
   });
 
   return (
@@ -111,30 +114,7 @@ async function RequestsContent({ locale }: { locale: string }) {
                 {t("requestsTitleLabel")}
                 <PartnerPanelField name="title" required maxLength={160} placeholder={t("requestsTitlePlaceholder")} />
               </label>
-              <div className="grid grid-cols-2 gap-2.5 max-[620px]:grid-cols-1">
-                <label className={styles.labelCls}>
-                  {tq("category")}
-                  <PartnerPanelSelect name="target_group" defaultValue="">
-                    <option value="">{t("partnerAllGroups")}</option>
-                    {CATEGORY_GROUPS.map((g) => (
-                      <option key={g.key} value={g.key}>{tc(g.key)}</option>
-                    ))}
-                  </PartnerPanelSelect>
-                </label>
-                <label className={styles.labelCls}>
-                  {tq("type")}
-                  <PartnerPanelSelect name="target_type" defaultValue="">
-                    <option value="">{tq("select")}</option>
-                    {CATEGORY_GROUPS.map((g) => (
-                      <optgroup key={g.key} label={tc(g.key)}>
-                        {g.children.map((item) => (
-                          <option key={item.slug} value={item.label}>{ts(item.slug)}</option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </PartnerPanelSelect>
-                </label>
-              </div>
+              <RequestCategoryFields />
               <RequestRegionFields defaultCountry={biz.country ?? "Türkiye"} defaultCity={biz.city ?? ""} defaultDistrict={biz.district ?? ""} />
               <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(220px,.9fr)_minmax(120px,.55fr)] gap-2.5 max-[760px]:grid-cols-1">
                 <DateRangePicker
@@ -221,6 +201,10 @@ async function RequestsContent({ locale }: { locale: string }) {
                     {groupLabel(r.target_group) && (
                       <span className="rounded-pill bg-terra/10 px-2 py-0.5 text-[10.5px] font-bold text-terra-deep">{groupLabel(r.target_group)}</span>
                     )}
+                    {(r.target_types ?? []).map((type) => {
+                      const key = serviceTranslationKey(type);
+                      return <span key={type} className="rounded-pill bg-sapphire/10 px-2 py-0.5 text-[10.5px] font-bold text-sapphire-deep">{key ? ts(key) : type}</span>;
+                    })}
                   </div>
                   <p className="mt-0.5 text-[12px] font-medium text-muted">{bizName(r.businesses)} · {r.region ?? "—"} · {fmt(r.created_at)}</p>
                   {r.description && <p className="mt-1.5 whitespace-pre-line text-[13px] leading-5 text-ink/80">{r.description}</p>}
