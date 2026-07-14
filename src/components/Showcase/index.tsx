@@ -11,6 +11,7 @@ import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
+import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import styles from "./styles";
 
 const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
@@ -60,6 +61,7 @@ const Slide = ({ business }: { business: Business }) => {
           ) : (
             <div className={styles.placeholder}>Görsel bekleniyor</div>
           )}
+          {business.sponsored && <PremiumPartnerBadge label={tv("ad")} className={styles.premium} />}
           {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
           <div className={styles.thumbs}>
             {imgs.map((src, i) => (
