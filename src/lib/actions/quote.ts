@@ -70,15 +70,19 @@ async function notifyOwnerOfQuote(
       logoUrl: `${SITE_URL}/assets/logo.webp`,
     });
 
-    await sendEmail({
+    const result = await sendEmail({
       to,
       subject: notification.subject,
       html: notification.html,
       text: notification.text,
       replyTo: q.email,
     });
-  } catch {
-    // Bildirim hatası teklif gönderimini etkilemez.
+    if (!result.ok) {
+      console.error("[quote-email] Bildirim gönderilemedi:", result.error ?? (result.skipped ? "E-posta env değişkenleri eksik." : "Bilinmeyen hata."));
+    }
+  } catch (error) {
+    // Bildirim hatası teklif kaydını etkilemez; operasyon logunda görünür kalır.
+    console.error("[quote-email] Bildirim akışı hata verdi:", error instanceof Error ? error.message : "Bilinmeyen hata.");
   }
 }
 
