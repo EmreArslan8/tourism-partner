@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link, type Href } from "@/i18n/navigation";
-import { GROUP_COLORS } from "@/lib/categories";
+import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { businessImageUrl } from "@/lib/business-images";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
@@ -35,8 +35,10 @@ const SupplierCard = ({
   children: ReactNode;
 }) => {
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const tCommon = useTranslations("common");
   const cover = businessImageUrl(business.image);
+  const businessTypeKey = serviceTranslationKey(business.type);
   const [imageFailed, setImageFailed] = useState(false);
   const hasCover = Boolean(cover && !imageFailed);
   const flagLabel = flag;
@@ -76,7 +78,7 @@ const SupplierCard = ({
       </div>
       <div className={styles.body}>
         <div className={styles.tags}>
-          <Badge className={styles.badge}>{tc(business.group)} · {business.type}</Badge>
+          <Badge className={styles.badge}>{tc(business.group)} · {businessTypeKey ? ts(businessTypeKey) : business.type}</Badge>
           {(business.serviceTypes?.length ?? 0) > 1 && (
             <Badge className={styles.badge}>+{business.serviceTypes!.length - 1} hizmet</Badge>
           )}

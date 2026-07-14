@@ -105,10 +105,19 @@ export function groupLabel(key: GroupKey): string {
 const LEAF_BY_SLUG = new Map(
   CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => [child.slug, { ...child, group: group.key }] as const)),
 );
+const LEAF_SLUG_BY_LABEL = new Map(
+  CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => [child.label, child.slug] as const)),
+);
 
 /** Alt kategori slug'ından etiket; bulunamazsa slug'ın kendisi döner. */
 export function serviceLabel(slug: string): string {
   return LEAF_BY_SLUG.get(slug)?.label ?? slug;
+}
+
+/** Alt kategori slug'ı veya kayıtlı Türkçe etiketinden i18n anahtarını çözer. */
+export function serviceTranslationKey(value: string): string | null {
+  if (LEAF_BY_SLUG.has(value)) return value;
+  return LEAF_SLUG_BY_LABEL.get(value) ?? null;
 }
 
 /** Slug geçerli mi ve verilen gruba ait mi? */

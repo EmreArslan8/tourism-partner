@@ -80,6 +80,7 @@ const RegisterForm = () => {
   const [editingAgain, setEditingAgain] = useState(false); // verify ekranından forma dönüş
   const t = useTranslations("register");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
 
   // Adım değişince odağı yeni adıma taşı (a11y) — ilk mount'ta değil.
   const stepRef = useRef<HTMLDivElement>(null);
@@ -360,7 +361,7 @@ const RegisterForm = () => {
                             >
                               {Icon && <Icon size={15} strokeWidth={2} />}
                             </span>
-                            <span className="block text-[13.5px] font-semibold leading-tight text-[#555]">{c.label}</span>
+                            <span className="block text-[13.5px] font-semibold leading-tight text-[#555]">{ts(c.slug)}</span>
                           </button>
                         );
                       })}

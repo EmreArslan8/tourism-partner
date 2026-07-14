@@ -62,11 +62,12 @@ export default async function DetailPage({
   const { locale, id } = await params;
   setRequestLocale(locale);
 
-  const [b, t, tc, tCommon] = await Promise.all([
+  const [b, t, tc, tCommon, tService] = await Promise.all([
     getBusinessBySlug(id),
     getTranslations("supplier"),
     getTranslations("cat"),
     getTranslations("common"),
+    getTranslations("service"),
   ]);
   
   if (!b) notFound();
@@ -89,6 +90,7 @@ export default async function DetailPage({
       t={t}
       tc={tc}
       tCommon={tCommon}
+      tService={tService}
       services={services}
       gallery={gallery}
     />

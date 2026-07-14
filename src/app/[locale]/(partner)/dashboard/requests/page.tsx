@@ -32,7 +32,12 @@ export default async function RequestsPage({ params }: { params: Promise<{ local
 }
 
 async function RequestsContent({ locale }: { locale: string }) {
-  const [t, tq, tc] = await Promise.all([getTranslations("panel"), getTranslations("quote"), getTranslations("cat")]);
+  const [t, tq, tc, ts] = await Promise.all([
+    getTranslations("panel"),
+    getTranslations("quote"),
+    getTranslations("cat"),
+    getTranslations("service"),
+  ]);
   const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
   const groupLabel = (g: string | null) => {
     const group = CATEGORY_GROUPS.find((c) => c.key === g);
@@ -123,7 +128,7 @@ async function RequestsContent({ locale }: { locale: string }) {
                     {CATEGORY_GROUPS.map((g) => (
                       <optgroup key={g.key} label={tc(g.key)}>
                         {g.children.map((item) => (
-                          <option key={item.slug} value={item.label}>{item.label}</option>
+                          <option key={item.slug} value={item.label}>{ts(item.slug)}</option>
                         ))}
                       </optgroup>
                     ))}

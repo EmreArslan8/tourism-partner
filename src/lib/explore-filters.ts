@@ -2,6 +2,8 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
 import type { GroupKey, Sort } from "@/lib/types";
 
+export const EXPLORE_PAGE_SIZE = 9;
+
 export type ExploreSearchParams = {
   cat?: string;
   type?: string;

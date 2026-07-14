@@ -3,8 +3,7 @@
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Business, GroupKey } from "@/lib/types";
-import { GROUP_COLORS } from "@/lib/categories";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { useRegions } from "@/lib/geo";
 import { initials } from "@/lib/utils";
 import { submitQuote } from "@/lib/actions/quote";
@@ -28,6 +27,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
   const [state, action, pending] = useActionState(submitQuote, { ok: false });
   const t = useTranslations("quote");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const isGeneral = !business;
   const initialGroup = initialFilters?.group ?? "";
   const initialType = initialFilters?.types?.[0] ?? "";
@@ -40,9 +40,15 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
   const [district, setDistrict] = useState(initialFilters?.district ?? "");
   const { countries, cities, districts } = useRegions(country, city, district);
 
+  const businessTypeKey = business ? serviceTranslationKey(business.type) : null;
   const serviceOptions = business
-    ? [business.type, t("optAccommodation"), t("optTransfer"), t("optTour")]
-    : CATEGORY_GROUPS.map((g) => tc(g.key));
+    ? [
+        { value: business.type, label: businessTypeKey ? ts(businessTypeKey) : business.type },
+        { value: t("optAccommodation"), label: t("optAccommodation") },
+        { value: t("optTransfer"), label: t("optTransfer") },
+        { value: t("optTour"), label: t("optTour") },
+      ]
+    : CATEGORY_GROUPS.map((g) => ({ value: tc(g.key), label: tc(g.key) }));
   const submittedFilterTypes =
     initialFilters?.types?.length && categoryType === initialType
       ? initialFilters.types
@@ -64,7 +70,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
           </span>
           <div>
             <p className={styles.supplierName}>{business.name}</p>
-            <p className={styles.supplierMeta}>{tc(business.group)} · {business.type} — {business.city}</p>
+            <p className={styles.supplierMeta}>{tc(business.group)} · {businessTypeKey ? ts(businessTypeKey) : business.type} — {business.city}</p>
           </div>
         </div>
       )}
@@ -148,7 +154,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
                   >
                     <option value="" disabled>{selectedGroup ? t("select") : t("categoryFirst")}</option>
                     {selectedGroup?.children.map((item) => (
-                      <option key={item.slug} value={item.label}>{item.label}</option>
+                      <option key={item.slug} value={item.label}>{ts(item.slug)}</option>
                     ))}
                   </select>
                 </SelectShell>
@@ -216,7 +222,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
             <SelectShell>
               <select name="service" className={styles.select} defaultValue="">
                 <option value="" disabled>{t("select")}</option>
-                {serviceOptions.map((o) => <option key={o}>{o}</option>)}
+                {serviceOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
             </SelectShell>
           </label>

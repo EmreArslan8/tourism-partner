@@ -3,15 +3,15 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceTranslationKey } from "@/lib/categories";
 import { businessSlug } from "@/lib/business-slug";
 import { facetLabel } from "@/lib/facets";
 import { cn } from "@/lib/utils";
 import { dopingRank } from "@/lib/listing";
 import { useRegions } from "@/lib/geo";
 import type { Business, GroupKey, Sort } from "@/lib/types";
-import { EXPLORE_PAGE_SIZE, type ExploreIndexItem, type ExploreMapItem } from "@/lib/explore-search";
-import { serializeExploreFilters } from "@/lib/explore-filters";
+import type { ExploreIndexItem, ExploreMapItem } from "@/lib/explore-search";
+import { EXPLORE_PAGE_SIZE, serializeExploreFilters } from "@/lib/explore-filters";
 import dynamic from "next/dynamic";
 import SupplierCard from "@/components/SupplierCard";
 import FilterBar from "./FilterBar";
@@ -97,6 +97,7 @@ const ListingView = ({
 }) => {
   const t = useTranslations("listing");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const tCommon = useTranslations("common");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -296,7 +297,10 @@ const ListingView = ({
 
   const tags: FilterTag[] = [];
   groups.forEach((g) => tags.push({ kind: "group", value: g, label: tc(g) }));
-  types.forEach((ty) => tags.push({ kind: "type", value: ty, label: ty }));
+  types.forEach((ty) => {
+    const key = serviceTranslationKey(ty);
+    tags.push({ kind: "type", value: ty, label: key ? ts(key) : ty });
+  });
   if (country !== "all") tags.push({ kind: "country", value: country, label: country });
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });

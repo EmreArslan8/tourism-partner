@@ -4,6 +4,7 @@ import { filterAndSortBusinesses, facetCounts } from "@/lib/listing";
 import { canAppearInExplore, type ViewerKind } from "@/lib/business-visibility";
 import type { Business, ListingFilters } from "@/lib/types";
 import type { ExploreInitialFilters } from "@/lib/explore-filters";
+import { EXPLORE_PAGE_SIZE } from "@/lib/explore-filters";
 
 /* Keşfet arama MOTORU — SUNUCU tarafı.
    Amaç: filtre/sıralama/sayfalama/facet-sayımı client yerine burada çalışsın; istemciye
@@ -17,8 +18,6 @@ import type { ExploreInitialFilters } from "@/lib/explore-filters";
    - mapItems   : TÜM filtrelenmiş sonuç ama HAFİF (harita pinleri için)
    - index      : TÜM görünür set ama HAFİF (arama önerisi + il/ilçe seçicileri için)
    Böylece ağır alanlar (desc/attributes/seo/images) yalnız aktif sayfada taşınır. */
-
-export const EXPLORE_PAGE_SIZE = 9;
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { businessSlug } from "@/lib/business-slug";
-import { GROUP_COLORS } from "@/lib/categories";
+import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import type { Business } from "@/lib/types";
@@ -20,6 +20,7 @@ const Slide = ({ business }: { business: Business }) => {
   const tc = useTranslations("cat");
   const tv = useTranslations("common");
   const ts = useTranslations("supplier");
+  const tService = useTranslations("service");
   const imgs = galleryFor(business);
   const [act, setAct] = useState(0);
   const touchX = useRef<number | null>(null);
@@ -37,8 +38,10 @@ const Slide = ({ business }: { business: Business }) => {
     }
     touchX.current = null;
   };
+  const businessTypeKey = serviceTranslationKey(business.type);
+  const businessType = businessTypeKey ? tService(businessTypeKey) : business.type;
   const services = [
-    business.type,
+    businessType,
     ...featuredFacetTags(business, 5).map((tag) => tag.label),
   ];
 
@@ -82,7 +85,7 @@ const Slide = ({ business }: { business: Business }) => {
         {/* SAĞ — bilgiler */}
         <div className={styles.info}>
           <h3 className={styles.name}>{business.name}</h3>
-          <p className={styles.categoryText}>{tc(business.group)} · {business.type}</p>
+          <p className={styles.categoryText}>{tc(business.group)} · {businessType}</p>
 
           <div className={styles.meta}>
             <span className={styles.metaItem}>

@@ -81,6 +81,7 @@ const ICONS: Record<GroupKey, ReactNode> = {
 const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const groups = DISPLAY_GROUPS;
   const [activeKey, setActiveKey] = useState<GroupKey>(groups[0].key);
   const [rotationPaused, setRotationPaused] = useState(false);
@@ -190,7 +191,7 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
             </span>
             <span className={styles.visualChips}>
               {activeGroup.children.slice(0, 4).map((c) => (
-                <span key={c.slug} className={styles.chip}>{c.label}</span>
+                <span key={c.slug} className={styles.chip}>{ts(c.slug)}</span>
               ))}
             </span>
             <span className={styles.visualCta}>

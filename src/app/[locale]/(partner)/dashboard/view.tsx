@@ -7,6 +7,7 @@ import { signOut } from "@/lib/actions/auth";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
+import { serviceTranslationKey } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import { useRegions } from "@/lib/geo";
 import { SOCIAL_PLATFORMS, type GroupKey, type BusinessDocument, type SocialPlatform } from "@/lib/types";
@@ -119,6 +120,11 @@ export type PanelQuote = {
 function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerOption[] }) {
   const t = useTranslations("panel");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
+  const serviceName = (value: string) => {
+    const key = serviceTranslationKey(value);
+    return key ? ts(key) : value;
+  };
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [group, setGroup] = useState("");
@@ -133,7 +139,7 @@ function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerO
   const cities = Array.from(new Set(partnerOptions.map((partner) => partner.city).filter(Boolean))).sort((a, b) => a.localeCompare(b, "tr"));
   const normalizedQuery = query.trim().toLocaleLowerCase("tr-TR");
   const filteredPartners = partnerOptions.filter((partner) => {
-    const matchesQuery = !normalizedQuery || [partner.name, partner.type, partner.city]
+    const matchesQuery = !normalizedQuery || [partner.name, partner.type, serviceName(partner.type), partner.city]
       .filter(Boolean)
       .some((value) => value.toLocaleLowerCase("tr-TR").includes(normalizedQuery));
     return matchesQuery && (!group || partner.group === group) && (!city || partner.city === city);
@@ -178,7 +184,7 @@ function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerO
             <div className={styles.partnerConfirmCard}>
               <span className={styles.partnerPickName}>{selectedPartner.name}</span>
               <span className={styles.partnerPickMeta}>
-                {[tc(selectedPartner.group), selectedPartner.type, selectedPartner.city].filter(Boolean).join(" · ")}
+                {[tc(selectedPartner.group), serviceName(selectedPartner.type), selectedPartner.city].filter(Boolean).join(" · ")}
               </span>
             </div>
             <p>{t("partnerConfirmHint")}</p>
@@ -228,7 +234,7 @@ function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerO
               {filteredPartners.map((partner) => (
                 <button key={partner.id} type="button" onClick={() => setSelectedPartner(partner)} className={styles.partnerResultItem}>
                   <span className={styles.partnerPickName}>{partner.name}</span>
-                  <span className={styles.partnerPickMeta}>{[tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}</span>
+                  <span className={styles.partnerPickMeta}>{[tc(partner.group), serviceName(partner.type), partner.city].filter(Boolean).join(" · ")}</span>
                   <span className={styles.partnerResultAction}>{t("partnerSelect")}</span>
                 </button>
               ))}
@@ -304,6 +310,11 @@ const DashboardView = ({
 }) => {
   const t = useTranslations("panel");
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
+  const serviceName = (value: string) => {
+    const key = serviceTranslationKey(value);
+    return key ? ts(key) : value;
+  };
   const locale = useLocale();
   const lang: "tr" | "en" = locale === "en" ? "en" : "tr";
   const [state, action, pending] = useActionState(saveMyBusiness, { ok: false });
@@ -633,6 +644,7 @@ const DashboardView = ({
               statusKey={visibleStatusKey}
               editHref={editListingHref}
               previewHref={previewHref}
+              businessTypeLabel={serviceName(b.type)}
               t={t}
             />
           ) : (
@@ -912,7 +924,7 @@ const DashboardView = ({
                       <div key={partner.id} className={cn(styles.partnerPickItem, styles.partnerPickItemActive)}>
                         <span className={styles.partnerPickName}>{partner.name}</span>
                         <span className={styles.partnerPickMeta}>
-                          {[t("partnerAccepted"), tc(partner.group), partner.type, partner.city].filter(Boolean).join(" · ")}
+                          {[t("partnerAccepted"), tc(partner.group), serviceName(partner.type), partner.city].filter(Boolean).join(" · ")}
                         </span>
                       </div>
                     ))}
@@ -927,7 +939,7 @@ const DashboardView = ({
                         <div className="min-w-0">
                           <span className={styles.partnerPickName}>{request.business.name}</span>
                           <span className={styles.partnerPickMeta}>
-                            {[tc(request.business.group), request.business.type, request.business.city].filter(Boolean).join(" · ")}
+                            {[tc(request.business.group), serviceName(request.business.type), request.business.city].filter(Boolean).join(" · ")}
                           </span>
                         </div>
                         <div className={styles.partnerRequestActions}>
@@ -959,7 +971,7 @@ const DashboardView = ({
                         <div className="min-w-0">
                           <span className={styles.partnerPickName}>{request.business.name}</span>
                           <span className={styles.partnerPickMeta}>
-                            {[t("partnerPending"), tc(request.business.group), request.business.type, request.business.city].filter(Boolean).join(" · ")}
+                            {[t("partnerPending"), tc(request.business.group), serviceName(request.business.type), request.business.city].filter(Boolean).join(" · ")}
                           </span>
                         </div>
                         <button
@@ -1269,7 +1281,7 @@ const DashboardView = ({
                     </p>
                   )}
                   <p className={styles.quoteSvc}>
-                    {[q.category_type, q.country, q.city, q.district].filter(Boolean).join(" · ")}
+                    {[q.category_type ? serviceName(q.category_type) : null, q.country, q.city, q.district].filter(Boolean).join(" · ")}
                   </p>
                   {q.message && <p className={styles.quoteMsg}>{q.message}</p>}
                   <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className={`mt-2.5 ${styles.compactSecondaryButton}`}>
@@ -1305,6 +1317,7 @@ const ListingDashboard = ({
   statusKey,
   editHref,
   previewHref,
+  businessTypeLabel,
   t,
 }: {
   business: PanelBusiness;
@@ -1315,6 +1328,7 @@ const ListingDashboard = ({
   statusKey: "pending" | "approved" | "rejected";
   editHref: Href;
   previewHref: Href | null;
+  businessTypeLabel: string;
   t: ReturnType<typeof useTranslations>;
 }) => (
   <div className={styles.listingDashboard}>
@@ -1342,7 +1356,7 @@ const ListingDashboard = ({
       <div className={styles.listingInfo}>
         <span className={styles.eyebrow}>{t("listingIdentity")}</span>
         <h3>{business.name}</h3>
-        <p>{business.type} · {business.district}, {business.city} · {business.country}</p>
+        <p>{businessTypeLabel} · {business.district}, {business.city} · {business.country}</p>
         <div className={styles.listingMetrics}>
           <div className={styles.listingProgress}>
             <span>{t("profileScore")}</span>

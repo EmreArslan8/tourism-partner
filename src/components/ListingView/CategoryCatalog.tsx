@@ -23,6 +23,7 @@ const CategoryCatalog = ({
   children?: React.ReactNode;
 }) => {
   const tc = useTranslations("cat");
+  const ts = useTranslations("service");
   const t = useTranslations("listing");
   const [open, setOpen] = useState(true);
   const visibleGroups = useMemo(
@@ -74,7 +75,7 @@ const CategoryCatalog = ({
                       aria-pressed={on}
                     >
                       <span className={cn(styles.catCheckbox, on && styles.catCheckboxActive)} aria-hidden />
-                      <span className={styles.catChildLabel}>{c.label}</span>
+                      <span className={styles.catChildLabel}>{ts(c.slug)}</span>
                     </button>
                   );
                 })}

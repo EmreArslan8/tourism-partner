@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
 import type { CategoryNode, GroupKey } from "@/lib/types";
 
@@ -18,6 +19,7 @@ const ServiceMultiSelect = ({
   initialType: string;
   className?: string;
 }) => {
+  const ts = useTranslations("service");
   const [selected, setSelected] = useState<string[]>(initialServices);
   const groupNode = CATEGORY_GROUPS.find((item) => item.key === group) ?? CATEGORY_GROUPS[0];
   const primaryType = selected.length > 0 ? serviceLabel(selected[0]) : initialType;
@@ -53,7 +55,7 @@ const ServiceMultiSelect = ({
                     }`}
                   >
                     <input type="checkbox" name="services" value={child.slug} checked={checked} onChange={() => toggle(child.slug)} className="sr-only" />
-                    {child.label}
+                    {ts(child.slug)}
                     {primary && <span className="rounded-full bg-sapphire px-1.5 text-[10px] font-bold text-paper">Birincil</span>}
                   </label>
                 );

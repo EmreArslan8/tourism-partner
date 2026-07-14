@@ -2,7 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendEmail, escapeHtml } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
+import { quoteNotificationEmail } from "@/lib/email-templates/quote-notification";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
@@ -10,6 +11,7 @@ import { isValidCity, isValidDistrict } from "@/lib/geo-server";
 import { normalizeTr } from "@/lib/utils";
 import { isPublicBusinessStatus, PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { ActionState, GroupKey } from "@/lib/types";
+import { SITE_URL } from "@/lib/site";
 import { isEmail, isBot, clean } from "./validate";
 
 type QuotePayload = {
@@ -51,36 +53,28 @@ async function notifyOwnerOfQuote(
     const to = userRes?.user?.email;
     if (!to) return;
 
-    const rows: [string, string | null][] = [
-      ["Gönderen", q.name],
-      ["Şirket", q.company],
-      ["E-posta", q.email],
-      ["Telefon", q.phone],
-      ["Hizmet", q.service],
-      ["Kategori", [q.categoryGroup, q.categoryType].filter(Boolean).join(" > ") || null],
-      ["Bölge", [q.country, q.city, q.district].filter(Boolean).join(" > ") || null],
-      ["Tarih", q.dateRange],
-      ["Teklif son tarihi", q.validUntil],
-      ["Kişi", q.people != null ? String(q.people) : null],
-    ];
-    const list = rows
-      .filter(([, v]) => v)
-      .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#64748b">${k}</td><td style="padding:4px 0;font-weight:600;color:#0b1c30">${escapeHtml(String(v))}</td></tr>`)
-      .join("");
-
-    const html = `
-      <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
-        <h2 style="color:#0b1c30">Yeni teklif talebi</h2>
-        <p style="color:#475569"><b>${escapeHtml(biz.name)}</b> için yeni bir teklif talebi aldınız.</p>
-        <table style="border-collapse:collapse;margin:12px 0">${list}</table>
-        ${q.message ? `<p style="color:#475569;white-space:pre-wrap;border-left:3px solid #2563eb;padding-left:12px">${escapeHtml(q.message)}</p>` : ""}
-        <p style="color:#94a3b8;font-size:13px;margin-top:20px">Yanıtlamak için doğrudan ${escapeHtml(q.email)} adresine yazabilirsiniz.</p>
-      </div>`;
+    const notification = quoteNotificationEmail({
+      businessName: biz.name,
+      senderName: q.name,
+      senderEmail: q.email,
+      senderPhone: q.phone,
+      company: q.company,
+      service: q.service,
+      category: q.categoryType,
+      location: [q.country, q.city, q.district].filter(Boolean).join(" · ") || null,
+      dateRange: q.dateRange,
+      validUntil: q.validUntil,
+      people: q.people,
+      message: q.message,
+      dashboardUrl: `${SITE_URL}/tr/dashboard/requests`,
+      logoUrl: `${SITE_URL}/assets/logo.webp`,
+    });
 
     await sendEmail({
       to,
-      subject: `Yeni teklif talebi — ${biz.name}`,
-      html,
+      subject: notification.subject,
+      html: notification.html,
+      text: notification.text,
       replyTo: q.email,
     });
   } catch {

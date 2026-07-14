@@ -5,7 +5,7 @@ import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
 import type { FeaturedFacetTag } from "@/lib/facets";
-import { serviceLabel } from "@/lib/categories";
+import { serviceTranslationKey } from "@/lib/categories";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
@@ -25,11 +25,17 @@ interface Props {
   t: TranslationFn;
   tc: TranslationFn;
   tCommon: TranslationFn;
+  tService: TranslationFn;
   services: FeaturedFacetTag[];
   gallery: string[];
 }
 
-const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, services, gallery }: Props) => {
+const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery }: Props) => {
+  const translateService = (value: string) => {
+    const key = serviceTranslationKey(value);
+    return key ? tService(key) : value;
+  };
+  const businessType = translateService(b.type);
   const socialEntries = Object.entries(b.socials ?? {}).filter(
     (entry): entry is [SocialPlatform, string] => Boolean(entry[1]) && entry[0] in SOCIAL_ICONS
   );
@@ -57,7 +63,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
             )}
           </div>
           <p className={styles.meta}>
-            {[b.type, b.district, b.city].filter(Boolean).join(" · ")}
+            {[businessType, b.district, b.city].filter(Boolean).join(" · ")}
           </p>
         </div>
         <div className={styles.heroActions}>
@@ -69,7 +75,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
       <SupplierGallery
         images={gallery}
         title={b.name}
-        eyebrow={`${tc(b.group)} · ${b.type}`}
+        eyebrow={`${tc(b.group)} · ${businessType}`}
         adLabel={tCommon("ad")}
         sponsored={b.sponsored}
       />
@@ -87,7 +93,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
               <div className="flex flex-wrap gap-2">
                 {b.serviceTypes!.map((slug) => (
                   <span key={slug} className="inline-flex items-center rounded-full border border-line bg-cream/50 px-3 py-1.5 text-[13px] font-medium text-ink">
-                    {serviceLabel(slug)}
+                    {translateService(slug)}
                   </span>
                 ))}
               </div>
@@ -120,7 +126,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
                     <span className={styles.partnerMark}>{partner.name.slice(0, 2).toLocaleUpperCase("tr-TR")}</span>
                     <span className={styles.partnerBody}>
                       <strong>{partner.name}</strong>
-                      <small>{[tc(partner.group), partner.type, partner.city, partner.country].filter(Boolean).join(" · ")}</small>
+                      <small>{[tc(partner.group), translateService(partner.type), partner.city, partner.country].filter(Boolean).join(" · ")}</small>
                     </span>
                   </Link>
                 ))}
@@ -185,7 +191,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, servi
 
           <div className={styles.card}>
             <h3 className={cn(styles.cardTitle, "mb-3")}>{t("quickInfo")}</h3>
-            <Row k={t("category")} v={`${tc(b.group)} · ${b.type}`} />
+            <Row k={t("category")} v={`${tc(b.group)} · ${businessType}`} />
             <Row k={t("location")} v={`${b.city}, ${b.country}`} />
             <Row
               k={t("rating")}
