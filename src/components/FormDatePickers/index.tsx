@@ -200,7 +200,7 @@ const dayPickerClassNames = {
   month: "w-full",
   month_caption: "mb-3 flex h-8 items-center justify-center",
   caption_label: "text-[14px] font-semibold text-ink",
-  nav: "pointer-events-none absolute left-4 right-4 top-4 flex items-center justify-between",
+  nav: "pointer-events-none absolute start-4 end-4 top-4 flex items-center justify-between",
   button_previous:
     "pointer-events-auto grid h-7 w-7 place-items-center rounded-full border border-line bg-white text-ink transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-30",
   button_next:

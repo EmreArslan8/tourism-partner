@@ -25,7 +25,7 @@ export const PLATFORM_SOCIALS = {
   x: "https://x.com/tourismpartner",
 } as const;
 
-export const LOCALES = ["tr", "en"] as const;
+export const LOCALES = ["tr", "en", "ru", "ar"] as const;
 export type SiteLocale = (typeof LOCALES)[number];
 
 /** İşletme detay sayfasının locale'e göre yolu (routing.ts ile aynı kalıp). */

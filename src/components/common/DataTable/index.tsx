@@ -36,11 +36,11 @@ export default function DataTable<T>({
   }
 
   const alignCls = (a?: "left" | "right" | "center") =>
-    a === "right" ? "text-right" : a === "center" ? "text-center" : "text-left";
+    a === "right" ? "text-end" : a === "center" ? "text-center" : "text-start";
 
   return (
     <div className={cn("overflow-x-auto", className)}>
-      <table className="w-full border-separate border-spacing-0 text-left" style={{ minWidth }}>
+      <table className="w-full border-separate border-spacing-0 text-start" style={{ minWidth }}>
         <thead>
           <tr className="border-b border-line bg-[#F8FAFC]">
             {columns.map((c) => (

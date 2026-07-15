@@ -50,20 +50,20 @@ const LoginForm = () => {
                 required
                 autoComplete="current-password"
                 placeholder="••••••••"
-                className="field h-[56px] w-full pr-12 text-[16px] font-semibold text-ink placeholder:text-ink/45"
+                className="field h-[56px] w-full pe-12 text-[16px] font-semibold text-ink placeholder:text-ink/45"
               />
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
                 aria-label={showPw ? t("pwHide") : t("pwShow")}
-                className="absolute right-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-brand"
+                className="absolute end-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-brand"
               >
                 {showPw ? <EyeOff size={20} strokeWidth={2.25} aria-hidden /> : <Eye size={20} strokeWidth={2.25} aria-hidden />}
               </button>
             </div>
           </div>
 
-          <p className="-mt-1 text-right text-[13.5px] font-semibold">
+          <p className="-mt-1 text-end text-[13.5px] font-semibold">
             <Link
               href={{ pathname: "/forgot-password" }}
               className="text-brand/80 underline decoration-brand/25 underline-offset-4 transition-colors hover:text-terra"

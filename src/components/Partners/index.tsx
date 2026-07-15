@@ -1,19 +1,6 @@
 import styles from "./styles";
 
-const BRANDS = [
-  "Turkish Airlines",
-  "Marriott Bonvoy",
-  "Hilton Honors",
-  "SunExpress",
-  "Setur",
-  "Jolly Tur",
-  "Pegasus",
-  "Corendon",
-  "Coral Travel",
-  "Etihad Airways",
-  "Emirates",
-  "Accor Hotels",
-];
+const BRANDS = Array.from({ length: 12 }, () => "Tourism Partner");
 
 /* Modern "güvenilen markalar" şeridi — kenar fade maskeli sonsuz marquee. */
 const Partners = () => {

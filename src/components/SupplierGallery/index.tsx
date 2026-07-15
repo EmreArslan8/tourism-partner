@@ -28,8 +28,11 @@ const SupplierGallery = ({
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
-      if (event.key === "ArrowRight") setActive((value) => (value + 1) % images.length);
-      if (event.key === "ArrowLeft") setActive((value) => (value - 1 + images.length) % images.length);
+      const isRtl = document.documentElement.dir === "rtl";
+      const forward = isRtl ? "ArrowLeft" : "ArrowRight";
+      const backward = isRtl ? "ArrowRight" : "ArrowLeft";
+      if (event.key === forward) setActive((value) => (value + 1) % images.length);
+      if (event.key === backward) setActive((value) => (value - 1 + images.length) % images.length);
     };
     document.addEventListener("keydown", onKeyDown);
     const previous = document.body.style.overflow;
@@ -113,14 +116,14 @@ const SupplierGallery = ({
       </div>
 
       {sponsored && (
-        <PremiumPartnerBadge label={adLabel} className="absolute right-4 top-4 z-[2]" />
+        <PremiumPartnerBadge label={adLabel} className="absolute end-4 top-4 z-[2]" />
       )}
 
       {images.length > 1 && (
         <button
           type="button"
           onClick={() => openGallery(0)}
-          className="absolute bottom-4 right-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] shadow-[0_14px_32px_-22px_rgba(7,9,42,.55)] transition hover:border-terra hover:text-terra-deep"
+          className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] shadow-[0_14px_32px_-22px_rgba(7,9,42,.55)] transition hover:border-terra hover:text-terra-deep"
         >
           Tüm görselleri göster
         </button>
@@ -148,10 +151,10 @@ const SupplierGallery = ({
               <button
                 type="button"
                 onClick={() => goTo(active - 1)}
-                className="absolute left-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
+                className="absolute start-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
                 aria-label="Önceki görsel"
               >
-                ‹
+                <span className="inline-block rtl:rotate-180">‹</span>
               </button>
               <div className="relative h-[72vh] w-full overflow-hidden rounded-[18px] bg-black/30">
                 <Image
@@ -165,10 +168,10 @@ const SupplierGallery = ({
               <button
                 type="button"
                 onClick={() => goTo(active + 1)}
-                className="absolute right-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
+                className="absolute end-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
                 aria-label="Sonraki görsel"
               >
-                ›
+                <span className="inline-block rtl:rotate-180">›</span>
               </button>
             </div>
 

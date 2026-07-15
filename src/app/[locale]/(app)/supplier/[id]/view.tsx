@@ -6,6 +6,7 @@ import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
 import type { FeaturedFacetTag } from "@/lib/facets";
 import { serviceTranslationKey } from "@/lib/categories";
+import { businessDescription } from "@/lib/business-localization";
 import SupplierGallery from "@/components/SupplierGallery";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
@@ -28,9 +29,10 @@ interface Props {
   tService: TranslationFn;
   services: FeaturedFacetTag[];
   gallery: string[];
+  locale: string;
 }
 
-const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery }: Props) => {
+const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery, locale }: Props) => {
   const translateService = (value: string) => {
     const key = serviceTranslationKey(value);
     return key ? tService(key) : value;
@@ -84,7 +86,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
         <article>
           <section className={cn(styles.svcCard, "!mt-0")} aria-labelledby="profile-about">
             <h2 id="profile-about" className={styles.svcTitle}>{t("about")}</h2>
-            <AboutText text={b.desc} className={styles.desc} />
+            <AboutText text={businessDescription(b, locale)} className={styles.desc} />
           </section>
 
           {(b.serviceTypes?.length ?? 0) > 1 && (

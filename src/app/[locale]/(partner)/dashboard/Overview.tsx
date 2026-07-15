@@ -232,14 +232,14 @@ export const OverviewDashboard = ({
 
 const DeltaBadge = ({ delta }: { delta: number | null }) => {
   if (delta === null) {
-    return <span className="ml-2 inline-flex rounded-full bg-cream/70 px-2 py-0.5 align-middle text-[11.5px] font-bold text-muted">—</span>;
+    return <span className="ms-2 inline-flex rounded-full bg-cream/70 px-2 py-0.5 align-middle text-[11.5px] font-bold text-muted">—</span>;
   }
   const up = delta > 0;
   const flat = delta === 0;
   return (
     <span
       className={cn(
-        "ml-2 inline-flex rounded-full px-2 py-0.5 align-middle text-[11.5px] font-bold",
+        "ms-2 inline-flex rounded-full px-2 py-0.5 align-middle text-[11.5px] font-bold",
         flat ? "bg-cream/70 text-muted" : up ? "bg-group-saglik/15 text-group-saglik" : "bg-red-50 text-red-700",
       )}
     >

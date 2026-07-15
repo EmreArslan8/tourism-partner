@@ -7,6 +7,13 @@ export type BusinessLegalType = "company" | "individual";
 export const SOCIAL_PLATFORMS = ["instagram", "facebook", "linkedin", "youtube", "x"] as const;
 export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
 export type BusinessSocials = Partial<Record<SocialPlatform, string>>;
+export type BusinessTranslation = {
+  description?: string;
+  tag?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+};
+export type BusinessTranslations = Partial<Record<"tr" | "en" | "ru" | "ar", BusinessTranslation>>;
 
 export interface CategoryNode {
   slug: string;
@@ -36,6 +43,7 @@ export interface Business {
   district: string;
   coords: [number, number];
   desc: string;
+  translations?: BusinessTranslations;
   rating: number;
   reviews: number;
   tag: string;

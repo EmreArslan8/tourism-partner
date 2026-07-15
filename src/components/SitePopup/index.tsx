@@ -59,7 +59,7 @@ const SitePopup = ({ popup }: { popup: PublicPopup }) => {
           type="button"
           onClick={close}
           aria-label="Kapat"
-          className="absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-paper/80 text-ink transition-colors hover:bg-cream"
+          className="absolute end-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-paper/80 text-ink transition-colors hover:bg-cream"
         >
           <X size={18} aria-hidden />
         </button>

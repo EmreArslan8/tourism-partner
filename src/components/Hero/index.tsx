@@ -1,8 +1,9 @@
 import Image, { getImageProps } from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
+import Partners from "@/components/Partners";
 import styles from "./styles";
 
 const commonImageProps = {
@@ -15,6 +16,16 @@ const {
 } = getImageProps({
   ...commonImageProps,
   src: "/assets/hero-2.webp",
+  width: 1672,
+  height: 941,
+  quality: 85,
+});
+
+const {
+  props: { srcSet: desktopSrcSetAr },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/hero-ar.png",
   width: 1672,
   height: 941,
   quality: 85,
@@ -43,11 +54,13 @@ const {
 const Hero = () => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
+  const locale = useLocale();
   const categoryLinks = [
     { key: "konaklama", label: t("catHotels"), icon: <Image src="/assets/icons/hotels.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "acente", label: t("catAgencies"), icon: <Image src="/assets/icons/agencies.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "ulasim", label: t("catTransfers"), icon: <Image src="/assets/icons/transfers.svg" alt="" width={44} height={39} className={styles.transferIcon} /> },
     { key: "rehber", label: t("catGuides"), icon: <Image src="/assets/icons/guides.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
+    { key: "aktivite", label: t("catActivities"), icon: <Image src="/assets/icons/activities.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "gastronomi", label: t("catGastro"), icon: <Image src="/assets/icons/gastronomy.svg" alt="" width={40} height={40} className={styles.gastronomyIcon} /> },
     { key: "saglik", label: t("catHealth"), icon: <Image src="/assets/icons/health-tourism.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
   ] as const;
@@ -58,7 +71,7 @@ const Hero = () => {
       <picture className={styles.picture}>
         <source media="(max-width: 640px)" srcSet={mobileSrcSet} />
         <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={tabletSrcSet} />
-        <source media="(min-width: 1025px)" srcSet={desktopSrcSet} />
+        <source media="(min-width: 1025px)" srcSet={locale === "ar" ? desktopSrcSetAr : desktopSrcSet} />
         <img {...imageProps} alt="" className={styles.image} fetchPriority="high" loading="eager" decoding="async" />
       </picture>
       <div className={styles.overlay} />
@@ -121,6 +134,9 @@ const Hero = () => {
           </div>
         </div>
 
+      </div>
+      <div className={styles.marquee}>
+        <Partners />
       </div>
     </section>
   );

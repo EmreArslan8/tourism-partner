@@ -2,13 +2,14 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { businessSlug } from "@/lib/business-slug";
 import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
+import { businessDescription } from "@/lib/business-localization";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
 import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
@@ -16,12 +17,23 @@ import styles from "./styles";
 
 const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
 
+function ArrowIcon({ direction }: { direction: "left" | "right" }) {
+  return direction === "left" ? (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+  ) : (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+  );
+}
+
 /* Tek slide: solda galeri (kendi aktif görsel state'i), sağda bilgiler. */
 const Slide = ({ business }: { business: Business }) => {
+  const locale = useLocale();
   const tc = useTranslations("cat");
   const tv = useTranslations("common");
   const ts = useTranslations("supplier");
   const tService = useTranslations("service");
+  const tFacet = useTranslations("facet");
+  const tShowcase = useTranslations("showcase");
   const imgs = galleryFor(business);
   const [act, setAct] = useState(0);
   const touchX = useRef<number | null>(null);
@@ -43,8 +55,10 @@ const Slide = ({ business }: { business: Business }) => {
   const businessType = businessTypeKey ? tService(businessTypeKey) : business.type;
   const services = [
     businessType,
-    ...featuredFacetTags(business, 5).map((tag) => tag.label),
+    ...featuredFacetTags(business, 5).map((tag) => tFacet(tag.slug)),
   ];
+  const placeholder = tShowcase("imagePending");
+  const imageLabel = tShowcase("image");
 
   return (
     <div className={styles.slide} data-tour="supplier-showcase">
@@ -59,7 +73,7 @@ const Slide = ({ business }: { business: Business }) => {
           {imgs[act] ? (
             <Image src={imgs[act]} alt={business.name} fill sizes="(max-width:860px) 100vw, 55vw" className={styles.galleryImg} />
           ) : (
-            <div className={styles.placeholder}>Görsel bekleniyor</div>
+            <div className={styles.placeholder}>{placeholder}</div>
           )}
           {business.sponsored && <PremiumPartnerBadge label={tv("ad")} className={styles.premium} />}
           {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
@@ -68,7 +82,7 @@ const Slide = ({ business }: { business: Business }) => {
               <button
                 key={i}
                 type="button"
-                aria-label={`Görsel ${i + 1}`}
+                aria-label={`${imageLabel} ${i + 1}`}
                 onClick={() => setAct(i)}
                 className={i === act ? styles.thumbActive : styles.thumb}
               >
@@ -102,7 +116,7 @@ const Slide = ({ business }: { business: Business }) => {
             </span>
           </div>
 
-          <p className={styles.desc}>{business.desc}</p>
+          <p className={styles.desc}>{businessDescription(business, locale)}</p>
 
           {services.length > 0 && (
             <div className={styles.services}>
@@ -132,9 +146,11 @@ const Slide = ({ business }: { business: Business }) => {
 
 /* Öne çıkan iş ortakları — tam genişlikte, tek tek kayan carousel. */
 const Showcase = ({ businesses }: { businesses: Business[] }) => {
+  const locale = useLocale();
   const t = useTranslations("showcase");
   const items = businesses.filter((b) => b.sponsored && galleryFor(b).length > 0).slice(0, 5);
   const [i, setI] = useState(0);
+  const isRtl = locale === "ar";
 
   if (items.length === 0) return null;
   const go = (d: number) => setI((p) => (p + d + items.length) % items.length);
@@ -152,11 +168,11 @@ const Showcase = ({ businesses }: { businesses: Business[] }) => {
           descClassName={styles.sub}
         />
         <div className={styles.nav}>
-          <button type="button" aria-label="Önceki" className={styles.arrow} onClick={() => go(-1)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+          <button type="button" aria-label={t("prev")} className={styles.arrow} onClick={() => go(-1)}>
+            <ArrowIcon direction={isRtl ? "right" : "left"} />
           </button>
-          <button type="button" aria-label="Sonraki" className={styles.arrow} onClick={() => go(1)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          <button type="button" aria-label={t("next")} className={styles.arrow} onClick={() => go(1)}>
+            <ArrowIcon direction={isRtl ? "left" : "right"} />
           </button>
         </div>
       </div>

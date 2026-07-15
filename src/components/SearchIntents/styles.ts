@@ -17,7 +17,7 @@ const styles = {
     "text-[12.5px] font-semibold text-ink/80 shadow-[0_8px_22px_-18px_rgba(7,9,42,.45)] transition-all duration-200 ease-brand " +
     "hover:-translate-y-px hover:border-brand hover:text-brand hover:shadow-pop " +
     "[&>span]:truncate",
-  chipArrow: "text-muted transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand",
+  chipArrow: "text-muted transition-transform duration-200 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 group-hover:text-brand",
 } as const;
 
 export default styles;

@@ -39,11 +39,11 @@ function SearchBarSkeleton() {
   return (
     <>
       <div className="mb-5 grid grid-cols-[minmax(320px,1.8fr)_minmax(130px,.75fr)_minmax(130px,.75fr)_minmax(146px,.8fr)] items-center rounded-[12px] border border-line bg-paper/95 px-3 py-0 shadow-[0_18px_46px_-38px_rgba(7,9,42,.55)] max-[1280px]:grid-cols-[minmax(260px,1.4fr)_repeat(3,minmax(132px,1fr))] max-[1120px]:hidden">
-        <div className="py-1 pr-3">
+        <div className="py-1 pe-3">
           <DarkSkeletonBlock className="h-[50px] w-full bg-[#edf2fa]" />
         </div>
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="border-l border-[#e1e6ef] py-1 pl-3">
+          <div key={index} className="border-s border-[#e1e6ef] py-1 ps-3">
             <DarkSkeletonBlock className="h-[50px] w-full bg-[#edf2fa]" />
           </div>
         ))}
@@ -61,8 +61,8 @@ function SupplierCardSkeleton() {
   return (
     <article className="flex h-[480px] flex-col overflow-hidden rounded-[10px] border border-line bg-paper shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)] min-[1440px]:h-[540px] min-[1800px]:h-[580px] max-[640px]:h-[460px]">
       <div className="relative h-[240px] shrink-0 overflow-hidden bg-[linear-gradient(135deg,#e8edf6,#f7f9fc_48%,#dfe7f5)] min-[1440px]:h-[280px] min-[1800px]:h-[305px] max-[640px]:h-[230px]">
-        <DarkSkeletonBlock className="absolute left-3 top-3 h-6 w-24 rounded-full bg-white/50" />
-        <DarkSkeletonBlock className="absolute right-3 top-3 h-9 w-9 rounded-full bg-white/55" />
+        <DarkSkeletonBlock className="absolute start-3 top-3 h-6 w-24 rounded-full bg-white/50" />
+        <DarkSkeletonBlock className="absolute end-3 top-3 h-9 w-9 rounded-full bg-white/55" />
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-4 min-[1440px]:p-5 min-[1800px]:p-6">
         <DarkSkeletonBlock className="h-3 w-32 bg-[#dfe7f5]" />

@@ -23,12 +23,12 @@ const styles = {
     "max-[900px]:max-w-[60ch] max-[900px]:text-[14.5px]",
   primaryLink:
     "inline-flex w-fit items-center justify-center rounded-[12px] border border-white/20 bg-white px-5 py-3 text-[14px] font-extrabold text-sapphire-deep shadow-[0_16px_34px_-22px_rgba(0,0,0,.75)] transition hover:-translate-y-0.5 hover:bg-[#edf3ff] " +
-    "max-[560px]:ml-auto max-[560px]:h-9 max-[560px]:w-auto max-[560px]:shrink-0 max-[560px]:rounded-[10px] max-[560px]:px-3.5 max-[560px]:py-0 max-[560px]:text-[12px]",
+    "max-[560px]:ms-auto max-[560px]:h-9 max-[560px]:w-auto max-[560px]:shrink-0 max-[560px]:rounded-[10px] max-[560px]:px-3.5 max-[560px]:py-0 max-[560px]:text-[12px]",
 
   railWrap:
     "relative min-w-0",
   rail:
-    "grid auto-cols-[minmax(340px,calc((100%_-_20px)/2.35))] grid-flow-col gap-5 overflow-x-auto pr-1 " +
+    "grid auto-cols-[minmax(340px,calc((100%_-_20px)/2.35))] grid-flow-col gap-5 overflow-x-auto pe-1 " +
     "snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden " +
     "max-[1180px]:auto-cols-[minmax(310px,calc((100%_-_16px)/2.25))] max-[1180px]:gap-4 " +
     "max-[900px]:h-auto max-[900px]:min-h-0 max-[900px]:auto-cols-[minmax(300px,58vw)] max-[900px]:gap-3 max-[900px]:pb-2 " +
@@ -38,7 +38,7 @@ const styles = {
     "max-[900px]:h-[420px] max-[640px]:h-[360px] max-[640px]:rounded-[18px]",
   img: "object-cover transition-transform duration-700 ease-out group-hover:scale-[1.055]",
   regionMark:
-    "absolute left-5 top-5 grid h-14 w-14 place-items-center rounded-2xl border border-white/20 bg-white/10 text-[18px] font-extrabold text-white backdrop-blur-sm",
+    "absolute start-5 top-5 grid h-14 w-14 place-items-center rounded-2xl border border-white/20 bg-white/10 text-[18px] font-extrabold text-white backdrop-blur-sm",
   // Tek parca kart: ustten seffaf, alta dogru koyulasip icerigi tasiyan gradient.
   shade:
     "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(10,15,33,0)_40%,rgba(10,15,33,.4)_62%,rgba(10,15,33,.86)_85%,rgba(10,15,33,.96)_100%)]",
@@ -57,8 +57,8 @@ const styles = {
     "absolute top-[40%] z-20 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-[10px] border border-line/80 bg-white/95 text-ink shadow-[0_12px_26px_-16px_rgba(10,18,48,.55)] backdrop-blur transition hover:border-brand/35 hover:text-brand " +
     "[&_svg]:h-5 [&_svg]:w-5 [&_path]:stroke-current [&_path]:stroke-[2.2] [&_path]:stroke-linecap-round [&_path]:stroke-linejoin-round " +
     "max-[640px]:hidden",
-  navPrev: "left-0 -translate-x-1/2",
-  navNext: "right-0 translate-x-1/2",
+  navPrev: "start-0 ltr:-translate-x-1/2 rtl:translate-x-1/2",
+  navNext: "end-0 ltr:translate-x-1/2 rtl:-translate-x-1/2",
 } as const;
 
 export default styles;

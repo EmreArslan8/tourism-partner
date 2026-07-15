@@ -43,7 +43,7 @@ export default function ShareButton({ title }: { title: string }) {
       <Share2 size={17} aria-hidden />
       <span className="underline decoration-ink/40 underline-offset-2">{t("share")}</span>
       {copied && (
-        <span role="status" className="absolute right-0 top-11 z-10 whitespace-nowrap rounded-[8px] bg-ink px-3 py-1.5 text-[11.5px] font-semibold text-paper shadow-card">
+        <span role="status" className="absolute end-0 top-11 z-10 whitespace-nowrap rounded-[8px] bg-ink px-3 py-1.5 text-[11.5px] font-semibold text-paper shadow-card">
           {t("linkCopied")}
         </span>
       )}

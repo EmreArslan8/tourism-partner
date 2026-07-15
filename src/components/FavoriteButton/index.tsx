@@ -119,7 +119,7 @@ export default function FavoriteButton({
       <Heart size={24} strokeWidth={2.5} className={fav ? "fill-current" : ""} aria-hidden />
       {!isIcon && <span className={isHeader ? "underline decoration-current/40 underline-offset-2" : undefined}>{label}</span>}
       {isIcon && feedback && (
-        <span className="pointer-events-none absolute right-0 top-10 whitespace-nowrap rounded-full bg-paper/95 px-3 py-1.5 text-[11.5px] font-semibold text-brand-deep shadow-[0_14px_34px_-20px_rgba(7,9,42,.65)] ring-1 ring-line backdrop-blur">
+        <span className="pointer-events-none absolute end-0 top-10 whitespace-nowrap rounded-full bg-paper/95 px-3 py-1.5 text-[11.5px] font-semibold text-brand-deep shadow-[0_14px_34px_-20px_rgba(7,9,42,.65)] ring-1 ring-line backdrop-blur">
           {feedback}
         </span>
       )}

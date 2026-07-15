@@ -292,6 +292,7 @@ export interface Database {
         Row: {
           id: number;
           business_id: number | null;
+          requester_id: string | null;
           name: string;
           company: string | null;
           email: string;
@@ -313,6 +314,7 @@ export interface Database {
         Insert: {
           id?: number;
           business_id?: number | null;
+          requester_id?: string | null;
           name: string;
           company?: string | null;
           email: string;

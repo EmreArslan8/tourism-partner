@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_Arabic } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -16,6 +16,18 @@ const display = Inter({
 
 const body = Inter({
   subsets: ["latin", "latin-ext"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+const displayAr = Noto_Sans_Arabic({
+  subsets: ["arabic", "latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const bodyAr = Noto_Sans_Arabic({
+  subsets: ["arabic", "latin"],
   variable: "--font-body",
   display: "swap",
 });
@@ -47,8 +59,11 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
   const messages = await getMessages(locale as Locale);
 
+  const isAr = locale === "ar";
+  const fontVars = isAr ? `${displayAr.variable} ${bodyAr.variable}` : `${display.variable} ${body.variable}`;
+
   return (
-    <html lang={locale} data-scroll-behavior="smooth" className={`${display.variable} ${body.variable}`}>
+    <html lang={locale} dir={isAr ? "rtl" : "ltr"} data-scroll-behavior="smooth" className={fontVars}>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
       </body>

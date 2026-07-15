@@ -18,7 +18,7 @@ const Cta = () => {
         <div className={styles.actions}>
           <Link href="/register" className={styles.primary}>
             <span>{t("button")}</span>
-            <ArrowRight size={17} strokeWidth={2.4} aria-hidden />
+            <ArrowRight size={17} strokeWidth={2.4} className="rtl:rotate-180" aria-hidden />
           </Link>
         </div>
       </div>

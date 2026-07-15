@@ -41,7 +41,7 @@ export default function TopProgressBar({ active }: { active: boolean }) {
   return createPortal(
     <div className="pointer-events-none fixed inset-x-0 top-0 z-[80] h-[4px] bg-terra/10" aria-hidden>
       <div
-        className="h-full rounded-r-full bg-[linear-gradient(90deg,#0a2472,#3542ee_55%,#8ea2ff)] shadow-[0_0_12px_2px_rgba(53,66,238,.6)] transition-[width] duration-300 ease-out"
+        className="h-full rounded-e-full bg-[linear-gradient(90deg,#0a2472,#3542ee_55%,#8ea2ff)] shadow-[0_0_12px_2px_rgba(53,66,238,.6)] transition-[width] duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>,

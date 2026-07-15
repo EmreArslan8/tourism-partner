@@ -8,6 +8,7 @@ import { localeAlternates } from "@/lib/seo";
 import { realBusinessImages } from "@/lib/business-images";
 import { getBusinessPartners } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
+import { businessDescription, businessSeoDescription, businessSeoTitle } from "@/lib/business-localization";
 import SupplierDetailView from "./view";
 import MemberContactSection, { MemberContactSkeleton } from "./MemberContactSection";
 
@@ -21,10 +22,11 @@ export async function generateMetadata({
   if (!b) return { title: "Tourism Partner" };
 
   // Public, index'lenebilir profil (Brief §3B): Google deep-link + organik trafik.
-  const title = b.seoTitle || `${b.name} — ${b.city} · Tourism Partner`;
+  const title = businessSeoTitle(b, locale) || `${b.name} — ${b.city} · Tourism Partner`;
+  const localizedDescription = businessDescription(b, locale);
   const description =
-    b.seoDescription ||
-    (b.desc ? b.desc.slice(0, 160) : `${b.name}, ${b.city}/${b.country} · ${b.type}`);
+    businessSeoDescription(b, locale) ||
+    (localizedDescription ? localizedDescription.slice(0, 160) : `${b.name}, ${b.city}/${b.country} · ${b.type}`);
   const alternates = localeAlternates(locale as SiteLocale, {
     pathname: "/supplier/[id]",
     params: { id: businessSlug(b) },
@@ -85,6 +87,7 @@ export default async function DetailPage({
       tService={tService}
       services={services}
       gallery={gallery}
+      locale={locale}
     />
   );
 }

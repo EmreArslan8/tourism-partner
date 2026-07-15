@@ -20,7 +20,7 @@ const styles = {
     "after:transition-transform after:duration-300 after:content-['+'] [details[open]>&]:after:rotate-45 " +
     "min-[1440px]:py-6 min-[1440px]:text-[17px] min-[1800px]:py-7 min-[1800px]:text-[18px] " +
     "max-[640px]:py-3.5 max-[640px]:text-[13px] max-[640px]:after:h-6 max-[640px]:after:w-6 max-[640px]:after:text-[18px]",
-  text: "pb-3 pr-12 text-[14px] font-medium leading-7 text-white/90 min-[1440px]:pb-5 min-[1440px]:text-[15.5px] min-[1440px]:leading-8 min-[1800px]:text-[16.5px] max-[560px]:pb-2 max-[560px]:pr-2 max-[560px]:text-[12px] max-[560px]:leading-[1.45]",
+  text: "pb-3 pe-12 text-[14px] font-medium leading-7 text-white/90 min-[1440px]:pb-5 min-[1440px]:text-[15.5px] min-[1440px]:leading-8 min-[1800px]:text-[16.5px] max-[560px]:pb-2 max-[560px]:pe-2 max-[560px]:text-[12px] max-[560px]:leading-[1.45]",
 } as const;
 
 export default styles;

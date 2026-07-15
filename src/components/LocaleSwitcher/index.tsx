@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "@/i18n/navigation";
 import { useState, useRef, useEffect } from "react";
 import styles from "./styles";
 
-type Locale = "tr" | "en";
+type Locale = "tr" | "en" | "ru" | "ar";
 
 /**
  * Dropdown dil seçici bileşeni.
@@ -23,6 +23,8 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
   const locales = [
     { code: "tr", label: "TR", name: "Türkçe" },
     { code: "en", label: "EN", name: "English" },
+    { code: "ru", label: "RU", name: "Русский" },
+    { code: "ar", label: "AR", name: "العربية" },
   ];
 
   const currentLocale = locales.find((l) => l.code === locale) || locales[0];

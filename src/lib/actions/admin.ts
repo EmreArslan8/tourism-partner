@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup, serviceLabel } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
+import { translateWithDeepL, type DeepLLocale } from "@/lib/deepl";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
 
@@ -88,6 +89,10 @@ function listValue(formData: FormData, key: string): string[] {
 }
 
 function isRecord(value: unknown): value is Record<string, string> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
@@ -202,6 +207,74 @@ export async function saveBusiness(formData: FormData): Promise<void> {
   } catch (error) {
     throw error;
   }
+}
+
+export async function translateBusinessProfile(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  const locale = clean(formData.get("locale"), 8);
+  if (!Number.isInteger(id) || id <= 0) throw new Error("Geçersiz işletme.");
+
+  const { data, error } = await supabase
+    .from("businesses")
+    .select("id,name,description,details")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("İşletme bulunamadı.");
+
+  const source = clean(data.description, 3000);
+  if (!source) throw new Error("Çevrilecek açıklama yok.");
+
+  const details = isObjectRecord(data.details) ? { ...data.details } : {};
+  const currentTranslations = isObjectRecord(details.translations)
+    ? { ...(details.translations as Record<string, unknown>) }
+    : {};
+  const nextTranslations: Record<string, unknown> = { ...currentTranslations };
+  const created: DeepLLocale[] = [];
+  const failures: string[] = [];
+
+  for (const target of ["tr", "en", "ru", "ar"] as DeepLLocale[]) {
+    const existingEntry = nextTranslations[target];
+    const existing = isObjectRecord(existingEntry)
+      ? String(existingEntry.description ?? "").trim()
+      : "";
+    if (existing) continue;
+
+    const translated = target === "tr" ? { ok: true as const, text: source } : await translateWithDeepL(source, target);
+    if (!translated.ok) {
+      failures.push(`${target}: ${translated.error}`);
+      continue;
+    }
+    nextTranslations[target] = {
+      ...(isObjectRecord(nextTranslations[target]) ? nextTranslations[target] : {}),
+      description: translated.text,
+    };
+    created.push(target);
+  }
+
+  if (created.length === 0 && failures.length > 0) {
+    throw new Error(`Çeviri üretilemedi: ${failures.join(" / ")}`);
+  }
+  if (created.length === 0) {
+    throw new Error("Eksik çeviri yok.");
+  }
+
+  const payload = {
+    details: {
+      ...details,
+      translations: nextTranslations,
+    } as unknown as Record<string, string>,
+  };
+  const { error: updateError } = await supabase
+    .from("businesses")
+    .update(payload)
+    .eq("id", id);
+  if (updateError) throw new Error(updateError.message);
+
+  await logAdminAction(context, "business.translate", "business", id, { created, failures });
+  revalidateAdmin(locale);
 }
 
 export async function updateApplicationStatus(formData: FormData): Promise<void> {

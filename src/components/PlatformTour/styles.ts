@@ -20,8 +20,8 @@ const styles = {
     "relative z-10 mb-8 flex items-start justify-between gap-6 " +
     "max-[760px]:mb-6 max-[760px]:flex-col max-[760px]:gap-2 " +
     "[&_span]:text-[11px] [&_span]:font-extrabold [&_span]:uppercase [&_span]:tracking-[.16em] [&_span]:text-[#2563EB] " +
-    "[&_strong]:max-w-[39ch] [&_strong]:text-right [&_strong]:text-[15px] [&_strong]:font-extrabold [&_strong]:leading-6 [&_strong]:text-[#0B1C30] " +
-    "max-[760px]:[&_strong]:text-left",
+    "[&_strong]:max-w-[39ch] [&_strong]:text-end [&_strong]:text-[15px] [&_strong]:font-extrabold [&_strong]:leading-6 [&_strong]:text-[#0B1C30] " +
+    "max-[760px]:[&_strong]:text-start",
   flow:
     "relative z-10 grid grid-cols-[minmax(150px,1fr)_44px_minmax(210px,.9fr)_44px_minmax(150px,1fr)] items-center gap-3 " +
     "min-[1440px]:grid-cols-[minmax(190px,1fr)_52px_minmax(260px,.9fr)_52px_minmax(190px,1fr)] min-[1440px]:gap-4 min-[1800px]:grid-cols-[minmax(220px,1fr)_56px_minmax(300px,.9fr)_56px_minmax(220px,1fr)] " +

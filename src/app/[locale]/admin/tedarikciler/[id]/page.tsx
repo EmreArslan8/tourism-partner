@@ -19,6 +19,7 @@ import { businessImageUrl } from "@/lib/business-images";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { membershipDaysLeft, membershipState } from "@/lib/membership";
 import { extendMembership } from "@/lib/actions/membership";
+import { translateBusinessProfile } from "@/lib/actions/admin";
 import { cn } from "@/lib/utils";
 import { adminUi } from "../../_ui";
 import BusinessDetailTabs from "./BusinessDetailTabs";
@@ -81,9 +82,9 @@ export default async function AdminBusinessDetailPage({
       </div>
 
       {activeTab === "ozet" && <OverviewTab locale={locale} business={business} data={data} />}
-      {activeTab === "profil" && <ProfileTab locale={locale} business={business} data={data} />}
+      {activeTab === "profil" && <ProfileTab locale={locale} business={business} />}
       {activeTab === "belgeler" && <DocumentsTab business={business} />}
-      {activeTab === "icerik-seo" && <ContentSeoTab business={business} />}
+      {activeTab === "icerik-seo" && <ContentSeoTab locale={locale} business={business} />}
       {activeTab === "talepler" && <QuoteList quotes={data.quotes} locale={locale} />}
       {activeTab === "gecmis" && <HistoryTab data={data} />}
     </div>
@@ -105,7 +106,7 @@ const OverviewTab = ({ locale, business, data }: { locale: string; business: Adm
   </div>
 );
 
-const ProfileTab = ({ locale, business, data }: { locale: string; business: AdminBusiness; data: CrmBusinessDetailData }) => (
+const ProfileTab = ({ locale, business }: { locale: string; business: AdminBusiness }) => (
   <BusinessForm
     locale={locale}
     business={business}
@@ -135,15 +136,25 @@ const DocumentsTab = ({ business }: { business: AdminBusiness }) => {
   );
 };
 
-const ContentSeoTab = ({ business }: { business: AdminBusiness }) => (
+const ContentSeoTab = ({ locale, business }: { locale: string; business: AdminBusiness }) => (
   <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
     <section className={panel}>
-      <SectionTitle icon={<GalleryHorizontal size={18} aria-hidden />} title="İçerik & Galeri" />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SectionTitle icon={<GalleryHorizontal size={18} aria-hidden />} title="İçerik & Galeri" />
+        <form action={translateBusinessProfile}>
+          <input type="hidden" name="id" value={business.id} />
+          <input type="hidden" name="locale" value={locale} />
+          <button type="submit" className={cn(adminUi.sapphireButton, "h-9 rounded-[8px] px-3 text-[12.5px]")}>
+            Eksik çevirileri üret
+          </button>
+        </form>
+      </div>
       <div className="mt-4 grid gap-4">
         <div className="rounded-[8px] border border-line bg-cream/35 p-4">
           <p className="text-[12px] font-bold uppercase tracking-[.06em] text-muted">Açıklama</p>
           <p className="mt-2 text-[14px] leading-6 text-ink">{business.desc || "Açıklama girilmemiş."}</p>
         </div>
+        <TranslationState details={business.details as unknown} />
         <div className="grid gap-3 md:grid-cols-3">
           <InfoRow label="Kapak Görseli" value={business.image ? "Var" : "Eksik"} />
           <InfoRow label="Galeri" value={`${business.images?.length ?? 0} görsel`} />
@@ -164,6 +175,29 @@ const ContentSeoTab = ({ business }: { business: AdminBusiness }) => (
     </section>
   </div>
 );
+
+const TranslationState = ({ details }: { details?: unknown }) => {
+  const record = details && typeof details === "object" && !Array.isArray(details) ? details as Record<string, unknown> : {};
+  const translations = record.translations && typeof record.translations === "object" && !Array.isArray(record.translations)
+    ? record.translations as Record<string, unknown>
+    : {};
+  return (
+    <div className="grid gap-2 rounded-[8px] border border-line bg-paper p-3 md:grid-cols-4">
+      {(["tr", "en", "ru", "ar"] as const).map((locale) => {
+        const item = translations[locale];
+        const hasDescription = Boolean(item && typeof item === "object" && !Array.isArray(item) && String((item as Record<string, unknown>).description ?? "").trim());
+        return (
+          <div key={locale} className="rounded-[7px] bg-cream/50 px-3 py-2">
+            <p className="text-[11px] font-bold uppercase tracking-[.06em] text-muted">{locale}</p>
+            <p className={cn("mt-1 text-[12px] font-extrabold", hasDescription ? "text-emerald-700" : "text-amber-700")}>
+              {hasDescription ? "Hazır" : "Eksik"}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
   const views = data.pageViews.filter((view) => view.entityType === "business");
@@ -332,25 +366,6 @@ const HistoryTab = ({ data }: { data: CrmBusinessDetailData }) => (
   </section>
 );
 
-const ContactsList = ({ data }: { data: CrmBusinessDetailData }) => {
-  if (data.contacts.length === 0) return <Empty text="Bu işletme için yetkili kişi kaydı yok." />;
-  return (
-    <div className="mt-4 grid gap-2 md:grid-cols-2">
-      {data.contacts.map((contact) => (
-        <div key={contact.id} className="rounded-[8px] border border-line bg-cream/45 px-3 py-2">
-          <p className="text-[13px] font-extrabold text-ink">
-            {contact.fullName}
-            {contact.title && <span className="font-semibold text-muted"> · {contact.title}</span>}
-          </p>
-          <p className="mt-1 text-[12px] font-semibold text-muted">
-            {[contact.phone, contact.email].filter(Boolean).join(" · ") || "İletişim bilgisi yok"}
-          </p>
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const SectionTitle = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
   <div className="flex items-center gap-2">
     <span className="grid h-9 w-9 place-items-center rounded-[8px] bg-cream text-brand">{icon}</span>
@@ -377,13 +392,6 @@ const MembershipLine = ({ label, value, valueClassName }: { label: string; value
   <div className="flex min-h-[38px] items-center justify-between gap-3 border-b border-[#E5EAF3] last:border-b-0">
     <span className="text-[12.5px] font-semibold text-[#68748F]">{label}</span>
     <strong className={cn("min-w-0 text-right text-[12.5px] font-extrabold text-ink", valueClassName)}>{value}</strong>
-  </div>
-);
-
-const InfoLine = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex items-center justify-between gap-4 px-5 py-3">
-    <span className="font-semibold text-muted">{label}</span>
-    <strong className="text-right font-bold text-ink">{value}</strong>
   </div>
 );
 

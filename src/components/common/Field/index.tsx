@@ -24,7 +24,7 @@ export default function Field({
         <span className="text-[12px] font-semibold text-muted">
           {label}
           {required && <em className="not-italic text-red-500"> *</em>}
-          {hint && <span className="ml-1 font-normal text-muted/70">· {hint}</span>}
+          {hint && <span className="ms-1 font-normal text-muted/70">· {hint}</span>}
         </span>
       )}
       {children}

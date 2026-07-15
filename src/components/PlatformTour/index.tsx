@@ -33,7 +33,7 @@ export default function PlatformTour() {
           </div>
 
           <span className={styles.connector} aria-hidden>
-            <ArrowRight size={20} strokeWidth={2.4} />
+            <ArrowRight size={20} strokeWidth={2.4} className="rtl:rotate-180" />
           </span>
 
           <div className={styles.hub} data-tour="overview-platform">
@@ -46,7 +46,7 @@ export default function PlatformTour() {
           </div>
 
           <span className={styles.connector} aria-hidden>
-            <ArrowRight size={20} strokeWidth={2.4} />
+            <ArrowRight size={20} strokeWidth={2.4} className="rtl:rotate-180" />
           </span>
 
           <div className={styles.flowNode} data-tour="overview-supplier">

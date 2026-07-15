@@ -207,7 +207,7 @@ const RegisterForm = () => {
                   onClick={() => choose(key)}
                   aria-pressed={on}
                   className={cn(
-                    "flex items-center gap-4 rounded-[14px] border-[1.5px] bg-paper px-4 py-4 text-left transition-all lg:gap-5 lg:rounded-[16px] lg:px-6 lg:py-7",
+                    "flex items-center gap-4 rounded-[14px] border-[1.5px] bg-paper px-4 py-4 text-start transition-all lg:gap-5 lg:rounded-[16px] lg:px-6 lg:py-7",
                     on
                       ? "border-terra bg-terra/5 shadow-[0_10px_26px_-18px_rgba(15,59,176,.55)]"
                       : "border-line hover:border-terra/50 hover:bg-terra/[.03]",
@@ -225,7 +225,7 @@ const RegisterForm = () => {
                     <span className="block text-[15px] font-bold !text-ink lg:text-[17px]">{title}</span>
                     <span className="mt-0.5 block text-[12.5px] font-medium leading-snug !text-[#33415f] lg:mt-1 lg:text-[13.5px]">{desc}</span>
                   </span>
-                  <ChevronRight size={20} className={cn("ml-auto shrink-0 lg:h-6 lg:w-6", on ? "text-terra" : "text-muted/60")} aria-hidden />
+                  <ChevronRight size={20} className={cn("ms-auto shrink-0 rtl:rotate-180 lg:h-6 lg:w-6", on ? "text-terra" : "text-muted/60")} aria-hidden />
                 </button>
               );
             })}
@@ -433,13 +433,13 @@ const RegisterForm = () => {
                 aria-invalid={!!pwErr}
                 onChange={() => pwErr && setPwErr("")}
                 onBlur={(e) => setPwErr(e.target.value && e.target.value.length < 6 ? t("vPassword") : "")}
-                className={cn("field h-[46px] w-full pr-11", pwErr && "border-red-500 focus:border-red-500")}
+                className={cn("field h-[46px] w-full pe-11", pwErr && "border-red-500 focus:border-red-500")}
               />
               <button
                 type="button"
                 onClick={() => setShowPw((v) => !v)}
                 aria-label={showPw ? t("pwHide") : t("pwShow")}
-                className="absolute right-3 top-1/2 grid -translate-y-1/2 place-items-center text-muted transition-colors hover:text-ink"
+                className="absolute end-3 top-1/2 grid -translate-y-1/2 place-items-center text-muted transition-colors hover:text-ink"
               >
                 {showPw ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
               </button>

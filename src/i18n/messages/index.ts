@@ -17,6 +17,14 @@ const loaders = {
     ui: () => import("./en/ui.json").then((m) => m.default),
     content: () => import("./en/content.json").then((m) => m.default),
   },
+  ru: {
+    ui: () => import("./ru/ui.json").then((m) => m.default),
+    content: () => import("./ru/content.json").then((m) => m.default),
+  },
+  ar: {
+    ui: () => import("./ar/ui.json").then((m) => m.default),
+    content: () => import("./ar/content.json").then((m) => m.default),
+  },
 } satisfies Record<Locale, Record<MessageFile, MessageLoader>>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {

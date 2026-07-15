@@ -47,7 +47,7 @@ export default function AccountMenu({ dashboardHref }: { dashboardHref: Href | n
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+10px)] z-50 grid min-w-[190px] gap-1 rounded-[10px] border border-white/15 bg-white p-1.5 text-ink shadow-[0_22px_60px_-28px_rgba(3,12,26,.55)]"
+          className="absolute end-0 top-[calc(100%+10px)] z-50 grid min-w-[190px] gap-1 rounded-[10px] border border-white/15 bg-white p-1.5 text-ink shadow-[0_22px_60px_-28px_rgba(3,12,26,.55)]"
         >
           {dashboardHref && (
             <Link
@@ -64,7 +64,7 @@ export default function AccountMenu({ dashboardHref }: { dashboardHref: Href | n
             <button
               type="submit"
               role="menuitem"
-              className="inline-flex w-full items-center gap-2 rounded-[8px] px-3 py-2.5 text-left text-[13.5px] font-semibold text-red-700 transition-colors hover:bg-red-50"
+              className="inline-flex w-full items-center gap-2 rounded-[8px] px-3 py-2.5 text-start text-[13.5px] font-semibold text-red-700 transition-colors hover:bg-red-50"
             >
               <LogOut size={16} aria-hidden />
               {t("signOut")}

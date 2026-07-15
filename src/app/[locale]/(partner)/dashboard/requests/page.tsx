@@ -48,7 +48,7 @@ async function RequestsContent({ locale }: { locale: string }) {
 
   const session = await getPanelSession();
   if (!session) return redirect({ href: "/login", locale });
-  if (session.accountType === "buyer") redirect({ href: "/dashboard", locale });
+  if (session.accountType === "buyer") return <BuyerRequestsContent locale={locale} userId={session.userId} />;
   const biz = await getPanelBusiness();
 
   const supabase = await createClient();
@@ -142,7 +142,7 @@ async function RequestsContent({ locale }: { locale: string }) {
                   <a href={`mailto:${q.email}`} className="text-terra hover:underline">{q.email}</a>
                   {q.phone && <span>{q.phone}</span>}
                   {q.valid_until && <span className="font-medium text-terra-deep">{t("quoteValidUntil")}: {new Date(`${q.valid_until}T12:00:00`).toLocaleDateString("tr-TR")}</span>}
-                  <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className="ml-auto font-medium text-[#1557C2] hover:underline">{t("reply")}</a>
+                  <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className="ms-auto font-medium text-[#1557C2] hover:underline">{t("reply")}</a>
                 </div>
                 {q.message && (
                   <details className="mt-1.5 group">
@@ -168,7 +168,7 @@ async function RequestsContent({ locale }: { locale: string }) {
               </label>
               <RequestCategoryFields />
               <RequestRegionFields defaultCountry={biz.country ?? "Türkiye"} defaultCity={biz.city ?? ""} defaultDistrict={biz.district ?? ""} />
-              <div className="grid grid-cols-[minmax(0,1.4fr)_minmax(220px,.9fr)_minmax(120px,.55fr)] gap-2.5 max-[760px]:grid-cols-1">
+              <div className="grid grid-cols-[minmax(0,1.9fr)_minmax(160px,.6fr)_minmax(120px,.55fr)] gap-2.5 max-[760px]:grid-cols-1">
                 <DateRangePicker
                   label={tq("dateRange")}
                   startLabel={tq("dateStart")}
@@ -223,7 +223,7 @@ async function RequestsContent({ locale }: { locale: string }) {
                           {offers.map((o) => (
                             <div key={o.id} className="rounded-[9px] bg-white px-3 py-2 text-[12.5px]">
                               <span className="font-bold text-ink">{bizName(o.businesses)}</span>
-                              {o.price && <span className="ml-2 font-semibold text-terra-deep">{o.price}</span>}
+                              {o.price && <span className="ms-2 font-semibold text-terra-deep">{o.price}</span>}
                               <p className="mt-0.5 text-muted">{o.message}</p>
                             </div>
                           ))}
@@ -277,6 +277,79 @@ async function RequestsContent({ locale }: { locale: string }) {
           )}
         </PartnerPanelCard>
       </div>
+      </div>
+    </>
+  );
+}
+
+async function BuyerRequestsContent({ locale, userId }: { locale: string; userId: string }) {
+  const [t, tq] = await Promise.all([getTranslations("panel"), getTranslations("quote")]);
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("quotes")
+    .select("id,business_id,service,category_type,country,city,district,date_range,valid_until,people,message,status,created_at,businesses(name)")
+    .eq("requester_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  type Request = {
+    id: number;
+    business_id: number | null;
+    service: string | null;
+    category_type: string | null;
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    date_range: string | null;
+    valid_until: string | null;
+    people: number | null;
+    message: string | null;
+    status: string;
+    created_at: string;
+    businesses: { name: string } | { name: string }[] | null;
+  };
+  const requests = (data ?? []) as unknown as Request[];
+  const businessName = (value: Request["businesses"]) =>
+    (Array.isArray(value) ? value[0]?.name : value?.name) ?? t("buyerRequestGeneral");
+  const fmt = (value: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(value));
+
+  return (
+    <>
+      <DashboardTopbar title={t("requestsMineNav")} />
+      <div className={styles.content}>
+        <PartnerPanelCard bodyClassName="p-5">
+          <div className="flex items-center justify-between gap-3 border-b border-line/70 pb-4">
+            <div>
+              <h2 className="text-[17px] font-semibold text-ink">{t("buyerRequestsTitle")}</h2>
+              <p className="mt-1 text-[13px] leading-5 text-muted">{t("buyerRequestsSub")}</p>
+            </div>
+            <span className="rounded-pill bg-[#EAF2FF] px-2.5 py-1 text-[12px] font-semibold text-[#1557C2]">{requests.length}</span>
+          </div>
+          {requests.length === 0 ? (
+            <div className="py-8 text-center">
+              <p className="text-[13px] text-muted">{t("buyerRequestsEmpty")}</p>
+              <Link href="/explore" className={`${styles.compactPrimaryButton} mt-4 inline-flex`}>{t("buyerExploreCta")}</Link>
+            </div>
+          ) : (
+            <ul className="divide-y divide-line/70">
+              {requests.map((request) => (
+                <li key={request.id} className="py-4 first:pb-4 last:pb-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-[14px] font-bold text-ink">{businessName(request.businesses)}</h3>
+                      <p className="mt-1 text-[12.5px] text-muted">
+                        {[request.service ?? request.category_type, [request.city, request.district].filter(Boolean).join(" / "), request.date_range, request.people ? `${request.people} ${tq("people")}` : null].filter(Boolean).join(" · ") || t("buyerRequestGeneral")}
+                      </p>
+                    </div>
+                    <span className="shrink-0 text-[11.5px] font-medium text-muted">{fmt(request.created_at)}</span>
+                  </div>
+                  {request.valid_until && <p className="mt-2 text-[12px] font-semibold text-terra-deep">{t("quoteValidUntil")}: {new Date(`${request.valid_until}T12:00:00`).toLocaleDateString(locale)}</p>}
+                  {request.message && <p className="mt-2 whitespace-pre-line rounded-[8px] bg-[#F5F8FD] px-3 py-2 text-[12.5px] leading-5 text-ink/80">{request.message}</p>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </PartnerPanelCard>
       </div>
     </>
   );

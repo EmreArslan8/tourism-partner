@@ -2,10 +2,11 @@
 
 import { useState, type ReactNode } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link, type Href } from "@/i18n/navigation";
 import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { businessImageUrl } from "@/lib/business-images";
+import { businessDescription } from "@/lib/business-localization";
 import type { Business } from "@/lib/types";
 import styles from "./styles";
 import Badge from "@/components/common/Badge";
@@ -34,6 +35,7 @@ const SupplierCard = ({
   href?: Href;
   children: ReactNode;
 }) => {
+  const locale = useLocale();
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
   const tCommon = useTranslations("common");
@@ -106,7 +108,7 @@ const SupplierCard = ({
           <span>{business.district}, {business.city} · {business.country}</span>
           {hasRating && <span className={styles.rating}><span className="text-star">★</span> {business.rating.toFixed(1)}</span>}
         </p>
-        <p className={styles.desc}>{business.desc}</p>
+        <p className={styles.desc}>{businessDescription(business, locale)}</p>
         <div className={`${styles.foot} relative z-[2]`}>
           <div className={styles.actions}>{children}</div>
         </div>

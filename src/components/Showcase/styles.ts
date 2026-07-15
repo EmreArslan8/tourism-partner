@@ -31,7 +31,7 @@ const styles = {
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
     "max-[640px]:min-h-0 max-[640px]:h-[34dvh]",
   galleryImg: "object-cover",
-  premium: "absolute left-4 top-4 z-[3]",
+  premium: "absolute start-4 top-4 z-[3]",
   placeholder:
     "grid h-full min-h-[360px] place-items-center text-[13px] font-bold text-white/90 " +
     "min-[1440px]:min-h-[460px] min-[1800px]:min-h-[520px] " +

@@ -130,6 +130,7 @@ export async function submitQuote(
 
   try {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
     const submissionStartedAt = new Date().toISOString();
     let targetBusinessIds = businessId ? [businessId] : [];
     if (businessId) {
@@ -169,6 +170,7 @@ export async function submitQuote(
 
     const rows = targetBusinessIds.map((targetBusinessId) => ({
       business_id: targetBusinessId,
+      requester_id: user?.id ?? null,
       name,
       email,
       phone,

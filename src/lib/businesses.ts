@@ -7,6 +7,7 @@ import { businessSlug } from "./business-slug";
 import { getServiceSlugsByBusiness } from "./business-services";
 import { profileScore } from "./listing";
 import { PUBLIC_BUSINESS_STATUSES } from "./business-visibility";
+import { parseBusinessTranslations } from "./business-localization";
 export { businessSlug } from "./business-slug";
 
 /* Liste/istemci payload'ı için iletişim alanlarını çıkarır (Brief §6A: telefon/website
@@ -27,9 +28,9 @@ export function toListingBusiness(b: Business): Business {
    `details` JSON'u vergi no/TCKN gibi private alanlar taşıyabildiği için yalnızca
    rehber aramasında gereken `work_regions` JSON path olarak alınır. */
 const SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,founder_partner_number,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,founder_partner_number,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,translations:details->translations,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 const LEGACY_SELECT_COLUMNS =
-  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
+  "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,doping_until,phone,website,socials,image,images,attributes,work_regions:details->>work_regions,translations:details->translations,seo_title,seo_description,seo_keywords,canonical_path,og_image" as const;
 
 type Row = Pick<
   BusinessRow,
@@ -37,7 +38,7 @@ type Row = Pick<
   | "lat" | "lng" | "description" | "rating" | "reviews" | "tag"
   | "verified" | "sponsored" | "doping_until" | "phone" | "website" | "image" | "images" | "attributes"
   | "seo_title" | "seo_description" | "seo_keywords" | "canonical_path" | "og_image"
-> & { founder_partner?: boolean | null; founder_partner_number?: number | null; work_regions?: string | null; socials?: unknown };
+> & { founder_partner?: boolean | null; founder_partner_number?: number | null; work_regions?: string | null; translations?: unknown; socials?: unknown };
 
 /* socials jsonb'sini güvenle tipe çevirir — yalnız bilinen platformlar ve http(s) URL'ler. */
 function parseSocials(raw: unknown): BusinessSocials | undefined {
@@ -109,6 +110,7 @@ function rowToBusiness(r: Row, counts?: { contactCount?: number; partnerCount?: 
     district: r.district,
     coords: [Number(r.lat ?? 0), Number(r.lng ?? 0)],
     desc: r.description ?? "",
+    translations: parseBusinessTranslations(r.translations),
     rating: Number(r.rating),
     reviews: r.reviews,
     tag: r.tag ?? "",

@@ -1,4 +1,4 @@
-import { Heart, Search, Send } from "lucide-react";
+import { Heart, Search } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getPanelSession } from "@/lib/panel-auth";
@@ -47,12 +47,9 @@ export default async function BuyerOverview() {
           </section>
 
           <PartnerPanelCard bodyClassName="flex flex-wrap items-center justify-between gap-4 p-5" className="border-[#D5E2FA] bg-[#F8FBFF]">
-            <div className="flex min-w-0 items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-sapphire/10 text-sapphire"><Send size={18} aria-hidden /></span>
-              <div>
-                <h2 className="text-[15px] font-semibold text-ink">{t("buyerRequestTitle")}</h2>
-                <p className="mt-1 text-[13px] leading-5 text-muted">{t("buyerRequestSub")}</p>
-              </div>
+            <div>
+              <h2 className="text-[15px] font-semibold text-ink">{t("buyerRequestTitle")}</h2>
+              <p className="mt-1 text-[13px] leading-5 text-muted">{t("buyerRequestSub")}</p>
             </div>
             <Link href="/explore" className={styles.compactSecondaryButton}>{t("buyerExploreCta")}</Link>
           </PartnerPanelCard>

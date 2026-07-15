@@ -30,7 +30,7 @@ const styles = {
     loading: "pointer-events-none opacity-65",
     disabled: "pointer-events-none opacity-65",
   },
-  spinner: "animate-spin -ml-1 mr-2 h-4 w-4",
+  spinner: "animate-spin -ms-1 me-2 h-4 w-4",
   spinnerOnly: "animate-spin h-4 w-4",
   icon: "shrink-0",
 } as const;

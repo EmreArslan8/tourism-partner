@@ -6,7 +6,7 @@ const styles = {
     "flex h-[72px] items-center justify-between border-b border-line bg-paper px-5 text-ink shadow-[0_8px_22px_-20px_rgba(7,9,42,.55)] min-[900px]:hidden",
   mobileHeaderMeta: "flex items-center gap-3",
   sidebar:
-    "border-b border-line bg-paper text-ink transition-transform duration-300 max-[899px]:z-50 max-[899px]:shadow-[14px_0_40px_-28px_rgba(7,9,42,.45)] max-[899px]:fixed max-[899px]:inset-y-0 max-[899px]:left-0 max-[899px]:w-[min(82vw,310px)] max-[899px]:-translate-x-full max-[899px]:overflow-y-auto min-[900px]:sticky min-[900px]:top-0 min-[900px]:h-screen min-[900px]:border-b-0 min-[900px]:border-r min-[900px]:border-line",
+    "border-b border-line bg-paper text-ink transition-transform duration-300 max-[899px]:z-50 max-[899px]:shadow-[14px_0_40px_-28px_rgba(7,9,42,.45)] max-[899px]:fixed max-[899px]:inset-y-0 max-[899px]:start-0 max-[899px]:w-[min(82vw,310px)] max-[899px]:ltr:-translate-x-full max-[899px]:rtl:translate-x-full max-[899px]:overflow-y-auto min-[900px]:sticky min-[900px]:top-0 min-[900px]:h-screen min-[900px]:border-b-0 min-[900px]:border-e min-[900px]:border-line",
   sidebarOpen: "max-[899px]:translate-x-0",
   mobileMenuButton:
     "grid h-10 w-10 place-items-center rounded-[10px] border border-line bg-cream/45 text-brand transition-[transform,background-color] duration-200 hover:bg-cream active:scale-95",
@@ -20,7 +20,7 @@ const styles = {
     "mt-4 grid gap-1 px-4 font-body text-dashboard-nav font-medium tracking-normal min-[900px]:mt-5 [&>a]:flex [&>a]:items-center [&>a]:gap-2.5 [&>a]:rounded-[8px] [&>a]:px-3 [&>a]:py-2.5 [&>a]:text-muted [&>a]:transition-colors hover:[&>a]:bg-cream/70 hover:[&>a]:text-brand",
   sideNavActive: "bg-cream !text-brand",
   sidebarFoot:
-    "mt-5 rounded-[10px] border border-line bg-cream/45 p-3 text-[11.5px] text-muted min-[900px]:absolute min-[900px]:bottom-4 min-[900px]:left-4 min-[900px]:right-4 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-ink",
+    "mt-5 rounded-[10px] border border-line bg-cream/45 p-3 text-[11.5px] text-muted min-[900px]:absolute min-[900px]:bottom-4 min-[900px]:start-4 min-[900px]:end-4 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-ink",
   workspace: "min-w-0",
   content: `${panelUi.page} px-5 pb-12 pt-7 min-[760px]:px-7 min-[900px]:px-9`,
   topbar:
@@ -103,7 +103,7 @@ const styles = {
   editIntro: "mb-4 flex flex-wrap items-start justify-between gap-4",
   editIntroEyebrow: "mb-1.5 block text-[11px] font-semibold uppercase tracking-[.08em] text-sapphire",
   form: "flex flex-col gap-4",
-  editProgress: "grid grid-cols-[auto_minmax(140px,340px)_auto] items-center gap-3 rounded-[10px] border border-line bg-paper px-4 py-3 max-[680px]:grid-cols-[1fr_auto] [&>div:first-child]:flex [&>div:first-child]:items-baseline [&>div:first-child]:gap-2 [&>div:first-child>span]:text-[12px] [&>div:first-child>span]:font-medium [&>div:first-child>span]:text-muted [&>div:first-child>strong]:text-[20px] [&>div:first-child>strong]:font-semibold [&>p]:text-right [&>p]:text-[12px] [&>p]:font-medium [&>p]:text-muted max-[680px]:[&>p]:text-left",
+  editProgress: "grid grid-cols-[auto_minmax(140px,340px)_auto] items-center gap-3 rounded-[10px] border border-line bg-paper px-4 py-3 max-[680px]:grid-cols-[1fr_auto] [&>div:first-child]:flex [&>div:first-child]:items-baseline [&>div:first-child]:gap-2 [&>div:first-child>span]:text-[12px] [&>div:first-child>span]:font-medium [&>div:first-child>span]:text-muted [&>div:first-child>strong]:text-[20px] [&>div:first-child>strong]:font-semibold [&>p]:text-end [&>p]:text-[12px] [&>p]:font-medium [&>p]:text-muted max-[680px]:[&>p]:text-start",
   editProgressTrack: "h-1.5 overflow-hidden rounded-full bg-line max-[680px]:col-span-2 max-[680px]:row-start-2 [&>i]:block [&>i]:h-full [&>i]:rounded-full [&>i]:bg-sapphire [&>i]:transition-[width] [&>i]:duration-500",
   editTabs: "grid w-full grid-flow-col auto-cols-[minmax(136px,1fr)] gap-1.5 overflow-x-auto rounded-[11px] border border-line bg-cream/55 p-1.5 shadow-card [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
   editTab: "group inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-[8px] border border-transparent px-3 text-[13px] font-medium text-muted transition-[color,background-color,border-color,box-shadow,transform] duration-200 hover:bg-paper/70 hover:text-ink active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sapphire [&>span]:truncate",
@@ -117,7 +117,7 @@ const styles = {
   formSectionTitle: "mb-4 font-body text-[18px] font-semibold tracking-normal text-ink",
   publishChecklist: "grid content-start gap-3 rounded-[10px] border border-line bg-paper p-4 min-[1120px]:sticky min-[1120px]:top-[108px] [&>p]:text-[12.5px] [&>p]:leading-5 [&>p]:text-muted [&>a]:mt-1 [&>a]:justify-center",
   publishChecklistHead: "flex items-center justify-between gap-3 [&>span]:text-[15px] [&>span]:font-semibold [&>span]:text-ink [&>strong]:rounded-full [&>strong]:bg-cream [&>strong]:px-2.5 [&>strong]:py-1 [&>strong]:text-[12px] [&>strong]:font-semibold [&>strong]:text-brand",
-  publishChecklistItems: "grid border-y border-line py-1 [&>button]:grid [&>button]:grid-cols-[18px_minmax(0,1fr)_auto] [&>button]:items-center [&>button]:gap-2 [&>button]:rounded-[7px] [&>button]:px-2 [&>button]:py-2.5 [&>button]:text-left [&>button]:text-muted [&>button]:transition-colors hover:[&>button]:bg-cream/70 hover:[&>button]:text-ink [&>button>span]:truncate [&>button>span]:text-[12.5px] [&>button>span]:font-medium [&>button>small]:text-[10.5px] [&>button>small]:text-muted",
+  publishChecklistItems: "grid border-y border-line py-1 [&>button]:grid [&>button]:grid-cols-[18px_minmax(0,1fr)_auto] [&>button]:items-center [&>button]:gap-2 [&>button]:rounded-[7px] [&>button]:px-2 [&>button]:py-2.5 [&>button]:text-start [&>button]:text-muted [&>button]:transition-colors hover:[&>button]:bg-cream/70 hover:[&>button]:text-ink [&>button>span]:truncate [&>button>span]:text-[12.5px] [&>button>span]:font-medium [&>button>small]:text-[10.5px] [&>button>small]:text-muted",
   formActions: "sticky bottom-0 z-10 mt-1 flex justify-end gap-2 border-t border-line bg-panel-bg/92 py-4 backdrop-blur",
   fieldCls:
     `${panelUi.input} h-[44px] px-3.5 font-body text-form-control placeholder:text-muted/50`,
@@ -126,10 +126,10 @@ const styles = {
   photoList: "flex flex-wrap gap-2.5",
   photoBtn:
     "relative h-[92px] w-[128px] overflow-hidden rounded-[8px] border border-line bg-cream/45 text-[12px] text-muted hover:border-sapphire",
-  photoBadge: "absolute bottom-0 left-0 right-0 bg-ink/60 py-1 text-center text-[10px] font-bold text-paper",
+  photoBadge: "absolute bottom-0 start-0 end-0 bg-ink/60 py-1 text-center text-[10px] font-bold text-paper",
   photoItem: "relative h-[92px] w-[128px] overflow-hidden rounded-[8px] border border-line",
   photoDelete:
-    "absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-ink/70 text-[13px] font-bold text-paper hover:bg-red-600",
+    "absolute end-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-ink/70 text-[13px] font-bold text-paper hover:bg-red-600",
   photoAdd:
     "grid h-[92px] w-[128px] place-items-center rounded-[8px] border border-dashed border-line bg-cream/45 text-[12px] font-bold text-muted hover:border-sapphire",
   threeCol: "grid grid-cols-3 gap-3 max-[620px]:grid-cols-1",
@@ -143,7 +143,7 @@ const styles = {
     "flex cursor-pointer items-center gap-1.5 rounded-[999px] border border-line px-3 py-1.5 text-[12.5px] has-[:checked]:border-sapphire has-[:checked]:bg-cream",
   partnerPickGrid: "mt-3 grid gap-2 min-[680px]:grid-cols-2",
   partnerPickItem:
-    "grid min-h-[72px] content-center rounded-[8px] border border-line bg-paper px-3 py-2.5 text-left transition-colors hover:border-sapphire/45 hover:bg-cream/45",
+    "grid min-h-[72px] content-center rounded-[8px] border border-line bg-paper px-3 py-2.5 text-start transition-colors hover:border-sapphire/45 hover:bg-cream/45",
   partnerPickItemActive: "!border-sapphire bg-sapphire/10",
   partnerPickName: "truncate text-[13.5px] font-semibold text-ink",
   partnerPickMeta: "mt-1 truncate text-[12px] font-medium text-muted",
@@ -154,13 +154,13 @@ const styles = {
   partnerRequestActions: "flex shrink-0 items-center gap-2",
   partnerAddRow: "mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line/75 pt-4 text-[12.5px] leading-5 text-muted",
   partnerAddButton: `${panelUi.primaryButton} h-10 gap-2 px-3.5 disabled:cursor-not-allowed disabled:opacity-50`,
-  partnerDialog: "max-h-[92vh] max-w-[680px] overflow-y-auto !p-5 min-[640px]:!p-6 [&>h2]:pr-10",
+  partnerDialog: "max-h-[92vh] max-w-[680px] overflow-y-auto !p-5 min-[640px]:!p-6 [&>h2]:pe-10",
   partnerPicker: "mt-5",
   partnerSearch: "flex h-11 items-center gap-2.5 rounded-[10px] border border-line bg-cream/45 px-3 text-muted transition-colors focus-within:border-sapphire focus-within:bg-paper [&>input]:min-w-0 [&>input]:flex-1 [&>input]:bg-transparent [&>input]:text-[14px] [&>input]:text-ink [&>input]:outline-none [&>input]:placeholder:text-muted/70",
   partnerFilters: "mt-3 grid grid-cols-2 gap-2 max-[480px]:grid-cols-1 [&>select]:h-10 [&>select]:rounded-[8px] [&>select]:border [&>select]:border-line [&>select]:bg-paper [&>select]:px-3 [&>select]:text-[13px] [&>select]:text-ink [&>select]:outline-none focus:[&>select]:border-sapphire",
   partnerResultCount: "mt-4 text-[12px] font-semibold uppercase tracking-[.06em] text-muted",
-  partnerResultList: "mt-2 grid max-h-[348px] gap-2 overflow-y-auto pr-1",
-  partnerResultItem: "grid min-h-[76px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 rounded-[10px] border border-line bg-paper px-3.5 py-3 text-left transition-all hover:border-sapphire hover:bg-cream/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sapphire [&>span:nth-child(2)]:col-start-1",
+  partnerResultList: "mt-2 grid max-h-[348px] gap-2 overflow-y-auto pe-1",
+  partnerResultItem: "grid min-h-[76px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 rounded-[10px] border border-line bg-paper px-3.5 py-3 text-start transition-all hover:border-sapphire hover:bg-cream/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sapphire [&>span:nth-child(2)]:col-start-1",
   partnerResultAction: "row-span-2 rounded-full bg-sapphire/10 px-2.5 py-1 text-[11px] font-semibold text-brand",
   partnerNoResult: "rounded-[10px] border border-dashed border-line bg-cream/45 px-4 py-8 text-center text-[13px] text-muted",
   partnerConfirm: "mt-5 grid gap-4",
@@ -202,7 +202,7 @@ const styles = {
   listingMetric: "inline-flex items-center gap-1 rounded-full border border-line bg-paper px-2.5 py-1 text-[12px] text-muted [&>strong]:font-bold [&>strong]:text-ink",
   listingActions: "mt-3 flex flex-wrap gap-2 [&_a]:inline-flex [&_a]:items-center [&_a]:gap-1.5",
   requestBoard: "grid gap-3",
-  quoteList: "flex max-h-[520px] flex-col gap-3 overflow-auto pr-1",
+  quoteList: "flex max-h-[520px] flex-col gap-3 overflow-auto pe-1",
   quoteItem: "rounded-[8px] border border-line bg-cream/45 p-3.5",
   quoteHead: "flex items-center justify-between gap-2",
   quoteName: "truncate text-[14px] font-bold",

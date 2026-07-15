@@ -49,8 +49,8 @@ export default function VerifyEmail({ email, onBack }: { email: string; onBack: 
   return (
     <div className="relative flex h-full items-center justify-center overflow-hidden px-6 py-10">
       {/* dekоratif gradyan lekeleri — derinlik */}
-      <div aria-hidden className="pointer-events-none absolute -top-20 right-10 h-64 w-64 rounded-full bg-terra/5 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 left-6 h-64 w-64 rounded-full bg-terra/[.06] blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -top-20 end-10 h-64 w-64 rounded-full bg-terra/5 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 start-6 h-64 w-64 rounded-full bg-terra/[.06] blur-3xl" />
 
       <div className="relative w-full max-w-[440px] text-center">
         {/* Katmanlı gradyan ikon + ping halkası */}

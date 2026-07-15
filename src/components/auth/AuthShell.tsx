@@ -27,9 +27,9 @@ export default async function AuthShell({ children }: { children: React.ReactNod
   return (
     <div className="flex h-screen overflow-hidden bg-cream">
       {/* Sol marka paneli — ekran kenarına bitişik; yalnızca forma bakan sağ köşeler yuvarlak */}
-      <aside className="relative hidden w-[400px] shrink-0 flex-col justify-between overflow-hidden rounded-r-[36px] bg-[linear-gradient(158deg,#0a2472_0%,#0f3bb0_100%)] p-10 text-white shadow-[0_24px_70px_-34px_rgba(10,36,114,.75)] lg:flex">
-        <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-white/5 blur-2xl" />
+      <aside className="relative hidden w-[400px] shrink-0 flex-col justify-between overflow-hidden rounded-e-[36px] bg-[linear-gradient(158deg,#0a2472_0%,#0f3bb0_100%)] p-10 text-white shadow-[0_24px_70px_-34px_rgba(10,36,114,.75)] lg:flex">
+        <div aria-hidden className="pointer-events-none absolute -end-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+        <div aria-hidden className="pointer-events-none absolute -bottom-28 -start-16 h-64 w-64 rounded-full bg-white/5 blur-2xl" />
 
         {/* Logo (beyaz varyant, koyu panel) + slogan */}
         <div className="relative">

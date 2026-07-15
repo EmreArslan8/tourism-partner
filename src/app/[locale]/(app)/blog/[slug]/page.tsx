@@ -80,7 +80,7 @@ export default async function BlogPost({
         {/* Body is sanitized in the data layer before it reaches this public render path. */}
         {post.body && (
           <div
-            className="prose-tp text-[16px] leading-[1.8] text-ink/90 [&_a]:text-terra [&_a]:underline [&_h2]:mt-8 [&_h2]:text-[22px] [&_h2]:font-extrabold [&_h3]:mt-6 [&_h3]:text-[18px] [&_h3]:font-bold [&_img]:my-4 [&_img]:rounded-[12px] [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5"
+            className="prose-tp text-[16px] leading-[1.8] text-ink/90 [&_a]:text-terra [&_a]:underline [&_h2]:mt-8 [&_h2]:text-[22px] [&_h2]:font-extrabold [&_h3]:mt-6 [&_h3]:text-[18px] [&_h3]:font-bold [&_img]:my-4 [&_img]:rounded-[12px] [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:ps-5"
             dangerouslySetInnerHTML={{ __html: post.body }}
           />
         )}

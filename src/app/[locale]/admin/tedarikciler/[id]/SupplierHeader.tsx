@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -89,9 +90,9 @@ export default function SupplierHeader({
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto]">
         {/* Kimlik */}
         <div className="flex min-w-0 items-stretch gap-3.5">
-          <div className="min-h-[92px] w-[104px] shrink-0 self-stretch overflow-hidden rounded-[10px] border border-[#D8DFEA] bg-cream">
+          <div className="relative min-h-[92px] w-[104px] shrink-0 self-stretch overflow-hidden rounded-[10px] border border-[#D8DFEA] bg-cream">
             {cover ? (
-              <img src={cover} alt="" className="h-full w-full object-cover" />
+              <Image src={cover} alt="" fill sizes="104px" className="object-cover" unoptimized />
             ) : (
               <div className="grid h-full w-full place-items-center text-[13px] font-bold uppercase tracking-[.08em] text-muted">
                 {name.slice(0, 2).toUpperCase() || "TP"}

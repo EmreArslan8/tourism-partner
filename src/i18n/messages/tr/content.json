@@ -31,6 +31,7 @@
     "catAgencies": "Acenteler",
     "catGuides": "Rehberler",
     "catTransfers": "Ulaşım",
+    "catActivities": "Aktivite",
     "catGastro": "Gastronomi",
     "catHealth": "Sağlık",
     "quickEyebrow": "Akıllı eşleştirme",
@@ -111,7 +112,11 @@
   "showcase": {
     "eyebrow": "Vitrin",
     "title": "Öne çıkan iş ortakları",
-    "sub": "Reklam alanı — editör seçkisi"
+    "sub": "Reklam alanı — editör seçkisi",
+    "prev": "Önceki",
+    "next": "Sonraki",
+    "image": "Görsel",
+    "imagePending": "Görsel bekleniyor"
   },
   "how": {
     "eyebrow": "Nasıl Çalışır",

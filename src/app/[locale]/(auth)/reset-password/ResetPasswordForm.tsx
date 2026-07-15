@@ -57,13 +57,13 @@ const ResetPasswordForm = () => {
                   minLength={8}
                   autoComplete="new-password"
                   placeholder="••••••••"
-                  className="field h-[56px] w-full pr-12 text-[16px] font-semibold text-ink placeholder:text-ink/45"
+                  className="field h-[56px] w-full pe-12 text-[16px] font-semibold text-ink placeholder:text-ink/45"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw((v) => !v)}
                   aria-label={showPw ? "hide" : "show"}
-                  className="absolute right-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-brand"
+                  className="absolute end-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-brand"
                 >
                   {showPw ? <EyeOff size={20} strokeWidth={2.25} aria-hidden /> : <Eye size={20} strokeWidth={2.25} aria-hidden />}
                 </button>

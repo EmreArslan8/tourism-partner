@@ -42,6 +42,7 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
   const buyerItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
+    { href: "/dashboard/requests", icon: FileText, label: t("requestsMineNav"), match: "/dashboard/requests" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
     { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
   ];
@@ -69,7 +70,7 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
           <span>{t("signedInAs")}</span>
           <b>{email}</b>
           <form action={signOut} className="mt-3">
-            <button type="submit" className="flex w-full items-center gap-2 rounded-[8px] px-2 py-2 text-left text-[12.5px] font-medium text-red-700 transition-colors hover:bg-red-50">
+            <button type="submit" className="flex w-full items-center gap-2 rounded-[8px] px-2 py-2 text-start text-[12.5px] font-medium text-red-700 transition-colors hover:bg-red-50">
               <LogOut size={15} aria-hidden />
               {t("signOut")}
             </button>

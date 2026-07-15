@@ -31,6 +31,7 @@
     "catAgencies": "Agencies",
     "catGuides": "Guides",
     "catTransfers": "Transport",
+    "catActivities": "Activities",
     "catGastro": "Gastronomy",
     "catHealth": "Health",
     "quickEyebrow": "Smart matching",
@@ -111,7 +112,11 @@
   "showcase": {
     "eyebrow": "Showcase",
     "title": "Featured partners",
-    "sub": "Ad space — editor's pick"
+    "sub": "Ad space — editor's pick",
+    "prev": "Previous",
+    "next": "Next",
+    "image": "Image",
+    "imagePending": "Image pending"
   },
   "how": {
     "eyebrow": "How It Works",

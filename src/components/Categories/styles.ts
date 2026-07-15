@@ -24,7 +24,7 @@ const styles = {
     "max-[980px]:gap-2 max-[640px]:grid max-[640px]:grid-cols-2 max-[640px]:gap-2.5 " +
     "max-[640px]:rounded-none max-[640px]:border-0 max-[640px]:bg-transparent max-[640px]:p-0 max-[640px]:shadow-none max-[640px]:backdrop-blur-none",
   item:
-    "group/category grid min-h-[58px] grid-cols-[26px_minmax(0,1fr)] gap-2.5 rounded-[15px] border border-transparent bg-transparent px-4 py-2.5 text-left outline-none " +
+    "group/category grid min-h-[58px] grid-cols-[26px_minmax(0,1fr)] gap-2.5 rounded-[15px] border border-transparent bg-transparent px-4 py-2.5 text-start outline-none " +
     "transition-all duration-200 ease-brand hover:bg-white/[.065] " +
     "focus-visible:border-white/25 focus-visible:bg-white/[.07] focus-visible:ring-2 focus-visible:ring-white/20 " +
     "min-[1440px]:min-h-[70px] min-[1440px]:grid-cols-[32px_minmax(0,1fr)] min-[1440px]:gap-3 min-[1440px]:px-5 min-[1440px]:py-3 " +
@@ -80,7 +80,7 @@ const styles = {
   chip: "rounded-full bg-cream-deep px-2.5 py-1 text-[11.5px] font-semibold text-[#4b5875]",
   visualCta:
     "mt-1 inline-flex items-center gap-1.5 text-[13px] font-bold text-brand transition-colors group-hover:text-brand-deep",
-  ctaArrow: "transition-transform duration-200 group-hover:translate-x-1",
+  ctaArrow: "transition-transform duration-200 group-hover:translate-x-1 rtl:group-hover:-translate-x-1",
   visualBadge: "hidden",
   badgeDot: "hidden",
 

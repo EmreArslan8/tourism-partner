@@ -22,9 +22,11 @@ export default async function AdminLayout({
   // getAdminData() cookies okur (runtime). Cache Components için <Suspense> altında;
   // bu boundary içine render edilen admin sayfalarının auth erişimini de kapsar.
   return (
-    <Suspense fallback={null}>
-      <AdminGate>{children}</AdminGate>
-    </Suspense>
+    <div dir="ltr">
+      <Suspense fallback={null}>
+        <AdminGate>{children}</AdminGate>
+      </Suspense>
+    </div>
   );
 }
 

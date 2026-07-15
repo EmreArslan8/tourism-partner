@@ -66,7 +66,7 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
     <header className={`${styles.header} ${resolvedVariant === "glass" ? styles.headerGlass : styles.headerSolid}`}>
       <div className={styles.inner}>
         <div className={styles.left}>
-          <Logo href="/" height={54} variant="light" priority className="origin-left min-[1440px]:scale-110 min-[1800px]:scale-[1.18]" />
+          <Logo href="/" height={54} variant="light" priority className="ltr:origin-left rtl:origin-right min-[1440px]:scale-110 min-[1800px]:scale-[1.18]" />
         </div>
 
         <NavLinks links={links} />

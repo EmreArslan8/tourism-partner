@@ -189,7 +189,7 @@ function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerO
             <p>{t("partnerConfirmHint")}</p>
             <div className={styles.partnerDialogActions}>
               <button type="button" onClick={() => setSelectedPartner(null)} className={styles.compactSecondaryButton}>
-                <ArrowLeft size={15} aria-hidden />
+                <ArrowLeft size={15} className="rtl:rotate-180" aria-hidden />
                 {t("partnerBack")}
               </button>
               <form action={requestAction}>

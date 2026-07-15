@@ -12,19 +12,19 @@
   field: "field h-[46px] font-normal min-[1440px]:h-[52px] min-[1800px]:h-[56px]",
   phoneField:
     "flex h-[46px] items-center rounded-[14px] border border-line bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 min-[1440px]:h-[52px] min-[1800px]:h-[56px]",
-  phonePrefix: "shrink-0 pl-4 pr-1 text-[14px] font-semibold text-ink",
+  phonePrefix: "shrink-0 ps-4 pe-1 text-[14px] font-semibold text-ink",
   phoneInput:
     "h-full min-w-[150px] flex-1 bg-transparent px-2 text-[14px] font-normal text-ink outline-none placeholder:text-ink/45",
   selectWrap: "relative block",
-  select: "field h-[46px] w-full appearance-none pr-16 font-normal min-[1440px]:h-[52px] min-[1800px]:h-[56px]",
+  select: "field h-[46px] w-full appearance-none pe-16 font-normal min-[1440px]:h-[52px] min-[1800px]:h-[56px]",
   selectChevron:
-    "pointer-events-none absolute right-5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/70",
+    "pointer-events-none absolute end-5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/70",
   textarea: "field min-h-[110px] py-3.5 font-normal min-[1440px]:min-h-[132px] min-[1800px]:min-h-[148px]",
   row: "grid grid-cols-2 gap-4 max-[480px]:grid-cols-1",
   datePicker: "relative min-w-0",
-  dateLegend: "mb-1.5 block text-[13px] font-semibold text-ink",
+  dateLegend: "mb-1.5 block whitespace-nowrap text-[13px] font-semibold text-ink",
   dateTrigger:
-    "flex h-[46px] w-full items-center gap-3 rounded-[14px] border border-line bg-white px-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition hover:border-primary/55 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10",
+    "flex h-[46px] w-full items-center gap-3 rounded-[14px] border border-line bg-white px-4 text-start shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] transition hover:border-primary/55 focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10",
   dateTriggerText: "flex min-w-0 flex-1 items-center gap-2 text-[14px] font-medium",
   dateValue: "truncate text-ink [font-variant-numeric:tabular-nums]",
   datePlaceholder: "truncate text-ink/45",
@@ -32,7 +32,7 @@
   dateIcon:
     "grid h-4 w-4 shrink-0 place-items-center text-primary/70 [&_svg]:h-4 [&_svg]:w-4",
   datePopover:
-    "absolute left-0 top-[calc(100%+8px)] z-30 w-[304px] rounded-[16px] border border-line bg-white p-3.5 shadow-[0_18px_46px_rgba(15,23,42,0.16)] max-[520px]:w-full",
+    "absolute start-0 top-[calc(100%+8px)] z-30 w-[304px] rounded-[16px] border border-line bg-white p-3.5 shadow-[0_18px_46px_rgba(15,23,42,0.16)] max-[520px]:w-full",
   datePopoverFooter: "mt-3 flex items-center justify-between border-t border-line pt-3",
   dateClearButton:
     "rounded-full px-3 py-1.5 text-[12px] font-semibold text-muted transition hover:bg-cream hover:text-ink",

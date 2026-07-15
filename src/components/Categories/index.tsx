@@ -20,7 +20,7 @@ const IMG: Record<GroupKey, string> = {
   gastronomi: "/assets/cards/resort-1.webp",
 };
 
-const DISPLAY_GROUPS = CATEGORY_GROUPS.filter((group) => group.key !== "saglik");
+const DISPLAY_GROUPS = CATEGORY_GROUPS;
 const AUTO_ROTATE_MS = 3500;
 
 const iconProps = {
@@ -185,7 +185,7 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
               <strong className={styles.visualName}>{tc(activeGroup.key)}</strong>
               {activeStat.n > 0 && (
                 <span className={styles.visualCount}>
-                  {activeStat.n} tedarikçi{activeStat.cities.size > 0 ? ` · ${activeStat.cities.size} şehir` : ""}
+                  {activeStat.n} {t("suppliersShort")}{activeStat.cities.size > 0 ? ` · ${activeStat.cities.size} ${t("citiesShort")}` : ""}
                 </span>
               )}
             </span>
