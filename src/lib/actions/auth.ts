@@ -111,6 +111,8 @@ export async function signUp(
       // Doğrulama linki callback'e döner → oturumu kurup direkt panele atar.
       emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}`,
       data: {
+        // Supabase e-posta şablonları .Data.locale ile Türkçe/İngilizce metni seçer.
+        locale,
         full_name: name,
         firm_name: name,
         account_type: accountType,

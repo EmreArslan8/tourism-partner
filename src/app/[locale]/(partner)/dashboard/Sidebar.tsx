@@ -1,10 +1,11 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Building2, FileText, Heart, LayoutDashboard, LifeBuoy, Rocket, Search, Star } from "lucide-react";
+import { Building2, FileText, Heart, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star } from "lucide-react";
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
+import { signOut } from "@/lib/actions/auth";
 import TopProgressBar from "@/components/TopProgressBar";
 import styles from "./styles";
 
@@ -24,7 +25,7 @@ function NavItemInner({ Icon, label }: { Icon: LucideIcon; label: string }) {
 
 /* Panel sol menüsü — tüm dashboard alt sayfalarında ortak (dashboard/layout.tsx).
    Aktif link, next-intl usePathname (dahili/locale'siz yol) ile belirlenir. */
-export default function DashboardSidebar({ email }: { email: string }) {
+export default function DashboardSidebar({ email, open, onClose }: { email: string; open: boolean; onClose: () => void }) {
   const t = useTranslations("panel");
   const pathname = usePathname();
 
@@ -43,24 +44,30 @@ export default function DashboardSidebar({ email }: { email: string }) {
     exact ? pathname === match : pathname === match || pathname.startsWith(`${match}/`);
 
   return (
-    <aside className={styles.sidebar}>
-      <Link href="/" className={styles.brandMark} aria-label="Tourism Partner">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />
-      </Link>
+    <aside id="partner-dashboard-sidebar" className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
+        <Link href="/" className={styles.brandMark} aria-label="Tourism Partner" onClick={onClose}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />
+        </Link>
 
-      <nav className={styles.sideNav} aria-label="Partner dashboard">
-        {items.map(({ href, icon, label, match, exact }) => (
-          <Link key={match} href={href} className={isActive(match, exact) ? styles.sideNavActive : undefined}>
-            <NavItemInner Icon={icon} label={label} />
-          </Link>
-        ))}
-      </nav>
+        <nav className={styles.sideNav} aria-label="Partner dashboard">
+          {items.map(({ href, icon, label, match, exact }) => (
+            <Link key={match} href={href} className={isActive(match, exact) ? styles.sideNavActive : undefined} onClick={onClose}>
+              <NavItemInner Icon={icon} label={label} />
+            </Link>
+          ))}
+        </nav>
 
-      <div className={styles.sidebarFoot}>
-        <span>{t("signedInAs")}</span>
-        <b>{email}</b>
-      </div>
+        <div className={styles.sidebarFoot}>
+          <span>{t("signedInAs")}</span>
+          <b>{email}</b>
+          <form action={signOut} className="mt-3">
+            <button type="submit" className="flex w-full items-center gap-2 rounded-[8px] px-2 py-2 text-left text-[12.5px] font-medium text-red-700 transition-colors hover:bg-red-50">
+              <LogOut size={15} aria-hidden />
+              {t("signOut")}
+            </button>
+          </form>
+        </div>
     </aside>
   );
 }

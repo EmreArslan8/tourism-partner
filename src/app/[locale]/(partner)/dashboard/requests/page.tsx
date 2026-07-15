@@ -6,13 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getPanelSession, getPanelBusiness } from "@/lib/panel-auth";
 import { CATEGORY_GROUPS, serviceTranslationKey } from "@/lib/categories";
 import type { GroupKey } from "@/lib/types";
-import { createB2bRequest, submitB2bOffer, closeMyB2bRequest } from "@/lib/actions/b2b";
+import { submitB2bOffer, closeMyB2bRequest } from "@/lib/actions/b2b";
 import { DateRangePicker, SingleDatePicker } from "@/components/FormDatePickers";
 import B2bViewTracker from "@/components/B2bViewTracker";
 import DashboardTopbar from "../Topbar";
 import styles from "../styles";
 import { PartnerPanelButton, PartnerPanelCard, PartnerPanelEmptyState, PartnerPanelField, PartnerPanelTextarea } from "../_ui";
 import RequestsLoading from "./loading";
+import CreateRequestForm from "./CreateRequestForm";
 import RequestRegionFields from "./RequestRegionFields";
 import RequestCategoryFields from "./RequestCategoryFields";
 
@@ -66,11 +67,20 @@ async function RequestsContent({ locale }: { locale: string }) {
     );
   }
 
-  const [{ data: myReqRaw }, { data: openReqRaw }, { data: myOffersRaw }] = await Promise.all([
+  const [{ data: myReqRaw }, { data: openReqRaw }, { data: myOffersRaw }, { data: quotesRaw }] = await Promise.all([
     supabase.from("b2b_requests").select("id,title,description,region,status,view_count,created_at").eq("business_id", biz.id).order("created_at", { ascending: false }),
     supabase.from("b2b_requests").select("id,title,description,region,target_group,target_types,status,view_count,created_at,business_id,businesses(name)").eq("status", "published").neq("business_id", biz.id).order("created_at", { ascending: false }).limit(80),
     supabase.from("b2b_offers").select("request_id").eq("business_id", biz.id),
+    supabase.from("quotes").select("id,name,company,email,phone,service,category_type,country,city,district,date_range,valid_until,people,message,created_at").eq("business_id", biz.id).order("created_at", { ascending: false }).limit(200),
   ]);
+
+  type IncomingQuote = { id: number; name: string; company: string | null; email: string; phone: string | null; service: string | null; category_type: string | null; country: string | null; city: string | null; district: string | null; date_range: string | null; valid_until: string | null; people: number | null; message: string | null; created_at: string };
+  const quotes = (quotesRaw ?? []) as IncomingQuote[];
+  const serviceName = (value: string | null) => {
+    if (!value) return null;
+    const key = serviceTranslationKey(value);
+    return key ? ts(key) : value;
+  };
 
   const myReq = (myReqRaw ?? []) as Req[];
   const myReqIds = myReq.map((r) => r.id);
@@ -104,12 +114,53 @@ async function RequestsContent({ locale }: { locale: string }) {
     <>
       <DashboardTopbar title={t("requestsNav")} />
       <div className={styles.content}>
-      <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(360px,.85fr)] gap-6 max-[980px]:grid-cols-1">
+      {/* Gelen teklifler — quote formundan (b2b talep-teklif'ten AYRI). Kompakt,
+          kaydırılabilir satır listesi: 100-200 kayıtta da düzeni bozmaz. */}
+      <PartnerPanelCard bodyClassName="p-0" className="mb-6">
+        <div className="flex items-center justify-between gap-2 border-b border-line/70 px-5 py-3.5">
+          <h2 className="inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Inbox size={17} className="text-[#1557C2]" aria-hidden /> {t("quotesTitle")}</h2>
+          <span className="rounded-pill bg-[#EAF2FF] px-2 py-0.5 text-[12px] font-semibold text-[#1557C2]">{quotes.length}</span>
+        </div>
+        {quotes.length === 0 ? (
+          <p className="px-5 py-6 text-[13px] text-muted">{t("noQuotes")}</p>
+        ) : (
+          <ul className="max-h-[300px] divide-y divide-line/60 overflow-y-auto">
+            {quotes.map((q) => (
+              <li key={q.id} className="px-5 py-3 hover:bg-[#F7FAFF]">
+                <div className="flex items-baseline justify-between gap-3">
+                  <div className="flex min-w-0 items-baseline gap-2">
+                    <span className="truncate text-[13.5px] font-bold text-ink">{q.name}</span>
+                    {q.company && <span className="truncate text-[12px] text-muted">{q.company}</span>}
+                  </div>
+                  <span className="shrink-0 text-[11.5px] font-medium text-muted">{fmt(q.created_at)}</span>
+                </div>
+                <p className="mt-0.5 truncate text-[12.5px] text-ink/75">
+                  {[serviceName(q.service) ?? serviceName(q.category_type), [q.city, q.district].filter(Boolean).join("/"), q.date_range, q.people ? `${q.people} ${t("people")}` : null].filter(Boolean).join(" · ") || "—"}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted">
+                  <a href={`mailto:${q.email}`} className="text-terra hover:underline">{q.email}</a>
+                  {q.phone && <span>{q.phone}</span>}
+                  {q.valid_until && <span className="font-medium text-terra-deep">{t("quoteValidUntil")}: {new Date(`${q.valid_until}T12:00:00`).toLocaleDateString("tr-TR")}</span>}
+                  <a href={`mailto:${q.email}?subject=${encodeURIComponent(t("replySubject"))}`} className="ml-auto font-medium text-[#1557C2] hover:underline">{t("reply")}</a>
+                </div>
+                {q.message && (
+                  <details className="mt-1.5 group">
+                    <summary className="cursor-pointer list-none text-[11.5px] font-medium text-muted hover:text-ink [&::-webkit-details-marker]:hidden">{tq("message")} ▾</summary>
+                    <p className="mt-1 whitespace-pre-line rounded-[8px] bg-[#F5F8FD] px-3 py-2 text-[12.5px] leading-5 text-ink/85">{q.message}</p>
+                  </details>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </PartnerPanelCard>
+
+      <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(360px,.85fr)] gap-6 max-[1200px]:grid-cols-1">
         {/* SOL — Talep oluştur + Taleplerim */}
         <section className="flex flex-col gap-5">
-          <PartnerPanelCard bodyClassName="p-5">
+          <PartnerPanelCard bodyClassName="p-5" className="overflow-visible">
             <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Megaphone size={17} className="text-[#1557C2]" aria-hidden /> {t("requestsNew")}</h2>
-            <form action={createB2bRequest} className="grid gap-3">
+            <CreateRequestForm>
               <label className={styles.labelCls}>
                 {t("requestsTitleLabel")}
                 <PartnerPanelField name="title" required maxLength={160} placeholder={t("requestsTitlePlaceholder")} />
@@ -139,8 +190,7 @@ async function RequestsContent({ locale }: { locale: string }) {
                 {tq("message")}
                 <PartnerPanelTextarea name="description" rows={4} maxLength={1600} placeholder={t("requestsDetailsPlaceholder")} />
               </label>
-              <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5">{t("requestsPublish")}</PartnerPanelButton>
-            </form>
+            </CreateRequestForm>
           </PartnerPanelCard>
 
           <PartnerPanelCard bodyClassName="p-5">

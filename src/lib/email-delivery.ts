@@ -65,7 +65,7 @@ async function renderDelivery(admin: any, delivery: Delivery) {
     validUntil: quote.valid_until,
     people: quote.people,
     message: quote.message,
-    dashboardUrl: `${SITE_URL}/tr/dashboard/requests`,
+    dashboardUrl: `${SITE_URL}/tr/panel/talepler`,
     logoUrl: `${SITE_URL}/assets/logo.webp`,
     }),
     replyTo: quote.email,

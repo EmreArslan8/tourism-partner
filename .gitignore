@@ -52,6 +52,9 @@ next-env.d.ts
 # database
 *.sql
 
+# Supabase Dashboard'a elle yüklenen e-posta şablonları
+/supabase/templates/
+
 # proje brief / dökümanlar (repoya gitmesin)
 *.pdf
 /PROJE_YONERGESI.md

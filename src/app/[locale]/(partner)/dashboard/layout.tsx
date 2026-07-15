@@ -1,7 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getPanelSession } from "@/lib/panel-auth";
-import DashboardSidebar from "./Sidebar";
+import DashboardShell from "./DashboardShell";
 import styles from "./styles";
 
 /* Tüm tedarikçi paneli alt sayfalarını saran ortak kabuk: sol sidebar + workspace.
@@ -22,8 +22,7 @@ export default async function DashboardLayout({
 
   return (
     <main className={styles.main}>
-      <DashboardSidebar email={session!.email} />
-      <section className={styles.workspace}>{children}</section>
+      <DashboardShell email={session!.email}>{children}</DashboardShell>
     </main>
   );
 }
