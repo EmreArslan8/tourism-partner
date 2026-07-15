@@ -7,7 +7,7 @@ import Logo from "@/components/Logo";
 import DashboardSidebar from "./Sidebar";
 import styles from "./styles";
 
-export default function DashboardShell({ email, children }: { email: string; children: React.ReactNode }) {
+export default function DashboardShell({ email, accountType, children }: { email: string; accountType: string | null; children: React.ReactNode }) {
   const t = useTranslations("panel");
   const [open, setOpen] = useState(false);
 
@@ -31,7 +31,7 @@ export default function DashboardShell({ email, children }: { email: string; chi
       </header>
 
       {open && <button type="button" className={styles.mobileBackdrop} aria-label={t("closeMenu")} onClick={() => setOpen(false)} />}
-      <DashboardSidebar email={email} open={open} onClose={() => setOpen(false)} />
+      <DashboardSidebar email={email} accountType={accountType} open={open} onClose={() => setOpen(false)} />
       <section className={styles.workspace}>{children}</section>
     </>
   );

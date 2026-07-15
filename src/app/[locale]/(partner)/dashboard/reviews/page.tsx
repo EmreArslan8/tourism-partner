@@ -29,7 +29,7 @@ export default async function ReviewsPage({ params }: { params: Promise<{ locale
   const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
   const biz = await getPanelBusiness();
 
   const supabase = await createClient();

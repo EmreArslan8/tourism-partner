@@ -400,13 +400,14 @@ const RegisterForm = () => {
           <input type="hidden" name="services" value={services.join(",")} />
           <input type="hidden" name="sector" value={sectorValue} />
 
-          <Input name="name" label={intent === "buyer" ? t("nameBuyer") : t("name")} type="text" required placeholder={t("namePh")} />
+          <Input name="name" label={intent === "buyer" ? t("nameBuyer") : t("name")} type="text" required autoComplete="name" placeholder={t("namePh")} />
 
           <Input
             name="email"
             label={t("email")}
             type="email"
             required
+            autoComplete="email"
             placeholder={t("emailPh")}
             error={emailErr}
             onChange={(e) => {
@@ -427,6 +428,7 @@ const RegisterForm = () => {
                 type={showPw ? "text" : "password"}
                 required
                 minLength={6}
+                autoComplete="new-password"
                 placeholder="••••••••"
                 aria-invalid={!!pwErr}
                 onChange={() => pwErr && setPwErr("")}

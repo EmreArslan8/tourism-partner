@@ -25,11 +25,11 @@ function NavItemInner({ Icon, label }: { Icon: LucideIcon; label: string }) {
 
 /* Panel sol menüsü — tüm dashboard alt sayfalarında ortak (dashboard/layout.tsx).
    Aktif link, next-intl usePathname (dahili/locale'siz yol) ile belirlenir. */
-export default function DashboardSidebar({ email, open, onClose }: { email: string; open: boolean; onClose: () => void }) {
+export default function DashboardSidebar({ email, accountType, open, onClose }: { email: string; accountType: string | null; open: boolean; onClose: () => void }) {
   const t = useTranslations("panel");
   const pathname = usePathname();
 
-  const items: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
+  const supplierItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/dashboard/listings", icon: Building2, label: t("listingDashboardTitle"), match: "/dashboard/listings" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
@@ -39,6 +39,13 @@ export default function DashboardSidebar({ email, open, onClose }: { email: stri
     { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping" },
     { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
   ];
+  const buyerItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
+    { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
+    { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
+    { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
+    { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
+  ];
+  const items = accountType === "buyer" ? buyerItems : supplierItems;
 
   const isActive = (match: string, exact?: boolean) =>
     exact ? pathname === match : pathname === match || pathname.startsWith(`${match}/`);

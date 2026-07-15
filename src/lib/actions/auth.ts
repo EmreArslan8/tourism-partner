@@ -55,7 +55,7 @@ export async function signIn(
   }
 
   const locale = await getLocale();
-  const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
+  const href = role === "admin" ? "/admin" : "/dashboard";
   redirect({ href, locale });
   return { ok: true };
 }
@@ -148,7 +148,7 @@ export async function signUp(
         await replaceBusinessServices(supabase, created.id, cat.group, serviceSlugs);
       }
     }
-    redirect({ href: accountType === "buyer" ? "/explore" : "/dashboard", locale });
+    redirect({ href: "/dashboard", locale });
   }
 
   // E-posta onayı gerekiyor.

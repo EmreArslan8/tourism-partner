@@ -29,19 +29,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(d.reset, url.origin));
   }
 
-  // Üye tipine göre hedef: alıcı → keşfet, tedarikçi → panel.
-  let dest: string = d.dashboard;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("account_type")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (profile?.account_type === "buyer") dest = d.explore;
-  }
-
-  return NextResponse.redirect(new URL(dest, url.origin));
+  // Panel kabuğu kullanıcı tipine göre doğru çalışma alanını gösterir.
+  return NextResponse.redirect(new URL(d.dashboard, url.origin));
 }

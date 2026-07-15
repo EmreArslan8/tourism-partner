@@ -73,9 +73,9 @@ export async function PanelData({
   if (!user) redirect({ href: "/login", locale });
   const userId = user!.id;
 
-  // Alıcı-üye (listelenmeyen firma) tedarikçi panelini kullanmaz → keşfete yönlendir.
+  // Alıcılar kendi dashboard özetini kullanır; tedarikçi ekranlarına doğrudan erişemez.
   const session = await getPanelSession();
-  if (session?.accountType === "buyer") redirect({ href: "/explore", locale });
+  if (session?.accountType === "buyer") redirect({ href: "/dashboard", locale });
 
   const supabase = await createClient();
   const { data: businessRow } = await supabase

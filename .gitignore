@@ -52,6 +52,10 @@ next-env.d.ts
 # database
 *.sql
 
+# yerel HTML şablonları ve Markdown notları
+*.html
+*.md
+
 # Supabase Dashboard'a elle yüklenen e-posta şablonları
 /supabase/templates/
 

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { routing } from "@/i18n/routing";
-import { businessSlug, getBusinessBySlug, getBusinesses } from "@/lib/businesses";
+import { businessSlug, getBusinessBySlug } from "@/lib/businesses";
 import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
 import { localeAlternates } from "@/lib/seo";
 import { realBusinessImages } from "@/lib/business-images";
@@ -11,13 +10,6 @@ import { getBusinessPartners } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import SupplierDetailView from "./view";
 import MemberContactSection, { MemberContactSkeleton } from "./MemberContactSection";
-
-export async function generateStaticParams() {
-  const businesses = await getBusinesses();
-  return routing.locales.flatMap((locale) =>
-    businesses.slice(0, 200).map((b) => ({ locale, id: businessSlug(b) }))
-  );
-}
 
 export async function generateMetadata({
   params,

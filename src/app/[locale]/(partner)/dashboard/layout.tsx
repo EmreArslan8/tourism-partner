@@ -18,11 +18,11 @@ export default async function DashboardLayout({
   setRequestLocale(locale);
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
 
   return (
     <main className={styles.main}>
-      <DashboardShell email={session!.email}>{children}</DashboardShell>
+      <DashboardShell email={session.email} accountType={session.accountType}>{children}</DashboardShell>
     </main>
   );
 }

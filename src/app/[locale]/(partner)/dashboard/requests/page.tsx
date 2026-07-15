@@ -47,7 +47,8 @@ async function RequestsContent({ locale }: { locale: string }) {
   };
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
+  if (session.accountType === "buyer") redirect({ href: "/dashboard", locale });
   const biz = await getPanelBusiness();
 
   const supabase = await createClient();

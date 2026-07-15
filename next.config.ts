@@ -3,10 +3,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 // 'unsafe-eval' yalnızca dev'de gerekir (turbopack/HMR); prod CSP'sinden çıkarılır.
 // 'unsafe-inline' Next'in inline runtime script'leri için kalır — nonce'a geçiş ayrı iş.
+const allowVercelFeedback = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
+const vercelFeedbackOrigin = allowVercelFeedback ? " https://vercel.live" : "";
 const scriptSrc =
   process.env.NODE_ENV === "development"
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-    : "script-src 'self' 'unsafe-inline'";
+    ? `script-src 'self' 'unsafe-inline' 'unsafe-eval'${vercelFeedbackOrigin}`
+    : `script-src 'self' 'unsafe-inline'${vercelFeedbackOrigin}`;
 
 const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
@@ -26,7 +28,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.supabase.co https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co",
+      `connect-src 'self' https://*.supabase.co${vercelFeedbackOrigin}`,
       "upgrade-insecure-requests",
     ].join("; "),
   },

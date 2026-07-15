@@ -28,7 +28,7 @@ export default async function SupportPage({ params }: { params: Promise<{ locale
   };
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
   const biz = await getPanelBusiness();
 
   const supabase = await createClient();

@@ -16,7 +16,8 @@ export default async function DopingPage({ params }: { params: Promise<{ locale:
   const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(v));
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
+  if (session.accountType === "buyer") redirect({ href: "/dashboard", locale });
   const biz = await getPanelBusiness();
 
   const dopingActive = isDopingActive(biz?.doping_until);

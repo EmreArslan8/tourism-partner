@@ -43,9 +43,7 @@ async function getHeaderAuth() {
   const dashboardHref: Href | null =
     profile?.role === "admin"
       ? "/admin"
-      : profile?.account_type === "buyer"
-        ? null
-        : "/dashboard";
+      : "/dashboard";
 
   return { signedIn: true, dashboardHref };
 }

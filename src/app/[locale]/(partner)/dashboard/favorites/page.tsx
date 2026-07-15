@@ -22,7 +22,7 @@ export default async function FavoritesPage({ params }: { params: Promise<{ loca
   };
 
   const session = await getPanelSession();
-  if (!session) redirect({ href: "/login", locale });
+  if (!session) return redirect({ href: "/login", locale });
 
   const supabase = await createClient();
   const { data: rows } = await supabase
