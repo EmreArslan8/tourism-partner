@@ -2,8 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, ImagePlus, Images, LoaderCircle, LogOut, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
-import { signOut } from "@/lib/actions/auth";
+import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, ImagePlus, Images, LoaderCircle, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
@@ -541,21 +540,15 @@ const DashboardView = ({
               {b && (
                 <Link href={previewHref!} target="_blank" className={styles.compactSecondaryButton}>
                   <Eye size={15} aria-hidden />
-                  {t("preview")}
+                  <span className="max-[680px]:hidden">{t("preview")}</span>
                 </Link>
               )}
               {mode !== "edit" && (
                 <Link href={editListingHref} className={styles.compactPrimaryButton}>
                   <PencilLine size={15} aria-hidden />
-                  {b ? t("editListing") : t("newListing")}
+                  <span className="max-[680px]:hidden">{b ? t("editListing") : t("newListing")}</span>
                 </Link>
               )}
-              <form action={signOut}>
-                <button type="submit" className={styles.compactSecondaryButton}>
-                  <LogOut size={15} aria-hidden />
-                  {t("signOut")}
-                </button>
-              </form>
             </div>
           </div>
         </div>

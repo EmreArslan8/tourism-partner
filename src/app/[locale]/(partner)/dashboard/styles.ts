@@ -1,30 +1,38 @@
 import { panelUi } from "@/components/workspace-ui";
 
 const styles = {
-  main: `${panelUi.shell} min-[1040px]:grid min-[1040px]:grid-cols-[264px_minmax(0,1fr)]`,
+  main: `${panelUi.shell} min-[900px]:grid min-[900px]:grid-cols-[264px_minmax(0,1fr)]`,
+  mobileHeader:
+    "flex h-[72px] items-center justify-between border-b border-line bg-paper px-5 text-ink shadow-[0_8px_22px_-20px_rgba(7,9,42,.55)] min-[900px]:hidden",
+  mobileHeaderMeta: "flex items-center gap-3",
   sidebar:
-    "border-b border-line bg-paper/90 text-ink min-[1040px]:sticky min-[1040px]:top-0 min-[1040px]:h-screen min-[1040px]:border-b-0 min-[1040px]:border-r min-[1040px]:border-line",
+    "border-b border-line bg-paper text-ink transition-transform duration-300 max-[899px]:z-50 max-[899px]:shadow-[14px_0_40px_-28px_rgba(7,9,42,.45)] max-[899px]:fixed max-[899px]:inset-y-0 max-[899px]:left-0 max-[899px]:w-[min(82vw,310px)] max-[899px]:-translate-x-full max-[899px]:overflow-y-auto min-[900px]:sticky min-[900px]:top-0 min-[900px]:h-screen min-[900px]:border-b-0 min-[900px]:border-r min-[900px]:border-line",
+  sidebarOpen: "max-[899px]:translate-x-0",
+  mobileMenuButton:
+    "grid h-10 w-10 place-items-center rounded-[10px] border border-line bg-cream/45 text-brand transition-[transform,background-color] duration-200 hover:bg-cream active:scale-95",
+  mobileBackdrop: "fixed inset-0 z-40 bg-ink/35 backdrop-blur-[2px] min-[900px]:hidden",
   brandMark:
     "flex h-[92px] items-center border-b border-line/80 px-6 text-ink",
   logoImg: "h-[42px] w-auto max-w-[165px] object-contain",
   brandIcon:
     "grid h-10 w-10 shrink-0 place-items-center rounded-[9px] bg-sapphire font-body text-dashboard-caption font-semibold tracking-normal text-paper shadow-card",
   sideNav:
-    "mt-4 grid gap-1 px-4 font-body text-dashboard-nav font-medium tracking-normal min-[1040px]:mt-5 [&>a]:flex [&>a]:items-center [&>a]:gap-2.5 [&>a]:rounded-[8px] [&>a]:px-3 [&>a]:py-2.5 [&>a]:text-muted [&>a]:transition-colors hover:[&>a]:bg-cream/70 hover:[&>a]:text-brand",
+    "mt-4 grid gap-1 px-4 font-body text-dashboard-nav font-medium tracking-normal min-[900px]:mt-5 [&>a]:flex [&>a]:items-center [&>a]:gap-2.5 [&>a]:rounded-[8px] [&>a]:px-3 [&>a]:py-2.5 [&>a]:text-muted [&>a]:transition-colors hover:[&>a]:bg-cream/70 hover:[&>a]:text-brand",
   sideNavActive: "bg-cream !text-brand",
   sidebarFoot:
-    "mt-5 rounded-[10px] border border-line bg-cream/45 p-3 text-[11.5px] text-muted min-[1040px]:absolute min-[1040px]:bottom-4 min-[1040px]:left-4 min-[1040px]:right-4 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-ink",
+    "mt-5 rounded-[10px] border border-line bg-cream/45 p-3 text-[11.5px] text-muted min-[900px]:absolute min-[900px]:bottom-4 min-[900px]:left-4 min-[900px]:right-4 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-ink",
   workspace: "min-w-0",
-  content: `${panelUi.page} px-5 pb-12 pt-7 min-[760px]:px-7 min-[1040px]:px-9`,
+  content: `${panelUi.page} px-5 pb-12 pt-7 min-[760px]:px-7 min-[900px]:px-9`,
   topbar:
-    "sticky top-0 z-40 border-b border-line bg-paper px-5 py-4 shadow-card min-[760px]:px-7 min-[1040px]:px-9",
+    "sticky top-0 z-40 border-b border-line bg-paper px-5 py-4 shadow-card min-[760px]:px-7 min-[900px]:px-9",
   topbarInner:
-    `${panelUi.page} grid min-h-[56px] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 max-[680px]:grid-cols-1`,
+    `${panelUi.page} grid min-h-[56px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3`,
   topbarText: "min-w-0",
   header: "mb-5 flex flex-wrap items-center justify-between gap-3",
   title: "truncate font-body text-[24px] font-medium leading-tight tracking-normal text-ink min-[760px]:text-[28px]",
   email: "mt-1 truncate text-[13.5px] font-normal leading-5 text-muted",
-  actions: "flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>a]:shrink-0 [&>button]:shrink-0 [&>form]:shrink-0 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap max-[680px]:justify-start",
+  actions:
+    "flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>a]:shrink-0 [&>button]:shrink-0 [&>form]:shrink-0 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap max-[680px]:w-auto max-[680px]:overflow-visible max-[680px]:justify-start max-[680px]:[&>a]:h-10 max-[680px]:[&>a]:w-10 max-[680px]:[&>a]:justify-center max-[680px]:[&>a]:px-0",
   pageEyebrow: panelUi.eyebrow,
   pageTitle: "text-[34px] font-medium leading-tight tracking-[0] text-ink",
   pageDesc: "mt-2 max-w-[760px] text-[14px] font-normal leading-6 text-muted",
@@ -54,14 +62,14 @@ const styles = {
     "mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-gold/40 bg-gold/10 px-4 py-3 text-[13.5px] text-brand [&>b]:font-bold",
   noticeDanger:
     "border-red-200 bg-red-50 text-red-700",
-  statsGrid: "mb-5 grid gap-3 min-[720px]:grid-cols-3",
+  statsGrid: "mb-5 grid grid-cols-3 gap-3 max-[899px]:gap-2",
   metricCard:
-    `${panelUi.metric} [&>small]:mt-2 [&>small]:block [&>small]:text-[12.5px] [&>small]:font-normal [&>small]:text-muted [&>span]:text-[13px] [&>span]:font-normal [&>span]:normal-case [&>span]:tracking-[0] [&>span]:text-muted [&>strong]:mt-1 [&>strong]:block [&>strong]:text-[28px] [&>strong]:font-medium [&>strong]:leading-none [&>strong]:tracking-[0] [&>strong]:text-ink`,
+    `${panelUi.metric} max-[899px]:p-4 max-[559px]:p-3 [&>small]:mt-2 [&>small]:block [&>small]:text-[12.5px] [&>small]:font-normal [&>small]:text-muted [&>span]:text-[13px] [&>span]:font-normal [&>span]:normal-case [&>span]:tracking-[0] [&>span]:text-muted [&>strong]:mt-1 [&>strong]:block [&>strong]:text-[28px] [&>strong]:font-medium [&>strong]:leading-none [&>strong]:tracking-[0] [&>strong]:text-ink max-[899px]:[&>span]:text-[12px] max-[899px]:[&>strong]:text-[24px] max-[899px]:[&>small]:mt-1.5 max-[899px]:[&>small]:text-[11.5px] max-[559px]:[&>span]:text-[10px] max-[559px]:[&>strong]:text-[20px] max-[559px]:[&>small]:text-[10px] max-[559px]:[&>small]:leading-4`,
   grid: "grid grid-cols-[minmax(0,1fr)_380px] items-start gap-5 max-[980px]:grid-cols-1",
   overviewSection: "min-w-0",
-  overviewStack: "grid gap-4",
+  overviewStack: "grid gap-4 max-[899px]:gap-3",
   overviewHero:
-    `grid items-end gap-5 ${panelUi.hero} min-[820px]:grid-cols-[minmax(0,1fr)_240px] [&_h2]:mt-2 [&_h2]:font-body [&_h2]:text-[32px] [&_h2]:font-medium [&_h2]:leading-tight [&_h2]:tracking-normal [&_h2]:text-ink [&_p]:mt-2 [&_p]:max-w-[720px] [&_p]:text-[14px] [&_p]:leading-6 [&_p]:font-normal [&_p]:text-muted`,
+    `grid items-end gap-5 ${panelUi.hero} min-[560px]:p-5 min-[820px]:grid-cols-[minmax(0,1fr)_240px] max-[899px]:gap-3 max-[899px]:p-4 [&_h2]:mt-2 [&_h2]:font-body [&_h2]:text-[32px] [&_h2]:font-medium [&_h2]:leading-tight [&_h2]:tracking-normal [&_h2]:text-ink max-[899px]:[&_h2]:text-[28px] [&_p]:mt-2 [&_p]:max-w-[720px] [&_p]:text-[14px] [&_p]:leading-6 [&_p]:font-normal [&_p]:text-muted max-[899px]:[&_p]:text-[13px] max-[899px]:[&_p]:leading-5`,
   overviewStatus:
     "grid justify-start gap-2 rounded-[10px] border border-line bg-paper/85 px-4 py-3 min-[820px]:justify-self-end [&>span]:font-body [&>span]:text-[11px] [&>span]:font-medium [&>span]:uppercase [&>span]:tracking-[.06em] [&>span]:text-muted",
   overviewGrid: "grid gap-4 min-[980px]:grid-cols-[minmax(0,1fr)_340px]",

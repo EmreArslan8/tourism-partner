@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
 import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
-import type { GroupKey } from "@/lib/types";
+import type { ActionState, GroupKey } from "@/lib/types";
 import { clean } from "./validate";
 
 function groupOrNull(value: FormDataEntryValue | null): GroupKey | null {
@@ -111,10 +111,20 @@ async function notifyRequestOwner(
 }
 
 /* Acente talep/ilan oluşturur (yayınlanır; admin sonradan denetler). */
-export async function createB2bRequest(formData: FormData): Promise<void> {
+export async function createB2bRequest(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    console.warn("[b2b-request] oturum yok");
+    return { ok: false, error: "auth" };
+  }
   const biz = await myBusiness(supabase);
-  if (!biz) return;
+  if (!biz) {
+    console.warn("[b2b-request] kullanıcının işletmesi bulunamadı", { userId: user.id });
+    return { ok: false, error: "no_business" };
+  }
 
   const title = clean(formData.get("title"), 160);
   const targetTypes = targetTypesValue(formData);
@@ -127,9 +137,9 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
     120,
   );
   const targetGroup = groupOrNull(formData.get("target_group"));
-  if (!title) return;
+  if (!title) return { ok: false, error: "missing" };
 
-  await supabase.from("b2b_requests").insert({
+  const { error } = await supabase.from("b2b_requests").insert({
     business_id: biz.id,
     title,
     description,
@@ -138,7 +148,12 @@ export async function createB2bRequest(formData: FormData): Promise<void> {
     target_types: targetTypes,
     status: "published",
   });
+  if (error) {
+    console.error("[b2b-request] insert başarısız", { code: error.code, message: error.message, bizId: biz.id });
+    return { ok: false, error: error.code === "42501" ? "forbidden" : (error.message || "insert_failed") };
+  }
   revalidatePath("/[locale]/dashboard/requests", "page");
+  return { ok: true };
 }
 
 /* İlan görüntülenme sayacı (+1) — teklif verecek tedarikçi ilanı görünce.

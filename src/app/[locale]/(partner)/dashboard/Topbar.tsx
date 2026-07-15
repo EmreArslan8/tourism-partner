@@ -1,6 +1,4 @@
-import { LogOut } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { signOut } from "@/lib/actions/auth";
 import { getPanelBusiness, getPanelUser } from "@/lib/panel-auth";
 import styles from "./styles";
 
@@ -27,14 +25,6 @@ export default async function DashboardTopbar({ title, subtitle }: { title: stri
         <div className={styles.topbarText}>
           <h1 className={styles.title}>{panelTitle}</h1>
           <p className={styles.email}>{panelSubtitle}</p>
-        </div>
-        <div className={styles.actions}>
-          <form action={signOut}>
-            <button type="submit" className={styles.compactSecondaryButton}>
-              <LogOut size={15} aria-hidden />
-              {t("signOut")}
-            </button>
-          </form>
         </div>
       </div>
     </div>
