@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -43,8 +43,9 @@ export async function submitApplication(
   if (!group) return { ok: false, error: "category" };
 
   try {
-    const supabase = await createClient();
-    const { error } = await supabase.from("applications").insert({
+    const admin = createAdminClient();
+    if (!admin) return { ok: false, error: "service_role_unavailable" };
+    const { error } = await admin.from("applications").insert({
       name,
       email,
       group,

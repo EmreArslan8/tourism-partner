@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { isIP } from "net";
 import { headers } from "next/headers";
 
 type RateLimitOptions = {
@@ -6,6 +7,8 @@ type RateLimitOptions = {
   limit: number;
   windowSeconds: number;
   identity?: Array<string | number | null | undefined>;
+  identityLimit?: number;
+  globalLimit?: number;
 };
 
 const env = () => ({
@@ -19,11 +22,16 @@ function digest(value: string) {
 
 async function requesterIp() {
   const h = await headers();
-  return (
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    h.get("x-real-ip") ||
-    "unknown"
-  );
+  const candidates = [
+    h.get("x-vercel-forwarded-for"),
+    h.get("x-forwarded-for"),
+    h.get("x-real-ip"),
+  ];
+  for (const value of candidates) {
+    const address = value?.split(",").map((part) => part.trim()).filter(Boolean).at(-1);
+    if (address && isIP(address)) return address;
+  }
+  return "unknown";
 }
 
 async function restFetch(path: string, init: RequestInit = {}) {
@@ -67,23 +75,35 @@ function fallbackAllow() {
 
 export async function checkRateLimit(options: RateLimitOptions): Promise<boolean> {
   const { url, key } = env();
-  if (!url || !key) return true;
+  if (!url || !key) return fallbackAllow();
 
   try {
     const ip = await requesterIp();
-    const identity = [ip, ...(options.identity ?? [])]
+    const identity = (options.identity ?? [])
       .filter((item) => item !== null && item !== undefined && String(item).trim())
       .join("|")
       .slice(0, 800);
-    const rowKey = `${options.scope}:${digest(identity)}`;
-
-    const allowed = await callRateLimitRpc({
-      key: rowKey,
-      scope: options.scope,
-      limit: options.limit,
-      windowSeconds: options.windowSeconds,
-    });
-    return allowed ?? fallbackAllow();
+    const dimensions = [
+      { name: "ip", value: ip, limit: options.limit },
+      ...(identity
+        ? [{ name: "identity", value: identity, limit: options.identityLimit ?? options.limit }]
+        : []),
+      ...(options.globalLimit
+        ? [{ name: "global", value: "all", limit: options.globalLimit }]
+        : []),
+    ];
+    const results = await Promise.all(
+      dimensions.map((dimension) =>
+        callRateLimitRpc({
+          key: `${options.scope}:${dimension.name}:${digest(dimension.value)}`,
+          scope: `${options.scope}:${dimension.name}`,
+          limit: dimension.limit,
+          windowSeconds: options.windowSeconds,
+        }),
+      ),
+    );
+    if (results.some((allowed) => allowed === null)) return fallbackAllow();
+    return results.every(Boolean);
   } catch (error) {
     console.warn("[rate-limit] rpc failed", error);
     return fallbackAllow();

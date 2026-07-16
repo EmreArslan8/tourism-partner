@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { processRecentQuoteEmailDeliveries } from "@/lib/email-delivery";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
@@ -10,7 +11,6 @@ import { normalizeTr } from "@/lib/utils";
 import { isPublicBusinessStatus, PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { ActionState, GroupKey } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
-
 
 function resolveCategory(group: string | null, type: string | null) {
   const category = CATEGORY_GROUPS.find((item) => item.key === group);
@@ -84,7 +84,9 @@ export async function submitQuote(
   if (!isEmail(email)) return { ok: false, error: "email" };
   const allowed = await checkRateLimit({
     scope: "quote-submit",
-    limit: 8,
+    limit: 4,
+    identityLimit: 4,
+    globalLimit: 120,
     windowSeconds: 10 * 60,
     identity: [email.toLowerCase()],
   });
@@ -187,7 +189,9 @@ export async function submitQuote(
       message,
     }));
 
-    const { error } = await supabase.from("quotes").insert(rows);
+    const writer = createAdminClient();
+    if (!writer) return { ok: false, error: "service_role_unavailable" };
+    const { error } = await writer.from("quotes").insert(rows);
     if (error) return { ok: false, error: error.message };
 
     // Teklif kaydı başarılı → işletme sahibine otomatik bildirim (varsa).

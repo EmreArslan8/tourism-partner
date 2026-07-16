@@ -288,8 +288,15 @@ type BusinessFilterQuery = {
 function applyBusinessFilters<T extends BusinessFilterQuery>(query: T, filters: CrmFilters): T {
   let next = query;
   if (filters.q) {
-    const q = filters.q.replaceAll("%", "").replaceAll(",", " ");
-    next = next.or(`name.ilike.%${q}%,type.ilike.%${q}%,city.ilike.%${q}%,district.ilike.%${q}%,website.ilike.%${q}%`) as T;
+    const q = filters.q
+      .normalize("NFKC")
+      .replace(/[^\p{L}\p{N} _-]/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 80);
+    if (q) {
+      next = next.or(`name.ilike.%${q}%,type.ilike.%${q}%,city.ilike.%${q}%,district.ilike.%${q}%,website.ilike.%${q}%`) as T;
+    }
   }
   if (filters.group !== "all") next = next.eq("group", filters.group) as T;
   if (filters.city) next = next.eq("city", filters.city) as T;

@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail, escapeHtml } from "@/lib/email";
 import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionState, GroupKey } from "@/lib/types";
 import { clean } from "./validate";
 
@@ -125,6 +126,14 @@ export async function createB2bRequest(_prev: ActionState, formData: FormData): 
     console.warn("[b2b-request] kullanıcının işletmesi bulunamadı", { userId: user.id });
     return { ok: false, error: "no_business" };
   }
+  const allowed = await checkRateLimit({
+    scope: "b2b-request-create",
+    limit: 5,
+    globalLimit: 300,
+    windowSeconds: 60 * 60,
+    identity: [biz.id],
+  });
+  if (!allowed) return { ok: false, error: "rate" };
 
   const title = clean(formData.get("title"), 160);
   const targetTypes = targetTypesValue(formData);
@@ -174,10 +183,27 @@ export async function submitB2bOffer(formData: FormData): Promise<void> {
   const biz = await myBusiness(supabase);
   if (!biz) return;
 
+  const allowed = await checkRateLimit({
+    scope: "b2b-offer-submit",
+    limit: 20,
+    globalLimit: 1000,
+    windowSeconds: 60 * 60,
+    identity: [biz.id],
+  });
+  if (!allowed) return;
+
   const requestId = Number(formData.get("request_id"));
   const message = clean(formData.get("message"), 2000);
   const price = clean(formData.get("price"), 120);
   if (!Number.isInteger(requestId) || !message) return;
+
+  const { data: request } = await supabase
+    .from("b2b_requests")
+    .select("id,business_id,status")
+    .eq("id", requestId)
+    .eq("status", "published")
+    .maybeSingle();
+  if (!request || request.business_id === biz.id) return;
 
   const { error } = await supabase.from("b2b_offers").insert({
     request_id: requestId,

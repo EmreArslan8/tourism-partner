@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { authorizeCronRequest } from "@/lib/cron-auth";
 
 /* Üyelik süresi otomasyonu — bitiş tarihi geçmiş (ends_at < now) ve hâlâ active/trial
    olan üyelikleri 'expired' durumuna çeker. Vercel Cron her gece çağırır; yetki
@@ -8,12 +9,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
    Manuel tetikleme: curl -H "Authorization: Bearer $CRON_SECRET" .../api/cron/expire-memberships */
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-    }
+  const authorization = authorizeCronRequest(request);
+  if (!authorization.ok) {
+    return NextResponse.json(
+      { ok: false, error: authorization.error },
+      { status: authorization.status },
+    );
   }
 
   const admin = createAdminClient();
