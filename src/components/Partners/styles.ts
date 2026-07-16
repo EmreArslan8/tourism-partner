@@ -4,7 +4,9 @@ const styles = {
   label:
     "px-6 text-center text-[12.5px] font-semibold uppercase tracking-[.16em] text-muted max-[560px]:text-[11px]",
   viewport:
-    "relative w-full " +
+    // RTL sayfada şerit sağa yaslanıp translateX(-50%) ile görünümden çıkıyordu;
+    // marquee içeriği Latince olduğundan her zaman LTR akıtıyoruz.
+    "relative w-full [direction:ltr] " +
     "[mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)] " +
     "[-webkit-mask-image:linear-gradient(90deg,transparent,#000_7%,#000_93%,transparent)]",
   track: "flex w-max shrink-0 items-center animate-scroll-linear",

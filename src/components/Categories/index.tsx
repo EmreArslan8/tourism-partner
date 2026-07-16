@@ -149,7 +149,7 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
                 aria-current={active ? "true" : undefined}
               >
                 <span className={styles.mobileMedia} aria-hidden="true">
-                  <Image src={IMG[g.key]} alt="" fill sizes="50vw" className={styles.img} />
+                  <Image src={IMG[g.key]} alt="" fill sizes="(max-width: 640px) 100vw, 50vw" className={styles.img} />
                 </span>
                 <span className={styles.index}>{String(index + 1).padStart(2, "0")}</span>
                 <span className={styles.itemCopy}>
@@ -158,6 +158,12 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
                     <span className={styles.badge}>{t(`cards.${g.key}.badge`)}</span>
                   </span>
                   <span className={styles.desc}>{t(`cards.${g.key}.desc`)}</span>
+                </span>
+                <span className={styles.mobileCta}>
+                  {t("cta")}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
                 </span>
               </Link>
             );

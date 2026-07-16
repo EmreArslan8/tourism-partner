@@ -19,13 +19,20 @@
   globeCanvas: "pointer-events-auto relative h-full w-full",
   inner:
     "container-px flex h-full min-h-[520px] flex-col items-start justify-center  text-start " +
-    "min-[1440px]:-translate-y-6 min-[1800px]:-translate-y-10 " +
+    // Header absolute olduğundan güvenli alan: ortalanan içerik kısa ekranda header altına giremesin.
+    "min-[1025px]:pt-[96px] min-[1025px]:pb-[72px] " +
+    // Yukarı kaydırma yalnız yeterince YÜKSEK ekranlarda; kısa laptop ekranında taşmaya yol açıyordu.
+    "[@media(min-width:1440px)_and_(min-height:940px)]:-translate-y-6 " +
+    "[@media(min-width:1800px)_and_(min-height:940px)]:-translate-y-10 " +
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
     "max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
   title:
     "heading-hero max-w-[17ch] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.06] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block " +
     "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.04] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
-    "min-[1440px]:!text-[88px] min-[1440px]:!leading-[.98] min-[1800px]:!text-[96px] " +
+    // Dev başlık yalnız geniş VE yüksek ekranlarda; 1600×900 laptop'ta taban ölçü kalır.
+    "[@media(min-width:1440px)_and_(min-height:940px)]:!text-[88px] " +
+    "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[.98] " +
+    "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[96px] " +
     "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
   mobileIntro:
     "mt-4 hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
@@ -71,7 +78,9 @@
     "flex min-w-0 flex-[1_1_30%] items-center justify-center gap-1.5 rounded-[10px] border border-white/15 bg-[#071a52]/75 px-2 py-2 text-center text-[10.5px] font-bold leading-tight text-white backdrop-blur-md " +
     "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0",
   marquee:
-    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/35 " +
+    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/20 " +
+    "bg-white/[.06] backdrop-blur-xl backdrop-saturate-150 " +
+    "shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_-12px_32px_-18px_rgba(1,8,47,.6)] " +
     "[&_*]:pointer-events-auto",
   stats:
     "mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 max-[640px]:hidden " +
