@@ -21,10 +21,48 @@ function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } |
 
 /* E-posta + şifre ile giriş (tek kimlik = Supabase Auth).
    Rol bazlı yönlendirme: admin → /admin, diğerleri → /dashboard. */
+/* Giriş sonrası rol/üye tipine göre yönlendirme yapar (redirect throw eder). */
+async function redirectAfterLogin(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string | undefined,
+): Promise<void> {
+  let role = "partner";
+  let accountType = "supplier";
+  if (userId) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, account_type")
+      .eq("id", userId)
+      .maybeSingle();
+    if (profile?.role) role = profile.role;
+    if (profile?.account_type) accountType = profile.account_type;
+  }
+  const locale = await getLocale();
+  const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
+  redirect({ href, locale });
+}
+
 export async function signIn(
   _prev: ActionState,
   formData: FormData
 ): Promise<ActionState> {
+  const supabase = await createClient();
+
+  // 2. FAZ — 2FA kodu doğrulama. İlk fazda şifre doğrulanıp aal1 oturum açıldıysa
+  // ve kullanıcının doğrulanmış TOTP faktörü varsa buraya düşülür.
+  const mfaFactorId = String(formData.get("mfaFactorId") ?? "").trim();
+  const mfaChallengeId = String(formData.get("mfaChallengeId") ?? "").trim();
+  const code = String(formData.get("code") ?? "").replace(/\s/g, "");
+  if (mfaFactorId && mfaChallengeId) {
+    if (!/^\d{6}$/.test(code)) return { ok: false, error: "mfa", factorId: mfaFactorId, challengeId: mfaChallengeId };
+    const { error } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: mfaChallengeId, code });
+    if (error) return { ok: false, error: "mfa_invalid", factorId: mfaFactorId, challengeId: mfaChallengeId };
+    const { data: userData } = await supabase.auth.getUser();
+    await redirectAfterLogin(supabase, userData.user?.id);
+    return { ok: true };
+  }
+
+  // 1. FAZ — e-posta + şifre.
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   if (!email || !password) return { ok: false, error: "missing" };
@@ -37,26 +75,23 @@ export async function signIn(
   });
   if (!allowed) return { ok: false, error: "rate" };
 
-  const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: error.message };
 
-  // Rolü + üye tipini oku → admin: /admin, alıcı: /explore, tedarikçi: /dashboard.
-  let role = "partner";
-  let accountType = "supplier";
-  if (data.user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, account_type")
-      .eq("id", data.user.id)
-      .maybeSingle();
-    if (profile?.role) role = profile.role;
-    if (profile?.account_type) accountType = profile.account_type;
+  // 2FA aktifse (doğrulanmış faktör var → nextLevel aal2) kod iste.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.currentLevel === "aal1" && aal?.nextLevel === "aal2") {
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const factorId = factors?.totp[0]?.id;
+    if (factorId) {
+      const { data: challenge, error: chErr } = await supabase.auth.mfa.challenge({ factorId });
+      if (!chErr && challenge) {
+        return { ok: false, error: "mfa", factorId, challengeId: challenge.id };
+      }
+    }
   }
 
-  const locale = await getLocale();
-  const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
-  redirect({ href, locale });
+  await redirectAfterLogin(supabase, data.user?.id);
   return { ok: true };
 }
 

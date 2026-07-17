@@ -19,11 +19,13 @@ import { businessImageUrl } from "@/lib/business-images";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { membershipDaysLeft, membershipState } from "@/lib/membership";
 import { extendMembership } from "@/lib/actions/membership";
-import { translateBusinessProfile } from "@/lib/actions/admin";
+import { addBusinessNote, translateBusinessProfile } from "@/lib/actions/admin";
 import { cn } from "@/lib/utils";
 import { adminUi } from "../../_ui";
 import BusinessDetailTabs from "./BusinessDetailTabs";
+import OwnerInviteCard from "./OwnerInviteCard";
 import SupplierHeader from "./SupplierHeader";
+import { getBusinessOwnership, type BusinessOwnershipView } from "@/lib/business-owner-invites";
 
 type TabKey =
   | "ozet"
@@ -47,7 +49,11 @@ export default async function AdminBusinessDetailPage({
   const query = await searchParams;
   setRequestLocale(locale);
 
-  const data = await getCrmBusinessDetail(Number(id));
+  const businessId = Number(id);
+  const [data, ownership] = await Promise.all([
+    getCrmBusinessDetail(businessId),
+    getBusinessOwnership(businessId),
+  ]);
   const business = data.business;
   if (!business) notFound();
 
@@ -81,7 +87,7 @@ export default async function AdminBusinessDetailPage({
         <BusinessDetailTabs activeTab={activeTab} />
       </div>
 
-      {activeTab === "ozet" && <OverviewTab locale={locale} business={business} data={data} />}
+      {activeTab === "ozet" && <OverviewTab locale={locale} business={business} data={data} ownership={ownership} />}
       {activeTab === "profil" && <ProfileTab locale={locale} business={business} />}
       {activeTab === "belgeler" && <DocumentsTab business={business} />}
       {activeTab === "icerik-seo" && <ContentSeoTab locale={locale} business={business} />}
@@ -91,7 +97,7 @@ export default async function AdminBusinessDetailPage({
   );
 }
 
-const OverviewTab = ({ locale, business, data }: { locale: string; business: AdminBusiness; data: CrmBusinessDetailData }) => (
+const OverviewTab = ({ locale, business, data, ownership }: { locale: string; business: AdminBusiness; data: CrmBusinessDetailData; ownership: BusinessOwnershipView }) => (
   <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
     <div className="grid content-start gap-4">
       <PerformancePanel data={data} />
@@ -100,8 +106,9 @@ const OverviewTab = ({ locale, business, data }: { locale: string; business: Adm
     </div>
 
     <aside className="grid content-start gap-4">
+      <OwnerInviteCard businessId={business.id} locale={locale} ownership={ownership} />
       <MembershipPanel locale={locale} business={business} data={data} />
-      <AdminNotesPanel data={data} />
+      <AdminNotesPanel locale={locale} business={business} data={data} />
     </aside>
   </div>
 );
@@ -312,29 +319,46 @@ const MembershipPanel = ({
   );
 };
 
-const AdminNotesPanel = ({ data }: { data: CrmBusinessDetailData }) => (
-  <section className={detailPanel}>
-    <div className="border-b border-[#D8DFEA] px-5 py-3.5">
-      <h3 className="text-[17px] font-extrabold text-ink">Admin Notları</h3>
-    </div>
-    <div className="grid gap-3 p-4">
-      {data.auditLogs.length === 0 ? (
-        <p className="rounded-[8px] bg-cream/50 p-3 text-[13px] font-semibold text-muted">Henüz admin notu veya audit kaydı yok.</p>
-      ) : (
-        data.auditLogs.slice(0, 2).map((log) => (
-          <div key={log.id} className="rounded-[8px] border border-line bg-cream/40 p-3">
-            <div className="flex items-center justify-between gap-3">
-              <strong className="text-[13px] text-ink">{log.action}</strong>
-              <span className="shrink-0 text-[12px] font-semibold text-muted">{formatDateTime(log.createdAt)}</span>
+const AdminNotesPanel = ({ locale, business, data }: { locale: string; business: AdminBusiness; data: CrmBusinessDetailData }) => {
+  const notes = data.auditLogs.filter((log) => log.note);
+  return (
+    <section className={detailPanel}>
+      <div className="border-b border-[#D8DFEA] px-5 py-3.5">
+        <h3 className="text-[17px] font-extrabold text-ink">Admin Notları</h3>
+      </div>
+      <div className="grid gap-3 p-4">
+        {notes.length === 0 ? (
+          <p className="rounded-[8px] bg-cream/50 p-3 text-[13px] font-semibold text-muted">Henüz admin notu yok. Aşağıdan ilk notu ekleyin.</p>
+        ) : (
+          notes.slice(0, 5).map((log) => (
+            <div key={log.id} className="rounded-[8px] border border-line bg-cream/40 p-3">
+              <div className="flex items-center justify-between gap-3">
+                <strong className="text-[13px] text-ink">İç not</strong>
+                <span className="shrink-0 text-[12px] font-semibold text-muted">{formatDateTime(log.createdAt)}</span>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-[12.5px] font-medium leading-5 text-ink">{log.note}</p>
             </div>
-            <p className="mt-2 text-[12.5px] font-medium leading-5 text-muted">Sistem tarafından kaydedilen işlem.</p>
-          </div>
-        ))
-      )}
-      <div className="rounded-[8px] border border-line bg-paper px-3 py-2 text-[13px] font-medium text-muted">İç not yazma alanı sonraki adımda bağlanacak.</div>
-    </div>
-  </section>
-);
+          ))
+        )}
+        <form action={addBusinessNote} className="grid gap-2">
+          <input type="hidden" name="businessId" value={business.id} />
+          <input type="hidden" name="locale" value={locale} />
+          <textarea
+            name="note"
+            required
+            maxLength={1000}
+            rows={3}
+            placeholder="İç not yaz (yalnızca admin görür)…"
+            className={cn(adminUi.input, "min-h-[76px] py-2.5 text-[13px]")}
+          />
+          <button type="submit" className={cn(adminUi.sapphireButton, "h-9 justify-self-start rounded-[8px] px-3.5 text-[13px]")}>
+            Not ekle
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+};
 
 const ModerationPanel = ({ business }: { business: AdminBusiness }) => (
   <section className={panel}>
@@ -343,7 +367,7 @@ const ModerationPanel = ({ business }: { business: AdminBusiness }) => (
       <InfoRow label="Durum" value={statusLabel(business.status)} />
       <InfoRow label="Public Görünürlük" value={isLive(business) ? "Açık" : "Kapalı"} />
       <InfoRow label="Risk Durumu" value={business.status === "blacklisted" ? "Blacklist" : business.status === "suspended" ? "Askıda" : "Normal"} />
-      <Empty text="Şikayetler, revizyon istekleri, blacklist nedeni ve admin iç notları bu modüle bağlanmalı." />
+      <Empty text="Durum değişikliği (askıya alma / blacklist) Profil sekmesinden, iç notlar Özet sekmesindeki Admin Notları'ndan yönetilir." />
     </div>
   </section>
 );

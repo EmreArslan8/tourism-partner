@@ -42,7 +42,9 @@ function formatDateRange(value: string | null): string | null {
 }
 
 export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNotification {
-  const subject = `Yeni teklif talebi — ${input.businessName}`;
+  // İşlemsel bildirim dili kullanılır; kampanya/fırsat ifadeleri Gmail'in
+  // promosyon/işletme sınıflandırmasını tetikleme ihtimalini artırabilir.
+  const subject = `Teklif talebi alındı — ${input.businessName}`;
   const details = [
     ["Talebi gönderen", input.senderName],
     ["Şirket", input.company],
@@ -99,9 +101,9 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td style="background:#01145d;padding:34px 38px;">
-                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">YENİ TALEP</div>
-                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Yeni bir teklif fırsatı var</h1>
-                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> için yeni bir teklif talebi aldınız.</p>
+                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">TEKLİF TALEBİ</div>
+                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Teklif talebi alındı</h1>
+                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> işletmesine yeni bir teklif talebi iletildi.</p>
                     </td>
                   </tr>
                   <tr>
@@ -160,9 +162,9 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
 </html>`;
 
   const detailText = details.map(([label, value]) => `${label}: ${value}`).join("\n");
-  const text = `Yeni teklif talebi — ${input.businessName}
+  const text = `Teklif talebi alındı — ${input.businessName}
 
-${input.businessName} için yeni bir teklif talebi aldınız.
+${input.businessName} işletmesine yeni bir teklif talebi iletildi.
 Teklif için son tarih: ${deadline}
 
 ${detailText}

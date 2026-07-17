@@ -12,7 +12,7 @@ import { setRequestLocale } from "next-intl/server";
 import { getAdminData } from "@/lib/admin";
 import { groupLabel } from "@/lib/categories";
 import { Link } from "@/i18n/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import type { AdminBusiness, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AdminEmptyState, AdminPage, AdminPanel, adminUi } from "../_ui";

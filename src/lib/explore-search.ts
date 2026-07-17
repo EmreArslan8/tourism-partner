@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+/* Keşfet sayfası yalnızca oturum bilgisini okur. Salt-okunur istemci, Next 16
+   dev modunda Server Action sonrası cookies() invariant hatasını önler. */
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
 import { filterAndSortBusinesses, facetCounts } from "@/lib/listing";
 import { canAppearInExplore, type ViewerKind } from "@/lib/business-visibility";

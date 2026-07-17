@@ -82,7 +82,7 @@ const Hero = () => {
 
       <div className={styles.inner}>
         <h1 className={styles.title}>
-          {t("titlePre").trim()}<br />
+          {t("titlePre").trim()}{" "}
           <em>{t("titleEm")}</em> {t("titlePost").trim()}
         </h1>
         <p className={styles.mobileIntro}>{t("quickSub")}</p>

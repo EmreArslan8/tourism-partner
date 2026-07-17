@@ -138,12 +138,13 @@ export async function submitQuote(
     if (businessId) {
       const { data: directTarget, error: directError } = await supabase
         .from("businesses")
-        .select("id,status")
+        .select("id,status,owner_id")
         .eq("id", businessId)
         .in("status", [...PUBLIC_BUSINESS_STATUSES])
         .maybeSingle();
       if (directError) return { ok: false, error: directError.message };
       if (!directTarget || !isPublicBusinessStatus(directTarget.status)) return { ok: false, error: "no_match" };
+      if (user?.id && directTarget.owner_id === user.id) return { ok: false, error: "no_match" };
       targetBusinessIds = [Number(directTarget.id)];
     } else if (selectedCategory && country && city) {
       const targetGroups = (filterGroups.length ? filterGroups : [selectedCategory.group]) as GroupKey[];
@@ -159,6 +160,9 @@ export async function submitQuote(
 
       if (district) query = query.eq("district", district);
       if (filterRating > 0) query = query.gte("rating", filterRating);
+      // Bir tedarikçi kendi işletmesine teklif talebi gönderemez; aksi halde
+      // kayıt aynı panelde tekrar "Gelen teklifler" olarak görünür.
+      if (user?.id) query = query.neq("owner_id", user.id);
 
       const { data: matches, error: matchError } = await query;
       if (matchError) return { ok: false, error: matchError.message };
@@ -199,6 +203,7 @@ export async function submitQuote(
     // sadece ilk denemeyi hızlandırıyoruz. Cron, düşen işleri yeniden dener.
     const delivery = await processRecentQuoteEmailDeliveries(email, targetBusinessIds, submissionStartedAt);
     console.info("[quote-submit] DB kaydı tamamlandı, mail sonucu", { targetCount: targetBusinessIds.length, delivery });
+
     if (process.env.REQUIRE_QUOTE_EMAIL === "true" && delivery.sent + delivery.sentFallback < targetBusinessIds.length) {
       console.error("[quote-submit] REQUIRE_QUOTE_EMAIL nedeniyle başarı dönülmedi", { targetCount: targetBusinessIds.length, delivery });
       return { ok: false, error: "email" };

@@ -67,6 +67,21 @@ const ExportMenu = ({
                   </label>
                 ))}
               </div>
+
+              <div className="mt-3">
+                <p className="mb-1.5 text-[12.5px] font-semibold text-ink">Dosya biçimi</p>
+                <div className="grid grid-cols-2 gap-2 text-[13px] font-medium text-ink/80">
+                  <label className="flex items-center gap-2 rounded-[7px] border border-line bg-cream/45 px-2.5 py-2">
+                    <input name="format" value="xlsx" type="radio" defaultChecked className="accent-sapphire" />
+                    Excel (.xlsx)
+                  </label>
+                  <label className="flex items-center gap-2 rounded-[7px] border border-line bg-cream/45 px-2.5 py-2">
+                    <input name="format" value="csv" type="radio" className="accent-sapphire" />
+                    CSV
+                  </label>
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className={`mt-3 w-full ${adminUi.sapphireButton}`}

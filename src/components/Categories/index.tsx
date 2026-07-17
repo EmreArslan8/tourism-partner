@@ -11,13 +11,13 @@ import type { Business, GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 const IMG: Record<GroupKey, string> = {
-  konaklama: "/assets/cards/hotel-1.webp",
-  acente: "/assets/cards/agency-1.webp",
-  ulasim: "/assets/cards/agency-1.webp",
-  rehber: "/assets/cards/guide-1.webp",
-  aktivite: "/assets/cards/balloon-1.webp",
-  saglik: "/assets/cards/clinic-1.webp",
-  gastronomi: "/assets/cards/resort-1.webp",
+  konaklama: "/assets/cards/konaklama-1.jpeg",
+  acente: "/assets/cards/acente-1.jpeg",
+  ulasim: "/assets/cards/ulasim-1.jpeg",
+  rehber: "/assets/cards/rehber-2.jpeg",
+  aktivite: "/assets/cards/aktivite-1.jpeg",
+  saglik: "/assets/cards/saglik-2.jpeg",
+  gastronomi: "/assets/cards/gastronomi-1.jpeg",
 };
 
 const DISPLAY_GROUPS = CATEGORY_GROUPS;

@@ -1,6 +1,6 @@
 /* QuoteForm — Tailwind sınıf token'ları */
  const styles= {
-  card: "mx-auto max-w-[640px] rounded-card-lg border border-line bg-paper p-7 shadow-card min-[1440px]:max-w-[760px] min-[1440px]:p-9 min-[1800px]:max-w-[820px] min-[1800px]:p-10",
+  card: "mx-auto max-w-[640px] rounded-card-lg border border-line bg-paper p-7 shadow-[0_10px_28px_-24px_rgba(15,23,42,0.28)] min-[1440px]:max-w-[760px] min-[1440px]:p-9 min-[1800px]:max-w-[820px] min-[1800px]:p-10",
   header: "mb-6 min-[1440px]:mb-8",
   supplier: "mb-5 flex items-center gap-3 rounded-[12px] border border-line bg-cream p-3.5",
   supplierMono: "grid h-12 w-12 shrink-0 place-items-center rounded-[10px] font-display text-[20px] italic text-white/90",
@@ -39,6 +39,14 @@
   dateDoneButton:
     "rounded-full bg-primary px-4 py-1.5 text-[12px] font-semibold text-white transition hover:bg-primary/90",
   note: "mt-2 text-[13px] font-medium text-ink/70",
+  successWrap: "mx-auto flex min-h-[calc(100svh-190px)] max-w-[760px] items-center justify-center py-8",
+  successCard: "flex w-full max-w-[620px] flex-col items-center rounded-[22px] border border-emerald-200 bg-paper px-6 py-10 text-center shadow-[0_18px_50px_-36px_rgba(15,118,110,0.45)] sm:px-12 sm:py-14",
+  successIcon: "mb-5 grid h-[76px] w-[76px] place-items-center rounded-full bg-emerald-100 text-emerald-700 ring-8 ring-emerald-50",
+  successEyebrow: "text-[11px] font-extrabold uppercase tracking-[.16em] text-emerald-700",
+  successTitle: "mt-2 text-[27px] font-extrabold leading-tight tracking-tight text-ink sm:text-[34px]",
+  successDescription: "mt-3 max-w-[480px] text-[14px] font-semibold leading-6 text-muted sm:text-[15px]",
+  successDivider: "my-6 h-px w-20 bg-emerald-200",
+  successHint: "mb-5 max-w-[440px] text-[12.5px] font-semibold leading-5 text-ink/65",
 } as const;
 
 export default styles;

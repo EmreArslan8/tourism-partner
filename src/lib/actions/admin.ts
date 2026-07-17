@@ -215,6 +215,20 @@ export async function saveBusiness(formData: FormData): Promise<void> {
   if (createdLocale) redirect({ href: "/admin/tedarikciler", locale: createdLocale });
 }
 
+/* Admin iç notu ekle. Ayrı tablo yok; audit_logs'a "business.note" olarak
+   yazılır ve işletme detayındaki geçmiş/notlar listesinde gösterilir. */
+export async function addBusinessNote(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const id = Number(formData.get("businessId"));
+  const locale = clean(formData.get("locale"), 8);
+  const note = clean(formData.get("note"), 1000);
+  if (!Number.isInteger(id) || id <= 0) throw new Error("Geçersiz işletme.");
+  if (!note) throw new Error("Not boş olamaz.");
+
+  await logAdminAction(context, "business.note", "business", id, { note });
+  revalidateAdmin(locale);
+}
+
 export async function translateBusinessProfile(formData: FormData): Promise<void> {
   const context = await requireAdmin();
   const { supabase } = context;

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
 import type {
   GroupKey,
@@ -280,6 +280,7 @@ async function getSupabaseAdminData(
       entityId: row.entity_id,
       ipAddress: row.ip_address,
       userAgent: row.user_agent,
+      note: null,
       createdAt: row.created_at,
     })),
   };

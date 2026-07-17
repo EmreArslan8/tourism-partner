@@ -107,7 +107,7 @@ export interface ListingFilters {
 }
 
 // --- Action Types ---
-export type ActionState = { ok: boolean; error?: string };
+export type ActionState = { ok: boolean; error?: string; factorId?: string; challengeId?: string };
 
 export type BusinessDocument = {
   kind: string;
@@ -232,6 +232,8 @@ export type AdminAuditLog = {
   entityId: string | null;
   ipAddress: string | null;
   userAgent: string | null;
+  /** Admin iç notu (action="business.note" için new_value.note). */
+  note: string | null;
   createdAt: string;
 };
 

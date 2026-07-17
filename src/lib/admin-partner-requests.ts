@@ -1,5 +1,5 @@
 import { getAdminAccess } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase/server";
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import type { BusinessPartnerRequestStatus } from "@/lib/supabase/database.types";
 
 export type AdminPartnerBusiness = {

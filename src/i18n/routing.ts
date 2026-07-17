@@ -57,6 +57,12 @@ export const routing = defineRouting({
       ru: "/reset-password",
       ar: "/reset-password",
     },
+    "/business-invite": {
+      tr: "/isletme-daveti",
+      en: "/business-invite",
+      ru: "/business-invite",
+      ar: "/business-invite",
+    },
     "/quote": {
       tr: "/teklif",
       en: "/quote",

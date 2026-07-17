@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { getAdminAccess } from "@/lib/admin-auth";
-import { createClient } from "@/lib/supabase/server";
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { cleanHttpUrl } from "@/lib/actions/validate";
 import type {

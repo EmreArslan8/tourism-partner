@@ -2,12 +2,15 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { Business, GroupKey } from "@/lib/types";
 import { CATEGORY_GROUPS, GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { useRegions } from "@/lib/geo";
 import { initials } from "@/lib/utils";
 import { submitQuote } from "@/lib/actions/quote";
 import { DateRangePicker, SingleDatePicker } from "@/components/FormDatePickers";
+import { Dialog, DialogClose, DialogContent } from "@/components/common/Dialog";
+import { Link } from "@/i18n/navigation";
 import styles from "./styles";
 
 
@@ -34,6 +37,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
   const [group, setGroup] = useState<GroupKey | "">(initialGroup);
   const [categoryType, setCategoryType] = useState(initialType);
   const [phone, setPhone] = useState("");
+  const [dismissedError, setDismissedError] = useState<string | null>(null);
   const selectedGroup = CATEGORY_GROUPS.find((item) => item.key === group);
   const [country, setCountry] = useState(initialFilters?.country ?? "Türkiye");
   const [city, setCity] = useState(initialFilters?.city ?? "");
@@ -55,6 +59,24 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
       : categoryType
         ? [categoryType]
         : [];
+  const currentError = state.error && !state.ok ? state.error : null;
+  const errorOpen = Boolean(currentError && !pending && dismissedError !== currentError);
+
+  if (state.ok) {
+    return (
+      <section className={styles.successWrap} aria-live="polite">
+        <div className={styles.successCard}>
+          <span className={styles.successIcon}><CheckCircle2 size={38} strokeWidth={2.2} aria-hidden /></span>
+          <p className={styles.successEyebrow}>{t("successEyebrow")}</p>
+          <h1 className={styles.successTitle}>{t("successTitle")}</h1>
+          <p className={styles.successDescription}>{t("successDescription")}</p>
+          <div className={styles.successDivider} aria-hidden />
+          <p className={styles.successHint}>{t("successHint")}</p>
+          <Link href="/explore" className="btn btn-solid mt-2 min-w-[210px]">{t("successAction")}</Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className={styles.card}>
@@ -75,7 +97,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
         </div>
       )}
 
-      <form className={styles.form} action={action}>
+      <form className={styles.form} action={action} onSubmit={() => setDismissedError(null)}>
         {/* Honeypot — botlar doldurur, gerçek kullanıcı görmez */}
         <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
         {business && <input type="hidden" name="businessId" value={business.id} />}
@@ -245,13 +267,22 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
           doneLabel={t("dateDone")}
         />
         <label className={styles.label}>{t("message")}<textarea name="message" className={styles.textarea} placeholder={t("messagePh")} /></label>
-        {state.error && !state.ok && (
-          <p className="text-[13px] font-medium text-red-600">{quoteErrorMessage(t, state.error)}</p>
-        )}
         <button type="submit" className="btn btn-solid btn-block" disabled={pending || state.ok || (isGeneral && (!group || !categoryType))}>
           {state.ok ? t("sent") : pending ? t("sending") : t("submit")}
         </button>
       </form>
+
+      <Dialog open={errorOpen} onOpenChange={(open) => { if (!open && currentError) setDismissedError(currentError); }}>
+        <DialogContent className="max-w-[430px]" title={t("errorTitle")}>
+          <div className="mt-5 flex gap-3 rounded-[12px] border border-red-200 bg-red-50 p-4">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-red-100 text-red-700"><AlertTriangle size={18} aria-hidden /></span>
+            <p className="pt-1 text-[13.5px] font-semibold leading-6 text-red-800">{currentError ? quoteErrorMessage(t, currentError) : t("error")}</p>
+          </div>
+          <DialogClose asChild>
+            <button type="button" className="btn btn-solid btn-block mt-5">{t("errorClose")}</button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -10,6 +10,6 @@ export async function GET(request: Request) {
       { status: authorization.status },
     );
   }
-  const result = await processDueQuoteEmailDeliveries();
-  return NextResponse.json(result, { status: result.ok ? 200 : 503 });
+  const email = await processDueQuoteEmailDeliveries();
+  return NextResponse.json({ email }, { status: email.ok ? 200 : 503 });
 }

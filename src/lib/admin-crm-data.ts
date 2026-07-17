@@ -1,10 +1,10 @@
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
+import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { getServiceSlugs, getServiceSlugsByBusiness } from "@/lib/business-services";
 import type { AdminAuditLog, AdminBusiness, AdminMembership, AdminPageView, AdminQuote, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
-import { businessesToCsv } from "@/lib/admin-crm";
+import { businessesToRows, rowsToCsv } from "@/lib/admin-crm";
 
 const BUSINESS_SELECT =
   "id,group,type,name,country,city,district,lat,lng,description,rating,reviews,tag,verified,sponsored,founder_partner,doping_until,phone,website,image,attributes,details,status,seo_title,seo_description,seo_keywords,canonical_path,og_image,created_at";
@@ -190,7 +190,7 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .maybeSingle(),
     supabase
       .from("audit_logs")
-      .select("id,admin_id,action,entity_type,entity_id,ip_address,user_agent,created_at")
+      .select("id,admin_id,action,entity_type,entity_id,ip_address,user_agent,new_value,created_at")
       .eq("entity_type", "business")
       .eq("entity_id", String(id))
       .order("created_at", { ascending: false })
@@ -243,22 +243,25 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
   };
 });
 
-export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportColumn[], ids: number[] = []): Promise<string> {
+/* Filtre/seçime göre işletmeleri çekip export satırlarını üretir (CSV ve XLSX ortak). */
+async function collectExportRows(
+  filters: CrmFilters,
+  columns: ExportColumn[],
+  ids: number[],
+): Promise<{ headers: string[]; rows: string[][] }> {
   if (!hasEnv()) {
     console.error("[admin-crm] Supabase env eksik; seed/demo fallback kapalı, boş export dönülüyor.");
-    return businessesToCsv([], columns);
+    return businessesToRows([], columns);
   }
   const access = await getAdminAccess();
-  if (!access.isAdmin) return businessesToCsv([], columns);
+  if (!access.isAdmin) return businessesToRows([], columns);
 
   const supabase = await createClient();
   const query = applyBusinessFilters(supabase.from("businesses").select(BUSINESS_SELECT), filters)
     .order("created_at", { ascending: false })
     .limit(10_000);
   const scopedQuery = ids.length > 0 ? query.in("id", ids) : query;
-  const result = await runBusinessQuery(
-    scopedQuery,
-  );
+  const result = await runBusinessQuery(scopedQuery);
   const resultIds = result.businesses.map((business) => business.id);
   const contactsRes = await (
     columns.includes("email") && resultIds.length > 0
@@ -276,7 +279,45 @@ export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportCo
     const businessId = Number(row.business_id);
     if (!emails.has(businessId) && row.email) emails.set(businessId, row.email);
   }
-  return businessesToCsv(result.businesses, columns, Object.fromEntries(emails));
+  return businessesToRows(result.businesses, columns, Object.fromEntries(emails));
+}
+
+export async function exportCrmBusinesses(filters: CrmFilters, columns: ExportColumn[], ids: number[] = []): Promise<string> {
+  const { headers, rows } = await collectExportRows(filters, columns, ids);
+  return rowsToCsv(headers, rows);
+}
+
+/* Gerçek .xlsx (Office Open XML) çıktısı — exceljs ile. Sütunlar seçime göre
+   dinamik; başlık satırı kalın ve dondurulmuş, kolon genişlikleri otomatik. */
+export async function exportCrmBusinessesXlsx(filters: CrmFilters, columns: ExportColumn[], ids: number[] = []): Promise<Buffer> {
+  const { default: ExcelJS } = await import("exceljs");
+  const { headers, rows } = await collectExportRows(filters, columns, ids);
+
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = "Tourism Partner Admin";
+  workbook.created = new Date();
+  const sheet = workbook.addWorksheet("İşletmeler", {
+    views: [{ state: "frozen", ySplit: 1 }],
+  });
+
+  sheet.addRow(headers);
+  for (const row of rows) sheet.addRow(row);
+
+  const headerRow = sheet.getRow(1);
+  headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  headerRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1E3A8A" } };
+  headerRow.alignment = { vertical: "middle" };
+
+  // Kolon genişliklerini içeriğe göre ayarla (min 12, maks 60).
+  sheet.columns.forEach((column, index) => {
+    let max = headers[index]?.length ?? 12;
+    for (const row of rows) max = Math.max(max, (row[index] ?? "").length);
+    column.width = Math.min(60, Math.max(12, max + 2));
+  });
+  sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headers.length } };
+
+  const arrayBuffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(arrayBuffer as ArrayBuffer);
 }
 
 type BusinessFilterQuery = {
@@ -384,20 +425,28 @@ type AuditRow = {
   entity_id: string | null;
   ip_address: string | null;
   user_agent: string | null;
+  new_value: unknown;
   created_at: string;
 };
 
 function mapAuditLogs(rows: AuditRow[]): AdminAuditLog[] {
-  return rows.map((row) => ({
-    id: Number(row.id),
-    adminId: row.admin_id,
-    action: String(row.action),
-    entityType: row.entity_type,
-    entityId: row.entity_id,
-    ipAddress: row.ip_address,
-    userAgent: row.user_agent,
-    createdAt: row.created_at,
-  }));
+  return rows.map((row) => {
+    const note =
+      row.action === "business.note" && row.new_value && typeof row.new_value === "object" && !Array.isArray(row.new_value)
+        ? String((row.new_value as Record<string, unknown>).note ?? "").trim() || null
+        : null;
+    return {
+      id: Number(row.id),
+      adminId: row.admin_id,
+      action: String(row.action),
+      entityType: row.entity_type,
+      entityId: row.entity_id,
+      ipAddress: row.ip_address,
+      userAgent: row.user_agent,
+      note,
+      createdAt: row.created_at,
+    };
+  });
 }
 
 type QuoteRow = {

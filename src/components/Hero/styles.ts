@@ -27,7 +27,7 @@
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
     "max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
   title:
-    "heading-hero max-w-[17ch] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.06] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block " +
+    "heading-hero max-w-[20ch] [text-wrap:balance] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.06] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block " +
     "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.04] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
     // Dev başlık yalnız geniş VE yüksek ekranlarda; 1600×900 laptop'ta taban ölçü kalır.
     "[@media(min-width:1440px)_and_(min-height:940px)]:!text-[88px] " +

@@ -97,16 +97,32 @@ export function businessEmail(business: AdminBusiness): string {
   return host ? `info@${host}` : `info@${normalizeTr(business.name).replaceAll(" ", "")}.com`;
 }
 
+/* Export için başlık + veri satırlarını üretir. CSV ve XLSX çıktıları bunu
+   ortak kullanır; böylece sütun/etiket mantığı tek yerde kalır. */
+export function businessesToRows(
+  businesses: AdminBusiness[],
+  columns: ExportColumn[],
+  emails: Record<number, string> = {},
+): { headers: string[]; rows: string[][] } {
+  return {
+    headers: columns.map((column) => labelForColumn(column)),
+    rows: businesses.map((business) =>
+      columns.map((column) => valueForColumn(business, column, emails)),
+    ),
+  };
+}
+
+export function rowsToCsv(headers: string[], rows: string[][]): string {
+  return [headers, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+}
+
 export function businessesToCsv(
   businesses: AdminBusiness[],
   columns: ExportColumn[],
   emails: Record<number, string> = {},
 ): string {
-  const header = columns.map((column) => labelForColumn(column));
-  const rows = businesses.map((business) =>
-    columns.map((column) => valueForColumn(business, column, emails)),
-  );
-  return [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
+  const { headers, rows } = businessesToRows(businesses, columns, emails);
+  return rowsToCsv(headers, rows);
 }
 
 export function cityOptions(businesses: AdminBusiness[]): string[] {
