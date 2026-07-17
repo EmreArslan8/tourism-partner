@@ -11,8 +11,8 @@
   brandText: "mt-3.5 max-w-[320px] text-[13.5px] leading-relaxed",
   socialRow: "mt-4 flex flex-wrap items-center gap-4",
   socialLink: "text-cream transition-colors hover:text-white",
-  colTitle: "mb-3 text-[15px] text-cream",
-  colLink: "block py-1 text-[13.5px] text-cream transition-colors hover:text-white",
+  colTitle: "mb-3.5 text-[15px] font-semibold tracking-[-.01em] text-white",
+  colLink: "block py-1 text-[13.5px] text-cream/60 transition-colors hover:text-white",
   noteSm: "text-[13px] leading-relaxed",
   noteStrong: "text-gold font-semibold",
   base:
