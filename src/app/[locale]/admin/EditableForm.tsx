@@ -14,15 +14,18 @@ export default function EditableForm({
   action,
   className,
   persistent,
+  defaultEditing = false,
   children,
 }: {
   id?: string;
   action: (formData: FormData) => void | Promise<void>;
   className?: string;
   persistent?: React.ReactNode;
+  /** Yeni kayıt formunda doğrudan düzenleme modunda açmak için. */
+  defaultEditing?: boolean;
   children: React.ReactNode;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(defaultEditing);
 
   return (
     <form id={id} action={action} className={className}>

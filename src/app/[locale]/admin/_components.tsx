@@ -97,7 +97,7 @@ export const AdminShell = ({
 
         <div className="mt-auto border-t border-line/80 px-5 pb-6 pt-4">
           <Link
-            href="/admin/tedarikciler"
+            href="/admin/tedarikciler/new"
             className="mb-4 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-sapphire text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
@@ -133,7 +133,7 @@ export const AdminShell = ({
 
           {/* Yeni İşletme Kaydı */}
           <Link
-            href="/admin/tedarikciler"
+            href="/admin/tedarikciler/new"
             className="hidden h-10 shrink-0 items-center gap-2 rounded-[8px] bg-sapphire px-4 text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep sm:inline-flex"
           >
             <Plus size={16} strokeWidth={2.4} aria-hidden />
@@ -208,11 +208,13 @@ export const BusinessForm = ({
   business,
   mainExtra,
   sideExtra,
+  defaultEditing,
 }: {
   locale: string;
   business?: AdminBusiness;
   mainExtra?: React.ReactNode;
   sideExtra?: React.ReactNode;
+  defaultEditing?: boolean;
 }) => {
   const compactInput = `${input} h-11 px-3 text-[14px]`;
   const compactTextarea = `${input} min-h-[104px] px-3 py-2.5 text-[14px] leading-6`;
@@ -221,6 +223,7 @@ export const BusinessForm = ({
     <EditableForm
       id="admin-business-profile-form"
       action={saveBusiness}
+      defaultEditing={defaultEditing}
       className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"
       persistent={
         <>

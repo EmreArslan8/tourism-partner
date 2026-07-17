@@ -2,6 +2,7 @@
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup, serviceLabel } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
@@ -137,6 +138,7 @@ function revalidateAdmin(locale: string | null) {
 }
 
 export async function saveBusiness(formData: FormData): Promise<void> {
+  let createdLocale: string | null = null;
   try {
     const context = await requireAdmin();
     const { supabase } = context;
@@ -204,9 +206,13 @@ export async function saveBusiness(formData: FormData): Promise<void> {
 
     await logAdminAction(context, id ? "business.update" : "business.create", "business", id || null, { ...payload, services: serviceSlugs });
     revalidateAdmin(locale);
+    if (!id) createdLocale = locale ?? "tr";
   } catch (error) {
     throw error;
   }
+  // Yeni kayıt oluşturulduysa listeye dön (redirect try dışında olmalı,
+  // yoksa NEXT_REDIRECT catch tarafından yutulur).
+  if (createdLocale) redirect({ href: "/admin/tedarikciler", locale: createdLocale });
 }
 
 export async function translateBusinessProfile(formData: FormData): Promise<void> {

@@ -132,6 +132,12 @@ export const routing = defineRouting({
       ru: "/admin/suppliers",
       ar: "/admin/suppliers",
     },
+    "/admin/tedarikciler/new": {
+      tr: "/admin/tedarikciler/new",
+      en: "/admin/suppliers/new",
+      ru: "/admin/suppliers/new",
+      ar: "/admin/suppliers/new",
+    },
     "/admin/tedarikciler/[id]": {
       tr: "/admin/tedarikciler/[id]",
       en: "/admin/suppliers/[id]",
