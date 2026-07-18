@@ -6,6 +6,9 @@
    Yalnızca shadcn bileşenlerinin kullandığı renkler. Public sitenin
    gövde/temel stillerini DEĞİŞTİRMEZ (body override eklenmedi). */
 :root {
+  /* Başlık fontu gövdeyle aynı aileden türer — tek next/font instance'ı
+     (layout.tsx). AR'de Noto'nun --font-body'si otomatik buraya da yansır. */
+  --font-display: var(--font-body);
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;

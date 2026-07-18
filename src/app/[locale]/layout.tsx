@@ -8,28 +8,21 @@ import { getMessages, type Locale } from "@/i18n/messages";
 import { SITE_URL } from "@/lib/site";
 import "../globals.css";
 
-const display = Inter({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const body = Inter({
+/* Tek font instance'ı — display ve body aynı aileyi paylaşır; --font-display,
+   globals.css'te --font-body'ye eşitlenir (iki next/font kopyası dosyaları
+   duplike ediyor, woff2 sayısını ikiye katlıyordu → Lighthouse sim LCP şişiyordu).
+   display:"optional": font LCP kritik yolundan çıkar; ilk boyamaya yetişemezse
+   metrik-uyumlu fallback ile kalır (CLS yok), sonraki gezinmede web font gelir. */
+const sans = Inter({
   subsets: ["latin", "latin-ext"],
   variable: "--font-body",
-  display: "swap",
+  display: "optional",
 });
 
-const displayAr = Noto_Sans_Arabic({
-  subsets: ["arabic", "latin"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const bodyAr = Noto_Sans_Arabic({
+const sansAr = Noto_Sans_Arabic({
   subsets: ["arabic", "latin"],
   variable: "--font-body",
-  display: "swap",
+  display: "optional",
 });
 
 export const metadata: Metadata = {
@@ -60,7 +53,7 @@ export default async function LocaleLayout({
   const messages = await getMessages(locale as Locale);
 
   const isAr = locale === "ar";
-  const fontVars = isAr ? `${displayAr.variable} ${bodyAr.variable}` : `${display.variable} ${body.variable}`;
+  const fontVars = isAr ? sansAr.variable : sans.variable;
 
   return (
     <html lang={locale} dir={isAr ? "rtl" : "ltr"} data-scroll-behavior="smooth" className={fontVars}>
