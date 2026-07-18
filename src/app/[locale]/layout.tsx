@@ -19,10 +19,14 @@ const sans = Inter({
   display: "optional",
 });
 
+/* preload:false ŞART — preload manifest'i locale ayrımı yapamıyor; aksi halde
+   TR/EN/RU dahil HER sayfaya Link header'ıyla ~194KB Arapça font itiliyor
+   (High priority, LCP bandını yiyor). AR sayfası fontu CSS'ten keşfeder. */
 const sansAr = Noto_Sans_Arabic({
   subsets: ["arabic", "latin"],
   variable: "--font-body",
   display: "optional",
+  preload: false,
 });
 
 export const metadata: Metadata = {
