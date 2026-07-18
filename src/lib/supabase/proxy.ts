@@ -10,6 +10,13 @@ export async function updateSession(request: NextRequest, response: NextResponse
     return response;
   }
 
+  // Misafir (sb-* auth çerezi yok) → yenilenecek token da yok; Supabase'e
+  // network çağrısı yapmadan geç. Public sayfalarda TTFB'yi kısaltır.
+  // Giriş yapmış kullanıcıda davranış birebir aynı kalır.
+  if (!request.cookies.getAll().some((cookie) => cookie.name.startsWith("sb-"))) {
+    return response;
+  }
+
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
