@@ -39,7 +39,11 @@ const HelpPage = async ({ params }: { params: Promise<{ locale: string }> }) => 
           <h2 className={styles.cardTitle}>{t("otherTitle")}</h2>
           <div className={styles.channel}>
             <strong>{t("otherEmail")}</strong>
-            <a href="mailto:info@tourismpartner.com" className={styles.channelLink}>info@tourismpartner.com</a>
+            <a href="mailto:info@tourismpartner.world" className={styles.channelLink}>info@tourismpartner.world</a>
+          </div>
+          <div className={styles.channel}>
+            <strong>{t("otherPhone")}</strong>
+            <a href="tel:+905384848790" className={styles.channelLink} dir="ltr">+90 538 484 87 90</a>
           </div>
           <div className={styles.channel}>
             <strong>{t("otherPanel")}</strong>
