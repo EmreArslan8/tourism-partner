@@ -29,6 +29,12 @@ export const routing = defineRouting({
       ru: "/help",
       ar: "/help",
     },
+    "/about": {
+      tr: "/hakkimizda",
+      en: "/about",
+      ru: "/about",
+      ar: "/about",
+    },
     "/terms": {
       tr: "/kullanim-kosullari",
       en: "/terms",

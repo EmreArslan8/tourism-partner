@@ -57,6 +57,7 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
   const links: { href: Extract<Href, { pathname: string }>; label: string }[] = [
     { href: { pathname: "/" }, label: t("home") },
     { href: { pathname: "/explore" }, label: t("explore") },
+    { href: { pathname: "/about" }, label: t("about") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
     { href: { pathname: "/blog" }, label: t("blog") },
     { href: { pathname: "/", hash: "sss" }, label: t("faq") },
