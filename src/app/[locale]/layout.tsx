@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Inter, Noto_Sans_Arabic } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -6,6 +7,7 @@ import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getMessages, type Locale } from "@/i18n/messages";
 import { SITE_URL } from "@/lib/site";
+import { AnalyticsScripts, GoogleTagManagerNoScript } from "@/components/Analytics";
 import "../globals.css";
 
 /* Tek font instance'ı — display ve body aynı aileyi paylaşır; --font-display,
@@ -62,7 +64,11 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={isAr ? "rtl" : "ltr"} data-scroll-behavior="smooth" className={fontVars}>
       <body>
+        <GoogleTagManagerNoScript />
         <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
+        <Suspense fallback={null}>
+          <AnalyticsScripts />
+        </Suspense>
       </body>
     </html>
   );
