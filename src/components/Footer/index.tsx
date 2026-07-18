@@ -53,7 +53,8 @@ const Footer = ({ seamless = false }: { seamless?: boolean }) => {
         <div>
           <h4 className={styles.colTitle}>{t("contact")}</h4>
           <Link href={{ pathname: "/help" }} className={styles.colLink}>{t("helpLink")}</Link>
-          <a href="mailto:info@tourismpartner.com" className={styles.colLink}>info@tourismpartner.com</a>
+          <a href="mailto:info@tourismpartner.world" className={styles.colLink}>info@tourismpartner.world</a>
+          <a href="tel:+905384848790" className={styles.colLink} dir="ltr">+90 538 484 87 90</a>
           <Link href={{ pathname: "/", hash: "sss" }} scroll={false} className={styles.colLink}>{t("faqShort")}</Link>
         </div>
       </div>
