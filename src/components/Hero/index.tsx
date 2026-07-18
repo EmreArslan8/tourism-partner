@@ -81,6 +81,7 @@ const Hero = () => {
           styles.globeWrap bloğunu buraya ekle (git geçmişinde hazır). */}
 
       <div className={styles.inner}>
+        <p className={styles.eyebrow}>{t("eyebrow")}</p>
         <h1 className={styles.title}>
           {t("titlePre").trim()}{" "}
           <em>{t("titleEm")}</em> {t("titlePost").trim()}
@@ -103,7 +104,6 @@ const Hero = () => {
         <div className={styles.ctaBlock}>
           <div className={styles.ctaCopy}>
             <p className={styles.ctaPrompt}>{t("quickPrompt")}</p>
-            <p className={styles.ctaSub}>{t("quickSub")}</p>
           </div>
           <Link href={{ pathname: "/quote" }} className={styles.ctaPrimary}>
             <span>{t("quickQuote")}</span>

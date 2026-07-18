@@ -34,6 +34,8 @@
     "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[.98] " +
     "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[96px] " +
     "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
+  eyebrow:
+    "mb-3 text-[14px] font-extrabold uppercase tracking-[.16em] text-[#b7c6ff] [text-shadow:0_2px_18px_rgba(1,8,47,.45)] min-[1440px]:mb-4 min-[1440px]:text-[15px] max-[640px]:mb-2 max-[640px]:text-[11px]",
   mobileIntro:
     "mt-4 hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
   categories:
@@ -55,7 +57,6 @@
   ctaCopy: "min-w-0 max-w-[560px]",
   ctaPrompt:
     "font-display text-[25px] font-medium leading-[1.15] tracking-[-.01em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.35)] min-[1440px]:text-[28px] min-[1800px]:text-[31px]",
-  ctaSub: "mt-2.5 max-w-[58ch] text-[14.5px] font-medium leading-6 !text-white min-[1440px]:text-[15.5px] min-[1800px]:text-[16.5px]",
   ctaPrimary:
     "group/quote relative inline-flex min-h-[50px] min-w-[300px] shrink-0 items-center justify-center gap-3 overflow-hidden rounded-[12px] " +
     "border border-white/15 bg-sapphire-top px-8 text-[15px] font-bold text-white " +
