@@ -16,7 +16,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="tr">
+    <html lang="en">
       <body
         style={{
           minHeight: "100vh",
