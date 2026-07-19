@@ -5,14 +5,17 @@ import {
   Eye,
   FileCheck2,
   GalleryHorizontal,
+  Globe,
   History,
+  Mail,
   MessageSquareText,
+  Phone,
   Search,
   Star,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { BusinessForm, Empty, QuoteList, panel } from "../../_components";
-import { getCrmBusinessDetail, type CrmBusinessDetailData } from "@/lib/admin-crm-data";
+import { getCrmBusinessDetail, type CrmBusinessDetailData, type CrmContact } from "@/lib/admin-crm-data";
 import type { AdminBusiness, AdminMembership } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
 import { businessImageUrl } from "@/lib/business-images";
@@ -107,6 +110,7 @@ const OverviewTab = ({ locale, business, data, ownership }: { locale: string; bu
 
     <aside className="grid content-start gap-4">
       <OwnerInviteCard businessId={business.id} locale={locale} ownership={ownership} />
+      <ContactPanel business={business} contacts={data.contacts} />
       <MembershipPanel locale={locale} business={business} data={data} />
       <AdminNotesPanel locale={locale} business={business} data={data} />
     </aside>
@@ -207,8 +211,14 @@ const TranslationState = ({ details }: { details?: unknown }) => {
 };
 
 const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
-  const views = data.pageViews.filter((view) => view.entityType === "business");
-  const impressions = data.pageViews.filter((view) => view.entityType === "impression");
+  // "Son 30 gün" etiketiyle tutarlı olsun diye ziyaret/teklif sayıları tarihe göre süzülür;
+  // puan ve yorum DB'deki toplam değerlerdir (hücrede "toplam" olarak işaretli).
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recentViews = data.pageViews.filter((view) => new Date(view.viewedAt).getTime() >= cutoff);
+  const views = recentViews.filter((view) => view.entityType === "business");
+  const impressions = recentViews.filter((view) => view.entityType === "impression");
+  const quotes = data.quotes.filter((quote) => new Date(quote.createdAt).getTime() >= cutoff);
+  const rating = data.business?.rating ?? 0;
   return (
     <section className={detailPanel}>
       <div className="flex items-center justify-between border-b border-[#D8DFEA] px-5 py-3.5">
@@ -216,11 +226,59 @@ const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
         <span className="text-[12px] font-semibold text-muted">Son 30 gün</span>
       </div>
       <div className="grid md:grid-cols-4">
-        <MetricCell icon={<Star size={13} aria-hidden />} label="Puan" value="4.8" detail="+0.2" />
+        <MetricCell icon={<Star size={13} aria-hidden />} label="Puan" value={rating > 0 ? rating.toLocaleString("tr-TR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : "—"} detail="/ 5" />
         <MetricCell icon={<MessageSquareText size={13} aria-hidden />} label="Yorum" value={data.business?.reviews.toLocaleString("tr-TR") ?? "0"} detail="toplam" />
         <MetricCell icon={<Eye size={13} aria-hidden />} label="Profil Ziyareti" value={views.length.toLocaleString("tr-TR")} detail={`${impressions.length} gösterim`} />
-        <MetricCell icon={<FileCheck2 size={13} aria-hidden />} label="Teklif" value={data.quotes.length.toLocaleString("tr-TR")} detail="talep" />
+        <MetricCell icon={<FileCheck2 size={13} aria-hidden />} label="Teklif" value={quotes.length.toLocaleString("tr-TR")} detail="talep" />
       </div>
+    </section>
+  );
+};
+
+/* İşletmenin DB'deki iletişim bilgileri: businesses.phone/website + business_contacts kayıtları. */
+const ContactPanel = ({ business, contacts }: { business: AdminBusiness; contacts: CrmContact[] }) => {
+  const hasAny = Boolean(business.phone || business.website || contacts.length > 0);
+  return (
+    <section className={detailPanel}>
+      <div className="border-b border-[#D8DFEA] px-5 py-3.5">
+        <h3 className="text-[17px] font-extrabold text-ink">İletişim Bilgileri</h3>
+      </div>
+      {!hasAny ? (
+        <p className="p-4 text-[13px] font-semibold text-muted">İletişim bilgisi girilmemiş. Profil sekmesinden telefon/web sitesi ekleyin.</p>
+      ) : (
+        <div className="grid gap-3 p-4">
+          {business.phone && (
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sapphire/10 text-brand"><Phone size={14} aria-hidden /></span>
+              <a href={`tel:${business.phone}`} className="text-[13px] font-bold text-ink hover:underline">{business.phone}</a>
+            </div>
+          )}
+          {business.website && (
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sapphire/10 text-brand"><Globe size={14} aria-hidden /></span>
+              <a href={business.website} target="_blank" rel="noreferrer" className="break-all text-[13px] font-bold text-brand hover:underline">{business.website}</a>
+            </div>
+          )}
+          {contacts.map((contact) => (
+            <div key={contact.id} className="rounded-[8px] border border-line bg-cream/40 p-3">
+              <p className="text-[13px] font-extrabold text-ink">{contact.fullName}</p>
+              {contact.title && <p className="mt-0.5 text-[12px] font-semibold text-muted">{contact.title}</p>}
+              <div className="mt-2 grid gap-1.5">
+                {contact.phone && (
+                  <a href={`tel:${contact.phone}`} className="inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-ink hover:underline">
+                    <Phone size={12} aria-hidden className="text-brand" />{contact.phone}
+                  </a>
+                )}
+                {contact.email && (
+                  <a href={`mailto:${contact.email}`} className="inline-flex items-center gap-1.5 break-all text-[12.5px] font-semibold text-ink hover:underline">
+                    <Mail size={12} aria-hidden className="text-brand" />{contact.email}
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
