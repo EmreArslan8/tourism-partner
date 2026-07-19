@@ -38,6 +38,8 @@ type TabKey =
   | "talepler"
   | "gecmis";
 
+const thirtyDaysAgo = () => Date.now() - 30 * 24 * 60 * 60 * 1000;
+
 const TAB_KEYS: TabKey[] = ["ozet", "profil", "icerik-seo", "belgeler", "talepler", "gecmis"];
 const detailPanel = "overflow-hidden rounded-[8px] border border-[#D8DFEA] bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]";
 
@@ -213,7 +215,7 @@ const TranslationState = ({ details }: { details?: unknown }) => {
 const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
   // "Son 30 gün" etiketiyle tutarlı olsun diye ziyaret/teklif sayıları tarihe göre süzülür;
   // puan ve yorum DB'deki toplam değerlerdir (hücrede "toplam" olarak işaretli).
-  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const cutoff = thirtyDaysAgo();
   const recentViews = data.pageViews.filter((view) => new Date(view.viewedAt).getTime() >= cutoff);
   const views = recentViews.filter((view) => view.entityType === "business");
   const impressions = recentViews.filter((view) => view.entityType === "impression");

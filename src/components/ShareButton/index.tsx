@@ -38,10 +38,10 @@ export default function ShareButton({ title }: { title: string }) {
     <button
       type="button"
       onClick={share}
-      className="relative inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold text-ink transition-colors hover:bg-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sapphire"
+      className="relative inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <Share2 size={17} aria-hidden />
-      <span className="underline decoration-ink/40 underline-offset-2">{t("share")}</span>
+      <span className="underline decoration-white/40 underline-offset-2">{t("share")}</span>
       {copied && (
         <span role="status" className="absolute end-0 top-11 z-10 whitespace-nowrap rounded-[8px] bg-ink px-3 py-1.5 text-[11.5px] font-semibold text-paper shadow-card">
           {t("linkCopied")}

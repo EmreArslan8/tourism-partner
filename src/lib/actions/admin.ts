@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup, serviceLabel } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
+import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import { translateWithDeepL, type DeepLLocale } from "@/lib/deepl";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
@@ -123,6 +124,10 @@ function lifecycleStatusValue(formData: FormData): BusinessLifecycleStatus {
     return value;
   }
   return "pending";
+}
+
+function welcomeDopingUntil(now = Date.now()): string {
+  return new Date(now + 24 * 60 * 60 * 1000).toISOString();
 }
 
 function pageStatusValue(formData: FormData): "draft" | "published" | "archived" {
@@ -387,10 +392,22 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   const id = Number(formData.get("id"));
   const locale = clean(formData.get("locale"), 8);
   const status = lifecycleStatusValue(formData);
+  const { data: current, error: currentError } = await supabase
+    .from("businesses")
+    .select("status,doping_until")
+    .eq("id", id)
+    .maybeSingle();
+  if (currentError) throw new Error(currentError.message);
+
   // Reddetme gerekçesi (opsiyonel) — yalnızca reddedildiğinde kaydedilir.
   const reason = clean(formData.get("reason"), 500);
-  const payload: { status: typeof status; reject_reason?: string | null } = { status };
+  const payload: { status: typeof status; reject_reason?: string | null; doping_until?: string } = { status };
   if (status === "rejected") payload.reject_reason = reason ?? null;
+  if (isPublicBusinessStatus(status) && !isPublicBusinessStatus(current?.status)) {
+    const welcomeUntil = welcomeDopingUntil();
+    const existingUntil = current?.doping_until ? new Date(current.doping_until).getTime() : 0;
+    payload.doping_until = existingUntil > new Date(welcomeUntil).getTime() ? current!.doping_until! : welcomeUntil;
+  }
 
   const { error } = await supabase.from("businesses").update(payload).eq("id", id);
   if (error) throw new Error(error.message);

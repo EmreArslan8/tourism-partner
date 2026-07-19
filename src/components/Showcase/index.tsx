@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -10,12 +10,42 @@ import { GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import { businessDescription } from "@/lib/business-localization";
+import { premiumVisibilityRank } from "@/lib/business-visibility";
+import { profileScore } from "@/lib/listing";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
 import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
+import ImpressionTracker from "@/components/ImpressionTracker";
 import styles from "./styles";
 
 const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
+const SHOWCASE_LIMIT = 5;
+
+const shuffle = <T,>(items: T[]) => {
+  const list = [...items];
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+};
+
+function rankedShowcaseBusinesses(businesses: Business[]) {
+  return businesses
+    .filter((business) => premiumVisibilityRank(business) > 0 && galleryFor(business).length > 0)
+    .sort(
+      (a, b) =>
+        premiumVisibilityRank(b) - premiumVisibilityRank(a) ||
+        b.rating - a.rating ||
+        profileScore(b) - profileScore(a),
+    );
+}
+
+function balancedShowcaseBusinesses(businesses: Business[]) {
+  const premium = businesses.filter((business) => premiumVisibilityRank(business) === 2);
+  const timedDoping = businesses.filter((business) => premiumVisibilityRank(business) === 1);
+  return [...shuffle(premium), ...shuffle(timedDoping)].slice(0, SHOWCASE_LIMIT);
+}
 
 function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   return direction === "left" ? (
@@ -62,6 +92,7 @@ const Slide = ({ business }: { business: Business }) => {
 
   return (
     <div className={styles.slide} data-tour="supplier-showcase">
+      <ImpressionTracker id={business.id} />
       <div className={styles.panel}>
         {/* SOL — galeri */}
         <div
@@ -148,9 +179,19 @@ const Slide = ({ business }: { business: Business }) => {
 const Showcase = ({ businesses }: { businesses: Business[] }) => {
   const locale = useLocale();
   const t = useTranslations("showcase");
-  const items = businesses.filter((b) => b.sponsored && galleryFor(b).length > 0).slice(0, 5);
+  const rankedItems = useMemo(() => rankedShowcaseBusinesses(businesses), [businesses]);
+  const [balancedItems, setBalancedItems] = useState<Business[] | null>(null);
+  const items = balancedItems ?? rankedItems.slice(0, SHOWCASE_LIMIT);
   const [i, setI] = useState(0);
   const isRtl = locale === "ar";
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      setBalancedItems(balancedShowcaseBusinesses(rankedItems));
+      setI(0);
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [rankedItems]);
 
   if (items.length === 0) return null;
   const go = (d: number) => setI((p) => (p + d + items.length) % items.length);

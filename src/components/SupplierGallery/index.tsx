@@ -65,7 +65,7 @@ const SupplierGallery = ({
   }
 
   return (
-    <section className="relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_24px_70px_-48px_rgba(7,9,42,.75)]">
+    <section className="relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_1px_2px_rgba(2,6,23,.45)]">
         <div className="grid h-[480px] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 max-[1100px]:h-[440px] max-[900px]:h-auto max-[900px]:grid-cols-1">
         <button type="button" onClick={() => openGallery(0)} className="relative block min-h-[320px] w-full overflow-hidden border-0 p-0 bg-[#EEF2F7] max-[900px]:min-h-[260px]">
           <Image
@@ -123,7 +123,7 @@ const SupplierGallery = ({
         <button
           type="button"
           onClick={() => openGallery(0)}
-          className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] shadow-[0_14px_32px_-22px_rgba(7,9,42,.55)] transition hover:border-terra hover:text-terra-deep"
+          className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] transition hover:border-terra hover:text-terra-deep"
         >
           Tüm görselleri göster
         </button>

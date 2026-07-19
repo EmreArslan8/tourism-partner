@@ -78,7 +78,7 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
 
   return (
-    <section className="mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-card max-[560px]:p-4">
+    <section className="mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4">
       <div className="mb-4 border-b border-line pb-3">
         <h2 className="heading-subsection inline-flex items-center gap-2 text-[19px] text-ink">
           Değerlendirmeler
