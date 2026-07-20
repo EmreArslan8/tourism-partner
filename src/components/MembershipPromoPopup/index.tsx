@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   BadgeCheck,
   Building2,
@@ -22,6 +23,8 @@ const MembershipPromoPopup = () => {
     () => true,
     () => false,
   );
+  const t = useTranslations("membershipPopup");
+  const locale = useLocale();
   const [closed, setClosed] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -48,8 +51,8 @@ const MembershipPromoPopup = () => {
 
   if (!open) return null;
 
-  const locale = getLocaleFromPath(window.location.pathname);
-  const copy = COPY[locale] ?? COPY.en;
+  const features = t.raw("features") as ReadonlyArray<{ title: string; body: string }>;
+  const benefits = t.raw("benefits") as ReadonlyArray<{ title: string; body: string }>;
 
   return (
     <div
@@ -61,17 +64,23 @@ const MembershipPromoPopup = () => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="membership-popup-title"
-          className="relative grid h-[min(680px,calc(100vh-2rem))] overflow-hidden rounded-[18px] bg-paper text-ink shadow-[0_34px_120px_-34px_rgba(1,8,47,.92)] ring-1 ring-white/24 md:grid-cols-[1.02fr_.98fr] md:grid-rows-[minmax(0,1fr)_auto]"
+          className="relative grid max-h-[calc(100vh-1.5rem)] overflow-hidden rounded-[18px] bg-paper text-ink shadow-[0_34px_120px_-34px_rgba(1,8,47,.92)] ring-1 ring-white/24 md:max-h-[calc(100vh-2rem)] md:grid-cols-[1.02fr_.98fr] md:grid-rows-[minmax(0,1fr)_auto]"
         >
           <button
             ref={closeRef}
             type="button"
             onClick={close}
-            aria-label={copy.close}
-            className="absolute end-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-ink/10 bg-paper/88 text-ink shadow-[0_16px_30px_-24px_rgba(1,8,47,.7)] backdrop-blur-xl transition-colors hover:bg-cream md:end-5 md:top-5"
+            aria-label={t("close")}
+            className="absolute end-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-white/30 bg-white/15 text-white shadow-[0_16px_30px_-24px_rgba(1,8,47,.7)] backdrop-blur-xl transition-colors hover:bg-white/25 md:border-ink/10 md:bg-paper/88 md:text-ink md:hover:bg-cream md:end-5 md:top-5"
           >
             <X size={24} strokeWidth={2.1} aria-hidden />
           </button>
+
+          <div aria-hidden className="absolute inset-0 z-0 md:hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/assets/popup-image.webp" alt="" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,8,47,.62),rgba(1,8,47,.72)_45%,rgba(1,8,47,.86))]" />
+          </div>
 
           <section className="relative hidden min-h-0 overflow-hidden bg-ink text-white md:block">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -88,29 +97,29 @@ const MembershipPromoPopup = () => {
               <Logo href={null} height={50} variant="light" className="w-fit drop-shadow-[0_4px_18px_rgba(0,0,0,.38)]" priority />
               <div className="mt-14 max-w-[430px] lg:mt-16">
                 <p className="text-[34px] font-black leading-[1.07] tracking-[0] text-white lg:text-[40px]">
-                  One Platform.
+                  {t("leftTitleLine1")}
                   <br />
-                  Endless <span className="text-[#2f89ff]">Opportunities.</span>
+                  {t("leftTitleLine2")} <span className="text-[#2f89ff]">{t("leftTitleHighlight")}</span>
                 </p>
                 <p className="mt-6 max-w-[330px] text-[16px] font-medium leading-7 text-white/92">
-                  {copy.leftBody}
+                  {t("leftBody")}
                 </p>
               </div>
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-col overflow-hidden px-5 pb-5 pt-12 sm:px-8 md:px-10 md:pb-5 md:pt-8">
-            <Logo href={null} height={38} className="mb-5 w-fit md:hidden" priority />
-            <h2 id="membership-popup-title" className="max-w-[380px] text-[26px] font-black leading-[1.08] tracking-[0] text-ink sm:text-[32px]">
-              {copy.title}
+          <section className="relative z-10 flex min-h-0 flex-col overflow-y-auto px-5 pb-6 pt-12 sm:px-8 md:px-10 md:pb-5 md:pt-8">
+            <Logo href={null} height={38} variant="light" className="mb-5 w-fit md:hidden" priority />
+            <h2 id="membership-popup-title" className="max-w-[380px] text-[26px] font-black leading-[1.08] tracking-[0] text-white sm:text-[32px] md:text-ink">
+              {t("title")}
             </h2>
-            <div aria-hidden className="mt-4 h-1 w-14 rounded-full bg-[#2586f5]" />
-            <p className="mt-5 max-w-[430px] text-[14.5px] font-medium leading-6 text-ink/78">
-              {copy.body}
+            <div aria-hidden className="mt-6 h-1 w-14 rounded-full bg-[#2586f5] md:mt-4" />
+            <p className="mt-5 max-w-[430px] text-[14.5px] font-medium leading-6 text-white/85 md:mt-4 md:text-muted">
+              {t("body")}
             </p>
 
-            <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
-              {copy.features.map((feature, index) => {
+            <div className="mt-4 hidden pr-1 md:block">
+              {features.map((feature, index) => {
                 const Icon = FEATURE_ICONS[index] ?? BadgeCheck;
                 return (
                   <div key={feature.title} className="grid grid-cols-[34px_1fr] gap-3 border-b border-line/80 py-3 last:border-b-0">
@@ -126,27 +135,27 @@ const MembershipPromoPopup = () => {
               })}
             </div>
 
-            <div className="shrink-0 bg-paper pt-5">
+            <div className="shrink-0 pt-7 md:bg-paper md:pt-5">
               <a
                 href={`/${locale}/register`}
                 className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-[8px] bg-[#1877f2] px-5 text-[16px] font-extrabold text-white shadow-[0_18px_40px_-22px_rgba(24,119,242,.9)] transition-colors hover:bg-[#0f67db]"
                 onClick={close}
               >
                 <UserRound size={21} strokeWidth={2.1} aria-hidden />
-                {copy.cta}
+                {t("cta")}
               </a>
 
-              <p className="mt-3.5 text-center text-[13px] font-medium text-muted">
-                {copy.signInPrefix}{" "}
-                <a href={`/${locale}/login`} className="font-extrabold text-sapphire hover:text-sapphire-deep">
-                  {copy.signIn}
+              <p className="mt-3.5 text-center text-[13px] font-medium text-white/75 md:text-muted">
+                {t("signInPrefix")}{" "}
+                <a href={`/${locale}/login`} className="font-extrabold text-white underline underline-offset-2 hover:text-white md:text-sapphire md:no-underline md:hover:text-sapphire-deep">
+                  {t("signIn")}
                 </a>
               </p>
             </div>
           </section>
 
-          <div className="grid gap-3 border-t border-line bg-[#eef6ff] px-5 py-3 sm:grid-cols-2 lg:grid-cols-4 md:col-span-2 md:px-8">
-            {copy.benefits.map((benefit, index) => {
+          <div className="hidden gap-3 border-t border-line bg-[#eef6ff] px-5 py-3 sm:grid-cols-2 lg:grid-cols-4 md:col-span-2 md:grid md:px-8">
+            {benefits.map((benefit, index) => {
               const Icon = BENEFIT_ICONS[index] ?? ShieldCheck;
               return (
                 <div key={benefit.title} className="grid grid-cols-[30px_1fr] gap-2.5">
@@ -170,97 +179,6 @@ const MembershipPromoPopup = () => {
 const FEATURE_ICONS = [UserRound, Globe2, Building2, Search, Handshake] as const;
 const BENEFIT_ICONS = [ShieldCheck, Globe2, BadgeCheck, LockKeyhole] as const;
 
-const COPY = {
-  tr: {
-    close: "Kapat",
-    title: "Turizm İşinizi Globalde Büyütün",
-    body: "Turizm profesyonellerini tek pazarda buluşturan ağa katılın. Firma profilinizi oluşturun, hizmetlerinizi sergileyin ve dünya çapında iş ortaklarıyla bağlantı kurun.",
-    cta: "Tourism Partner'a Ücretsiz Katıl",
-    leftBody: "Turizm sektörünün tüm parçalarını birbirine bağlayan global B2B pazaryeri.",
-    signInPrefix: "Zaten hesabınız var mı?",
-    signIn: "Giriş Yap",
-    features: [
-      { title: "Ücretsiz Kayıt", body: "Hesabınızı dakikalar içinde oluşturun." },
-      { title: "Global İş Ağı", body: "Doğrulanmış turizm profesyonelleriyle bağlantı kurun." },
-      { title: "Firma Vitrini", body: "İşletmenizi ve hizmetlerinizi öne çıkarın." },
-      { title: "Akıllı Arama ve Filtreler", body: "Doğru iş ortaklarını hızlıca bulun." },
-      { title: "Doğrudan İş Bağlantıları", body: "İlişki kurun, birlikte büyüyün." },
-    ],
-    benefits: [
-      { title: "Komisyon Yok", body: "Komisyonsuz çalışın" },
-      { title: "Global Pazaryeri", body: "Uluslararası pazarlara ulaşın" },
-      { title: "Doğrulanmış Profesyoneller", body: "Sadece turizm profesyonelleri" },
-      { title: "Güvenli ve Sağlam", body: "Verileriniz güvende" },
-    ],
-  },
-  en: {
-    close: "Close",
-    title: "Grow Your Tourism Business Globally",
-    body: "Join thousands of tourism professionals in one growing marketplace. Create your company profile, showcase your services and connect with business partners worldwide.",
-    cta: "Join Tourism Partner Free",
-    leftBody: "The global B2B marketplace that connects every part of the tourism industry.",
-    signInPrefix: "Already have an account?",
-    signIn: "Sign In",
-    features: [
-      { title: "Free Registration", body: "Create your account in minutes." },
-      { title: "Global Business Network", body: "Connect with verified tourism professionals." },
-      { title: "Company Showcase", body: "Highlight your business and services." },
-      { title: "Smart Search & Filters", body: "Find the right partners quickly." },
-      { title: "Direct Business Connections", body: "Build relationships, grow together." },
-    ],
-    benefits: [
-      { title: "No Commission", body: "Work commission-free" },
-      { title: "Global Marketplace", body: "Reach international markets" },
-      { title: "Verified Professionals", body: "Tourism professionals only" },
-      { title: "Secure & Reliable", body: "Your data is safe with us" },
-    ],
-  },
-  ar: {
-    close: "إغلاق",
-    title: "نمّ عملك السياحي عالمياً",
-    body: "انضم إلى سوق واحد يجمع محترفي السياحة. أنشئ ملف شركتك، اعرض خدماتك وتواصل مع شركاء أعمال حول العالم.",
-    cta: "انضم إلى Tourism Partner مجاناً",
-    leftBody: "سوق B2B عالمي يربط جميع أجزاء قطاع السياحة.",
-    signInPrefix: "لديك حساب بالفعل؟",
-    signIn: "تسجيل الدخول",
-    features: [
-      { title: "تسجيل مجاني", body: "أنشئ حسابك خلال دقائق." },
-      { title: "شبكة أعمال عالمية", body: "تواصل مع محترفي سياحة موثوقين." },
-      { title: "واجهة للشركة", body: "ابرز شركتك وخدماتك." },
-      { title: "بحث وفلاتر ذكية", body: "اعثر على الشركاء المناسبين بسرعة." },
-      { title: "اتصالات أعمال مباشرة", body: "ابن علاقات وانمُ معاً." },
-    ],
-    benefits: [
-      { title: "بدون عمولة", body: "اعمل بدون عمولات" },
-      { title: "سوق عالمي", body: "صل إلى أسواق دولية" },
-      { title: "محترفون موثقون", body: "لمحترفي السياحة فقط" },
-      { title: "آمن وموثوق", body: "بياناتك آمنة لدينا" },
-    ],
-  },
-  ru: {
-    close: "Закрыть",
-    title: "Развивайте туристический бизнес глобально",
-    body: "Присоединяйтесь к единой площадке для профессионалов туризма. Создайте профиль компании, покажите услуги и находите партнеров по всему миру.",
-    cta: "Присоединиться бесплатно",
-    leftBody: "Глобальная B2B-площадка, объединяющая все части туристической индустрии.",
-    signInPrefix: "Уже есть аккаунт?",
-    signIn: "Войти",
-    features: [
-      { title: "Бесплатная регистрация", body: "Создайте аккаунт за несколько минут." },
-      { title: "Глобальная деловая сеть", body: "Свяжитесь с проверенными профессионалами туризма." },
-      { title: "Витрина компании", body: "Представьте компанию и услуги." },
-      { title: "Умный поиск и фильтры", body: "Быстро находите подходящих партнеров." },
-      { title: "Прямые бизнес-связи", body: "Стройте отношения и растите вместе." },
-    ],
-    benefits: [
-      { title: "Без комиссии", body: "Работайте без комиссий" },
-      { title: "Глобальный рынок", body: "Выходите на международные рынки" },
-      { title: "Проверенные специалисты", body: "Только профессионалы туризма" },
-      { title: "Безопасно и надежно", body: "Ваши данные защищены" },
-    ],
-  },
-} as const;
-
 function emptySubscribe() {
   return () => {};
 }
@@ -268,18 +186,10 @@ function emptySubscribe() {
 function shouldOpen() {
   if (typeof window === "undefined") return false;
   try {
-    if (!window.matchMedia("(min-width: 768px)").matches) return false;
     return !window.localStorage.getItem(STORAGE_KEY);
   } catch {
     return true;
   }
-}
-
-function getLocaleFromPath(pathname: string) {
-  const first = pathname.split("/").filter(Boolean)[0];
-  return first === "tr" || first === "en" || first === "ar" || first === "ru"
-    ? first
-    : "tr";
 }
 
 export default MembershipPromoPopup;

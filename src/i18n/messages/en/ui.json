@@ -792,5 +792,57 @@
     "error": "Upload failed, please try again.",
     "finish": "Finish and go to panel",
     "businessLabel": "Your business"
+  },
+  "membershipPopup": {
+    "close": "Close",
+    "title": "Welcome to the Global Tourism Network",
+    "body": "Join thousands of tourism professionals in one growing marketplace. Create your company profile, showcase your services and connect with business partners worldwide.",
+    "cta": "Create Free Account",
+    "leftTitleLine1": "One Platform.",
+    "leftTitleLine2": "Endless",
+    "leftTitleHighlight": "Opportunities.",
+    "leftBody": "The global B2B marketplace that connects every part of the tourism industry.",
+    "signInPrefix": "Already have an account?",
+    "signIn": "Sign In",
+    "features": [
+      {
+        "title": "Free Registration",
+        "body": "Create your account in minutes."
+      },
+      {
+        "title": "Global Business Network",
+        "body": "Connect with verified tourism professionals."
+      },
+      {
+        "title": "Company Showcase",
+        "body": "Highlight your business and services."
+      },
+      {
+        "title": "Smart Search & Filters",
+        "body": "Find the right partners quickly."
+      },
+      {
+        "title": "Direct Business Connections",
+        "body": "Build relationships, grow together."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "No Commission",
+        "body": "Work commission-free"
+      },
+      {
+        "title": "Global Marketplace",
+        "body": "Reach international markets"
+      },
+      {
+        "title": "Verified Professionals",
+        "body": "Tourism professionals only"
+      },
+      {
+        "title": "Secure & Reliable",
+        "body": "Your data is safe with us"
+      }
+    ]
   }
 }

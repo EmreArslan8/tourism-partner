@@ -792,5 +792,57 @@
     "error": "Görsel yüklenemedi, tekrar dene.",
     "finish": "Bitir ve panele geç",
     "businessLabel": "İşletmen"
+  },
+  "membershipPopup": {
+    "close": "Kapat",
+    "title": "Küresel Turizm Ağına Hoş Geldiniz",
+    "body": "Turizm profesyonellerini tek pazarda buluşturan ağa katılın. Firma profilinizi oluşturun, hizmetlerinizi sergileyin ve dünya çapında iş ortaklarıyla bağlantı kurun.",
+    "cta": "Ücretsiz Hesap Oluştur",
+    "leftTitleLine1": "Tek Platform.",
+    "leftTitleLine2": "Sınırsız",
+    "leftTitleHighlight": "Fırsat.",
+    "leftBody": "Turizm sektörünün tüm parçalarını birbirine bağlayan global B2B pazaryeri.",
+    "signInPrefix": "Zaten hesabınız var mı?",
+    "signIn": "Giriş Yap",
+    "features": [
+      {
+        "title": "Ücretsiz Kayıt",
+        "body": "Hesabınızı dakikalar içinde oluşturun."
+      },
+      {
+        "title": "Global İş Ağı",
+        "body": "Doğrulanmış turizm profesyonelleriyle bağlantı kurun."
+      },
+      {
+        "title": "Firma Vitrini",
+        "body": "İşletmenizi ve hizmetlerinizi öne çıkarın."
+      },
+      {
+        "title": "Akıllı Arama ve Filtreler",
+        "body": "Doğru iş ortaklarını hızlıca bulun."
+      },
+      {
+        "title": "Doğrudan İş Bağlantıları",
+        "body": "İlişki kurun, birlikte büyüyün."
+      }
+    ],
+    "benefits": [
+      {
+        "title": "Komisyon Yok",
+        "body": "Komisyonsuz çalışın"
+      },
+      {
+        "title": "Global Pazaryeri",
+        "body": "Uluslararası pazarlara ulaşın"
+      },
+      {
+        "title": "Doğrulanmış Profesyoneller",
+        "body": "Sadece turizm profesyonelleri"
+      },
+      {
+        "title": "Güvenli ve Sağlam",
+        "body": "Verileriniz güvende"
+      }
+    ]
   }
 }
