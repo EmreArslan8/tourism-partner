@@ -6,23 +6,19 @@ import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
 import Trust from "@/components/Trust";
-import ReelDeck from "@/components/ReelDeck";
 import AdSlider from "@/components/AdSlider";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
 import { getActiveAdBanners } from "@/lib/platform-data";
 import styles from "./styles";
 
 /*
- * Anasayfa = Reels tarzı tam-sayfa panel destesi (ReelDeck).
- * Her doğrudan child = bir 100dvh panel. Sıra:
- * 1) Hero  2) Vitrin + CTA  3) Tedarikçi türleri
- * 4) Üç adımda iş birliği  5) SSS
- * Son panelden sonra Footer (SiteChrome) normal scroll ile gelir.
+ * Anasayfa = normal dikey akış (standart scroll). Bölümler sırayla:
+ * 1) Hero (ilk ekran)  2) Vitrin + CTA  3) Tedarikçi türleri
+ * 4) Üç adımda iş birliği  5) SSS + güven rozetleri
+ * Ardından Footer (layout) normal scroll ile gelir.
  *
- * PPR notu: Veri bekleyen paneller (2-3) içerik seviyesinde Suspense ile
+ * PPR notu: Veri bekleyen bölümler (2-3) içerik seviyesinde Suspense ile
  * stream edilir; Hero (LCP) veri beklemeden statik kabukta boyanır.
- * ReelDeck'in doğrudan child sayısı SABİT kalmalı (panel sayacı bozulmasın) —
- * bu yüzden Suspense panel div'inin İÇİNE konur, panelin kendisine değil.
  */
 
 /* Panel 2 içeriği — reklam bandı + vitrin + CTA. Kendi verisini bekler;
@@ -57,8 +53,7 @@ async function CategoriesContent() {
   return <Categories businesses={businesses} />;
 }
 
-/* Veri beklerken gösterilen nabız iskeleti — panel yüksekliği ReelDeck'ten
-   geldiği için yerleşim oynamaz (CLS 0). */
+/* Veri beklerken gösterilen nabız iskeleti — bölüm yerine geçer, akış oynamaz. */
 function PanelFallback() {
   return (
     <div className={styles.inner} aria-busy="true">
@@ -74,46 +69,45 @@ function PanelFallback() {
 
 const HomeView = () => {
   return (
-    <ReelDeck>
-      {/* 1 — Hero (tam-bleed, panelin tamamını kaplar) */}
-      <div className={styles.panelDark}>
+    <>
+      {/* 1 — Hero (ilk ekranı doldurur) */}
+      <section className={styles.hero}>
         <div className={styles.heroFill}>
           <Hero />
         </div>
-      </div>
+      </section>
 
       {/* 2 — Vitrin + CTA */}
-      <div className={styles.panelStack}>
+      <section className={styles.section}>
         <Suspense fallback={<PanelFallback />}>
           <ShowcaseContent />
         </Suspense>
-      </div>
+      </section>
 
       {/* 3 — Tedarikçi türleri */}
-      <div className={styles.panelCategories}>
-        <div className="flex w-full flex-col justify-start gap-6 max-[1024px]:gap-5 max-[640px]:gap-6 max-[640px]:h-full max-[640px]:min-h-0">
+      <section className={styles.section}>
+        <div className={styles.inner}>
           <Suspense fallback={<PanelFallback />}>
             <CategoriesContent />
           </Suspense>
         </div>
-      </div>
+      </section>
 
-
-      {/* 6 — Üç adımda iş birliği */}
-      <div className={styles.panelLight}>
+      {/* 4 — Üç adımda iş birliği */}
+      <section className={styles.section}>
         <div className={styles.inner}>
           <HowItWorks />
         </div>
-      </div>
+      </section>
 
-      {/* 7 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
-      <div className={styles.panelFaq}>
+      {/* 5 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
+      <section className={styles.section}>
         <div className={styles.faqStack}>
           <Faq />
           <Trust />
         </div>
-      </div>
-    </ReelDeck>
+      </section>
+    </>
   );
 };
 

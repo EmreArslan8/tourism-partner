@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import SiteFooter from "@/components/Footer";
+import MembershipPromoPopup from "@/components/MembershipPromoPopup";
 import PopupSlot from "@/components/SitePopup/PopupSlot";
 
 /*
@@ -26,6 +27,7 @@ export default async function MarketingLayout({
       <Suspense fallback={null}>
         <PopupSlot />
       </Suspense>
+      <MembershipPromoPopup />
     </>
   );
 }

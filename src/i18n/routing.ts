@@ -77,6 +77,12 @@ export const routing = defineRouting({
     },
     "/blog": "/blog",
     "/blog/[slug]": "/blog/[slug]",
+    "/onboarding": {
+      tr: "/kurulum",
+      en: "/onboarding",
+      ru: "/onboarding",
+      ar: "/onboarding",
+    },
     "/dashboard": {
       tr: "/panel",
       en: "/dashboard",

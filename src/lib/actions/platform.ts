@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { requireAdminContext, writeAdminAudit } from "@/lib/admin-audit";
+import { BUSINESS_IMAGES_BUCKET } from "@/lib/business-images";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { GroupKey } from "@/lib/types";
 import type { AdBannerStatus, ContentPageStatus, PopupFrequency } from "@/lib/supabase/database.types";
 import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
@@ -147,6 +150,8 @@ export async function renameCategory(formData: FormData): Promise<void> {
 const POPUP_FREQUENCIES: PopupFrequency[] = ["always", "daily", "session"];
 const POPUP_STATUSES: AdBannerStatus[] = ["draft", "active", "paused", "archived"];
 const POPUP_ROLES = ["all", "supplier", "buyer"] as const;
+const POPUP_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+const POPUP_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 export async function savePopup(formData: FormData): Promise<void> {
   const context = await requireAdmin();
@@ -158,11 +163,12 @@ export async function savePopup(formData: FormData): Promise<void> {
   const roleRaw = String(formData.get("target_role") ?? "all");
   const freqRaw = String(formData.get("frequency") ?? "daily");
   const statusRaw = String(formData.get("status") ?? "draft");
+  const uploadedImage = await uploadPopupImage(formData.get("image_file"), context.userId);
 
   const payload = {
     title,
     body: sanitizePublicHtml(clean(formData.get("body"), 4000)),
-    image_url: cleanImageUrl(formData.get("image_url"), 400),
+    image_url: uploadedImage ?? cleanImageUrl(formData.get("image_url"), 400),
     cta_label: clean(formData.get("cta_label"), 80),
     cta_url: cleanHttpUrl(formData.get("cta_url"), 400),
     target_role: (POPUP_ROLES as readonly string[]).includes(roleRaw) ? roleRaw : "all",
@@ -180,7 +186,32 @@ export async function savePopup(formData: FormData): Promise<void> {
   await writeAdminAudit(context, id ? "popup.update" : "popup.create", "admin_popup", result.data?.id ?? null, payload);
 
   revalidateTag("popups", "max");
-  revalidatePath(`/${loc(formData)}/admin/icerik`);
+  const locale = loc(formData);
+  revalidatePath(`/${locale}/admin/icerik`);
+  redirect(`/${locale}/admin/icerik?tab=popups&edit=${result.data.id}`);
+}
+
+async function uploadPopupImage(entry: FormDataEntryValue | null, userId: string): Promise<string | null> {
+  if (!(entry instanceof File) || entry.size === 0) return null;
+  if (entry.size > POPUP_IMAGE_MAX_BYTES) throw new Error("Pop-up görseli en fazla 8 MB olabilir.");
+  if (!POPUP_IMAGE_TYPES.has(entry.type)) throw new Error("Pop-up görseli JPG, PNG veya WebP olmalı.");
+
+  const admin = createAdminClient();
+  if (!admin) throw new Error("Storage bağlantısı yok.");
+
+  const ext = entry.type === "image/png" ? "png" : entry.type === "image/webp" ? "webp" : "jpg";
+  const safeUser = userId.replace(/[^a-zA-Z0-9-]/g, "");
+  const path = `admin-popups/${safeUser}/${crypto.randomUUID()}.${ext}`;
+  const buffer = Buffer.from(await entry.arrayBuffer());
+
+  const { error } = await admin.storage.from(BUSINESS_IMAGES_BUCKET).upload(path, buffer, {
+    contentType: entry.type,
+    upsert: false,
+  });
+  if (error) throw new Error(`Pop-up görseli yüklenemedi: ${error.message}`);
+
+  const { data } = admin.storage.from(BUSINESS_IMAGES_BUCKET).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 /* ---------------- Pop-up sil ---------------- */

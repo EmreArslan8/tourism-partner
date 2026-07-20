@@ -195,7 +195,9 @@
     "servicesShowLess": "عرض أقل",
     "readMore": "اقرأ المزيد",
     "readLess": "عرض أقل",
-    "gatedTitle": "جهات الاتصال مخفية"
+    "gatedTitle": "جهات الاتصال مخفية",
+    "previewTitle": "معاينة — هذا الإعلان ليس منشورًا بعد",
+    "previewSub": "نشاطك قيد المراجعة. بعد الموافقة تصبح هذه الصفحة عامة؛ حاليًا أنت وحدك من يراها."
   },
   "quote": {
     "eyebrow": "احصل على عروض",
@@ -356,7 +358,33 @@
     "resent": "تمت إعادة الإرسال ✓",
     "resendFail": "تعذر الإرسال، حاول قريبًا.",
     "wrongEmail": "بريد خاطئ؟ ارجع",
-    "brandSlogan": "الموردون والوكالات، منصة واحدة"
+    "brandSlogan": "الموردون والوكالات، منصة واحدة",
+    "bizStepTitle": "عرّف بنشاطك",
+    "bizStepDesc": "عزّز ملفك",
+    "bizStepShort": "النشاط",
+    "bizIntro": "يجدك المشترون ويختارونك عبر هذه التفاصيل. الملفات المكتملة تتصدّر البحث وتكسب طلبات أكثر بكثير.",
+    "bizAddressLegend": "أين تعمل؟",
+    "bizCountryPh": "اختر الدولة",
+    "bizCityPh": "اختر المدينة",
+    "bizDistrictPh": "اختر المنطقة",
+    "bizCountryFirst": "اختر الدولة أولًا",
+    "bizDescLegend": "صِف نشاطك",
+    "bizDescPh": "ماذا تقدّم وما الذي يميّزك؟ بضع جمل تكفي.",
+    "bizContactLegend": "الشخص المسؤول",
+    "bizContactNamePh": "الاسم الكامل",
+    "bizContactPhonePh": "الهاتف",
+    "bizContactEmailPh": "البريد الإلكتروني",
+    "bizStrength": "قوة الملف",
+    "bizStrengthHint": "كل حقل يضعك أمام منافسيك.",
+    "bizRequiredHint": "املأ هذه الحقول للمتابعة — ملفك هو واجهتك.",
+    "bizCoverLegend": "صورة واجهتك",
+    "bizCoverPick": "أضف صورة غلاف",
+    "bizCoverChange": "غيّر الصورة",
+    "bizCoverHint": "يراها المشترون أولًا · الصور الأفقية أفضل",
+    "bizCoverUploading": "جارٍ الرفع…",
+    "bizCoverError": "فشل الرفع، حاول مجددًا.",
+    "bizContactPhoneErr": "أدخل هاتفًا صحيحًا",
+    "bizContactEmailErr": "أدخل بريدًا صحيحًا"
   },
   "panel": {
     "title": "لوحة الشركة",
@@ -753,5 +781,16 @@
     "otherPanel": "دعم الأعضاء",
     "otherPanelDesc": "يمكن للأعضاء فتح تذكرة من اللوحة.",
     "otherPanelCta": "الذهاب إلى اللوحة"
+  },
+  "onboarding": {
+    "title": "خطوة أخيرة: صورة واجهتك",
+    "sub": "أضف صورة غلاف تمثّل نشاطك على أفضل وجه. يراها المشترون أولًا — الصورة القوية تحصل على نقرات أكثر بكثير.",
+    "pick": "اختر صورة",
+    "change": "غيّر الصورة",
+    "hint": "JPG أو PNG · الصور الأفقية أفضل",
+    "uploading": "جارٍ الرفع…",
+    "error": "فشل الرفع، حاول مجددًا.",
+    "finish": "أنهِ وانتقل إلى اللوحة",
+    "businessLabel": "نشاطك"
   }
 }

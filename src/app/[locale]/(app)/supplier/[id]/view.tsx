@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Eye } from "lucide-react";
 import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
@@ -30,9 +30,11 @@ interface Props {
   services: FeaturedFacetTag[];
   gallery: string[];
   locale: string;
+  /** Sahibin henüz yayında olmayan (pending) ilanını önizleme modunda gösterir. */
+  preview?: boolean;
 }
 
-const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery, locale }: Props) => {
+const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery, locale, preview = false }: Props) => {
   const translateService = (value: string) => {
     const key = serviceTranslationKey(value);
     return key ? tService(key) : value;
@@ -43,7 +45,18 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
   );
   return (
     <main className={styles.main}>
-      <RecordView type="business" id={b.id} />
+      {!preview && <RecordView type="business" id={b.id} />}
+      {preview && (
+        <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
+            <Eye size={18} aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[13.5px] font-extrabold text-amber-900">{t("previewTitle")}</p>
+            <p className="mt-0.5 text-[12.5px] font-medium leading-snug text-amber-800">{t("previewSub")}</p>
+          </div>
+        </div>
+      )}
       <nav className={styles.nav}>
         <Link href="/" className={styles.navLink}>{t("home")}</Link><span>›</span>
         <Link href={{ pathname: "/explore" }} className={styles.navLink}>{t("explore")}</Link><span>›</span>

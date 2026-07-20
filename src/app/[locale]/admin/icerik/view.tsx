@@ -545,10 +545,27 @@ function PopupForm({ locale, popup }: { locale: string; popup?: AdminPopupRow })
         <input name="title" required defaultValue={popup?.title ?? ""} className={adminUi.input} placeholder="Yaz kampanyası" />
       </Field>
       <Field label="Metin (zengin metin)">
-        <textarea name="body" rows={3} defaultValue={popup?.body ?? ""} className={adminUi.input} placeholder="<p>Kampanya açıklaması…</p>" />
+        <textarea
+          name="body"
+          rows={3}
+          defaultValue={popup?.body ?? ""}
+          className={adminUi.input}
+          placeholder="<p>Kampanya açıklaması…</p>"
+        />
       </Field>
-      <Field label="Görsel yolu">
-        <input name="image_url" defaultValue={popup?.image_url ?? ""} className={adminUi.input} placeholder="https://...supabase.co/storage/..." />
+      <Field label="Görsel">
+        <input type="hidden" name="image_url" value={popup?.image_url ?? ""} />
+        <input
+          name="image_file"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className={cn(adminUi.input, "file:me-3 file:rounded-[8px] file:border-0 file:bg-sapphire file:px-3 file:py-1.5 file:text-[12px] file:font-bold file:text-white")}
+        />
+        {popup?.image_url && (
+          <span className="mt-1 block text-[12px] font-medium text-muted">
+            Mevcut görsel korunur; yeni dosya seçersen değiştirilir.
+          </span>
+        )}
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="CTA metni">

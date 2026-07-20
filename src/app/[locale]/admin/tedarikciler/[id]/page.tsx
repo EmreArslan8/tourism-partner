@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import {
   Ban,
+  CheckCircle2,
+  Circle,
   Eye,
   FileCheck2,
   GalleryHorizontal,
@@ -112,6 +114,7 @@ const OverviewTab = ({ locale, business, data, ownership }: { locale: string; bu
 
     <aside className="grid content-start gap-4">
       <OwnerInviteCard businessId={business.id} locale={locale} ownership={ownership} />
+      <ProfileCompletenessPanel business={business} />
       <ContactPanel business={business} contacts={data.contacts} />
       <MembershipPanel locale={locale} business={business} data={data} />
       <AdminNotesPanel locale={locale} business={business} data={data} />
@@ -233,6 +236,50 @@ const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
         <MetricCell icon={<Eye size={13} aria-hidden />} label="Profil Ziyareti" value={views.length.toLocaleString("tr-TR")} detail={`${impressions.length} gösterim`} />
         <MetricCell icon={<FileCheck2 size={13} aria-hidden />} label="Teklif" value={quotes.length.toLocaleString("tr-TR")} detail="talep" />
       </div>
+    </section>
+  );
+};
+
+/* Profil doluluk paneli — partner panelindeki checklist (Overview.tsx) ve public sıralamadaki
+   profileScore (lib/listing.ts) ile birebir aynı 10 koşul; farklılaşırsa skorlar tutarsızlaşır. */
+const ProfileCompletenessPanel = ({ business }: { business: AdminBusiness }) => {
+  const checks: { label: string; done: boolean }[] = [
+    { label: "İşletme adı", done: Boolean(business.name) },
+    { label: "Kategori / tür", done: Boolean(business.type) },
+    { label: "Adres (ülke, şehir, ilçe)", done: Boolean(business.country && business.city && business.district) },
+    { label: "Açıklama", done: Boolean(business.desc) },
+    { label: "Telefon", done: Boolean(business.phone) },
+    { label: "Web sitesi", done: Boolean(business.website) },
+    { label: "Kapak görseli", done: Boolean(business.image) },
+    { label: "Özellikler (facet)", done: Boolean(business.attributes?.length) },
+    { label: "Yetkili kişi", done: (business.contactCount ?? 0) > 0 },
+    { label: "Partner bağlantısı", done: (business.partnerCount ?? 0) > 0 },
+  ];
+  const score = Math.round((checks.filter((c) => c.done).length / checks.length) * 100);
+  const scoreTone = score >= 80 ? "text-emerald-700" : score >= 50 ? "text-amber-700" : "text-red-600";
+  const barTone = score >= 80 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-red-500";
+  return (
+    <section className={detailPanel}>
+      <div className="flex items-center justify-between border-b border-[#D8DFEA] px-5 py-3.5">
+        <h3 className="text-[17px] font-extrabold text-ink">Profil Doluluğu</h3>
+        <span className={cn("text-[15px] font-extrabold", scoreTone)}>%{score}</span>
+      </div>
+      <div className="px-5 pt-4">
+        <div className="h-2 overflow-hidden rounded-full bg-[#E8EEFB]">
+          <div className={cn("h-full rounded-full", barTone)} style={{ width: `${score}%` }} />
+        </div>
+      </div>
+      <ul className="grid gap-0.5 p-4">
+        {checks.map((check) => (
+          <li key={check.label} className="flex items-center gap-2 py-1">
+            {check.done
+              ? <CheckCircle2 size={15} aria-hidden className="shrink-0 text-emerald-600" />
+              : <Circle size={15} aria-hidden className="shrink-0 text-[#B9C3D6]" />}
+            <span className={cn("text-[13px] font-semibold", check.done ? "text-ink" : "text-muted")}>{check.label}</span>
+            {!check.done && <span className="ml-auto shrink-0 text-[11px] font-bold text-amber-700">Eksik</span>}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 };

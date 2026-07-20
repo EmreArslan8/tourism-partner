@@ -179,7 +179,7 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
   if (!access.isAdmin) return { business: null, membership: null, auditLogs: [], contacts: [], quotes: [], pageViews: [] };
 
   const supabase = await createClient();
-  const [businessRes, membershipRes, auditRes, contactsRes, quotesRes, pageViewsRes] = await Promise.all([
+  const [businessRes, membershipRes, auditRes, contactsRes, quotesRes, pageViewsRes, partnerCountRes] = await Promise.all([
     supabase.from("businesses").select(BUSINESS_SELECT).eq("id", id).maybeSingle(),
     supabase
       .from("business_memberships")
@@ -213,6 +213,11 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .eq("entity_id", id)
       .order("viewed_at", { ascending: false })
       .limit(1000),
+    supabase
+      .from("business_partner_requests")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["pending", "accepted"])
+      .or(`requester_business_id.eq.${id},receiver_business_id.eq.${id}`),
   ]);
 
   if (businessRes.error) throw new Error(businessRes.error.message);
@@ -222,9 +227,16 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
   if (quotesRes.error) throw new Error(quotesRes.error.message);
   if (pageViewsRes.error) throw new Error(pageViewsRes.error.message);
 
+  if (partnerCountRes.error) console.error(`[admin-crm] partner count failed: ${partnerCountRes.error.message}`);
+
   const businessBase = businessRes.data ? rowToAdminBusiness(businessRes.data as BusinessRow) : null;
   const business = businessBase
-    ? { ...businessBase, serviceTypes: await getServiceSlugs(supabase, businessBase.id) }
+    ? {
+        ...businessBase,
+        serviceTypes: await getServiceSlugs(supabase, businessBase.id),
+        contactCount: (contactsRes.data ?? []).length,
+        partnerCount: partnerCountRes.count ?? 0,
+      }
     : null;
 
   return {

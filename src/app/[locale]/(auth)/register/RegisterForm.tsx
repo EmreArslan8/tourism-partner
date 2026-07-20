@@ -24,9 +24,15 @@ import {
   Factory,
   Landmark,
   Megaphone,
+  MapPin,
+  FileText,
+  UserRound,
+  ImagePlus,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 import { CATEGORY_GROUPS } from "@/lib/categories";
+import { useRegions } from "@/lib/geo";
 import { signUp } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -35,6 +41,29 @@ import Input from "@/components/common/Input";
 import VerifyEmail from "./VerifyEmail";
 
 type Intent = "service" | "buyer";
+type StepNo = 1 | 2 | 3 | 4;
+
+/* Kapak görselini tarayıcıda küçült (canvas → jpeg) — yükleme öncesi boyutu düşürür. */
+async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) return file;
+  let { width, height } = bitmap;
+  if (Math.max(width, height) > maxDim) {
+    const r = maxDim / Math.max(width, height);
+    width = Math.round(width * r);
+    height = Math.round(height * r);
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+  const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/jpeg", quality));
+  return blob && blob.size < file.size ? blob : file;
+}
 
 const GROUP_ICON: Record<string, LucideIcon> = {
   konaklama: Hotel,
@@ -64,7 +93,7 @@ const SECTOR_ICON: Record<(typeof SECTORS)[number], LucideIcon> = {
 
 const RegisterForm = () => {
   const [state, action, pending] = useActionState(signUp, { ok: false });
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<StepNo>(1);
   const [intent, setIntent] = useState<Intent | "">(""); // "" = henüz seçilmedi
   const [group, setGroup] = useState<string>(""); // "service" akışında seçilen grup
   const [services, setServices] = useState<string[]>([]); // seçilen alt kategori slug'ları (çoklu)
@@ -73,6 +102,20 @@ const RegisterForm = () => {
     setServices((current) => (current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug]));
   const [sector, setSector] = useState("");
   const [sectorNote, setSectorNote] = useState("");
+  // Adım 3 (yalnızca tedarikçi): işletme profili — kayıtta toplanır, metadata ile taşınır.
+  const [bizCountry, setBizCountry] = useState("");
+  const [bizCity, setBizCity] = useState("");
+  const [bizDistrict, setBizDistrict] = useState("");
+  const [bizDesc, setBizDesc] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  // Kapak görseli — oturumsuz draft yükleme (bkz. /api/signup/cover). Zorunlu.
+  const [coverPath, setCoverPath] = useState("");
+  const [coverPreview, setCoverPreview] = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverErr, setCoverErr] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(""); // verify ekranında göstermek için
   const [emailErr, setEmailErr] = useState("");
   const [pwErr, setPwErr] = useState("");
@@ -81,6 +124,15 @@ const RegisterForm = () => {
   const t = useTranslations("register");
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
+
+  const { countries, cities, districts } = useRegions(bizCountry, bizCity, bizDistrict);
+
+  // Yetkili kişi iletişim doğrulaması — saçma girişleri engelle. İkisi de opsiyonel
+  // ama girildiyse geçerli olmalı.
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const phoneValid = (v: string) => /^[+]?[\d][\d\s()/-]{6,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7;
+  const contactEmailErr = contactEmail.trim() !== "" && !emailValid(contactEmail.trim());
+  const contactPhoneErr = contactPhone.trim() !== "" && !phoneValid(contactPhone.trim());
 
   // Adım değişince odağı yeni adıma taşı (a11y) — ilk mount'ta değil.
   const stepRef = useRef<HTMLDivElement>(null);
@@ -95,14 +147,62 @@ const RegisterForm = () => {
   }
 
   const accountType = intent === "buyer" ? "buyer" : "supplier";
+  const isSupplier = intent === "service";
   // Acente artık ayrı akış değil — tüm tedarikçi grupları (acente dahil) tek listede.
   const serviceGroups = CATEGORY_GROUPS;
   // Alt kategori: service akışında açılan kategori bloğunun içinde seçilir · buyer → YOK.
   const hasCategory = accountType === "buyer" || !!category;
   const sectorValue = sectorNote.trim() ? sectorNote.trim() : sector;
   const canSubmit = hasCategory && !emailErr && !pwErr;
-  const stepTitle = step === 1 ? t("step1Title") : step === 2 ? t("step2CategoryTitle") : t("step3Title");
-  const stepShort = (n: 1 | 2 | 3) => (n === 1 ? t("stepShort1") : n === 2 ? t("stepShort2") : t("stepShort3"));
+
+  // Akış sırası kimliğe göre değişir: alıcıda işletme adımı (3) yok.
+  const flow: StepNo[] = isSupplier ? [1, 2, 3, 4] : [1, 2, 4];
+  const stepIndex = Math.max(0, flow.indexOf(step));
+  const progress = ((stepIndex + 1) / flow.length) * 100;
+
+  const titleFor = (n: StepNo) =>
+    n === 1 ? t("step1Title") : n === 2 ? t("step2CategoryTitle") : n === 3 ? t("bizStepTitle") : t("step3Title");
+  const shortFor = (n: StepNo) =>
+    n === 1 ? t("stepShort1") : n === 2 ? t("stepShort2") : n === 3 ? t("bizStepShort") : t("stepShort3");
+  const descFor = (n: StepNo) =>
+    n === 1 ? t("step1Desc") : n === 2 ? t("step2Desc") : n === 3 ? t("bizStepDesc") : t("step3Desc");
+  const stepTitle = titleFor(step);
+
+  // İşletme adımı (3) oyunlaştırması: dolan her alan profil gücünü yükseltir.
+  // Bu adım zorunlu — kapak, adres, açıklama ve yetkili kişi dolmadan hesaba geçilemez.
+  const bizChecks = [
+    Boolean(coverPath),
+    Boolean(bizCountry && bizCity && bizDistrict),
+    Boolean(bizDesc.trim()),
+    Boolean(contactName.trim()),
+  ];
+  const bizComplete = bizChecks.every(Boolean) && !contactEmailErr && !contactPhoneErr;
+
+  async function onCoverPick(file: File) {
+    setCoverErr(false);
+    setCoverUploading(true);
+    try {
+      const blob = await compressImage(file);
+      const body = new FormData();
+      body.append("file", new File([blob], "cover.jpg", { type: blob.type || "image/jpeg" }));
+      const res = await fetch("/api/signup/cover", { method: "POST", body });
+      if (!res.ok) {
+        setCoverErr(true);
+        return;
+      }
+      const data = (await res.json()) as { path?: string };
+      if (!data.path) {
+        setCoverErr(true);
+        return;
+      }
+      setCoverPath(data.path);
+      setCoverPreview(URL.createObjectURL(blob));
+    } catch {
+      setCoverErr(true);
+    } finally {
+      setCoverUploading(false);
+    }
+  }
 
   const intents: { key: Intent; Icon: LucideIcon; title: string; desc: string }[] = [
     { key: "service", Icon: Building2, title: t("intentService"), desc: t("intentServiceDesc") },
@@ -125,6 +225,16 @@ const RegisterForm = () => {
     transition.finished.finally(() => root.classList.remove("vt-forward", "vt-back"));
   };
 
+  // Akış listesinde ileri/geri (alıcıda 3. adım otomatik atlanır).
+  const goNext = () => {
+    const i = flow.indexOf(step);
+    if (i >= 0 && i < flow.length - 1) swap(() => setStep(flow[i + 1]), "forward");
+  };
+  const goBack = () => {
+    const i = flow.indexOf(step);
+    if (i > 0) swap(() => setStep(flow[i - 1]), "back");
+  };
+
   // Kimlik seçilince önceki kategori seçimlerini sıfırla + kısa vurgudan sonra 2. adıma geç.
   const choose = (key: Intent) => {
     setIntent(key);
@@ -145,29 +255,33 @@ const RegisterForm = () => {
             <div className="mx-auto mb-4 h-2 w-full max-w-[620px] overflow-hidden rounded-full bg-line">
               <div
                 className="h-full rounded-full bg-terra transition-[width] duration-300 ease-brand"
-                style={{ width: step === 1 ? "16%" : step === 2 ? "50%" : "100%" }}
+                style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              {([1, 2, 3] as const).map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => {
-                  if (n === 1) swap(() => setStep(1), "back");
-                  else if (n === 2 && intent) swap(() => setStep(2), step === 3 ? "back" : "forward");
-                  else if (n === 3 && hasCategory) swap(() => setStep(3), "forward");
-                }}
-                disabled={(n === 2 && !intent) || (n === 3 && !hasCategory)}
-                className={cn(
-                  "min-w-0 rounded-[8px] px-2 py-1 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-55",
-                  step >= n ? "text-terra" : "text-ink/55 hover:text-ink/70",
-                )}
-                aria-current={step === n ? "step" : undefined}
-              >
-                <span className="block truncate text-[14px] font-extrabold leading-tight">{stepShort(n)}</span>
-                <span className={cn("mt-1 block truncate text-[12px] font-semibold", step >= n ? "text-ink/65" : "text-ink/50")}>{n === 1 ? t("step1Desc") : n === 2 ? t("step2Desc") : t("step3Desc")}</span>
-              </button>
+            <div className="grid gap-3 text-center" style={{ gridTemplateColumns: `repeat(${flow.length}, minmax(0,1fr))` }}>
+              {flow.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => {
+                    if (n === step) return;
+                    const target = flow.indexOf(n);
+                    // Yalnızca tamamlanmış önceki adımlara / geçilebilir adımlara git.
+                    if (target < stepIndex) swap(() => setStep(n), "back");
+                    else if (n === 2 && intent) swap(() => setStep(2), "forward");
+                    else if (n === 3 && hasCategory) swap(() => setStep(3), "forward");
+                    else if (n === 4 && hasCategory && (!isSupplier || bizComplete)) swap(() => setStep(4), "forward");
+                  }}
+                  disabled={(n === 2 && !intent) || ((n === 3 || n === 4) && !hasCategory) || (n === 4 && isSupplier && !bizComplete)}
+                  className={cn(
+                    "min-w-0 rounded-[8px] px-2 py-1 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-55",
+                    flow.indexOf(n) <= stepIndex ? "text-terra" : "text-ink/55 hover:text-ink/70",
+                  )}
+                  aria-current={step === n ? "step" : undefined}
+                >
+                  <span className="block truncate text-[14px] font-extrabold leading-tight">{shortFor(n)}</span>
+                  <span className={cn("mt-1 block truncate text-[12px] font-semibold", flow.indexOf(n) <= stepIndex ? "text-ink/65" : "text-ink/50")}>{descFor(n)}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -193,7 +307,7 @@ const RegisterForm = () => {
         <div ref={stepRef} tabIndex={-1} style={{ viewTransitionName: "auth-step" }} className="mx-auto w-full max-w-[720px] pb-8 pt-5 outline-none lg:pt-7">
           {/* Ekran okuyucu için adım duyurusu */}
           <p aria-live="polite" className="sr-only">
-            {t("stepLabel")} {step} / 3 — {stepTitle}
+            {t("stepLabel")} {stepIndex + 1} / {flow.length} — {stepTitle}
           </p>
       {/* ADIM 1 — kimlik seçimi (seçince otomatik geçer) */}
       {step === 1 && (
@@ -372,21 +486,200 @@ const RegisterForm = () => {
           )}
 
           <div className="mt-2 grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5 max-[420px]:grid-cols-1">
-            <Button type="button" variant="outline" onClick={() => swap(() => setStep(1), "back")}>
+            <Button type="button" variant="outline" onClick={goBack}>
               {t("back")}
             </Button>
-            <Button type="button" disabled={!hasCategory} onClick={() => swap(() => setStep(3), "forward")}>
+            <Button type="button" disabled={!hasCategory} onClick={goNext}>
               {t("continueBtn")}
             </Button>
           </div>
         </div>
       )}
 
-      {/* ADIM 3 — hesap bilgileri */}
-      {step === 3 && (
+      {/* ADIM 3 — işletme profili (yalnızca tedarikçi) — oyunlaştırılmış, atlanabilir */}
+      {step === 3 && isSupplier && (
+        <div key="step3" className="flex flex-col gap-4">
+          {/* Kapak görseli (zorunlu, oturumsuz draft yükleme) */}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+              <ImagePlus size={15} className="text-terra" aria-hidden />
+              {t("bizCoverLegend")}
+            </legend>
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              className={cn(
+                "relative grid h-[128px] w-full place-items-center overflow-hidden rounded-[12px] border-2 border-dashed transition-colors",
+                coverPreview ? "border-terra/40" : "border-line hover:border-terra/55 hover:bg-terra/[.03]",
+              )}
+            >
+              {coverPreview ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={coverPreview} alt="" className="h-full w-full object-cover" />
+                  <span className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1 text-[12px] font-bold text-white backdrop-blur">
+                    <ImagePlus size={13} aria-hidden />
+                    {t("bizCoverChange")}
+                  </span>
+                </>
+              ) : (
+                <span className="flex items-center gap-3 px-4 text-start">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-terra/10 text-terra">
+                    {coverUploading ? <Loader2 size={22} className="animate-spin" aria-hidden /> : <ImagePlus size={22} aria-hidden />}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[14px] font-bold text-ink">{coverUploading ? t("bizCoverUploading") : t("bizCoverPick")}</span>
+                    <span className="mt-0.5 block text-[12px] font-medium leading-snug text-ink/55">{t("bizCoverHint")}</span>
+                  </span>
+                </span>
+              )}
+            </button>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) onCoverPick(file);
+                e.target.value = "";
+              }}
+            />
+            {coverErr && <p className="text-[12.5px] font-semibold text-red-600">{t("bizCoverError")}</p>}
+          </fieldset>
+
+          {/* Adres */}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+              <MapPin size={15} className="text-terra" aria-hidden />
+              {t("bizAddressLegend")}
+            </legend>
+            <div className="grid grid-cols-3 gap-2.5 max-[520px]:grid-cols-1">
+              <select
+                value={bizCountry}
+                onChange={(e) => {
+                  setBizCountry(e.target.value);
+                  setBizCity("");
+                  setBizDistrict("");
+                }}
+                className="field h-[46px]"
+                aria-label={t("bizCountryPh")}
+              >
+                <option value="">{t("bizCountryPh")}</option>
+                {countries.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              <select
+                value={bizCity}
+                onChange={(e) => {
+                  setBizCity(e.target.value);
+                  setBizDistrict("");
+                }}
+                disabled={!bizCountry}
+                className="field h-[46px] disabled:opacity-55"
+                aria-label={t("bizCityPh")}
+              >
+                <option value="">{bizCountry ? t("bizCityPh") : t("bizCountryFirst")}</option>
+                {cities.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <select
+                value={bizDistrict}
+                onChange={(e) => setBizDistrict(e.target.value)}
+                disabled={!bizCity}
+                className="field h-[46px] disabled:opacity-55"
+                aria-label={t("bizDistrictPh")}
+              >
+                <option value="">{t("bizDistrictPh")}</option>
+                {districts.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          </fieldset>
+
+          {/* Açıklama */}
+          <label className="flex flex-col gap-1.5">
+            <span className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+              <FileText size={15} className="text-terra" aria-hidden />
+              {t("bizDescLegend")}
+            </span>
+            <textarea
+              value={bizDesc}
+              onChange={(e) => setBizDesc(e.target.value)}
+              rows={3}
+              maxLength={2000}
+              className="field min-h-[84px] py-2.5"
+              placeholder={t("bizDescPh")}
+            />
+          </label>
+
+          {/* Yetkili kişi */}
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 inline-flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+              <UserRound size={15} className="text-terra" aria-hidden />
+              {t("bizContactLegend")}
+            </legend>
+            <input
+              value={contactName}
+              onChange={(e) => setContactName(e.target.value)}
+              maxLength={160}
+              className="field h-[46px]"
+              placeholder={t("bizContactNamePh")}
+              autoComplete="off"
+            />
+            <div className="grid grid-cols-2 gap-2.5 max-[420px]:grid-cols-1">
+              <div className="flex flex-col gap-1">
+                <input
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  maxLength={40}
+                  type="tel"
+                  inputMode="tel"
+                  aria-invalid={contactPhoneErr}
+                  className={cn("field h-[46px]", contactPhoneErr && "border-red-500 focus:border-red-500")}
+                  placeholder={t("bizContactPhonePh")}
+                  autoComplete="off"
+                />
+                {contactPhoneErr && <p className="text-[11.5px] font-medium text-red-600">{t("bizContactPhoneErr")}</p>}
+              </div>
+              <div className="flex flex-col gap-1">
+                <input
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  maxLength={200}
+                  type="email"
+                  aria-invalid={contactEmailErr}
+                  className={cn("field h-[46px]", contactEmailErr && "border-red-500 focus:border-red-500")}
+                  placeholder={t("bizContactEmailPh")}
+                  autoComplete="off"
+                />
+                {contactEmailErr && <p className="text-[11.5px] font-medium text-red-600">{t("bizContactEmailErr")}</p>}
+              </div>
+            </div>
+          </fieldset>
+
+          {!bizComplete && (
+            <p className="text-[12.5px] font-semibold text-terra/90">{t("bizRequiredHint")}</p>
+          )}
+          <div className="mt-1 grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5 max-[420px]:grid-cols-1">
+            <Button type="button" variant="outline" onClick={goBack}>
+              {t("back")}
+            </Button>
+            <Button type="button" disabled={!bizComplete} onClick={goNext}>
+              {t("continueBtn")}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* ADIM 4 — hesap bilgileri */}
+      {step === 4 && (
         <form
           id="regform"
-          key="step3"
+          key="step4"
           className="flex flex-col gap-3.5"
           action={(formData) => {
             setEditingAgain(false);
@@ -399,6 +692,15 @@ const RegisterForm = () => {
           <input type="hidden" name="category" value={category} />
           <input type="hidden" name="services" value={services.join(",")} />
           <input type="hidden" name="sector" value={sectorValue} />
+          {/* Adım 3 işletme profili — metadata ile taşınır, işletme kaydı oluşurken uygulanır */}
+          <input type="hidden" name="bizCountry" value={bizCountry} />
+          <input type="hidden" name="bizCity" value={bizCity} />
+          <input type="hidden" name="bizDistrict" value={bizDistrict} />
+          <input type="hidden" name="bizDescription" value={bizDesc} />
+          <input type="hidden" name="contactName" value={contactName} />
+          <input type="hidden" name="contactPhone" value={contactPhone} />
+          <input type="hidden" name="contactEmail" value={contactEmail} />
+          <input type="hidden" name="bizCoverDraft" value={coverPath} />
 
           <Input name="name" label={intent === "buyer" ? t("nameBuyer") : t("name")} type="text" required autoComplete="name" placeholder={t("namePh")} />
 
@@ -454,7 +756,7 @@ const RegisterForm = () => {
           )}
 
           <div className="mt-2 grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5 max-[420px]:grid-cols-1">
-            <Button type="button" variant="outline" onClick={() => swap(() => setStep(2), "back")}>
+            <Button type="button" variant="outline" onClick={goBack}>
               {t("back")}
             </Button>
             <Button type="submit" loading={pending} disabled={!canSubmit}>

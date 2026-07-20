@@ -248,3 +248,49 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
   const businesses = await getBusinesses();
   return businesses.find((item) => businessSlug(item) === slug) ?? null;
 }
+
+/* Sahibe özel önizleme: giriş yapmış kullanıcının KENDİ işletmesini (pending dahil,
+   herhangi bir durumda) tam Business olarak döner. Public liste onaylanmamış işletmeleri
+   gizlediğinden, tedarikçi ilanını yayına girmeden önce ayrı /önizleme rotasında görür.
+   Oturuma bağlı olduğu için 'use cache' KULLANILMAZ (kullanıcıya özel, dinamik). */
+export async function getOwnedBusiness(): Promise<Business | null> {
+  if (!hasEnv()) return null;
+  const { createClient } = await import("./supabase/server");
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const primary = await supabase
+    .from("businesses")
+    .select(SELECT_COLUMNS)
+    .eq("owner_id", user.id)
+    .order("id")
+    .limit(1)
+    .maybeSingle();
+  let data = primary.data as Row | null;
+  if (isMissingFounderColumn(primary.error)) {
+    const legacy = await supabase
+      .from("businesses")
+      .select(LEGACY_SELECT_COLUMNS)
+      .eq("owner_id", user.id)
+      .order("id")
+      .limit(1)
+      .maybeSingle();
+    data = legacy.data as Row | null;
+  } else if (primary.error) {
+    console.error(`[businesses] getOwnedBusiness DB hatası: ${primary.error.message}`);
+    return null;
+  }
+  if (!data) return null;
+
+  const idNumber = Number(data.id);
+  const { contactCounts, partnerCounts } = await getPublicProfileCounts([idNumber]);
+  const business = rowToBusiness(data, {
+    contactCount: contactCounts.get(idNumber) ?? 0,
+    partnerCount: partnerCounts.get(idNumber) ?? 0,
+  });
+  const serviceMap = await getServiceSlugsByBusiness(supabase, [idNumber]);
+  return { ...business, serviceTypes: serviceMap.get(idNumber) ?? [] };
+}

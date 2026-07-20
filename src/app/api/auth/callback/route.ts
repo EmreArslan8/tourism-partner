@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hashBusinessInviteToken } from "@/lib/business-owner-invites";
+import { ensureBusinessFromMetadata } from "@/lib/business-bootstrap";
 import { createClient } from "@/lib/supabase/server";
 
 /*
@@ -49,6 +50,17 @@ export async function GET(request: NextRequest) {
     const target = new URL(`/${locale}/${segment}`, url.origin);
     target.searchParams.set("token", invite);
     return NextResponse.redirect(target);
+  }
+
+  // Kayıt adım 3'te toplanan işletme profilini metadata'dan uygula (idempotent).
+  // Oturum bu noktada kurulu; tedarikçi kaydı yoksa metadata'dan üretilir.
+  const { data: userData } = await supabase.auth.getUser();
+  if (userData.user) {
+    try {
+      await ensureBusinessFromMetadata(supabase, userData.user);
+    } catch (error) {
+      console.error("[auth/callback] işletme bootstrap hatası:", error instanceof Error ? error.message : error);
+    }
   }
 
   // Panel kabuğu kullanıcı tipine göre doğru çalışma alanını gösterir.

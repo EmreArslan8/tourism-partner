@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
+import { promoteSignupCover } from "@/lib/business-bootstrap";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -136,6 +137,40 @@ export async function signUp(
           .filter((slug) => slug && isServiceOfGroup(slug, cat.group))
       : [];
 
+  // Kayıt adımı 3'te (yalnızca tedarikçi) toplanan işletme profili — hepsi opsiyonel.
+  // Oturum henüz açılmadığı için (e-posta onayı) auth metadata'sına yazılır ve
+  // işletme kaydı ilk oluşturulurken uygulanır (callback / panel).
+  // Kapak görseli kayıt adım 3'te oturumsuz draft olarak yüklendi (/api/signup/cover).
+  // Yalnızca beklenen "signup-drafts/" önekli yolu kabul et.
+  const coverDraftRaw = String(formData.get("bizCoverDraft") ?? "").trim();
+  const coverDraft =
+    coverDraftRaw.startsWith("signup-drafts/") && coverDraftRaw.length <= 400 && !coverDraftRaw.includes("..")
+      ? coverDraftRaw
+      : "";
+  const bizProfile = cat
+    ? {
+        country: clean(formData.get("bizCountry"), 80) ?? "",
+        city: clean(formData.get("bizCity"), 80) ?? "",
+        district: clean(formData.get("bizDistrict"), 80) ?? "",
+        description: clean(formData.get("bizDescription"), 2000) ?? "",
+        contactName: clean(formData.get("contactName"), 160) ?? "",
+        // Geçersiz iletişim bilgisi DB'ye yazılmasın (istemci doğrulaması baypas edilse bile).
+        contactPhone: (() => {
+          const v = clean(formData.get("contactPhone"), 40) ?? "";
+          return /^[+]?[\d][\d\s()/-]{6,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7 ? v : "";
+        })(),
+        contactEmail: (() => {
+          const v = clean(formData.get("contactEmail"), 200) ?? "";
+          return isEmail(v) ? v : "";
+        })(),
+        cover: coverDraft,
+      }
+    : null;
+  const hasBizProfile = Boolean(
+    bizProfile &&
+      (bizProfile.country || bizProfile.description || bizProfile.contactName || bizProfile.cover),
+  );
+
   const locale = await getLocale();
 
   const supabase = await createClient();
@@ -153,6 +188,21 @@ export async function signUp(
         account_type: accountType,
         ...(sector ? { sector } : {}),
         ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category, service_slugs: serviceSlugs } : {}),
+        // Kayıt adımı 3 profili — işletme kaydı oluşurken uygulanır (bkz. callback/panel).
+        ...(hasBizProfile && bizProfile
+          ? {
+              biz_country: bizProfile.country,
+              biz_city: bizProfile.city,
+              biz_district: bizProfile.district,
+              biz_description: bizProfile.description,
+              biz_cover: bizProfile.cover,
+              biz_contact: {
+                name: bizProfile.contactName,
+                phone: bizProfile.contactPhone,
+                email: bizProfile.contactEmail,
+              },
+            }
+          : {}),
       },
     },
   });
@@ -174,13 +224,30 @@ export async function signUp(
         group: cat.group,
         type: cat.typeLabel,
         name,
-        country: "",
-        city: "",
-        district: "",
+        country: bizProfile?.country ?? "",
+        city: bizProfile?.city ?? "",
+        district: bizProfile?.district ?? "",
+        description: bizProfile?.description || null,
         status: "pending",
       }).select("id").single();
       if (created?.id && serviceSlugs.length > 0) {
         await replaceBusinessServices(supabase, created.id, cat.group, serviceSlugs);
+      }
+      // Kapağı kullanıcının klasörüne taşı (panel uyumlu yol) ve işletmeye yaz.
+      if (created?.id && bizProfile?.cover) {
+        const finalPath = await promoteSignupCover(data.user.id, created.id, name, bizProfile.cover);
+        if (finalPath) {
+          await supabase.from("businesses").update({ image: finalPath }).eq("id", created.id).eq("owner_id", data.user.id);
+        }
+      }
+      // Yetkili kişi (opsiyonel) — en az ad girildiyse kaydet.
+      if (created?.id && bizProfile?.contactName) {
+        await supabase.from("business_contacts").insert({
+          business_id: created.id,
+          full_name: bizProfile.contactName,
+          phone: bizProfile.contactPhone || null,
+          email: bizProfile.contactEmail || null,
+        });
       }
     }
     redirect({ href: "/dashboard", locale });

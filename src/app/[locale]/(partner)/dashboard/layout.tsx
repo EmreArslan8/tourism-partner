@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getPanelSession } from "@/lib/panel-auth";
+import { getSupplierOnboarding } from "@/lib/onboarding";
 import DashboardShell from "./DashboardShell";
 import styles from "./styles";
 
@@ -19,6 +20,13 @@ export default async function DashboardLayout({
 
   const session = await getPanelSession();
   if (!session) return redirect({ href: "/login", locale });
+
+  // Kapak görseli kayıt akışının zorunlu son adımı. Bir tedarikçinin işletmesi
+  // varsa ama kapağı yoksa (ör. eski kayıt) panele girmeden önce tamamlatılır.
+  if (session.accountType !== "buyer") {
+    const ob = await getSupplierOnboarding();
+    if (ob.businessId && !ob.hasCover) return redirect({ href: "/onboarding", locale });
+  }
 
   return (
     <main className={styles.main}>

@@ -385,8 +385,10 @@ const DashboardView = ({
   const editListingHref: Href = b
     ? { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } }
     : "/dashboard/listings/new";
+  // Public /supplier/[id] yalnızca onaylı ilanları gösterir; sahip kendi ilanını
+  // (pending dahil) gerçek görünümüyle ?preview=1 ile önizler (sayfa sahiplik doğrular).
   const previewHref: Href | null = b
-    ? { pathname: "/supplier/[id]", params: { id: businessSlug(b) } }
+    ? { pathname: "/supplier/[id]", params: { id: businessSlug(b) }, query: { preview: "1" } }
     : null;
   const editSections = [
     { key: "basic" as const, label: t("editTabBasic"), Icon: Building2, complete: Boolean((b?.name || meta.firm_name) && selectedCountry && selectedCity && selectedDistrict) },

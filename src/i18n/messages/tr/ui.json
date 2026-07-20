@@ -195,7 +195,9 @@
     "servicesShowLess": "Daha az göster",
     "readMore": "Devamını oku",
     "readLess": "Daha az göster",
-    "gatedTitle": "Yetkili kişi bilgileri gizli"
+    "gatedTitle": "Yetkili kişi bilgileri gizli",
+    "previewTitle": "Önizleme — bu ilan henüz yayında değil",
+    "previewSub": "İşletmen inceleme aşamasında. Onaylandığında bu sayfa herkese açık olur; şu an yalnızca sen görüyorsun."
   },
   "quote": {
     "eyebrow": "Teklif Al",
@@ -356,7 +358,33 @@
     "resent": "E-posta tekrar gönderildi ✓",
     "resendFail": "Gönderilemedi, biraz sonra tekrar dene.",
     "wrongEmail": "Yanlış e-posta mı? Geri dön",
-    "brandSlogan": "Tedarikçiler ve acenteler tek platformda"
+    "brandSlogan": "Tedarikçiler ve acenteler tek platformda",
+    "bizStepTitle": "İşletmeni tanıt",
+    "bizStepDesc": "Profilini güçlendir",
+    "bizStepShort": "İşletme",
+    "bizIntro": "Alıcılar seni bu bilgilerle bulur ve seçer. Eksiksiz profiller aramada en üstte çıkar, kat kat daha fazla teklif alır.",
+    "bizAddressLegend": "Nerede hizmet veriyorsun?",
+    "bizCountryPh": "Ülke seç",
+    "bizCityPh": "Şehir seç",
+    "bizDistrictPh": "İlçe seç",
+    "bizCountryFirst": "Önce ülke seç",
+    "bizDescLegend": "İşletmeni kısaca anlat",
+    "bizDescPh": "Ne yapıyorsunuz, sizi özel kılan ne? Birkaç cümle yeter.",
+    "bizContactLegend": "Yetkili kişi",
+    "bizContactNamePh": "Ad Soyad",
+    "bizContactPhonePh": "Telefon",
+    "bizContactEmailPh": "E-posta",
+    "bizStrength": "Profil gücü",
+    "bizStrengthHint": "Her alan seni rakiplerinin önüne taşır.",
+    "bizRequiredHint": "Devam etmek için bu alanları doldur — profilin vitrinin.",
+    "bizCoverLegend": "Vitrin görselin",
+    "bizCoverPick": "Kapak görseli ekle",
+    "bizCoverChange": "Görseli değiştir",
+    "bizCoverHint": "Alıcılar önce bunu görür · yatay görseller en iyi durur",
+    "bizCoverUploading": "Yükleniyor…",
+    "bizCoverError": "Görsel yüklenemedi, tekrar dene.",
+    "bizContactPhoneErr": "Geçerli bir telefon gir",
+    "bizContactEmailErr": "Geçerli bir e-posta gir"
   },
   "panel": {
     "title": "Firma Paneli",
@@ -753,5 +781,16 @@
     "otherPanel": "Üye destek hattı",
     "otherPanelDesc": "Üyeler panel üzerinden ticket açabilir.",
     "otherPanelCta": "Panele git"
+  },
+  "onboarding": {
+    "title": "Son bir adım: vitrin görselin",
+    "sub": "İşletmeni en iyi yansıtan bir kapak görseli ekle. Alıcılar önce bunu görür — güçlü bir görsel çok daha fazla tıklanır.",
+    "pick": "Görsel seç",
+    "change": "Görseli değiştir",
+    "hint": "JPG veya PNG · yatay görseller en iyi durur",
+    "uploading": "Yükleniyor…",
+    "error": "Görsel yüklenemedi, tekrar dene.",
+    "finish": "Bitir ve panele geç",
+    "businessLabel": "İşletmen"
   }
 }

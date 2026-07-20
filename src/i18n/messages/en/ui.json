@@ -195,7 +195,9 @@
     "servicesShowLess": "Show less",
     "readMore": "Read more",
     "readLess": "Show less",
-    "gatedTitle": "Contact persons hidden"
+    "gatedTitle": "Contact persons hidden",
+    "previewTitle": "Preview — this listing isn't live yet",
+    "previewSub": "Your business is under review. Once approved this page becomes public; for now only you can see it."
   },
   "quote": {
     "eyebrow": "Get Quotes",
@@ -356,7 +358,33 @@
     "resent": "Email resent ✓",
     "resendFail": "Could not send, try again shortly.",
     "wrongEmail": "Wrong email? Go back",
-    "brandSlogan": "Suppliers and agencies, one platform"
+    "brandSlogan": "Suppliers and agencies, one platform",
+    "bizStepTitle": "Introduce your business",
+    "bizStepDesc": "Strengthen your profile",
+    "bizStepShort": "Business",
+    "bizIntro": "Buyers find and choose you through these details. Complete profiles rank at the top of search and win far more requests.",
+    "bizAddressLegend": "Where do you operate?",
+    "bizCountryPh": "Select country",
+    "bizCityPh": "Select city",
+    "bizDistrictPh": "Select district",
+    "bizCountryFirst": "Pick a country first",
+    "bizDescLegend": "Describe your business",
+    "bizDescPh": "What do you do, what makes you stand out? A few sentences is enough.",
+    "bizContactLegend": "Contact person",
+    "bizContactNamePh": "Full name",
+    "bizContactPhonePh": "Phone",
+    "bizContactEmailPh": "Email",
+    "bizStrength": "Profile strength",
+    "bizStrengthHint": "Every field pushes you ahead of competitors.",
+    "bizRequiredHint": "Fill these in to continue — your profile is your storefront.",
+    "bizCoverLegend": "Your storefront photo",
+    "bizCoverPick": "Add a cover image",
+    "bizCoverChange": "Change image",
+    "bizCoverHint": "Buyers see this first · landscape looks best",
+    "bizCoverUploading": "Uploading…",
+    "bizCoverError": "Upload failed, please try again.",
+    "bizContactPhoneErr": "Enter a valid phone",
+    "bizContactEmailErr": "Enter a valid email"
   },
   "panel": {
     "title": "Business Panel",
@@ -753,5 +781,16 @@
     "otherPanel": "Member support",
     "otherPanelDesc": "Members can open a ticket from their panel.",
     "otherPanelCta": "Go to panel"
+  },
+  "onboarding": {
+    "title": "One last step: your storefront photo",
+    "sub": "Add a cover image that best represents your business. Buyers see this first — a strong photo gets far more clicks.",
+    "pick": "Choose image",
+    "change": "Change image",
+    "hint": "JPG or PNG · landscape looks best",
+    "uploading": "Uploading…",
+    "error": "Upload failed, please try again.",
+    "finish": "Finish and go to panel",
+    "businessLabel": "Your business"
   }
 }

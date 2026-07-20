@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { businessSlug, getBusinessBySlug } from "@/lib/businesses";
+import { businessSlug, getBusinessBySlug, getOwnedBusiness } from "@/lib/businesses";
 import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
 import { localeAlternates } from "@/lib/seo";
 import { realBusinessImages } from "@/lib/business-images";
@@ -50,22 +50,41 @@ export async function generateMetadata({
 
 export default async function DetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>;
+  searchParams: Promise<{ preview?: string }>;
 }) {
   const { locale, id } = await params;
+  const sp = await searchParams;
   setRequestLocale(locale);
 
-  const [b, t, tc, tCommon, tService] = await Promise.all([
-    getBusinessBySlug(id),
+  // Önizleme modu (?preview=1): sahibin kendi ilanını (pending dahil) yayına
+  // girmeden gerçek görünümüyle görmesi için. Public sorgu onaylanmamış ilanı
+  // gizlediğinden veriyi getOwnedBusiness ile çeker; yalnızca slug sahibin
+  // işletmesiyle eşleşirse önizleme açılır, aksi halde normal public akışa döner.
+  const wantPreview = sp?.preview === "1";
+
+  const [t, tc, tCommon, tService] = await Promise.all([
     getTranslations("supplier"),
     getTranslations("cat"),
     getTranslations("common"),
     getTranslations("service"),
   ]);
-  
+
+  let preview = false;
+  let b = null;
+  if (wantPreview) {
+    const owned = await getOwnedBusiness();
+    if (owned && businessSlug(owned) === id) {
+      b = owned;
+      preview = true;
+    }
+  }
+  if (!b) b = await getBusinessBySlug(id);
+
   if (!b) notFound();
-  
+
   const [partners] = await Promise.all([
     getBusinessPartners(b.id),
   ]);
@@ -88,6 +107,7 @@ export default async function DetailPage({
       services={services}
       gallery={gallery}
       locale={locale}
+      preview={preview}
     />
   );
 }
