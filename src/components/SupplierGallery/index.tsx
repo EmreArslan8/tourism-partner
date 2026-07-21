@@ -3,6 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
+import { cn } from "@/lib/utils";
+
+/* Izgara görsel sayısına göre kurulur: sabit 1+2x2 düzeni, 2-3 görselli
+   ilanlarda sağ tarafta boş hücreler bırakıyordu. */
+const SECONDARY_GRID = ["", "grid-rows-1", "grid-rows-2", "grid-cols-2 grid-rows-2", "grid-cols-2 grid-rows-2"];
 
 const SupplierGallery = ({
   images,
@@ -66,21 +71,26 @@ const SupplierGallery = ({
 
   return (
     <section className="relative overflow-hidden rounded-[18px] border border-line bg-paper shadow-[0_1px_2px_rgba(2,6,23,.45)]">
-        <div className="grid h-[480px] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-1.5 max-[1100px]:h-[440px] max-[900px]:h-auto max-[900px]:grid-cols-1">
+        <div
+        className={cn(
+          "grid h-[480px] gap-1.5 max-[1100px]:h-[440px] max-[900px]:h-auto max-[900px]:grid-cols-1",
+          secondary.length > 0 ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "grid-cols-1",
+        )}
+      >
         <button type="button" onClick={() => openGallery(0)} className="relative block min-h-[320px] w-full overflow-hidden border-0 p-0 bg-[#EEF2F7] max-[900px]:min-h-[260px]">
           <Image
             src={main}
             alt={title}
             fill
             priority
-            sizes="(max-width: 900px) 100vw, 50vw"
+            sizes={secondary.length > 0 ? "(max-width: 900px) 100vw, 50vw" : "100vw"}
             className="object-cover"
           />
         </button>
 
-        <div className="grid grid-cols-2 gap-1.5 max-[900px]:hidden">
-          {secondary.length > 0 ? (
-            secondary.map((src, index) => {
+        {secondary.length > 0 && (
+          <div className={cn("grid gap-1.5 max-[900px]:hidden", SECONDARY_GRID[secondary.length])}>
+            {secondary.map((src, index) => {
               const imageIndex = index + 1;
               const isLastVisible = imageIndex === visible.length - 1 && extraCount > 0;
               return (
@@ -88,13 +98,17 @@ const SupplierGallery = ({
                   key={src}
                   type="button"
                   onClick={() => openGallery(imageIndex)}
-                  className="relative block overflow-hidden border-0 p-0 bg-[#EEF2F7]"
+                  className={cn(
+                    "relative block overflow-hidden border-0 p-0 bg-[#EEF2F7]",
+                    // 3 küçük görselde ilki sol sütunu tam kaplar, ızgarada boşluk kalmaz.
+                    secondary.length === 3 && index === 0 && "row-span-2",
+                  )}
                 >
                 <Image
                   src={src}
                   alt={`${title} görsel ${index + 2}`}
                   fill
-                  sizes="(max-width: 900px) 0px, 25vw"
+                  sizes={secondary.length > 2 ? "(max-width: 900px) 0px, 25vw" : "(max-width: 900px) 0px, 50vw"}
                   className="object-cover"
                 />
                   {isLastVisible && (
@@ -106,13 +120,9 @@ const SupplierGallery = ({
                   )}
                 </button>
               );
-            })
-          ) : (
-            Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="bg-[#EEF2F7]" aria-hidden />
-            ))
-          )}
-        </div>
+            })}
+          </div>
+        )}
       </div>
 
       {sponsored && (
