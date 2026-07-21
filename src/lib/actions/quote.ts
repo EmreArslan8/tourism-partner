@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { processRecentQuoteEmailDeliveries } from "@/lib/email-delivery";
+import { processRecentQuoteWhatsappDeliveries } from "@/lib/whatsapp-delivery";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
@@ -201,8 +202,13 @@ export async function submitQuote(
     // Teklif kaydı başarılı → işletme sahibine otomatik bildirim (varsa).
     // Outbox trigger'ı aynı transaction'da teslimat işini oluşturur; burada
     // sadece ilk denemeyi hızlandırıyoruz. Cron, düşen işleri yeniden dener.
-    const delivery = await processRecentQuoteEmailDeliveries(email, targetBusinessIds, submissionStartedAt);
-    console.info("[quote-submit] DB kaydı tamamlandı, mail sonucu", { targetCount: targetBusinessIds.length, delivery });
+    const [delivery, whatsapp] = await Promise.all([
+      processRecentQuoteEmailDeliveries(email, targetBusinessIds, submissionStartedAt),
+      // WhatsApp ikincil kanal: başarısız olsa da teklif başarılı sayılır,
+      // outbox kaydı cron tarafından yeniden denenir.
+      processRecentQuoteWhatsappDeliveries(email, targetBusinessIds, submissionStartedAt),
+    ]);
+    console.info("[quote-submit] DB kaydı tamamlandı, bildirim sonucu", { targetCount: targetBusinessIds.length, delivery, whatsapp });
 
     if (process.env.REQUIRE_QUOTE_EMAIL === "true" && delivery.sent + delivery.sentFallback < targetBusinessIds.length) {
       console.error("[quote-submit] REQUIRE_QUOTE_EMAIL nedeniyle başarı dönülmedi", { targetCount: targetBusinessIds.length, delivery });

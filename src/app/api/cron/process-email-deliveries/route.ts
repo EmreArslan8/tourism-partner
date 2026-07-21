@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { processDueQuoteEmailDeliveries } from "@/lib/email-delivery";
+import { processDueQuoteWhatsappDeliveries } from "@/lib/whatsapp-delivery";
 import { authorizeCronRequest } from "@/lib/cron-auth";
 
 export async function GET(request: Request) {
@@ -10,6 +11,10 @@ export async function GET(request: Request) {
       { status: authorization.status },
     );
   }
-  const email = await processDueQuoteEmailDeliveries();
-  return NextResponse.json({ email }, { status: email.ok ? 200 : 503 });
+  // İki kanal bağımsız: WhatsApp düşse bile e-posta teslimatı etkilenmez.
+  const [email, whatsapp] = await Promise.all([
+    processDueQuoteEmailDeliveries(),
+    processDueQuoteWhatsappDeliveries(),
+  ]);
+  return NextResponse.json({ email, whatsapp }, { status: email.ok && whatsapp.ok ? 200 : 503 });
 }

@@ -90,7 +90,7 @@ export async function PanelData({
   const { data: businessRows } = await supabase
     .from("businesses")
     .select(
-      "id,group,type,name,country,city,district,description,phone,website,socials,image,images,attributes,details,documents,status,verified,sponsored,founder_partner,created_at"
+      "id,group,type,name,country,city,district,description,phone,website,socials,image,images,attributes,details,documents,status,reject_reason,verified,sponsored,founder_partner,created_at"
     )
     .eq("owner_id", user!.id)
     .order("id");
@@ -212,6 +212,7 @@ export async function PanelData({
         attributes: selectedBusinessRow.attributes,
         details: selectedBusinessRow.details,
         status: selectedBusinessRow.status,
+        rejectReason: selectedBusinessRow.reject_reason ?? null,
         verified: selectedBusinessRow.verified,
         sponsored: selectedBusinessRow.sponsored,
         founderPartner: selectedBusinessRow.founder_partner ?? false,

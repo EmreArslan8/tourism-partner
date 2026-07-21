@@ -60,6 +60,7 @@ export type PanelBusiness = {
   details: Record<string, string> | null;
   documents: BusinessDocument[] | null;
   status: "pending" | "approved" | "rejected" | "active" | "expired" | "blacklisted" | "suspended";
+  rejectReason?: string | null;
   verified: boolean;
   sponsored: boolean;
   founderPartner?: boolean;
@@ -333,6 +334,8 @@ const DashboardView = ({
   const visibleStatusKey =
     statusKey === "active" ? "approved" : statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" ? "rejected" : statusKey;
   const isRestricted = statusKey === "expired" || statusKey === "blacklisted" || statusKey === "suspended" || statusKey === "rejected";
+  // Reddedilen ilan düzeltilip kaydedilince yeniden onay kuyruğuna girer; blacklist/askı bunun dışındadır.
+  const isRejected = statusKey === "rejected";
 
   const [draftKey, setDraftKey] = useState(() => resolveInitialDraftKey(b?.id, draft));
   const draftKeyRef = useRef<string>(draftKey);
@@ -598,8 +601,23 @@ const DashboardView = ({
 
       {!isListingForm && !isOverview && (statusKey === "pending" || isRestricted) && (
         <section className={cn(styles.notice, isRestricted && styles.noticeDanger)}>
-          <b>{statusKey === "pending" ? t("pendingNoticeTitle") : t("restrictedNoticeTitle")}</b>
-          <span>{statusKey === "pending" ? t("pendingNoticeText") : t("restrictedNoticeText")}</span>
+          <b>
+            {statusKey === "pending"
+              ? t("pendingNoticeTitle")
+              : isRejected
+                ? t("rejectedNoticeTitle")
+                : t("restrictedNoticeTitle")}
+          </b>
+          <span>
+            {statusKey === "pending"
+              ? t("pendingNoticeText")
+              : isRejected
+                ? t("rejectedNoticeText")
+                : t("restrictedNoticeText")}
+          </span>
+          {isRejected && b?.rejectReason && (
+            <span>{t("rejectedNoticeReason", { reason: b.rejectReason })}</span>
+          )}
         </section>
       )}
 

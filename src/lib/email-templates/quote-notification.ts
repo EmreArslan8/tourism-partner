@@ -23,9 +23,9 @@ type QuoteNotification = {
   text: string;
 };
 
-function formatDate(value: string): string {
+export function formatDate(value: string, locale: string = "tr-TR"): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  return new Intl.DateTimeFormat("tr-TR", {
+  return new Intl.DateTimeFormat(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -37,7 +37,7 @@ function formatDateRange(value: string | null): string | null {
   if (!value) return null;
   return value
     .split(" - ")
-    .map(formatDate)
+    .map((part) => formatDate(part))
     .join(" – ");
 }
 

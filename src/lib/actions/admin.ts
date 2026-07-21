@@ -12,6 +12,7 @@ import { translateWithDeepL, type DeepLLocale } from "@/lib/deepl";
 import { businessSlug } from "@/lib/business-slug";
 import { sendEmail } from "@/lib/email";
 import { businessApprovedEmail } from "@/lib/email-templates/business-approved";
+import { businessRejectedEmail } from "@/lib/email-templates/business-rejected";
 import { SITE_URL, supplierPath } from "@/lib/site";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl, isEmail } from "./validate";
@@ -417,7 +418,13 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   if (error) throw new Error(error.message);
   await logAdminAction(context, "business.status.update", "business", id, payload);
 
-  if (current && isPublicBusinessStatus(status) && !isPublicBusinessStatus(current.status)) {
+  // Yalnızca durum gerçekten değiştiğinde bildirim gider; aynı statüye tekrar
+  // kaydetmek işletmeye ikinci bir e-posta göndermez.
+  const becamePublic = Boolean(current) && isPublicBusinessStatus(status) && !isPublicBusinessStatus(current!.status);
+  const becameRejected = Boolean(current) && status === "rejected" && current!.status !== "rejected";
+
+  if (current && (becamePublic || becameRejected)) {
+    const logKey = becamePublic ? "business.approval.email" : "business.rejection.email";
     const { data: contacts, error: contactError } = await supabase
       .from("business_contacts")
       .select("email")
@@ -427,20 +434,28 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
       .limit(1);
 
     if (contactError) {
-      console.error("[business-approval-email] alıcı okunamadı", { businessId: id, error: contactError.message });
+      console.error(`[${logKey}] alıcı okunamadı`, { businessId: id, error: contactError.message });
     }
 
     const recipient = contacts?.[0]?.email?.trim();
     if (recipient && isEmail(recipient)) {
-      const slug = businessSlug({ name: current.name });
-      const message = businessApprovedEmail({
-        businessName: current.name,
-        dashboardUrl: `${SITE_URL}/${locale || "tr"}/panel`,
-        profileUrl: `${SITE_URL}${supplierPath((locale || "tr") as "tr" | "en" | "ru" | "ar", slug)}`,
-        logoUrl: `${SITE_URL}/assets/logo.webp`,
-      });
+      const dashboardUrl = `${SITE_URL}/${locale || "tr"}/panel`;
+      const logoUrl = `${SITE_URL}/assets/logo.webp`;
+      const message = becamePublic
+        ? businessApprovedEmail({
+            businessName: current.name,
+            dashboardUrl,
+            profileUrl: `${SITE_URL}${supplierPath((locale || "tr") as "tr" | "en" | "ru" | "ar", businessSlug({ name: current.name }))}`,
+            logoUrl,
+          })
+        : businessRejectedEmail({
+            businessName: current.name,
+            reason: payload.reject_reason ?? null,
+            dashboardUrl,
+            logoUrl,
+          });
       const delivery = await sendEmail({ to: recipient, ...message });
-      await logAdminAction(context, "business.approval.email", "business", id, {
+      await logAdminAction(context, logKey, "business", id, {
         to: recipient,
         ok: delivery.ok,
         skipped: delivery.skipped ?? false,
@@ -448,7 +463,7 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
         providerId: delivery.id ?? null,
       });
     } else {
-      console.warn("[business-approval-email] geçerli alıcı yok", { businessId: id });
+      console.warn(`[${logKey}] geçerli alıcı yok`, { businessId: id });
     }
   }
 

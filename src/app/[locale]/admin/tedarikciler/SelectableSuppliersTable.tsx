@@ -30,6 +30,7 @@ const SelectableSuppliersTable = ({
   const visibleIds = useMemo(() => businesses.map((business) => business.id), [businesses]);
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedSet.has(id));
+  const pageCount = Math.max(1, Math.ceil(total / filters.limit));
 
   return (
     <section className="overflow-hidden rounded-2xl border border-line/80 bg-paper shadow-card">
@@ -160,11 +161,26 @@ const SelectableSuppliersTable = ({
           Filtrelenmiş {total} işletme, {businesses.length === 0 ? "0" : `${(filters.page - 1) * filters.limit + 1}-${(filters.page - 1) * filters.limit + businesses.length}`} arası gösteriliyor
         </p>
         <div className="flex items-center gap-1.5">
-          <PagerButton icon={<ChevronLeft size={15} aria-hidden />} label="Önceki" disabled />
-          <PagerButton label="1" active />
-          <PagerButton label="2" />
-          <PagerButton label="3" />
-          <PagerButton icon={<ChevronRight size={15} aria-hidden />} label="Sonraki" />
+          <PagerButton
+            icon={<ChevronLeft size={15} aria-hidden />}
+            label="Önceki"
+            query={pageQuery(filters, filters.page - 1)}
+            disabled={filters.page <= 1}
+          />
+          {pageNumbers(filters.page, pageCount).map((page) => (
+            <PagerButton
+              key={page}
+              label={String(page)}
+              query={pageQuery(filters, page)}
+              active={page === filters.page}
+            />
+          ))}
+          <PagerButton
+            icon={<ChevronRight size={15} aria-hidden />}
+            label="Sonraki"
+            query={pageQuery(filters, filters.page + 1)}
+            disabled={filters.page >= pageCount}
+          />
         </div>
       </footer>
     </section>
@@ -191,32 +207,62 @@ const StatusPill = ({ status }: { status: BusinessLifecycleStatus }) => {
   );
 };
 
+const pageQuery = (filters: CrmFilters, page: number): Record<string, string> => {
+  const query: Record<string, string> = { page: String(page) };
+  if (filters.q) query.q = filters.q;
+  if (filters.group !== "all") query.group = filters.group;
+  if (filters.city) query.city = filters.city;
+  if (filters.status !== "all") query.status = filters.status;
+  if (filters.limit !== 10) query.limit = String(filters.limit);
+  return query;
+};
+
+const pageNumbers = (current: number, pageCount: number): number[] => {
+  const start = Math.max(1, Math.min(current - 2, pageCount - 4));
+  const end = Math.min(pageCount, start + 4);
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+};
+
 const PagerButton = ({
   label,
   icon,
+  query,
   active = false,
   disabled = false,
 }: {
   label: string;
   icon?: React.ReactNode;
+  query: Record<string, string>;
   active?: boolean;
   disabled?: boolean;
-}) => (
-  <button
-    type="button"
-    disabled={disabled}
-    className={cn(
-      "grid h-9 min-w-9 place-items-center rounded-[7px] border px-2 text-[13px] font-semibold transition-colors",
-      active
-        ? "border-sapphire bg-cream text-brand"
-        : "border-line bg-paper text-ink/80 hover:border-line hover:bg-cream/45",
-      disabled && "cursor-not-allowed opacity-45 hover:border-line hover:bg-paper",
-    )}
-    aria-label={label}
-  >
-    {icon ?? label}
-  </button>
-);
+}) => {
+  const className = cn(
+    "grid h-9 min-w-9 place-items-center rounded-[7px] border px-2 text-[13px] font-semibold transition-colors",
+    active
+      ? "border-sapphire bg-cream text-brand"
+      : "border-line bg-paper text-ink/80 hover:border-line hover:bg-cream/45",
+    disabled && "cursor-not-allowed opacity-45 hover:border-line hover:bg-paper",
+  );
+
+  if (disabled) {
+    return (
+      <span className={className} aria-label={label} aria-disabled>
+        {icon ?? label}
+      </span>
+    );
+  }
+
+  return (
+    <Link
+      href={{ pathname: "/admin/tedarikciler", query }}
+      className={className}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+    >
+      {icon ?? label}
+    </Link>
+  );
+};
 
 const BusinessStatusButton = ({
   business,

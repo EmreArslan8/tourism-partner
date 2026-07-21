@@ -302,12 +302,16 @@ export async function saveMyBusiness(
       savedBusinessId = businessId;
       const { data: currentBusiness, error: currentError } = await supabase
         .from("businesses")
-        .select("group,type,documents")
+        .select("group,type,documents,status")
         .eq("id", businessId)
         .eq("owner_id", user.id)
         .single();
       if (currentError) return { ok: false, error: currentError.message };
       if (!currentBusiness) return { ok: false, error: "notFound" };
+
+      // Reddedilen ilan düzeltilip kaydedilince onay kuyruğuna geri döner ve eski
+      // gerekçe temizlenir. Blacklist/askı/süre bitimi bu yolla aşılamaz.
+      const resubmit = currentBusiness.status === "rejected";
 
       const effectiveGroup = groupFromMetadata(currentBusiness.group);
       savedGroup = effectiveGroup;
@@ -325,7 +329,11 @@ export async function saveMyBusiness(
       );
       const { error } = await supabase
         .from("businesses")
-        .update({ ...payload, ...media })
+        .update({
+          ...payload,
+          ...media,
+          ...(resubmit ? { status: "pending" as const, reject_reason: null } : {}),
+        })
         .eq("id", businessId)
         .eq("owner_id", user.id);
       if (error) return { ok: false, error: error.message };
