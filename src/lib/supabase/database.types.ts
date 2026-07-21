@@ -32,6 +32,8 @@ export type SignupIntentPayload = {
   city?: string;
   district?: string;
   description?: string;
+  phone?: string;
+  whatsapp?: string;
   cover?: string;
   serviceSlugs?: string[];
   contact?: { name?: string; phone?: string; email?: string };

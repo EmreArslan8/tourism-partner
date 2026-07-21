@@ -29,6 +29,7 @@ import {
   UserRound,
   ImagePlus,
   Loader2,
+  Info,
   type LucideIcon,
 } from "lucide-react";
 import { CATEGORY_GROUPS } from "@/lib/categories";
@@ -91,6 +92,194 @@ const SECTOR_ICON: Record<(typeof SECTORS)[number], LucideIcon> = {
   diger: Sparkles,
 };
 
+const PHONE_CODES = [
+  { value: "+1", label: "🇺🇸 ABD / Kanada" },
+  { value: "+7", label: "🇷🇺 Rusya / Kazakistan" },
+  { value: "+20", label: "🇪🇬 Mısır" },
+  { value: "+27", label: "🇿🇦 Güney Afrika" },
+  { value: "+30", label: "🇬🇷 Yunanistan" },
+  { value: "+31", label: "🇳🇱 Hollanda" },
+  { value: "+32", label: "🇧🇪 Belçika" },
+  { value: "+33", label: "🇫🇷 Fransa" },
+  { value: "+34", label: "🇪🇸 İspanya" },
+  { value: "+36", label: "🇭🇺 Macaristan" },
+  { value: "+39", label: "🇮🇹 İtalya" },
+  { value: "+40", label: "🇷🇴 Romanya" },
+  { value: "+41", label: "🇨🇭 İsviçre" },
+  { value: "+43", label: "🇦🇹 Avusturya" },
+  { value: "+44", label: "🇬🇧 Birleşik Krallık" },
+  { value: "+45", label: "🇩🇰 Danimarka" },
+  { value: "+46", label: "🇸🇪 İsveç" },
+  { value: "+47", label: "🇳🇴 Norveç" },
+  { value: "+48", label: "🇵🇱 Polonya" },
+  { value: "+49", label: "🇩🇪 Almanya" },
+  { value: "+51", label: "🇵🇪 Peru" },
+  { value: "+52", label: "🇲🇽 Meksika" },
+  { value: "+54", label: "🇦🇷 Arjantin" },
+  { value: "+55", label: "🇧🇷 Brezilya" },
+  { value: "+56", label: "🇨🇱 Şili" },
+  { value: "+57", label: "🇨🇴 Kolombiya" },
+  { value: "+58", label: "🇻🇪 Venezuela" },
+  { value: "+60", label: "🇲🇾 Malezya" },
+  { value: "+61", label: "🇦🇺 Avustralya" },
+  { value: "+62", label: "🇮🇩 Endonezya" },
+  { value: "+63", label: "🇵🇭 Filipinler" },
+  { value: "+64", label: "🇳🇿 Yeni Zelanda" },
+  { value: "+65", label: "🇸🇬 Singapur" },
+  { value: "+66", label: "🇹🇭 Tayland" },
+  { value: "+81", label: "🇯🇵 Japonya" },
+  { value: "+82", label: "🇰🇷 Güney Kore" },
+  { value: "+84", label: "🇻🇳 Vietnam" },
+  { value: "+86", label: "🇨🇳 Çin" },
+  { value: "+90", label: "🇹🇷 Türkiye" },
+  { value: "+91", label: "🇮🇳 Hindistan" },
+  { value: "+92", label: "🇵🇰 Pakistan" },
+  { value: "+93", label: "🇦🇫 Afganistan" },
+  { value: "+94", label: "🇱🇰 Sri Lanka" },
+  { value: "+95", label: "🇲🇲 Myanmar" },
+  { value: "+98", label: "🇮🇷 İran" },
+  { value: "+212", label: "🇲🇦 Fas" },
+  { value: "+213", label: "🇩🇿 Cezayir" },
+  { value: "+216", label: "🇹🇳 Tunus" },
+  { value: "+218", label: "🇱🇾 Libya" },
+  { value: "+220", label: "🇬🇲 Gambiya" },
+  { value: "+221", label: "🇸🇳 Senegal" },
+  { value: "+225", label: "🇨🇮 Fildişi Sahili" },
+  { value: "+233", label: "🇬🇭 Gana" },
+  { value: "+234", label: "🇳🇬 Nijerya" },
+  { value: "+251", label: "🇪🇹 Etiyopya" },
+  { value: "+254", label: "🇰🇪 Kenya" },
+  { value: "+255", label: "🇹🇿 Tanzanya" },
+  { value: "+256", label: "🇺🇬 Uganda" },
+  { value: "+351", label: "🇵🇹 Portekiz" },
+  { value: "+352", label: "🇱🇺 Lüksemburg" },
+  { value: "+353", label: "🇮🇪 İrlanda" },
+  { value: "+354", label: "🇮🇸 İzlanda" },
+  { value: "+356", label: "🇲🇹 Malta" },
+  { value: "+357", label: "🇨🇾 Kıbrıs" },
+  { value: "+358", label: "🇫🇮 Finlandiya" },
+  { value: "+359", label: "🇧🇬 Bulgaristan" },
+  { value: "+370", label: "🇱🇹 Litvanya" },
+  { value: "+371", label: "🇱🇻 Letonya" },
+  { value: "+372", label: "🇪🇪 Estonya" },
+  { value: "+373", label: "🇲🇩 Moldova" },
+  { value: "+374", label: "🇦🇲 Ermenistan" },
+  { value: "+375", label: "🇧🇾 Belarus" },
+  { value: "+380", label: "🇺🇦 Ukrayna" },
+  { value: "+381", label: "🇷🇸 Sırbistan" },
+  { value: "+382", label: "🇲🇪 Karadağ" },
+  { value: "+383", label: "🇽🇰 Kosova" },
+  { value: "+385", label: "🇭🇷 Hırvatistan" },
+  { value: "+386", label: "🇸🇮 Slovenya" },
+  { value: "+387", label: "🇧🇦 Bosna Hersek" },
+  { value: "+389", label: "🇲🇰 Kuzey Makedonya" },
+  { value: "+420", label: "🇨🇿 Çekya" },
+  { value: "+421", label: "🇸🇰 Slovakya" },
+  { value: "+423", label: "🇱🇮 Lihtenştayn" },
+  { value: "+852", label: "🇭🇰 Hong Kong" },
+  { value: "+853", label: "🇲🇴 Makao" },
+  { value: "+855", label: "🇰🇭 Kamboçya" },
+  { value: "+856", label: "🇱🇦 Laos" },
+  { value: "+880", label: "🇧🇩 Bangladeş" },
+  { value: "+886", label: "🇹🇼 Tayvan" },
+  { value: "+960", label: "🇲🇻 Maldivler" },
+  { value: "+961", label: "🇱🇧 Lübnan" },
+  { value: "+962", label: "🇯🇴 Ürdün" },
+  { value: "+963", label: "🇸🇾 Suriye" },
+  { value: "+964", label: "🇮🇶 Irak" },
+  { value: "+965", label: "🇰🇼 Kuveyt" },
+  { value: "+966", label: "🇸🇦 Suudi Arabistan" },
+  { value: "+967", label: "🇾🇪 Yemen" },
+  { value: "+968", label: "🇴🇲 Umman" },
+  { value: "+970", label: "🇵🇸 Filistin" },
+  { value: "+971", label: "🇦🇪 Birleşik Arap Emirlikleri" },
+  { value: "+972", label: "🇮🇱 İsrail" },
+  { value: "+973", label: "🇧🇭 Bahreyn" },
+  { value: "+974", label: "🇶🇦 Katar" },
+  { value: "+975", label: "🇧🇹 Bhutan" },
+  { value: "+976", label: "🇲🇳 Moğolistan" },
+  { value: "+977", label: "🇳🇵 Nepal" },
+  { value: "+994", label: "🇦🇿 Azerbaycan" },
+  { value: "+995", label: "🇬🇪 Gürcistan" },
+  { value: "+996", label: "🇰🇬 Kırgızistan" },
+  { value: "+998", label: "🇺🇿 Özbekistan" },
+] as const;
+
+function normalizePhoneCode(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+  return digits ? `+${digits}` : "";
+}
+
+function PhoneCodeInput({
+  value,
+  onChange,
+  label,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const q = value.trim().toLocaleLowerCase("tr-TR").replace(/^\+/, "");
+  const filtered = PHONE_CODES.filter((code) => {
+    const digits = code.value.replace("+", "");
+    const text = `${code.label} ${code.value}`.toLocaleLowerCase("tr-TR");
+    return !q || digits.startsWith(q) || text.includes(q);
+  });
+
+  return (
+    <div className="relative w-[72px] shrink-0">
+      <input
+        value={value}
+        onChange={(event) => {
+          onChange(event.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() => {
+          onChange(normalizePhoneCode(value) || "+1");
+          window.setTimeout(() => setOpen(false), 120);
+        }}
+        inputMode="tel"
+        maxLength={5}
+        className="field h-[46px] w-full rounded-e-none border-e-0 px-2 pe-5 text-[13px]"
+        aria-label={label}
+        autoComplete="off"
+      />
+      <button
+        type="button"
+        onMouseDown={(event) => {
+          event.preventDefault();
+          setOpen((current) => !current);
+        }}
+        className="absolute end-1 top-1/2 grid h-7 w-5 -translate-y-1/2 place-items-center text-ink/55 transition-colors hover:text-terra"
+        aria-label={label}
+      >
+        <span className="text-[10px] leading-none" aria-hidden>▾</span>
+      </button>
+      {open && filtered.length > 0 && (
+        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[220px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-white py-1 shadow-card">
+          {filtered.map((code) => (
+            <button
+              key={code.value}
+              type="button"
+              onMouseDown={(event) => {
+                event.preventDefault();
+                onChange(code.value);
+                setOpen(false);
+              }}
+              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-[13px] font-semibold text-ink transition-colors hover:bg-terra/8"
+            >
+              <span className="min-w-0 truncate">{code.label}</span>
+              <span className="shrink-0 text-terra">{code.value}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const RegisterForm = () => {
   const [state, action, pending] = useActionState(signUp, { ok: false });
   const [step, setStep] = useState<StepNo>(1);
@@ -107,8 +296,11 @@ const RegisterForm = () => {
   const [bizCity, setBizCity] = useState("");
   const [bizDistrict, setBizDistrict] = useState("");
   const [bizDesc, setBizDesc] = useState("");
+  const [bizWhatsapp, setBizWhatsapp] = useState("");
   const [contactName, setContactName] = useState("");
+  const [contactPhoneCode, setContactPhoneCode] = useState("+1");
   const [contactPhone, setContactPhone] = useState("");
+  const [bizWhatsappCode, setBizWhatsappCode] = useState("+1");
   const [contactEmail, setContactEmail] = useState("");
   // Kapak görseli — oturumsuz draft yükleme (bkz. /api/signup/cover). Zorunlu.
   const [coverPath, setCoverPath] = useState("");
@@ -131,8 +323,11 @@ const RegisterForm = () => {
   // ama girildiyse geçerli olmalı.
   const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
   const phoneValid = (v: string) => /^[+]?[\d][\d\s()/-]{6,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7;
+  const fullContactPhone = `${normalizePhoneCode(contactPhoneCode)} ${contactPhone}`.trim();
+  const fullBizWhatsapp = `${normalizePhoneCode(bizWhatsappCode)} ${bizWhatsapp}`.trim();
   const contactEmailErr = contactEmail.trim() !== "" && !emailValid(contactEmail.trim());
-  const contactPhoneErr = contactPhone.trim() !== "" && !phoneValid(contactPhone.trim());
+  const contactPhoneErr = contactPhone.trim() !== "" && !phoneValid(fullContactPhone);
+  const bizWhatsappErr = bizWhatsapp.trim() !== "" && !phoneValid(fullBizWhatsapp);
 
   // Adım değişince odağı yeni adıma taşı (a11y) — ilk mount'ta değil.
   const stepRef = useRef<HTMLDivElement>(null);
@@ -175,8 +370,10 @@ const RegisterForm = () => {
     Boolean(bizCountry && bizCity && bizDistrict),
     Boolean(bizDesc.trim()),
     Boolean(contactName.trim()),
+    Boolean(contactPhone.trim()),
+    Boolean(bizWhatsapp.trim()),
   ];
-  const bizComplete = bizChecks.every(Boolean) && !contactEmailErr && !contactPhoneErr;
+  const bizComplete = bizChecks.every(Boolean) && !contactEmailErr && !contactPhoneErr && !bizWhatsappErr;
 
   async function onCoverPick(file: File) {
     setCoverErr(false);
@@ -630,22 +827,53 @@ const RegisterForm = () => {
               placeholder={t("bizContactNamePh")}
               autoComplete="off"
             />
-            <div className="grid grid-cols-2 gap-2.5 max-[420px]:grid-cols-1">
-              <div className="flex flex-col gap-1">
-                <input
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  maxLength={40}
-                  type="tel"
-                  inputMode="tel"
-                  aria-invalid={contactPhoneErr}
-                  className={cn("field h-[46px]", contactPhoneErr && "border-red-500 focus:border-red-500")}
-                  placeholder={t("bizContactPhonePh")}
-                  autoComplete="off"
-                />
+            <div className="grid grid-cols-2 gap-2 max-[640px]:grid-cols-1">
+              <div className="min-w-0 flex flex-col gap-1">
+                <div className="flex w-full min-w-0">
+                  <PhoneCodeInput value={contactPhoneCode} onChange={setContactPhoneCode} label={t("phoneCode")} />
+                  <input
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    maxLength={40}
+                    type="tel"
+                    inputMode="tel"
+                    aria-invalid={contactPhoneErr}
+                    className={cn("field h-[46px] min-w-0 flex-1 rounded-s-none", contactPhoneErr && "border-red-500 focus:border-red-500")}
+                    placeholder={t("bizContactPhonePh")}
+                    autoComplete="off"
+                  />
+                </div>
                 {contactPhoneErr && <p className="text-[11.5px] font-medium text-red-600">{t("bizContactPhoneErr")}</p>}
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="min-w-0 flex flex-col gap-1">
+                <div className="group relative flex w-full min-w-0">
+                  <PhoneCodeInput value={bizWhatsappCode} onChange={setBizWhatsappCode} label={t("phoneCode")} />
+                  <input
+                    value={bizWhatsapp}
+                    onChange={(e) => setBizWhatsapp(e.target.value)}
+                    maxLength={40}
+                    type="tel"
+                    inputMode="tel"
+                    aria-invalid={bizWhatsappErr}
+                    className={cn("field h-[46px] min-w-0 flex-1 rounded-s-none pe-10", bizWhatsappErr && "border-red-500 focus:border-red-500")}
+                    placeholder={t("bizWhatsappPh")}
+                    autoComplete="off"
+                  />
+                  <span
+                    tabIndex={0}
+                    aria-label={t("bizWhatsappTip")}
+                    className="absolute end-3 top-1/2 grid -translate-y-1/2 place-items-center text-muted outline-none transition-colors hover:text-terra focus:text-terra"
+                  >
+                    <Info size={16} aria-hidden />
+                    <span className="pointer-events-none absolute bottom-full end-0 z-10 mb-2 hidden w-[230px] rounded-[8px] border border-line bg-ink px-3 py-2 text-start text-[11.5px] font-semibold leading-snug text-white shadow-card group-hover:block group-focus-within:block">
+                      {t("bizWhatsappTip")}
+                    </span>
+                  </span>
+                </div>
+                {bizWhatsappErr && <p className="text-[11.5px] font-medium text-red-600">{t("bizContactPhoneErr")}</p>}
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
                 <input
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
@@ -657,7 +885,6 @@ const RegisterForm = () => {
                   autoComplete="off"
                 />
                 {contactEmailErr && <p className="text-[11.5px] font-medium text-red-600">{t("bizContactEmailErr")}</p>}
-              </div>
             </div>
           </fieldset>
 
@@ -697,8 +924,9 @@ const RegisterForm = () => {
           <input type="hidden" name="bizCity" value={bizCity} />
           <input type="hidden" name="bizDistrict" value={bizDistrict} />
           <input type="hidden" name="bizDescription" value={bizDesc} />
+          <input type="hidden" name="bizWhatsapp" value={fullBizWhatsapp} />
           <input type="hidden" name="contactName" value={contactName} />
-          <input type="hidden" name="contactPhone" value={contactPhone} />
+          <input type="hidden" name="contactPhone" value={fullContactPhone} />
           <input type="hidden" name="contactEmail" value={contactEmail} />
           <input type="hidden" name="bizCoverDraft" value={coverPath} />
 

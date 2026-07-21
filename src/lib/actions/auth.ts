@@ -19,6 +19,11 @@ function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } |
   return null;
 }
 
+function validPhone(value: string): string {
+  const v = value.trim();
+  return /^[+]?[\d][\d\s()/-]{6,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7 ? v : "";
+}
+
 /* E-posta + şifre ile giriş (tek kimlik = Supabase Auth).
    Rol bazlı yönlendirme: admin → /admin, diğerleri → /dashboard. */
 /* Giriş sonrası rol/üye tipine göre yönlendirme yapar (redirect throw eder). */
@@ -162,12 +167,10 @@ export async function signUp(
         city: clean(formData.get("bizCity"), 80) ?? "",
         district: clean(formData.get("bizDistrict"), 80) ?? "",
         description: clean(formData.get("bizDescription"), 2000) ?? "",
+        whatsapp: validPhone(clean(formData.get("bizWhatsapp"), 40) ?? ""),
         contactName: clean(formData.get("contactName"), 160) ?? "",
         // Geçersiz iletişim bilgisi DB'ye yazılmasın (istemci doğrulaması baypas edilse bile).
-        contactPhone: (() => {
-          const v = clean(formData.get("contactPhone"), 40) ?? "";
-          return /^[+]?[\d][\d\s()/-]{6,}$/.test(v) && (v.match(/\d/g)?.length ?? 0) >= 7 ? v : "";
-        })(),
+        contactPhone: validPhone(clean(formData.get("contactPhone"), 40) ?? ""),
         contactEmail: (() => {
           const v = clean(formData.get("contactEmail"), 200) ?? "";
           return isEmail(v) ? v : "";
@@ -175,9 +178,12 @@ export async function signUp(
         cover: coverDraft,
       }
     : null;
+  if (cat && bizProfile && (!bizProfile.contactName || !bizProfile.contactPhone || !bizProfile.whatsapp)) {
+    return { ok: false, error: "missing" };
+  }
   const hasBizProfile = Boolean(
     bizProfile &&
-      (bizProfile.country || bizProfile.description || bizProfile.contactName || bizProfile.cover),
+      (bizProfile.country || bizProfile.description || bizProfile.whatsapp || bizProfile.contactName || bizProfile.cover),
   );
 
   const locale = await getLocale();
@@ -204,6 +210,8 @@ export async function signUp(
               biz_city: bizProfile.city,
               biz_district: bizProfile.district,
               biz_description: bizProfile.description,
+              biz_phone: bizProfile.whatsapp,
+              biz_whatsapp: bizProfile.whatsapp,
               biz_cover: bizProfile.cover,
               biz_contact: {
                 name: bizProfile.contactName,
@@ -236,6 +244,8 @@ export async function signUp(
       city: bizProfile?.city ?? "",
       district: bizProfile?.district ?? "",
       description: bizProfile?.description ?? "",
+      phone: bizProfile?.whatsapp ?? "",
+      whatsapp: bizProfile?.whatsapp ?? "",
       cover: bizProfile?.cover ?? "",
       serviceSlugs,
       contact: bizProfile?.contactName

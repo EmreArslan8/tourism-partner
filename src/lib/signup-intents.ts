@@ -60,6 +60,8 @@ export function payloadFromMetadata(
     city: str(m.biz_city, 80),
     district: str(m.biz_district, 80),
     description: str(m.biz_description, 2000),
+    phone: str(m.biz_phone, 40),
+    whatsapp: str(m.biz_whatsapp, 40),
     // Public bucket'taki oturumsuz draft yolu (bkz. api/signup/cover).
     cover: coverRaw.startsWith("signup-drafts/") && !coverRaw.includes("..") ? coverRaw : "",
     serviceSlugs: Array.isArray(m.service_slugs)
@@ -133,6 +135,8 @@ async function createBusinessFromPayload(
       city: str(payload.city, 80),
       district: str(payload.district, 80),
       description: str(payload.description, 2000) || null,
+      phone: str(payload.phone, 40) || null,
+      details: str(payload.whatsapp, 40) ? { whatsapp: str(payload.whatsapp, 40) } : {},
       status: "pending",
       // Kolon yalnızca niyet varken yazılır: migration henüz uygulanmamış bir DB'de
       // (kod önce deploy edilirse) insert yine de çalışsın — kayıt kaybı olmasın.
