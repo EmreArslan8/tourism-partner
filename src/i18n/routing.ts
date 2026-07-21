@@ -95,6 +95,12 @@ export const routing = defineRouting({
       ru: "/dashboard/listings",
       ar: "/dashboard/listings",
     },
+    "/dashboard/businesses": {
+      tr: "/panel/isletmeler",
+      en: "/dashboard/businesses",
+      ru: "/dashboard/businesses",
+      ar: "/dashboard/businesses",
+    },
     "/dashboard/requests": {
       tr: "/panel/talepler",
       en: "/dashboard/requests",
@@ -131,11 +137,23 @@ export const routing = defineRouting({
       ru: "/dashboard/listings/new",
       ar: "/dashboard/listings/new",
     },
+    "/dashboard/businesses/new": {
+      tr: "/panel/isletmeler/yeni",
+      en: "/dashboard/businesses/new",
+      ru: "/dashboard/businesses/new",
+      ar: "/dashboard/businesses/new",
+    },
     "/dashboard/listings/[id]/edit": {
       tr: "/panel/ilanlar/[id]/duzenle",
       en: "/dashboard/listings/[id]/edit",
       ru: "/dashboard/listings/[id]/edit",
       ar: "/dashboard/listings/[id]/edit",
+    },
+    "/dashboard/businesses/[id]/edit": {
+      tr: "/panel/isletmeler/[id]/duzenle",
+      en: "/dashboard/businesses/[id]/edit",
+      ru: "/dashboard/businesses/[id]/edit",
+      ar: "/dashboard/businesses/[id]/edit",
     },
     "/supplier/[id]": {
       tr: "/isletme/[id]",
@@ -161,6 +179,12 @@ export const routing = defineRouting({
       en: "/admin/suppliers/[id]",
       ru: "/admin/suppliers/[id]",
       ar: "/admin/suppliers/[id]",
+    },
+    "/admin/uyeler": {
+      tr: "/admin/uyeler",
+      en: "/admin/members",
+      ru: "/admin/members",
+      ar: "/admin/members",
     },
     "/admin/teklifler": {
       tr: "/admin/teklifler",

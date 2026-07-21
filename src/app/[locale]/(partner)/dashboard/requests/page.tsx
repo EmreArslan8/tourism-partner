@@ -61,7 +61,7 @@ async function RequestsContent({ locale }: { locale: string }) {
           <PartnerPanelEmptyState
             title={t("profileRequiredTitle")}
             description={t("requestsProfileRequired")}
-            action={<Link href="/dashboard/listings" className={styles.compactPrimaryButton}>{t("goToListings")}</Link>}
+            action={<Link href="/dashboard/businesses" className={styles.compactPrimaryButton}>{t("goToListings")}</Link>}
           />
         </div>
       </>

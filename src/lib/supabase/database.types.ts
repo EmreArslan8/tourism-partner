@@ -20,6 +20,22 @@ export type AdBannerStatus = "draft" | "active" | "paused" | "archived";
 export type PopupFrequency = "always" | "daily" | "session";
 export type SupportTicketStatus = "new" | "in_progress" | "resolved" | "archived";
 export type BusinessPartnerRequestStatus = "pending" | "accepted" | "rejected";
+export type SignupIntentStatus = "pending" | "applied" | "failed" | "skipped";
+
+/* Kayıt adım 3'te toplanan işletme profili — signup_intents.payload'ın şekli.
+   İşletmeye dönüştürme mantığı için bkz. lib/signup-intents.ts. */
+export type SignupIntentPayload = {
+  group?: BusinessGroup;
+  type?: string;
+  name?: string;
+  country?: string;
+  city?: string;
+  district?: string;
+  description?: string;
+  cover?: string;
+  serviceSlugs?: string[];
+  contact?: { name?: string; phone?: string; email?: string };
+};
 
 type Timestamp = string;
 
@@ -84,6 +100,7 @@ export interface Database {
           canonical_path: string | null;
           og_image: string | null;
           status: BusinessStatus;
+          signup_intent_id: string | null;
           created_at: Timestamp;
         };
         Insert: {
@@ -121,6 +138,7 @@ export interface Database {
           canonical_path?: string | null;
           og_image?: string | null;
           status?: BusinessStatus;
+          signup_intent_id?: string | null;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["businesses"]["Insert"]>;
@@ -150,6 +168,36 @@ export interface Database {
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["business_drafts"]["Insert"]>;
+        Relationships: [];
+      };
+      signup_intents: {
+        Row: {
+          id: string;
+          user_id: string;
+          email: string | null;
+          payload: SignupIntentPayload;
+          status: SignupIntentStatus;
+          attempts: number;
+          last_error: string | null;
+          business_id: number | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+          applied_at: Timestamp | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          email?: string | null;
+          payload?: SignupIntentPayload;
+          status?: SignupIntentStatus;
+          attempts?: number;
+          last_error?: string | null;
+          business_id?: number | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+          applied_at?: Timestamp | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["signup_intents"]["Insert"]>;
         Relationships: [];
       };
       business_contacts: {

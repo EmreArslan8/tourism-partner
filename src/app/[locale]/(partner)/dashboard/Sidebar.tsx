@@ -31,7 +31,7 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
 
   const supplierItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
-    { href: "/dashboard/listings", icon: Building2, label: t("listingDashboardTitle"), match: "/dashboard/listings" },
+    { href: "/dashboard/businesses", icon: Building2, label: t("businessesNav"), match: "/dashboard/businesses" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },

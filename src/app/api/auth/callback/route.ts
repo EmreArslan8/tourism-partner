@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hashBusinessInviteToken } from "@/lib/business-owner-invites";
-import { ensureBusinessFromMetadata } from "@/lib/business-bootstrap";
+import { ensureBusinessForUser } from "@/lib/signup-intents";
 import { createClient } from "@/lib/supabase/server";
 
 /*
@@ -52,12 +52,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(target);
   }
 
-  // Kayıt adım 3'te toplanan işletme profilini metadata'dan uygula (idempotent).
-  // Oturum bu noktada kurulu; tedarikçi kaydı yoksa metadata'dan üretilir.
+  // Kayıt niyetini işletmeye dönüştür (idempotent). Bu yol artık tek şans değil:
+  // buraya hiç ulaşılamazsa giriş, panel girişi ve cron aynı işi tamamlar.
   const { data: userData } = await supabase.auth.getUser();
   if (userData.user) {
     try {
-      await ensureBusinessFromMetadata(supabase, userData.user);
+      const ensured = await ensureBusinessForUser(userData.user.id);
+      if (!ensured.ok && ensured.reason === "error") {
+        console.error("[auth/callback] işletme tamamlanamadı", {
+          userId: userData.user.id,
+          error: ensured.error,
+        });
+      }
     } catch (error) {
       console.error("[auth/callback] işletme bootstrap hatası:", error instanceof Error ? error.message : error);
     }

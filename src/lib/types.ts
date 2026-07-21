@@ -249,4 +249,8 @@ export type AdminData = {
   pageViews: AdminPageView[];
   lastBackup: AdminSystemBackup | null;
   auditLogs: AdminAuditLog[];
+  /* Kayıt akışı sağlığı: işletmeye dönüşmekte takılmış (24 saatten eski) veya kalıcı
+     başarısız kayıt niyetleri. 0'dan büyükse bir tedarikçinin kaydı yarım kalmış
+     demektir — müdahale gerekir (bkz. lib/signup-intents.ts). */
+  signupIntentHealth: { pending: number; failed: number };
 };

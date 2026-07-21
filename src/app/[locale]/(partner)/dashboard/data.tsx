@@ -1,6 +1,7 @@
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { selectAll } from "@/lib/supabase/select-all";
 import { getPanelUser, getPanelSession } from "@/lib/panel-auth";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
 import { getServiceSlugs } from "@/lib/business-services";
@@ -34,12 +35,20 @@ async function loadViewStats(businessId: number): Promise<PanelViewStats> {
   if (!admin) return empty;
 
   const since = new Date(startOfToday.getTime() - 13 * DAY_MS);
-  const { data, error } = await admin
-    .from("page_views")
-    .select("entity_type,viewed_at")
-    .eq("entity_id", businessId)
-    .in("entity_type", ["impression", "business"])
-    .gte("viewed_at", since.toISOString());
+  // Sayfalanarak çekilir: limit yazılmasa bile PostgREST 1000 satırda sessizce keser,
+  // bu da çok görüntülenen bir işletmenin 14 günlük trendini eksik gösterirdi.
+  const { data, error } = await selectAll(
+    (from, to) =>
+      admin
+        .from("page_views")
+        .select("entity_type,viewed_at,id")
+        .eq("entity_id", businessId)
+        .in("entity_type", ["impression", "business"])
+        .gte("viewed_at", since.toISOString())
+        .order("id", { ascending: false })
+        .range(from, to),
+    { label: "panel/page_views" },
+  );
   if (error || !data) return empty;
 
   let current = 0;
@@ -78,22 +87,28 @@ export async function PanelData({
   if (session?.accountType === "buyer") redirect({ href: "/dashboard", locale });
 
   const supabase = await createClient();
-  const { data: businessRow } = await supabase
+  const { data: businessRows } = await supabase
     .from("businesses")
     .select(
       "id,group,type,name,country,city,district,description,phone,website,socials,image,images,attributes,details,documents,status,verified,sponsored,founder_partner,created_at"
     )
     .eq("owner_id", user!.id)
-    .order("id")
-    .limit(1)
-    .maybeSingle();
+    .order("id");
 
-  if (listingId && businessRow?.id && listingId !== String(businessRow.id)) {
-    redirect({ href: "/dashboard/listings", locale });
+  const ownedRows = businessRows ?? [];
+  const selectedBusinessRow =
+    listingId
+      ? ownedRows.find((row) => String(row.id) === listingId) ?? null
+      : mode === "edit"
+        ? null
+        : ownedRows[0] ?? null;
+
+  if (listingId && !selectedBusinessRow) {
+    redirect({ href: "/dashboard/businesses", locale });
   }
 
   let draft = null;
-  if (!businessRow) {
+  if (!selectedBusinessRow && mode === "edit") {
     const { data } = await supabase
       .from("business_drafts")
       .select("draft_key,group,cover_image,gallery_images,documents")
@@ -110,28 +125,28 @@ export async function PanelData({
   let acceptedPartners: PanelPartnerOption[] = [];
   let incomingPartnerRequests: PanelPartnerRequest[] = [];
   let outgoingPartnerRequests: PanelPartnerRequest[] = [];
-  if (businessRow) {
+  if (selectedBusinessRow) {
     const [{ data: q }, { data: c }, { data: partnerRequests }, { data: options }] = await Promise.all([
       supabase
         .from("quotes")
         .select("id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,created_at")
-        .eq("business_id", businessRow.id)
+        .eq("business_id", selectedBusinessRow.id)
         .order("created_at", { ascending: false }),
       supabase
         .from("business_contacts")
         .select("full_name,title,phone,email")
-        .eq("business_id", businessRow.id)
+        .eq("business_id", selectedBusinessRow.id)
         .order("id", { ascending: true }),
       supabase
         .from("business_partner_requests")
         .select("id,requester_business_id,receiver_business_id,status,created_at")
-        .or(`requester_business_id.eq.${businessRow.id},receiver_business_id.eq.${businessRow.id}`)
+        .or(`requester_business_id.eq.${selectedBusinessRow.id},receiver_business_id.eq.${selectedBusinessRow.id}`)
         .order("created_at", { ascending: false }),
       supabase
         .from("businesses")
         .select("id,name,group,type,city")
         .eq("status", "approved")
-        .neq("id", businessRow.id)
+        .neq("id", selectedBusinessRow.id)
         .order("name", { ascending: true }),
     ]);
     quotes = (q as PanelQuote[]) ?? [];
@@ -145,7 +160,7 @@ export async function PanelData({
     const partnerBusinessIds = new Set<number>();
     requests.forEach((request) => {
       partnerBusinessIds.add(
-        Number(request.requester_business_id) === Number(businessRow.id)
+        Number(request.requester_business_id) === Number(selectedBusinessRow.id)
           ? Number(request.receiver_business_id)
           : Number(request.requester_business_id),
       );
@@ -154,7 +169,7 @@ export async function PanelData({
     const optionRows = ((options ?? []) as PanelPartnerOption[]).slice(0, 200);
     const optionById = new Map(optionRows.map((option) => [Number(option.id), option]));
     const toRequest = (request: (typeof requests)[number]): PanelPartnerRequest | null => {
-      const businessId = Number(request.requester_business_id) === Number(businessRow.id)
+      const businessId = Number(request.requester_business_id) === Number(selectedBusinessRow.id)
         ? Number(request.receiver_business_id)
         : Number(request.requester_business_id);
       const business = optionById.get(businessId);
@@ -167,56 +182,83 @@ export async function PanelData({
       .filter((request): request is PanelPartnerRequest => Boolean(request))
       .map((request) => request.business);
     incomingPartnerRequests = requests
-      .filter((request) => request.status === "pending" && Number(request.receiver_business_id) === Number(businessRow.id))
+      .filter((request) => request.status === "pending" && Number(request.receiver_business_id) === Number(selectedBusinessRow.id))
       .map(toRequest)
       .filter((request): request is PanelPartnerRequest => Boolean(request));
     outgoingPartnerRequests = requests
-      .filter((request) => request.status === "pending" && Number(request.requester_business_id) === Number(businessRow.id))
+      .filter((request) => request.status === "pending" && Number(request.requester_business_id) === Number(selectedBusinessRow.id))
       .map(toRequest)
       .filter((request): request is PanelPartnerRequest => Boolean(request));
     partnerOptions = optionRows.filter((option) => !partnerBusinessIds.has(Number(option.id)));
   }
 
   const meta = (user!.user_metadata ?? {}) as Record<string, string>;
-  const group = (businessRow?.group as string) || meta.biz_group || "konaklama";
-  const business = businessRow
+  const group = (selectedBusinessRow?.group as string) || meta.biz_group || "konaklama";
+  const business = selectedBusinessRow
     ? {
-        id: businessRow.id,
-        group: businessRow.group,
-        type: businessRow.type,
-        name: businessRow.name,
-        country: businessRow.country,
-        city: businessRow.city,
-        district: businessRow.district,
-        description: businessRow.description,
-        phone: businessRow.phone,
-        website: businessRow.website,
-        socials: businessRow.socials ?? {},
-        image: businessRow.image,
-        images: businessRow.images,
-        attributes: businessRow.attributes,
-        details: businessRow.details,
-        status: businessRow.status,
-        verified: businessRow.verified,
-        sponsored: businessRow.sponsored,
-        founderPartner: businessRow.founder_partner ?? false,
-        created_at: businessRow.created_at,
-        documents: await withSignedDocumentUrls(supabase, businessRow.documents),
-        serviceTypes: await getServiceSlugs(supabase, businessRow.id),
+        id: selectedBusinessRow.id,
+        group: selectedBusinessRow.group,
+        type: selectedBusinessRow.type,
+        name: selectedBusinessRow.name,
+        country: selectedBusinessRow.country,
+        city: selectedBusinessRow.city,
+        district: selectedBusinessRow.district,
+        description: selectedBusinessRow.description,
+        phone: selectedBusinessRow.phone,
+        website: selectedBusinessRow.website,
+        socials: selectedBusinessRow.socials ?? {},
+        image: selectedBusinessRow.image,
+        images: selectedBusinessRow.images,
+        attributes: selectedBusinessRow.attributes,
+        details: selectedBusinessRow.details,
+        status: selectedBusinessRow.status,
+        verified: selectedBusinessRow.verified,
+        sponsored: selectedBusinessRow.sponsored,
+        founderPartner: selectedBusinessRow.founder_partner ?? false,
+        created_at: selectedBusinessRow.created_at,
+        documents: await withSignedDocumentUrls(supabase, selectedBusinessRow.documents),
+        serviceTypes: await getServiceSlugs(supabase, selectedBusinessRow.id),
       }
     : null;
+  const businesses = await Promise.all(
+    ownedRows.map(async (row) => ({
+      id: row.id,
+      group: row.group,
+      type: row.type,
+      name: row.name,
+      country: row.country,
+      city: row.city,
+      district: row.district,
+      description: row.description,
+      phone: row.phone,
+      website: row.website,
+      socials: row.socials ?? {},
+      image: row.image,
+      images: row.images,
+      attributes: row.attributes,
+      details: row.details,
+      status: row.status,
+      verified: row.verified,
+      sponsored: row.sponsored,
+      founderPartner: row.founder_partner ?? false,
+      created_at: row.created_at,
+      documents: await withSignedDocumentUrls(supabase, row.documents),
+      serviceTypes: await getServiceSlugs(supabase, row.id),
+    })),
+  );
   const signedDraftDocuments = draft
     ? await withSignedDocumentUrls(supabase, draft.documents)
     : [];
 
-  const viewStats: PanelViewStats = businessRow
-    ? await loadViewStats(Number(businessRow.id))
+  const viewStats: PanelViewStats = selectedBusinessRow
+    ? await loadViewStats(Number(selectedBusinessRow.id))
     : { current: 0, previous: 0, days: [] };
 
   return (
     <DashboardView
       mode={mode}
       business={business as PanelBusiness | null}
+      businesses={businesses as PanelBusiness[]}
       quotes={quotes}
       viewStats={viewStats}
       email={user!.email ?? ""}
@@ -229,7 +271,7 @@ export async function PanelData({
       outgoingPartnerRequests={outgoingPartnerRequests}
       meta={{ firm_name: meta.firm_name ?? "", biz_type: meta.biz_type ?? "" }}
       draft={
-        !businessRow && draft
+        !selectedBusinessRow && draft
           ? {
               draftKey: draft.draft_key,
               group: draft.group,

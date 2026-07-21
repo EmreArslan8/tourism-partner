@@ -16,6 +16,7 @@ import {
   Megaphone,
   ShieldCheck,
   Store,
+  Users,
 } from "lucide-react";
 
 type Item = { href: Href; label: string; icon: React.ReactNode };
@@ -43,6 +44,9 @@ function AdminNavItem({ icon, label }: { icon: React.ReactNode; label: string })
 const ITEMS: Item[] = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={17} aria-hidden /> },
   { href: "/admin/tedarikciler", label: "İşletmeler (CRM)", icon: <Store size={17} aria-hidden /> },
+  // Hesap düzeyindeki tek görünüm: alıcı (buyer) üyelerin işletme kaydı olmadığı için
+  // İşletmeler CRM'inde görünmezler.
+  { href: "/admin/uyeler", label: "Üyeler", icon: <Users size={17} aria-hidden /> },
   { href: "/admin/onay", label: "Başvurular", icon: <ShieldCheck size={17} aria-hidden /> },
   { href: "/admin/talepler", label: "Talepler (B2B ilan)", icon: <ClipboardList size={17} aria-hidden /> },
   { href: "/admin/partnerlik", label: "Partnerlik Ağı", icon: <Handshake size={17} aria-hidden /> },

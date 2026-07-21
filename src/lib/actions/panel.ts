@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
@@ -47,6 +48,12 @@ function groupFromMetadata(value: unknown): GroupKey {
   return typeof value === "string" && CATEGORY_GROUPS.some((group) => group.key === value)
     ? (value as GroupKey)
     : "konaklama";
+}
+
+function groupFromForm(value: FormDataEntryValue | null, fallback: GroupKey): GroupKey {
+  return typeof value === "string" && CATEGORY_GROUPS.some((group) => group.key === value)
+    ? (value as GroupKey)
+    : fallback;
 }
 
 function fileExt(path: string) {
@@ -257,7 +264,9 @@ export async function saveMyBusiness(
   const payloadType = rawServices.length > 0 ? serviceLabel(rawServices[0]) : clean(formData.get("type"), 80) ?? "";
   const meta = user.user_metadata ?? {};
   const requestedGroup = groupFromMetadata(meta.biz_group);
-  let savedGroup: GroupKey = requestedGroup;
+  const idRaw = String(formData.get("id") ?? "").trim();
+  const formGroup = groupFromForm(formData.get("group"), requestedGroup);
+  let savedGroup: GroupKey = idRaw ? requestedGroup : formGroup;
 
   const payload = {
     name,
@@ -282,8 +291,9 @@ export async function saveMyBusiness(
 
   const contacts = parseContacts(formData.get("contacts"));
 
-  const idRaw = String(formData.get("id") ?? "").trim();
   const draftKey = clean(formData.get("draft_key"), 120) ?? "";
+  const locale = clean(formData.get("locale"), 8) ?? "tr";
+  let redirectBusinessId: number | null = null;
 
   try {
     let savedBusinessId: number | null = null;
@@ -321,7 +331,8 @@ export async function saveMyBusiness(
       if (error) return { ok: false, error: error.message };
       await cleanupRemovedDocuments(supabase, currentBusiness.documents, media.documents, user.id);
     } else {
-      const group = requestedGroup;
+      const group = formGroup;
+      savedGroup = group;
       payload.documents = filterAllowedDocuments(payload.documents, group, payload.type || (meta.biz_type as string) || "");
       const { data, error } = await supabase.from("businesses").insert({
         owner_id: user.id,
@@ -333,6 +344,7 @@ export async function saveMyBusiness(
       if (error) return { ok: false, error: error.message };
       if (!data?.id) return { ok: false, error: "missingBusinessId" };
       savedBusinessId = data.id;
+      redirectBusinessId = data.id;
 
       const media = await finalizeBusinessMedia(
         supabase,
@@ -376,13 +388,17 @@ export async function saveMyBusiness(
         .eq("draft_key", draftKey);
     }
     revalidatePath("/[locale]/dashboard", "page");
+    revalidatePath("/[locale]/dashboard/businesses", "page");
     // Sahip onaylı ilanını düzenlediyse public liste cache'i (businesses tag) tazelensin.
     revalidateTag("businesses", "max");
     revalidateTag("business-partners", "max");
-    return { ok: true };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "unknown" };
   }
+  if (redirectBusinessId) {
+    redirect({ href: { pathname: "/dashboard/businesses/[id]/edit", params: { id: String(redirectBusinessId) } }, locale });
+  }
+  return { ok: true };
 }
 
 async function currentOwnedBusiness() {
@@ -407,7 +423,7 @@ async function currentOwnedBusiness() {
 
 function revalidatePartnerRequests() {
   revalidatePath("/[locale]/dashboard", "page");
-  revalidatePath("/[locale]/dashboard/listings", "page");
+  revalidatePath("/[locale]/dashboard/businesses", "page");
   revalidateTag("business-partners", "max");
   revalidateTag("businesses", "max");
 }

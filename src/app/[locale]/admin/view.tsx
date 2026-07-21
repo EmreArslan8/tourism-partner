@@ -15,6 +15,8 @@ const AdminView = ({ data }: Props) => {
   const pendingApplications = data.applications.filter((a) => a.status === "pending").length;
   const approvalCount = pendingApplications + pendingBusinesses;
 
+  const stuckSignups = data.signupIntentHealth.pending + data.signupIntentHealth.failed;
+
   const recentQuotes = data.quotes.slice(0, 5);
   const pendingReview = data.businesses
     .filter((business) => business.status === "pending")
@@ -43,6 +45,22 @@ const AdminView = ({ data }: Props) => {
           </Link>
         }
       />
+
+      {/* Kayıt akışı sağlığı — yalnızca yarım kalmış kayıt varsa görünür. Sessiz veri
+          kaybını erken yakalamak için; ayrıntı ve tekrar deneme cron'da. */}
+      {stuckSignups > 0 && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+          <span className="font-semibold">Yarım kalmış tedarikçi kaydı: {stuckSignups}</span>
+          <span className="ml-1">
+            — kayıt bilgisi alınmış ama işletme kaydına dönüşmemiş
+            {data.signupIntentHealth.failed > 0
+              ? ` (${data.signupIntentHealth.failed} tanesi tekrar denemelerine rağmen başarısız)`
+              : ""}
+            . Otomatik tamamlama her gece çalışır; sürerse sunucu loglarında
+            {" "}<code className="rounded bg-amber-100 px-1">[signup-intents]</code> kayıtlarına bakın.
+          </span>
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <MetricLink>

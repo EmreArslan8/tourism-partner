@@ -6,7 +6,7 @@ import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
-import { serviceTranslationKey } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceTranslationKey } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import { useRegions } from "@/lib/geo";
 import { SOCIAL_PLATFORMS, type GroupKey, type BusinessDocument, type SocialPlatform } from "@/lib/types";
@@ -280,6 +280,7 @@ function resolveInitialDraftKey(businessId: number | undefined, draft: PanelDraf
 const DashboardView = ({
   mode,
   business,
+  businesses,
   quotes,
   userId,
   group,
@@ -294,6 +295,7 @@ const DashboardView = ({
 }: {
   mode: "overview" | "listings" | "edit";
   business: PanelBusiness | null;
+  businesses: PanelBusiness[];
   quotes: PanelQuote[];
   email: string;
   userId: string;
@@ -319,11 +321,13 @@ const DashboardView = ({
   const [state, action, pending] = useActionState(saveMyBusiness, { ok: false });
 
   const b = business;
-  const isAgency = group === "acente";
-  const isGuide = group === "rehber";
-  const bizType = b?.type ?? meta.biz_type ?? "";
-  const dynFields = fieldsForGroup(group as GroupKey, bizType);
-  const docFields = docsForGroup(group as GroupKey, bizType);
+  const [selectedGroup, setSelectedGroup] = useState<GroupKey>(() => (b?.group as GroupKey | undefined) ?? (group as GroupKey) ?? "konaklama");
+  const effectiveGroup = (b?.group as GroupKey | undefined) ?? selectedGroup;
+  const isAgency = effectiveGroup === "acente";
+  const isGuide = effectiveGroup === "rehber";
+  const bizType = b?.type ?? "";
+  const dynFields = fieldsForGroup(effectiveGroup, bizType);
+  const docFields = docsForGroup(effectiveGroup, bizType);
   const detailValues = b?.details ?? {};
   const statusKey = b?.status ?? "pending";
   const visibleStatusKey =
@@ -362,7 +366,7 @@ const DashboardView = ({
   const galleryInput = useRef<HTMLInputElement>(null);
   const docInput = useRef<HTMLInputElement>(null);
 
-  const facets = visibleFacets([group as GroupKey]);
+  const facets = visibleFacets([effectiveGroup]);
   const selectedAttrs = new Set(b?.attributes ?? []);
   const hasContactPerson = contactRows.some((contact) => contact.full_name.trim().length > 0);
   const hasPartnerAction =
@@ -383,8 +387,8 @@ const DashboardView = ({
   const isOverview = mode === "overview";
   const isListingForm = showProfileForm || (!isOverview && !hasListingDashboard);
   const editListingHref: Href = b
-    ? { pathname: "/dashboard/listings/[id]/edit", params: { id: String(b.id) } }
-    : "/dashboard/listings/new";
+    ? { pathname: "/dashboard/businesses/[id]/edit", params: { id: String(b.id) } }
+    : "/dashboard/businesses/new";
   // Public /supplier/[id] yalnızca onaylı ilanları gösterir; sahip kendi ilanını
   // (pending dahil) gerçek görünümüyle ?preview=1 ile önizler (sayfa sahiplik doğrular).
   const previewHref: Href | null = b
@@ -430,7 +434,7 @@ const DashboardView = ({
     if (b?.id) return;
     const key = ensureDraftKey();
     try {
-      await upsertPanelDraftMedia(userId, key, group as BusinessGroup, {
+      await upsertPanelDraftMedia(userId, key, effectiveGroup as BusinessGroup, {
         cover: nextCover,
         gallery: nextGallery,
         documents: nextDocuments,
@@ -630,16 +634,11 @@ const DashboardView = ({
               isAgency={isAgency}
             />
           ) : hasListingDashboard && !showProfileForm && b ? (
-            <ListingDashboard
-              business={b}
-              cover={cover}
-              galleryCount={gallery.length}
-              documentsCount={documents.length}
-              profileScore={profileScore}
-              statusKey={visibleStatusKey}
-              editHref={editListingHref}
-              previewHref={previewHref}
-              businessTypeLabel={serviceName(b.type)}
+            <ListingsDashboard
+              businesses={businesses}
+              selectedBusiness={b}
+              tc={tc}
+              serviceName={serviceName}
               t={t}
             />
           ) : (
@@ -651,7 +650,7 @@ const DashboardView = ({
                   <p className={styles.sectionSub}>{isAgency ? t("agencyProfileSub") : t("editSub")}</p>
                 </div>
                 {hasListingDashboard && (
-                  <Link href="/dashboard/listings" className={styles.compactSecondaryButton}>
+                  <Link href="/dashboard/businesses" className={styles.compactSecondaryButton}>
                     {t("backToListingDashboard")}
                   </Link>
                 )}
@@ -659,6 +658,8 @@ const DashboardView = ({
 
               <form action={action} className={styles.form}>
             {b && <input type="hidden" name="id" value={b.id} />}
+            <input type="hidden" name="locale" value={locale} />
+            {b && <input type="hidden" name="group" value={effectiveGroup} />}
             <input type="hidden" name="draft_key" value={draftKey} />
             <input type="hidden" name="image" value={cover} />
             <input type="hidden" name="images" value={JSON.stringify(gallery)} />
@@ -758,16 +759,37 @@ const DashboardView = ({
 
             <div id="listing-panel-basic" role="tabpanel" className={cn(styles.basicFormSection, activeEditSection !== "basic" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("basicInfoSectionTitle")}</h3>
+            {!b && (
+              <label className={styles.labelCls}>
+                {t("businessCategory")}
+                <select
+                  name="group"
+                  required
+                  value={effectiveGroup}
+                  className={styles.fieldCls}
+                  onChange={(event) => {
+                    setSelectedGroup(event.target.value as GroupKey);
+                    setDocuments([]);
+                    setWorkRegions([]);
+                  }}
+                >
+                  {CATEGORY_GROUPS.map((option) => (
+                    <option key={option.key} value={option.key}>{tc(option.key)}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label className={styles.labelCls}>
               {t("name")}
-              <input name="name" required defaultValue={b?.name ?? meta.firm_name} className={styles.fieldCls} />
+              <input name="name" required defaultValue={b?.name ?? ""} className={styles.fieldCls} />
             </label>
             <div className={styles.labelCls}>
               <span>{t("servicesMultiLabel")}</span>
               <ServiceMultiSelect
-                group={group as GroupKey}
+                key={effectiveGroup}
+                group={effectiveGroup}
                 initialServices={b?.serviceTypes ?? []}
-                initialType={b?.type ?? meta.biz_type ?? ""}
+                initialType={b?.type ?? ""}
                 className="mt-1.5"
               />
             </div>
@@ -1203,7 +1225,7 @@ const DashboardView = ({
 
             <div className={styles.formActions}>
               {hasListingDashboard && (
-                <Link href="/dashboard/listings" className={styles.secondaryButton}>
+                <Link href="/dashboard/businesses" className={styles.secondaryButton}>
                   {t("cancel")}
                 </Link>
               )}
@@ -1303,79 +1325,86 @@ const MetricCard = ({ label, value, detail }: { label: string; value: string | n
   </div>
 );
 
-const ListingDashboard = ({
-  business,
-  cover,
-  galleryCount,
-  documentsCount,
-  profileScore,
-  statusKey,
-  editHref,
-  previewHref,
-  businessTypeLabel,
+const ListingsDashboard = ({
+  businesses,
+  selectedBusiness,
+  tc,
+  serviceName,
   t,
 }: {
-  business: PanelBusiness;
-  cover: string;
-  galleryCount: number;
-  documentsCount: number;
-  profileScore: number;
-  statusKey: "pending" | "approved" | "rejected";
-  editHref: Href;
-  previewHref: Href | null;
-  businessTypeLabel: string;
+  businesses: PanelBusiness[];
+  selectedBusiness: PanelBusiness;
+  tc: ReturnType<typeof useTranslations>;
+  serviceName: (value: string) => string;
   t: ReturnType<typeof useTranslations>;
-}) => (
-  <div className={styles.listingDashboard}>
-    <div className={styles.listingHead}>
-      <div>
-        <h2 className={styles.sectionTitle}>{t("listingDashboardTitle")}</h2>
-        <p className={styles.sectionSub}>
-          {statusKey === "pending" ? t("listingDashboardPendingSub") : t("listingDashboardLiveSub")}
-        </p>
+}) => {
+  const visibleBusinesses = businesses.length > 0 ? businesses : [selectedBusiness];
+  return (
+    <div className={styles.listingDashboard}>
+      <div className={styles.listingHead}>
+        <div>
+          <h2 className={styles.sectionTitle}>{t("myBusinessesTitle")}</h2>
+          <p className={styles.sectionSub}>{t("myBusinessesSub")}</p>
+        </div>
+        <Link href="/dashboard/businesses/new" className={styles.compactPrimaryButton}>
+          <Plus size={15} aria-hidden />
+          {t("addBusiness")}
+        </Link>
       </div>
-      <span className={cn(styles.statusBadge, styles.statusColors[statusKey])}>
-        {t(`status_${statusKey}`)}
-      </span>
-    </div>
 
-    <div className={styles.listingSummary}>
-      <div className={styles.listingCover}>
-        {businessImageUrl(cover) ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={businessImageUrl(cover) ?? ""} alt="" className="h-full w-full object-cover" />
-        ) : (
-          <span><ImagePlus size={22} aria-hidden />{t("addCover")}</span>
-        )}
-      </div>
-      <div className={styles.listingInfo}>
-        <span className={styles.eyebrow}>{t("listingIdentity")}</span>
-        <h3>{business.name}</h3>
-        <p>{businessTypeLabel} · {business.district}, {business.city} · {business.country}</p>
-        <div className={styles.listingMetrics}>
-          <div className={styles.listingProgress}>
-            <span>{t("profileScore")}</span>
-            <strong>{profileScore}%</strong>
-            <i><i style={{ width: `${profileScore}%` }} /></i>
-          </div>
-          <div className={styles.listingMetric}><span>{t("listingGallery")}</span><strong>{galleryCount}</strong></div>
-          <div className={styles.listingMetric}><span>{t("listingDocuments")}</span><strong>{documentsCount}</strong></div>
-        </div>
-        <div className={styles.listingActions}>
-          <Link href={editHref} className={styles.compactPrimaryButton}>
-            <PencilLine size={15} aria-hidden />
-            {t("editListing")}
-          </Link>
-          {previewHref && (
-            <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
-              <Eye size={15} aria-hidden />
-              {t("preview")}
-            </Link>
-          )}
-        </div>
+      <div className={styles.businessList}>
+        {visibleBusinesses.map((business) => {
+          const statusKey = business.status === "active"
+            ? "approved"
+            : business.status === "expired" || business.status === "blacklisted" || business.status === "suspended"
+              ? "rejected"
+              : business.status;
+          const profileScore = getProfileScore({ ...business, contactCount: business.contactCount ?? 0 }, business.image ?? "");
+          const editHref: Href = { pathname: "/dashboard/businesses/[id]/edit", params: { id: String(business.id) } };
+          const previewHref: Href = { pathname: "/supplier/[id]", params: { id: businessSlug(business) }, query: { preview: "1" } };
+          return (
+            <div key={business.id} className={styles.businessListItem}>
+              <div className={styles.businessListCover}>
+                {businessImageUrl(business.image) ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={businessImageUrl(business.image) ?? ""} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <ImagePlus size={20} aria-hidden />
+                )}
+              </div>
+              <div className={styles.businessListBody}>
+                <div className={styles.businessListTitleRow}>
+                  <div className="min-w-0">
+                    <span className={styles.eyebrow}>{tc(business.group)}</span>
+                    <h3>{business.name}</h3>
+                  </div>
+                  <span className={cn(styles.statusBadge, styles.statusColors[statusKey])}>
+                    {t(`status_${statusKey}`)}
+                  </span>
+                </div>
+                <p>{[serviceName(business.type), business.district, business.city, business.country].filter(Boolean).join(" · ")}</p>
+                <div className={styles.businessListMeta}>
+                  <span>{t("profileScore")}: <b>{profileScore}%</b></span>
+                  <span>{t("listingGallery")}: <b>{business.images?.length ?? 0}</b></span>
+                  <span>{t("listingDocuments")}: <b>{business.documents?.length ?? 0}</b></span>
+                </div>
+                <div className={styles.listingActions}>
+                  <Link href={editHref} className={styles.compactPrimaryButton}>
+                    <PencilLine size={15} aria-hidden />
+                    {t("editListing")}
+                  </Link>
+                  <Link href={previewHref} target="_blank" className={styles.compactSecondaryButton}>
+                    <Eye size={15} aria-hidden />
+                    {t("preview")}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default DashboardView;

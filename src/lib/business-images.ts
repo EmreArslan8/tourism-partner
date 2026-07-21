@@ -38,3 +38,14 @@ export function isRealBusinessImage(src?: string | null): src is string {
 export function realBusinessImages(image?: string | null, images: string[] = []): string[] {
   return Array.from(new Set([image, ...images].map(businessImageUrl).filter((src): src is string => Boolean(src))));
 }
+
+export function realBusinessGalleryImages(cover?: string | null, images: string[] = []): string[] {
+  const coverUrl = businessImageUrl(cover);
+  return Array.from(
+    new Set(
+      images
+        .map(businessImageUrl)
+        .filter((src): src is string => Boolean(src) && src !== coverUrl)
+    )
+  );
+}

@@ -7,7 +7,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
  * Kayıt akışı adım 3'teki kapak görseli — kullanıcı henüz doğrulanmadığı için
  * (oturum yok) storage'a RLS ile yazılamaz. Bu route dosyayı service-role ile
  * geçici bir "signup-drafts/" konumuna yükler ve yolu döner. Yol auth metadata'sına
- * yazılır; doğrulama sonrası ensureBusinessFromMetadata işletmenin kapağı yapar.
+ * yazılır; işletme kaydı oluşurken ensureBusinessForUser bunu işletmenin kapağı yapar.
  *
  * Kötüye kullanım önlemleri: IP rate limit, yalnızca görsel içerik, boyut sınırı,
  * tahmin edilemez rastgele yol. Sahiplenilmeyen draftlar periyodik temizlenmeli.

@@ -5,7 +5,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { businessSlug, getBusinessBySlug, getOwnedBusiness } from "@/lib/businesses";
 import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
 import { localeAlternates } from "@/lib/seo";
-import { realBusinessImages } from "@/lib/business-images";
+import { realBusinessGalleryImages } from "@/lib/business-images";
 import { getBusinessPartners } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import { businessDescription, businessSeoDescription, businessSeoTitle } from "@/lib/business-localization";
@@ -75,7 +75,7 @@ export default async function DetailPage({
   let preview = false;
   let b = null;
   if (wantPreview) {
-    const owned = await getOwnedBusiness();
+    const owned = await getOwnedBusiness(id);
     if (owned && businessSlug(owned) === id) {
       b = owned;
       preview = true;
@@ -89,7 +89,7 @@ export default async function DetailPage({
     getBusinessPartners(b.id),
   ]);
   const services = featuredFacetTags(b, 40);
-  const gallery = realBusinessImages(b.image, b.images);
+  const gallery = realBusinessGalleryImages(b.image, b.images);
 
   return (
     <SupplierDetailView

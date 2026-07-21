@@ -253,7 +253,7 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
    herhangi bir durumda) tam Business olarak döner. Public liste onaylanmamış işletmeleri
    gizlediğinden, tedarikçi ilanını yayına girmeden önce ayrı /önizleme rotasında görür.
    Oturuma bağlı olduğu için 'use cache' KULLANILMAZ (kullanıcıya özel, dinamik). */
-export async function getOwnedBusiness(): Promise<Business | null> {
+export async function getOwnedBusiness(slug?: string): Promise<Business | null> {
   if (!hasEnv()) return null;
   const { createClient } = await import("./supabase/server");
   const supabase = await createClient();
@@ -267,22 +267,21 @@ export async function getOwnedBusiness(): Promise<Business | null> {
     .select(SELECT_COLUMNS)
     .eq("owner_id", user.id)
     .order("id")
-    .limit(1)
-    .maybeSingle();
-  let data = primary.data as Row | null;
+    .limit(slug ? 50 : 1);
+  let rows = (primary.data ?? []) as Row[];
   if (isMissingFounderColumn(primary.error)) {
     const legacy = await supabase
       .from("businesses")
       .select(LEGACY_SELECT_COLUMNS)
       .eq("owner_id", user.id)
       .order("id")
-      .limit(1)
-      .maybeSingle();
-    data = legacy.data as Row | null;
+      .limit(slug ? 50 : 1);
+    rows = (legacy.data ?? []) as Row[];
   } else if (primary.error) {
     console.error(`[businesses] getOwnedBusiness DB hatası: ${primary.error.message}`);
     return null;
   }
+  const data = slug ? rows.find((row) => businessSlug({ name: row.name }) === slug) ?? null : rows[0] ?? null;
   if (!data) return null;
 
   const idNumber = Number(data.id);

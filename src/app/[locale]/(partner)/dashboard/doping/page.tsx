@@ -30,7 +30,7 @@ export default async function DopingPage({ params }: { params: Promise<{ locale:
       {!biz ? (
         <PartnerPanelEmptyState
           title={t("profileRequiredTitle")}
-          action={<Link href="/dashboard/listings" className={styles.compactPrimaryButton}>{t("goToListings")}</Link>}
+          action={<Link href="/dashboard/businesses" className={styles.compactPrimaryButton}>{t("goToListings")}</Link>}
         />
       ) : (
         <div className="grid gap-4">

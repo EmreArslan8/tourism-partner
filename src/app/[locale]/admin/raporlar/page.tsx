@@ -13,6 +13,7 @@ import { getAdminData } from "@/lib/admin";
 import { groupLabel } from "@/lib/categories";
 import { Link } from "@/i18n/navigation";
 import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
+import { selectAll } from "@/lib/supabase/select-all";
 import type { AdminBusiness, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AdminEmptyState, AdminPage, AdminPanel, adminUi } from "../_ui";
@@ -42,19 +43,31 @@ async function fetchReportData(period: Period) {
   const prevStart = new Date(currentStart.getTime() - duration);
 
   const supabase = await createClient();
+  // Sayfalanarak çekilir: PostgREST tek yanıtta 1000 satırda keser ve bunu sessizce
+  // yapar; doğrudan .limit(20_000) yazmak veriyi fark edilmeden eksiltir (bkz. select-all.ts).
   const [viewsRes, quotesRes] = await Promise.all([
-    supabase
-      .from("page_views")
-      .select("entity_type,entity_id,visitor_id,viewed_at")
-      .in("entity_type", ["impression", "business"])
-      .gte("viewed_at", prevStart.toISOString())
-      .order("viewed_at", { ascending: false })
-      .limit(20_000),
-    supabase
-      .from("quotes")
-      .select("id,business_id,city,status,created_at")
-      .gte("created_at", prevStart.toISOString())
-      .limit(2_000),
+    selectAll(
+      (from, to) =>
+        supabase
+          .from("page_views")
+          .select("entity_type,entity_id,visitor_id,viewed_at")
+          .in("entity_type", ["impression", "business"])
+          .gte("viewed_at", prevStart.toISOString())
+          .order("viewed_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to),
+      { label: "raporlar/page_views" },
+    ),
+    selectAll(
+      (from, to) =>
+        supabase
+          .from("quotes")
+          .select("id,business_id,city,status,created_at")
+          .gte("created_at", prevStart.toISOString())
+          .order("id", { ascending: false })
+          .range(from, to),
+      { label: "raporlar/quotes" },
+    ),
   ]);
 
   const views: ReportView[] = (viewsRes.data ?? []).map((row) => ({

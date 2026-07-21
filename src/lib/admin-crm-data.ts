@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { getAdminAccess } from "@/lib/admin-auth";
+import { selectAll } from "@/lib/supabase/select-all";
 import { getServiceSlugs, getServiceSlugsByBusiness } from "@/lib/business-services";
 import type { AdminAuditLog, AdminBusiness, AdminMembership, AdminPageView, AdminQuote, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import type { CrmFilters, ExportColumn } from "@/lib/admin-crm";
@@ -206,13 +207,19 @@ export const getCrmBusinessDetail = cache(async (id: number): Promise<CrmBusines
       .eq("business_id", id)
       .order("created_at", { ascending: false })
       .limit(50),
-    supabase
-      .from("page_views")
-      .select("id,entity_type,entity_id,visitor_id,viewed_at")
-      .in("entity_type", ["business", "impression"])
-      .eq("entity_id", id)
-      .order("viewed_at", { ascending: false })
-      .limit(1000),
+    // İşletme detayındaki görüntülenme kırılımı — sayfalanmazsa 1000'de sessizce kesilir.
+    selectAll(
+      (from, to) =>
+        supabase
+          .from("page_views")
+          .select("id,entity_type,entity_id,visitor_id,viewed_at")
+          .in("entity_type", ["business", "impression"])
+          .eq("entity_id", id)
+          .order("viewed_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to),
+      { label: "admin-crm/page_views" },
+    ),
     supabase
       .from("business_partner_requests")
       .select("id", { count: "exact", head: true })

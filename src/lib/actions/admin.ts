@@ -9,8 +9,12 @@ import { replaceBusinessServices } from "@/lib/business-services";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
 import { translateWithDeepL, type DeepLLocale } from "@/lib/deepl";
+import { businessSlug } from "@/lib/business-slug";
+import { sendEmail } from "@/lib/email";
+import { businessApprovedEmail } from "@/lib/email-templates/business-approved";
+import { SITE_URL, supplierPath } from "@/lib/site";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
-import { clean, cleanHttpUrl, cleanImageUrl } from "./validate";
+import { clean, cleanHttpUrl, cleanImageUrl, isEmail } from "./validate";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -394,7 +398,7 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   const status = lifecycleStatusValue(formData);
   const { data: current, error: currentError } = await supabase
     .from("businesses")
-    .select("status,doping_until")
+    .select("id,status,doping_until,name,group,type,city,country,district")
     .eq("id", id)
     .maybeSingle();
   if (currentError) throw new Error(currentError.message);
@@ -412,6 +416,42 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   const { error } = await supabase.from("businesses").update(payload).eq("id", id);
   if (error) throw new Error(error.message);
   await logAdminAction(context, "business.status.update", "business", id, payload);
+
+  if (current && isPublicBusinessStatus(status) && !isPublicBusinessStatus(current.status)) {
+    const { data: contacts, error: contactError } = await supabase
+      .from("business_contacts")
+      .select("email")
+      .eq("business_id", id)
+      .not("email", "is", null)
+      .order("id", { ascending: true })
+      .limit(1);
+
+    if (contactError) {
+      console.error("[business-approval-email] alıcı okunamadı", { businessId: id, error: contactError.message });
+    }
+
+    const recipient = contacts?.[0]?.email?.trim();
+    if (recipient && isEmail(recipient)) {
+      const slug = businessSlug({ name: current.name });
+      const message = businessApprovedEmail({
+        businessName: current.name,
+        dashboardUrl: `${SITE_URL}/${locale || "tr"}/panel`,
+        profileUrl: `${SITE_URL}${supplierPath((locale || "tr") as "tr" | "en" | "ru" | "ar", slug)}`,
+        logoUrl: `${SITE_URL}/assets/logo.webp`,
+      });
+      const delivery = await sendEmail({ to: recipient, ...message });
+      await logAdminAction(context, "business.approval.email", "business", id, {
+        to: recipient,
+        ok: delivery.ok,
+        skipped: delivery.skipped ?? false,
+        error: delivery.error ?? null,
+        providerId: delivery.id ?? null,
+      });
+    } else {
+      console.warn("[business-approval-email] geçerli alıcı yok", { businessId: id });
+    }
+  }
+
   // Onay/red public liste cache'ini de etkiler.
   revalidateTag("businesses", "max");
   revalidateAdmin(locale);

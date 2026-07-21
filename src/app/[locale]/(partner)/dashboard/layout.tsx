@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { getPanelSession } from "@/lib/panel-auth";
 import { getSupplierOnboarding } from "@/lib/onboarding";
+import { ensureBusinessForUser } from "@/lib/signup-intents";
 import DashboardShell from "./DashboardShell";
 import styles from "./styles";
 
@@ -25,6 +26,17 @@ export default async function DashboardLayout({
   // varsa ama kapağı yoksa (ör. eski kayıt) panele girmeden önce tamamlatılır.
   if (session.accountType !== "buyer") {
     const ob = await getSupplierOnboarding();
+
+    // İşletmesi hiç yoksa kayıt niyeti yarım kalmış demektir (doğrulama linki başka
+    // tarayıcıda açıldığında callback düşer). Burada idempotent olarak tamamlanır —
+    // normal durumda işletme zaten var, bu dal hiç çalışmaz.
+    if (!ob.businessId) {
+      const ensured = await ensureBusinessForUser(session.userId);
+      // Yeni oluştuysa taze durumla devam et: onboarding sayfası kapak varsa panele
+      // geri gönderir, yoksa kapağı tamamlatır (kendi request'inde cache tazedir).
+      if (ensured.ok && ensured.created) return redirect({ href: "/onboarding", locale });
+    }
+
     if (ob.businessId && !ob.hasCover) return redirect({ href: "/onboarding", locale });
   }
 

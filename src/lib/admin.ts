@@ -1,5 +1,7 @@
 import { createReadOnlyClient as createClient } from "@/lib/supabase/read-only-server";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
+import { getSignupIntentHealth } from "@/lib/signup-intents";
+import { selectAll } from "@/lib/supabase/select-all";
 import type {
   GroupKey,
   AdminBusiness,
@@ -93,6 +95,7 @@ const EMPTY = {
   pageViews: [],
   lastBackup: null,
   auditLogs: [],
+  signupIntentHealth: { pending: 0, failed: 0 },
 };
 
 export const getAdminData = cache(async (): Promise<AdminData> => {
@@ -166,12 +169,19 @@ async function getSupabaseAdminData(
       .select("id,business_id,plan,status,starts_at,ends_at")
       .order("ends_at", { ascending: true })
       .limit(200),
-    supabase
-      .from("page_views")
-      .select("id,entity_type,entity_id,visitor_id,viewed_at")
-      .gte("viewed_at", sevenDaysAgo)
-      .order("viewed_at", { ascending: false })
-      .limit(10000),
+    // Haftalık görüntülenme KPI'ı ve tedarikçi/teklif sayfaları bu satırları sayar;
+    // sayfalanmazsa PostgREST 1000'de sessizce keser (bkz. supabase/select-all.ts).
+    selectAll(
+      (from, to) =>
+        supabase
+          .from("page_views")
+          .select("id,entity_type,entity_id,visitor_id,viewed_at")
+          .gte("viewed_at", sevenDaysAgo)
+          .order("viewed_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to),
+      { label: "admin/page_views" },
+    ),
     supabase
       .from("system_backups")
       .select("id,status,completed_at,created_at")
@@ -200,6 +210,8 @@ async function getSupabaseAdminData(
     visitorId: row.visitor_id ?? null,
     viewedAt: row.viewed_at,
   }));
+
+  const signupIntentHealth = await getSignupIntentHealth(supabase);
 
   const lastBackupRow = backupsRes.data?.[0];
   const businesses = await Promise.all(
@@ -283,5 +295,6 @@ async function getSupabaseAdminData(
       note: null,
       createdAt: row.created_at,
     })),
+    signupIntentHealth,
   };
 }

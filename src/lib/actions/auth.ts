@@ -4,8 +4,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
-import { replaceBusinessServices } from "@/lib/business-services";
-import { promoteSignupCover } from "@/lib/business-bootstrap";
+import { ensureBusinessForUser, recordSignupIntent } from "@/lib/signup-intents";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -37,6 +36,16 @@ async function redirectAfterLogin(
       .maybeSingle();
     if (profile?.role) role = profile.role;
     if (profile?.account_type) accountType = profile.account_type;
+
+    // Doğrulama callback'i kaçmış olabilir (e-posta başka bir tarayıcıda açıldıysa
+    // PKCE code değişimi başarısız olur). Girişte idempotent olarak tamamla — işletmesi
+    // olan kullanıcıda hiçbir şey yapmaz.
+    if (role !== "admin" && accountType !== "buyer") {
+      const ensured = await ensureBusinessForUser(userId);
+      if (!ensured.ok && ensured.reason === "error") {
+        console.error("[auth-signin] işletme tamamlanamadı", { userId, error: ensured.error });
+      }
+    }
   }
   const locale = await getLocale();
   const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
@@ -215,38 +224,41 @@ export async function signUp(
     return { ok: false, error: "generic" };
   }
 
-  // Oturum hemen açıldıysa (e-posta onayı kapalı): tedarikçi ise firma kaydı oluştur,
-  // alıcı ise kayıt oluşturmadan keşfete yönlendir.
+  // Niyeti HEMEN ve kalıcı olarak yaz — oturum açılmamış olsa bile. İşletme kaydının
+  // oluşması artık doğrulama linkinden dönüşe bağlı değil; ensureBusinessForUser bunu
+  // callback / giriş / panel girişi / cron'dan idempotent olarak tamamlar.
+  if (data.user && cat) {
+    await recordSignupIntent(data.user.id, email, {
+      group: cat.group,
+      type: cat.typeLabel,
+      name,
+      country: bizProfile?.country ?? "",
+      city: bizProfile?.city ?? "",
+      district: bizProfile?.district ?? "",
+      description: bizProfile?.description ?? "",
+      cover: bizProfile?.cover ?? "",
+      serviceSlugs,
+      contact: bizProfile?.contactName
+        ? {
+            name: bizProfile.contactName,
+            phone: bizProfile.contactPhone,
+            email: bizProfile.contactEmail,
+          }
+        : undefined,
+    });
+  }
+
+  // Oturum hemen açıldıysa (e-posta onayı kapalı): tedarikçi ise firma kaydını şimdi
+  // oluştur, alıcı ise kayıt oluşturmadan keşfete yönlendir.
   if (data.session && data.user) {
     if (cat) {
-      const { data: created } = await supabase.from("businesses").insert({
-        owner_id: data.user.id,
-        group: cat.group,
-        type: cat.typeLabel,
-        name,
-        country: bizProfile?.country ?? "",
-        city: bizProfile?.city ?? "",
-        district: bizProfile?.district ?? "",
-        description: bizProfile?.description || null,
-        status: "pending",
-      }).select("id").single();
-      if (created?.id && serviceSlugs.length > 0) {
-        await replaceBusinessServices(supabase, created.id, cat.group, serviceSlugs);
-      }
-      // Kapağı kullanıcının klasörüne taşı (panel uyumlu yol) ve işletmeye yaz.
-      if (created?.id && bizProfile?.cover) {
-        const finalPath = await promoteSignupCover(data.user.id, created.id, name, bizProfile.cover);
-        if (finalPath) {
-          await supabase.from("businesses").update({ image: finalPath }).eq("id", created.id).eq("owner_id", data.user.id);
-        }
-      }
-      // Yetkili kişi (opsiyonel) — en az ad girildiyse kaydet.
-      if (created?.id && bizProfile?.contactName) {
-        await supabase.from("business_contacts").insert({
-          business_id: created.id,
-          full_name: bizProfile.contactName,
-          phone: bizProfile.contactPhone || null,
-          email: bizProfile.contactEmail || null,
+      const ensured = await ensureBusinessForUser(data.user.id);
+      if (!ensured.ok) {
+        // Kayıp değil: niyet 'pending' kaldı, cron ve sonraki panel girişi tekrar dener.
+        console.error("[auth-signup] işletme oluşturulamadı", {
+          userId: data.user.id,
+          reason: ensured.reason,
+          error: ensured.error,
         });
       }
     }
