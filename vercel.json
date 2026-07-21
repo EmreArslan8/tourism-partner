@@ -7,10 +7,6 @@
     {
       "path": "/api/cron/apply-signup-intents",
       "schedule": "30 3 * * *"
-    },
-    {
-      "path": "/api/cron/process-email-deliveries",
-      "schedule": "*/15 * * * *"
     }
   ]
 }
