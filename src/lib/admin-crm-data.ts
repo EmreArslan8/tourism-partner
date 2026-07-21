@@ -342,6 +342,7 @@ export async function exportCrmBusinessesXlsx(filters: CrmFilters, columns: Expo
 type BusinessFilterQuery = {
   or(filter: string): BusinessFilterQuery;
   eq(column: string, value: string | number): BusinessFilterQuery;
+  neq(column: string, value: string | number): BusinessFilterQuery;
   in(column: string, values: number[]): BusinessFilterQuery;
 };
 
@@ -360,7 +361,13 @@ function applyBusinessFilters<T extends BusinessFilterQuery>(query: T, filters: 
   }
   if (filters.group !== "all") next = next.eq("group", filters.group) as T;
   if (filters.city) next = next.eq("city", filters.city) as T;
-  if (filters.status !== "all") next = next.eq("status", filters.status) as T;
+  if (filters.status !== "all") {
+    next = next.eq("status", filters.status) as T;
+  } else {
+    // Reddedilenler CRM listesinde gösterilmez; yalnızca durum filtresiyle açıkça
+    // istenirse görünürler (dropdown'da "Reddedildi" seçilerek).
+    next = next.neq("status", "rejected") as T;
+  }
   return next;
 }
 

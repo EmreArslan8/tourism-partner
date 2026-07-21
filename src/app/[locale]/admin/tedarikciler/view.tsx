@@ -68,6 +68,7 @@ const AdminSuppliersView = ({
               <option value="approved">Aktif</option>
               <option value="pending">Beklemede</option>
               <option value="suspended">Askıda</option>
+              <option value="rejected">Reddedildi</option>
               <option value="blacklisted">Blacklist</option>
             </select>
             <button className={adminUi.sapphireButton} type="submit">Filtrele</button>
