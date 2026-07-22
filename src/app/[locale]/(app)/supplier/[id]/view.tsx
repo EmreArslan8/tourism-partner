@@ -9,6 +9,7 @@ import type { FeaturedFacetTag } from "@/lib/facets";
 import { serviceTranslationKey } from "@/lib/categories";
 import { businessDescription } from "@/lib/business-localization";
 import SupplierGallery from "@/components/SupplierGallery";
+import { businessImageUrl } from "@/lib/business-images";
 import Button from "@/components/common/Button";
 import RecordView from "@/components/RecordView";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -41,6 +42,8 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
     return key ? tService(key) : value;
   };
   const businessType = translateService(b.type);
+  // Başlık yanındaki avatar her zaman kapak görseli; galeri kapağı içermez (bkz. realBusinessGalleryImages).
+  const cover = businessImageUrl(b.image);
   const socialEntries = Object.entries(b.socials ?? {}).filter(
     (entry): entry is [SocialPlatform, string] => Boolean(entry[1]) && entry[0] in SOCIAL_ICONS
   );
@@ -67,16 +70,9 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
       <header className={styles.heroHead}>
         <div>
           <div className={styles.titleWrap}>
-            {gallery[0] ? (
-              <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/25 bg-[#EEF2F7]">
-                <Image src={gallery[0]} alt={b.name} fill sizes="48px" className="object-cover" />
-              </span>
-            ) : (
-              <span
-                aria-hidden
-                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-[17px] font-extrabold text-cream"
-              >
-                {b.name.slice(0, 2).toLocaleUpperCase(locale)}
+            {cover && (
+              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[14px] border border-white/25 bg-[#EEF2F7]">
+                <Image src={cover} alt={b.name} fill sizes="64px" className="object-cover" />
               </span>
             )}
             <h1 className={styles.title}>{b.name}</h1>
