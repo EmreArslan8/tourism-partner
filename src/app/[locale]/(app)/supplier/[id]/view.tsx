@@ -67,9 +67,16 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
       <header className={styles.heroHead}>
         <div>
           <div className={styles.titleWrap}>
-            {gallery[0] && (
+            {gallery[0] ? (
               <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/25 bg-[#EEF2F7]">
                 <Image src={gallery[0]} alt={b.name} fill sizes="48px" className="object-cover" />
+              </span>
+            ) : (
+              <span
+                aria-hidden
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-[17px] font-extrabold text-cream"
+              >
+                {b.name.slice(0, 2).toLocaleUpperCase(locale)}
               </span>
             )}
             <h1 className={styles.title}>{b.name}</h1>
