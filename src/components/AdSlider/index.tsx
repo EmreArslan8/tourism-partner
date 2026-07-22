@@ -35,7 +35,7 @@ const AdSlider = ({ banners: inputBanners }: { banners: PublicAdBanner[] }) => {
   if (banners.length === 0) return null;
 
   return (
-    <section className={styles.section} aria-label="Sponsored">
+    <section className={styles.section} aria-label={t("label")}>
       <div className={styles.viewport}>
         <div className={styles.track} style={{ transform: `translateX(-${i * 100}%)` }}>
           {banners.map((b) => (
@@ -63,7 +63,7 @@ const AdSlider = ({ banners: inputBanners }: { banners: PublicAdBanner[] }) => {
           <button
             key={b.id}
             type="button"
-            aria-label={`Banner ${idx + 1}`}
+            aria-label={`${t("label")} ${idx + 1}`}
             onClick={() => setI(idx)}
             className={idx === i ? styles.dotActive : styles.dot}
           />

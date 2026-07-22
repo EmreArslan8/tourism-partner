@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { GROUP_COLORS } from "@/lib/categories";
@@ -35,6 +35,7 @@ type RegionCard = {
 };
 
 const Regions = ({ businesses }: { businesses: Business[] }) => {
+  const locale = useLocale();
   const t = useTranslations("regions");
   const common = useTranslations("common");
   const tc = useTranslations("cat");
@@ -115,12 +116,12 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
 
       <div className={styles.layout}>
         <div className={styles.railWrap}>
-          <button type="button" aria-label="Önceki şehirler" onClick={() => scrollByCards(-1)} className={`${styles.navButton} ${styles.navPrev}`}>
+          <button type="button" aria-label={t("previousCities")} onClick={() => scrollByCards(-1)} className={`${styles.navButton} ${styles.navPrev}`}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button type="button" aria-label="Sonraki şehirler" onClick={() => scrollByCards(1)} className={`${styles.navButton} ${styles.navNext}`}>
+          <button type="button" aria-label={t("nextCities")} onClick={() => scrollByCards(1)} className={`${styles.navButton} ${styles.navNext}`}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M9 6l6 6-6 6" />
             </svg>
@@ -155,7 +156,7 @@ const Regions = ({ businesses }: { businesses: Business[] }) => {
                   <div className={styles.body}>
                     <h3 className={styles.city}>{region.city}</h3>
                     <p className={styles.cardInfoText}>
-                      {groupLabel} ağırlıklı · {t("count", { count: region.count }).toLocaleLowerCase("tr-TR")}
+                      {t("dominantGroup", { group: groupLabel, count: region.count }).toLocaleLowerCase(locale)}
                     </p>
                     <div className={styles.chips}>
                       {region.topGroups.map((item) => (

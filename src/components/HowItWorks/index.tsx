@@ -211,7 +211,7 @@ const MobileWorkflowDemo = ({ path, step, t }: { path: Path; step: number; t: Tr
     <div className={styles.mobilePhoneBar}><span /><em>tourismpartner</em><i>0{step + 1}</i></div>
     <div className={styles.mobilePhoneBody}>
       {path === "supplier" && step === 0 && (
-        <><div className={styles.mobileUiToolbar}><span><strong>{t("demoProfile")}</strong><small>64%</small></span><i><b style={{ width: "64%" }} /></i></div><div className={styles.mobileUiProfile}><i>TP</i><span><strong>Tourism Partner</strong><small>İstanbul · Türkiye</small></span><Check size={14} /></div><div className={styles.mobileUiFields}><span>{t("demoCompany")}<strong>Tourism Partner</strong></span><span>{t("demoCity")}<strong>{t("vf1")}</strong></span></div><small className={styles.mobileUiLabel}>{t("demoCategory")}</small><div className={styles.mobileUiChips}><span>{t("vf1")}</span><span>{t("vf2")}</span><span>{t("vf3")}</span></div></>
+        <><div className={styles.mobileUiToolbar}><span><strong>{t("demoProfile")}</strong><small>64%</small></span><i><b style={{ width: "64%" }} /></i></div><div className={styles.mobileUiProfile}><i>TP</i><span><strong>Tourism Partner</strong><small>{t("demoIstanbulLocation")}</small></span><Check size={14} /></div><div className={styles.mobileUiFields}><span>{t("demoCompany")}<strong>Tourism Partner</strong></span><span>{t("demoCity")}<strong>{t("vf1")}</strong></span></div><small className={styles.mobileUiLabel}>{t("demoCategory")}</small><div className={styles.mobileUiChips}><span>{t("vf1")}</span><span>{t("vf2")}</span><span>{t("vf3")}</span></div></>
       )}
       {path === "supplier" && step === 1 && (
         <><div className={styles.mobileUiToolbar}><span><strong>{t("demoDocuments")}</strong><small>2/3</small></span><i><b style={{ width: "67%" }} /></i></div><div className={styles.mobileUiList}>{[t("demoDoc1"), t("demoDoc2"), t("demoDoc3")].map((item, index) => <span key={item}><i>{index < 2 && <Check size={11} />}</i><strong>{item}</strong><small>{index < 2 ? t("demoApproved") : t("demoPending")}</small></span>)}</div></>
@@ -220,13 +220,13 @@ const MobileWorkflowDemo = ({ path, step, t }: { path: Path; step: number; t: Tr
         <><div className={styles.mobileUiNotice}><Mail size={18} /><span><small>{t("vq1")}</small><strong>{t("vq2")}</strong></span></div><div className={styles.mobileUiStats}><span>{t("demoOpen")}<small>{t("demoRequestStatus")}</small></span><span>3<small>{t("demoIncomingOffers")}</small></span></div><div className={styles.mobileUiFlow}><span><i><Check size={10} /></i><small>{t("demoNew")}</small></span><span><i><Check size={10} /></i><small>{t("demoOpened")}</small></span><span><i>03</i><small>{t("demoReply")}</small></span></div><div className={styles.mobileUiActions}><button type="button">{t("demoViewRequest")}</button><button type="button">{t("demoSendOffer")}</button></div></>
       )}
       {path === "buyer" && step === 0 && (
-        <><div className={styles.mobileUiToolbar}><span><strong>{t("demoAccountSetup")}</strong><small>67%</small></span><i><b style={{ width: "67%" }} /></i></div><div className={styles.mobileUiProfile}><UserPlus size={20} /><span><strong>{t("demoBuyerAccount")}</strong><small>{t("demoFree")}</small></span><Check size={14} /></div><div className={styles.mobileUiFields}><span>{t("demoCompany")}<strong>Demo Travel Agency</strong></span><span>{t("demoCity")}<strong>İstanbul</strong></span></div><div className={styles.mobileUiChoiceRows}>{[t("vf1"), t("vf2"), t("vf3")].map((item, index) => <span key={item}><i>0{index + 1}</i><strong>{item}</strong>{index === 0 && <Check size={11} />}</span>)}</div></>
+        <><div className={styles.mobileUiToolbar}><span><strong>{t("demoAccountSetup")}</strong><small>67%</small></span><i><b style={{ width: "67%" }} /></i></div><div className={styles.mobileUiProfile}><UserPlus size={20} /><span><strong>{t("demoBuyerAccount")}</strong><small>{t("demoFree")}</small></span><Check size={14} /></div><div className={styles.mobileUiFields}><span>{t("demoCompany")}<strong>Demo Travel Agency</strong></span><span>{t("demoCity")}<strong>{t("demoIstanbul")}</strong></span></div><div className={styles.mobileUiChoiceRows}>{[t("vf1"), t("vf2"), t("vf3")].map((item, index) => <span key={item}><i>0{index + 1}</i><strong>{item}</strong>{index === 0 && <Check size={11} />}</span>)}</div></>
       )}
       {path === "buyer" && step === 1 && (
         <><div className={styles.mobileUiChips}><span>{t("vf1")}</span><span>{t("vf2")}</span><span>{t("vf3")}</span></div><small className={styles.mobileUiLabel}>3 {t("demoResults")}</small><div className={styles.mobileUiResults}>{[1, 2, 3].map((item) => <span key={item}><i /><strong>Tourism Partner {item}</strong><small>★ 4.{10 - item}</small></span>)}</div><div className={styles.mobileUiSummary}><span><Search size={12} />{t("demoSmartMatch")}</span><strong>3 {t("demoActiveFilter")}</strong></div></>
       )}
       {path === "buyer" && step === 2 && (
-        <><div className={styles.mobileUiRequestFields}><span><small>{t("demoRegion")}</small><strong>Kapadokya</strong></span><span><small>{t("demoCategoryLabel")}</small><strong>{t("vf2")}</strong></span><span><small>{t("demoGroupSize")}</small><strong>24 kişi</strong></span></div><div className={styles.mobileUiRequest}><small>{t("demoRequestTitle")}</small><strong>{t("vq2")}</strong><button type="button"><Check size={10} />{t("demoPublished")}</button></div><div className={styles.mobileUiOfferRows}>{[1, 2].map((item) => <span key={item}><i>TP</i><b><strong>Tourism Partner {item}</strong><small>{t("demoPrivateOffer")}</small></b><em>₺{item === 1 ? "118.000" : "124.500"}</em></span>)}</div></>
+        <><div className={styles.mobileUiRequestFields}><span><small>{t("demoRegion")}</small><strong>{t("demoCappadocia")}</strong></span><span><small>{t("demoCategoryLabel")}</small><strong>{t("vf2")}</strong></span><span><small>{t("demoGroupSize")}</small><strong>{t("demoGroupSizeValue", { count: 24 })}</strong></span></div><div className={styles.mobileUiRequest}><small>{t("demoRequestTitle")}</small><strong>{t("vq2")}</strong><button type="button"><Check size={10} />{t("demoPublished")}</button></div><div className={styles.mobileUiOfferRows}>{[1, 2].map((item) => <span key={item}><i>TP</i><b><strong>Tourism Partner {item}</strong><small>{t("demoPrivateOffer")}</small></b><em>₺{item === 1 ? "118.000" : "124.500"}</em></span>)}</div></>
       )}
     </div>
   </div>
@@ -265,7 +265,7 @@ const ProfileDemo = ({ t }: { t: Translation }) => {
       </div>
       <div className={styles.profileRow}>
         <span className={styles.mockLogo}>TP</span>
-        <span className={styles.demoIdentity}><strong>Tourism Partner Demo</strong><small>İstanbul · Türkiye</small></span>
+        <span className={styles.demoIdentity}><strong>Tourism Partner Demo</strong><small>{t("demoIstanbulLocation")}</small></span>
         <BadgeCheck size={20} aria-hidden />
       </div>
       <div className={styles.demoFields}>
@@ -351,7 +351,7 @@ const JoinDemo = ({ t }: { t: Translation }) => {
       </div>
       <div className={styles.demoFields}>
         <span><small>{t("demoCompany")}</small><strong>Demo Travel Agency</strong></span>
-        <span><small>{t("demoCity")}</small><strong>İstanbul</strong></span>
+        <span><small>{t("demoCity")}</small><strong>{t("demoIstanbul")}</strong></span>
       </div>
       <div className={styles.joinDetails}>
         {details.map((detail, index) => (
@@ -392,9 +392,9 @@ const RequestOfferDemo = ({ t }: { t: Translation }) => {
   return (
     <div className={styles.requestDemo}>
       <div className={styles.requestFields}>
-        <span><small>{t("demoRegion")}</small><strong>Kapadokya</strong></span>
+        <span><small>{t("demoRegion")}</small><strong>{t("demoCappadocia")}</strong></span>
         <span><small>{t("demoCategoryLabel")}</small><strong>{t("vf2")}</strong></span>
-        <span><small>{t("demoGroupSize")}</small><strong>24 kişi</strong></span>
+        <span><small>{t("demoGroupSize")}</small><strong>{t("demoGroupSizeValue", { count: 24 })}</strong></span>
       </div>
       <div className={styles.requestBrief}>
         <span><small>{t("demoRequestTitle")}</small><strong>{t("vq2")}</strong></span>

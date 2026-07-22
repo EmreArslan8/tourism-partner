@@ -58,7 +58,7 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
           <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />
         </Link>
 
-        <nav className={styles.sideNav} aria-label="Partner dashboard">
+        <nav className={styles.sideNav} aria-label={t("partnerWorkspace")}>
           {items.map(({ href, icon, label, match, exact }) => (
             <Link key={match} href={href} className={isActive(match, exact) ? styles.sideNavActive : undefined} onClick={onClose}>
               <NavItemInner Icon={icon} label={label} />

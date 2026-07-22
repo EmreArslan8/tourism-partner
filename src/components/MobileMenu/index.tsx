@@ -13,6 +13,7 @@ import styles from "./styles";
 const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boolean; dashboardHref?: Href | null }) => {
   const [open, setOpen] = useState(false);
   const t = useTranslations("nav");
+  const common = useTranslations("common");
 
   const links = [
     { href: { pathname: "/" }, label: t("home") },
@@ -28,7 +29,7 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boo
       <button
         type="button"
         className={styles.button}
-        aria-label="Menu"
+        aria-label={common("menu")}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >

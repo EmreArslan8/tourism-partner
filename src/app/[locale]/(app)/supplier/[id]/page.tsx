@@ -96,7 +96,7 @@ export default async function DetailPage({
       b={b}
       partners={partners}
       contactSection={
-        <Suspense fallback={<MemberContactSkeleton />}>
+        <Suspense fallback={<MemberContactSkeleton label={t("memberContactsLoading")} />}>
           <MemberContactSection businessId={b.id} />
         </Suspense>
       }

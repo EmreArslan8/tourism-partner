@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Building2,
   Briefcase,
@@ -210,6 +210,16 @@ function normalizePhoneCode(value: string): string {
   return digits ? `+${digits}` : "";
 }
 
+function localizedPhoneCodeLabel(label: string, value: string, locale: string): string {
+  const flagParts = Array.from(label).slice(0, 2);
+  const region = flagParts
+    .map((part) => String.fromCharCode((part.codePointAt(0) ?? 127397) - 127397))
+    .join("");
+  const names = new Intl.DisplayNames([locale], { type: "region" });
+  const regions = value === "+1" ? [region, "CA"] : value === "+7" ? [region, "KZ"] : [region];
+  return `${flagParts.join("")} ${regions.map((code) => names.of(code) ?? code).join(" / ")}`;
+}
+
 function PhoneCodeInput({
   value,
   onChange,
@@ -219,11 +229,12 @@ function PhoneCodeInput({
   onChange: (value: string) => void;
   label: string;
 }) {
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
-  const q = value.trim().toLocaleLowerCase("tr-TR").replace(/^\+/, "");
+  const q = value.trim().toLocaleLowerCase(locale).replace(/^\+/, "");
   const filtered = PHONE_CODES.filter((code) => {
     const digits = code.value.replace("+", "");
-    const text = `${code.label} ${code.value}`.toLocaleLowerCase("tr-TR");
+    const text = `${localizedPhoneCodeLabel(code.label, code.value, locale)} ${code.value}`.toLocaleLowerCase(locale);
     return !q || digits.startsWith(q) || text.includes(q);
   });
 
@@ -270,7 +281,7 @@ function PhoneCodeInput({
               }}
               className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-[13px] font-semibold text-ink transition-colors hover:bg-terra/8"
             >
-              <span className="min-w-0 truncate">{code.label}</span>
+              <span className="min-w-0 truncate">{localizedPhoneCodeLabel(code.label, code.value, locale)}</span>
               <span className="shrink-0 text-terra">{code.value}</span>
             </button>
           ))}

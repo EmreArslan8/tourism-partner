@@ -8,6 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Logo from "@/components/Logo";
 import type { PublicPopup } from "@/lib/platform-data";
 
@@ -17,6 +18,7 @@ import type { PublicPopup } from "@/lib/platform-data";
    - 'daily'   → localStorage `popup:<id>:date` bugünle karşılaştırılır
    Kapatınca ilgili işaret kaydedilir. JS alert/confirm KULLANILMAZ. */
 const SitePopup = ({ popup }: { popup: PublicPopup }) => {
+  const t = useTranslations("common");
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -113,7 +115,7 @@ const SitePopup = ({ popup }: { popup: PublicPopup }) => {
           ref={closeRef}
           type="button"
           onClick={close}
-          aria-label="Kapat"
+          aria-label={t("close")}
           className="absolute end-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full border border-white/40 bg-white/12 text-white shadow-[0_12px_30px_-18px_rgba(1,8,47,.78)] backdrop-blur-xl transition-colors hover:bg-white/20"
         >
           <X size={20} strokeWidth={2.2} aria-hidden />

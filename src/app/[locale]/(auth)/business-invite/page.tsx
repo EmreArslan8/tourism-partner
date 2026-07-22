@@ -1,5 +1,5 @@
 import { Building2, CalendarClock, CircleX, ShieldCheck } from "lucide-react";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import AuthShell from "@/components/auth/AuthShell";
 import { Link } from "@/i18n/navigation";
 import { getPublicBusinessInvite } from "@/lib/business-owner-invites";
@@ -17,6 +17,7 @@ export default async function BusinessInvitePage({
   setRequestLocale(locale);
   const token = Array.isArray(query.token) ? query.token[0] : query.token;
   const invite = token ? await getPublicBusinessInvite(token) : null;
+  const t = await getTranslations("businessInvite");
 
   return (
     <AuthShell>
@@ -28,30 +29,30 @@ export default async function BusinessInvitePage({
               <Building2 size={23} aria-hidden />
             </span>
             <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-[.15em] text-brand/70">Güvenli işletme teslimi</p>
+              <p className="text-[11px] font-extrabold uppercase tracking-[.15em] text-brand/70">{t("eyebrow")}</p>
               <h1 className="mt-1 text-[29px] font-extrabold leading-tight tracking-tight text-ink sm:text-[34px]">
-                {invite?.businessName ?? "İşletme daveti"}
+                {invite?.businessName ?? t("title")}
               </h1>
             </div>
           </div>
 
           {!invite ? (
-            <StateCard icon={<CircleX size={24} aria-hidden />} title="Davet bulunamadı" description="Bağlantı eksik veya geçersiz. İşletme yöneticisinden yeni bir davet bağlantısı isteyin." />
+            <StateCard icon={<CircleX size={24} aria-hidden />} title={t("notFoundTitle")} description={t("notFoundDescription")} />
           ) : invite.status === "expired" ? (
-            <StateCard icon={<CalendarClock size={24} aria-hidden />} title="Davet süresi doldu" description="Bu güvenli bağlantı artık kullanılamıyor. İşletme yöneticisi admin panelinden yeni bir davet gönderebilir." />
+            <StateCard icon={<CalendarClock size={24} aria-hidden />} title={t("expiredTitle")} description={t("expiredDescription")} />
           ) : invite.status === "revoked" ? (
-            <StateCard icon={<CircleX size={24} aria-hidden />} title="Davet iptal edildi" description="Bu davet yönetici tarafından iptal edilmiş. Yeni bir davet bağlantısı istemeniz gerekiyor." />
+            <StateCard icon={<CircleX size={24} aria-hidden />} title={t("revokedTitle")} description={t("revokedDescription")} />
           ) : invite.status === "accepted" ? (
             <div className="grid gap-5 rounded-[14px] border border-emerald-200 bg-emerald-50/75 p-6">
               <ShieldCheck size={30} className="text-emerald-700" aria-hidden />
-              <div><h2 className="text-[20px] font-extrabold text-ink">İşletme teslim alındı</h2><p className="mt-2 text-[14px] font-semibold leading-6 text-muted">Bu davet daha önce kullanılmış. İşletme sahibi hesabınızla panele geçebilirsiniz.</p></div>
-              <Link href="/dashboard" className="inline-flex h-11 items-center justify-center rounded-[9px] bg-brand px-5 text-[13px] font-extrabold text-white">Panele git</Link>
+              <div><h2 className="text-[20px] font-extrabold text-ink">{t("acceptedTitle")}</h2><p className="mt-2 text-[14px] font-semibold leading-6 text-muted">{t("acceptedDescription")}</p></div>
+              <Link href="/dashboard" className="inline-flex h-11 items-center justify-center rounded-[9px] bg-brand px-5 text-[13px] font-extrabold text-white">{t("dashboardCta")}</Link>
             </div>
           ) : (
             <section className="rounded-[15px] border border-line bg-paper p-5 shadow-[0_24px_60px_-38px_rgba(23,32,51,.45)] sm:p-7">
               <div className="mb-6 border-b border-line pb-5">
-                <p className="text-[15px] font-bold leading-6 text-ink">Bu işletmenin yönetim yetkisi size gönderildi.</p>
-                <p className="mt-1.5 text-[13px] font-semibold leading-5 text-muted">Hesabınızla giriş yapın veya yeni hesap oluşturun. İşletme kaydı yeniden oluşturulmadan doğrudan panelinize bağlanacak.</p>
+                <p className="text-[15px] font-bold leading-6 text-ink">{t("introTitle")}</p>
+                <p className="mt-1.5 text-[13px] font-semibold leading-5 text-muted">{t("introDescription")}</p>
               </div>
               <BusinessInviteForm invite={invite} locale={locale} token={token ?? ""} />
             </section>

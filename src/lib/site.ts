@@ -19,10 +19,10 @@ export const INDEXING_ENABLED = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true
    Boş string ("") bırakılan platformun ikonu render edilmez. */
 export const PLATFORM_SOCIALS = {
   instagram: "https://instagram.com/tourismpartner",
-  facebook: "https://facebook.com/tourismpartner",
-  linkedin: "https://linkedin.com/company/tourismpartner",
-  youtube: "https://youtube.com/@tourismpartner",
-  x: "https://x.com/tourismpartner",
+  facebook: "https://www.facebook.com/tourismpartnercom",
+  linkedin: "",
+  youtube: "",
+  x: "",
 } as const;
 
 export const LOCALES = ["tr", "en", "ru", "ar"] as const;

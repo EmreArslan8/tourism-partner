@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +22,7 @@ const SupplierGallery = ({
   adLabel: string;
   sponsored: boolean;
 }) => {
+  const t = useTranslations("supplier");
   const hasImages = images.length > 0;
   const visible = useMemo(() => images.slice(0, 5), [images]);
   const main = visible[0];
@@ -63,7 +65,7 @@ const SupplierGallery = ({
     return (
       <section className="grid h-[360px] place-items-center rounded-[18px] border border-line bg-[#EEF2F7] max-[900px]:h-[280px]">
         <span className="rounded-full border border-[#CBD5E1] bg-white px-4 py-2 text-[13px] font-semibold text-[#64748B]">
-          Görsel bekleniyor
+          {t("galleryImagePending")}
         </span>
       </section>
     );
@@ -106,7 +108,7 @@ const SupplierGallery = ({
                 >
                 <Image
                   src={src}
-                  alt={`${title} görsel ${index + 2}`}
+                  alt={t("galleryImageAlt", { title, number: index + 2 })}
                   fill
                   sizes={secondary.length > 2 ? "(max-width: 900px) 0px, 25vw" : "(max-width: 900px) 0px, 50vw"}
                   className="object-cover"
@@ -114,7 +116,7 @@ const SupplierGallery = ({
                   {isLastVisible && (
                     <span className="absolute inset-0 grid place-items-center bg-black/45 text-white">
                       <span className="rounded-pill border border-white/25 bg-black/30 px-4 py-2 text-[15px] font-bold backdrop-blur-sm">
-                        +{extraCount} fotoğraf
+                        {t("galleryExtraPhotos", { count: extraCount })}
                       </span>
                     </span>
                   )}
@@ -135,7 +137,7 @@ const SupplierGallery = ({
           onClick={() => openGallery(0)}
           className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] transition hover:border-terra hover:text-terra-deep"
         >
-          Tüm görselleri göster
+          {t("galleryShowAll")}
         </button>
       )}
 
@@ -144,14 +146,14 @@ const SupplierGallery = ({
           <div className="mx-auto flex h-full w-full max-w-[1280px] flex-col">
             <div className="mb-3 flex items-center justify-between text-white">
               <div>
-                <p className="text-[12px] font-bold uppercase tracking-[.08em] text-white/70">Galeri</p>
+                <p className="text-[12px] font-bold uppercase tracking-[.08em] text-white/70">{t("galleryTitle")}</p>
                 <p className="text-[15px] font-semibold">{title}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/10 text-[20px] text-white transition hover:bg-white/20"
-                aria-label="Galeri kapat"
+                aria-label={t("galleryClose")}
               >
                 ×
               </button>
@@ -162,14 +164,14 @@ const SupplierGallery = ({
                 type="button"
                 onClick={() => goTo(active - 1)}
                 className="absolute start-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
-                aria-label="Önceki görsel"
+                aria-label={t("galleryPrevious")}
               >
                 <span className="inline-block rtl:rotate-180">‹</span>
               </button>
               <div className="relative h-[72vh] w-full overflow-hidden rounded-[18px] bg-black/30">
                 <Image
                   src={images[active]}
-                  alt={`${title} görsel ${active + 1}`}
+                  alt={t("galleryImageAlt", { title, number: active + 1 })}
                   fill
                   sizes="(max-width: 1280px) 100vw, 1280px"
                   className="object-contain"
@@ -179,7 +181,7 @@ const SupplierGallery = ({
                 type="button"
                 onClick={() => goTo(active + 1)}
                 className="absolute end-3 z-[1] grid h-11 w-11 place-items-center rounded-full border border-white/20 bg-white/10 text-[26px] leading-none text-white transition hover:bg-white/20"
-                aria-label="Sonraki görsel"
+                aria-label={t("galleryNext")}
               >
                 <span className="inline-block rtl:rotate-180">›</span>
               </button>

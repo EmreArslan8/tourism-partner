@@ -107,7 +107,10 @@
     "cities": "şehir",
     "suppliers": "tedarikçi",
     "summary": "{cityCount} şehirde {supplierCount} tedarikçi",
-    "count": "{count} tedarikçi"
+    "count": "{count} tedarikçi",
+    "previousCities": "Önceki şehirler",
+    "nextCities": "Sonraki şehirler",
+    "dominantGroup": "{group} ağırlıklı · {count} tedarikçi"
   },
   "showcase": {
     "eyebrow": "Vitrin",
@@ -219,7 +222,14 @@
     "demoRegion": "Bölge",
     "demoCategoryLabel": "Kategori",
     "demoGroupSize": "Grup büyüklüğü",
-    "demoPublishHint": "Talep yayınlandığında ilgili tedarikçilere bildirim gönderilir."
+    "demoPublishHint": "Talep yayınlandığında ilgili tedarikçilere bildirim gönderilir.",
+    "demoIstanbul": "İstanbul",
+    "demoIstanbulLocation": "İstanbul · Türkiye",
+    "demoCappadocia": "Kapadokya",
+    "demoGroupSizeValue": "{count} kişi"
+  },
+  "platformTour": {
+    "eyebrow": "Platform özeti", "title": "Turizm iş ortaklığı tek akışta.", "lead": "Tourism Partner; acente ve firmaların güvenilir tedarikçi bulduğu, tedarikçilerin de görünür olup teklif fırsatlarını yönettiği B2B turizm ağıdır.", "flow": "Platform akışı", "flowTitle": "Arayan taraf ile hizmet veren taraf aynı hatta buluşur.", "buyer": "Acente / Firma", "buyerAction": "İhtiyacı tanımlar", "match": "Eşleştirir", "matchText": "Arama, kısa liste, teklif ve güven kontrolü tek akışta çalışır.", "supplier": "Tedarikçi", "supplierAction": "Teklif verir", "buyerRole": "Arayan taraf", "buyerRoleText": "Doğru otel, rehber, transfer veya hizmet sağlayıcıyı daha hızlı bulur.", "supplierRole": "Hizmet veren taraf", "supplierRoleText": "Profilini görünür yapar, uygun taleplere daha düzenli yanıt verir.", "value1": "Onaylı kayıt", "value2": "Kontrollü iletişim", "value3": "Net teklif akışı", "tourAria": "Platformu tanı", "tourLoading": "Hazırlanıyor...", "tourButton": "Platformu Tanı", "tourNext": "İleri", "tourBack": "Geri", "tourDone": "Bitir", "step1Title": "Tourism Partner ne yapar?", "step1Text": "Acente/firma ile tedarikçiyi aynı B2B turizm akışında buluşturur.", "step2Title": "Acente / Firma tarafı", "step2Text": "Kullanıcı ihtiyacına göre otel, transfer, rehber, acente veya hizmet sağlayıcı arar.", "step3Title": "Platform eşleştirir", "step3Text": "Arama, kısa liste, teklif talebi ve güven katmanı Tourism Partner üzerinde birleşir.", "step4Title": "Tedarikçi tarafı", "step4Text": "Tedarikçi görünür olur, gelen talebi karşılar ve iş fırsatını yönetir.", "step5Title": "İş akışı basit", "step5Text": "Arama yapılır, kısa liste oluşur, teklif istenir ve tedarikçi yanıt verir.", "step6Title": "Değer önerisi net", "step6Text": "Acente daha hızlı tedarikçi bulur; tedarikçi daha görünür olur; platform güveni düzenler."
   },
   "cta": {
     "title": "Dopingli görünürlük başlatın",

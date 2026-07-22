@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { CheckCircle2, Eye, EyeOff, KeyRound, LockKeyhole, Mail, UserRoundPlus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   acceptBusinessOwnerInvite,
   signInAndAcceptBusinessInvite,
@@ -14,38 +15,23 @@ import { cn } from "@/lib/utils";
 
 const initialState: BusinessInviteActionState = { ok: false };
 
-const errorText: Record<string, string> = {
-  invalid: "Bu davet bağlantısı geçersiz.",
-  expired: "Bu davetin süresi dolmuş. İşletme yöneticisinden yeni davet isteyin.",
-  revoked: "Bu davet iptal edilmiş.",
-  email_mismatch: "Giriş yaptığınız hesap bu davetin gönderildiği e-posta ile eşleşmiyor.",
-  already_has_business: "Bu hesap zaten başka bir işletmeye bağlı.",
-  business_claimed: "Bu işletme başka bir hesap tarafından teslim alınmış.",
-  credentials: "Şifre hatalı. Tekrar deneyin.",
-  password_required: "Şifrenizi girin.",
-  name_required: "Adınızı ve soyadınızı girin.",
-  password_short: "Şifre en az 8 karakter olmalı.",
-  password_mismatch: "Şifreler birbiriyle eşleşmiyor.",
-  account_exists: "Bu e-posta ile bir hesap zaten var. ‘Hesabım var’ bölümünden giriş yapın.",
-  rate: "Çok fazla deneme yapıldı. Lütfen bir süre sonra tekrar deneyin.",
-  signup_failed: "Hesap oluşturulamadı. Lütfen tekrar deneyin.",
-  accept_failed: "İşletme teslim alınamadı. Lütfen tekrar deneyin.",
-};
-
 function Feedback({ state }: { state: BusinessInviteActionState }) {
+  const t = useTranslations("businessInvite");
   if (state.notice === "verify_email") {
     return (
       <div className="flex gap-3 rounded-[10px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900">
         <Mail size={18} className="mt-0.5 shrink-0" aria-hidden />
-        <p className="text-[13px] font-semibold leading-5">Doğrulama e-postası gönderildi. E-postadaki bağlantıya tıkladığınızda işletmeniz hesabınıza bağlanacak.</p>
+        <p className="text-[13px] font-semibold leading-5">{t("verifyEmailNotice")}</p>
       </div>
     );
   }
   if (!state.error) return null;
-  return <p role="alert" className="rounded-[9px] border border-red-200 bg-red-50 px-3.5 py-3 text-[13px] font-semibold leading-5 text-red-700">{errorText[state.error] ?? "İşlem tamamlanamadı. Lütfen tekrar deneyin."}</p>;
+  const key = `error_${state.error}`;
+  return <p role="alert" className="rounded-[9px] border border-red-200 bg-red-50 px-3.5 py-3 text-[13px] font-semibold leading-5 text-red-700">{t.has(key) ? t(key) : t("errorDefault")}</p>;
 }
 
 function PasswordField({ name, label, autoComplete }: { name: string; label: string; autoComplete: string }) {
+  const t = useTranslations("businessInvite");
   const [visible, setVisible] = useState(false);
   return (
     <label className="grid gap-2 text-[13.5px] font-bold text-ink">
@@ -60,7 +46,7 @@ function PasswordField({ name, label, autoComplete }: { name: string; label: str
           className="field h-[52px] w-full pe-12 text-[15px] font-semibold"
           placeholder="••••••••"
         />
-        <button type="button" onClick={() => setVisible((value) => !value)} className="absolute end-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-brand" aria-label={visible ? "Şifreyi gizle" : "Şifreyi göster"}>
+        <button type="button" onClick={() => setVisible((value) => !value)} className="absolute end-3.5 top-1/2 -translate-y-1/2 text-muted hover:text-brand" aria-label={visible ? t("passwordHide") : t("passwordShow")}>
           {visible ? <EyeOff size={18} aria-hidden /> : <Eye size={18} aria-hidden />}
         </button>
       </span>
@@ -78,6 +64,7 @@ function SubmitButton({ pending, children }: { pending: boolean; children: React
 }
 
 export default function BusinessInviteForm({ invite, locale, token }: { invite: PublicBusinessInvite; locale: string; token: string }) {
+  const t = useTranslations("businessInvite");
   const [loginState, loginAction, loginPending] = useActionState(signInAndAcceptBusinessInvite, initialState);
   const [registerState, registerAction, registerPending] = useActionState(signUpAndAcceptBusinessInvite, initialState);
   const [acceptState, acceptAction, acceptPending] = useActionState(acceptBusinessOwnerInvite, initialState);
@@ -91,8 +78,8 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
           <div className="flex items-start gap-3">
             {viewerMatches ? <CheckCircle2 size={21} className="mt-0.5 shrink-0 text-emerald-700" aria-hidden /> : <LockKeyhole size={21} className="mt-0.5 shrink-0 text-amber-700" aria-hidden />}
             <div>
-              <p className="text-[14px] font-extrabold text-ink">{viewerMatches ? "E-posta eşleşti" : "Farklı bir hesapla giriş yapılmış"}</p>
-              <p className="mt-1 text-[13px] font-semibold leading-5 text-muted">Şu an: {invite.viewerEmail}</p>
+              <p className="text-[14px] font-extrabold text-ink">{viewerMatches ? t("emailMatched") : t("differentAccount")}</p>
+              <p className="mt-1 text-[13px] font-semibold leading-5 text-muted">{t("currentAccount", { email: invite.viewerEmail ?? "" })}</p>
             </div>
           </div>
         </div>
@@ -102,13 +89,13 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
             <input type="hidden" name="token" value={token} />
             <input type="hidden" name="locale" value={locale} />
             <Feedback state={acceptState} />
-            <SubmitButton pending={acceptPending}>İşletmeyi teslim al ve panele geç</SubmitButton>
+            <SubmitButton pending={acceptPending}>{t("acceptCta")}</SubmitButton>
           </form>
         ) : (
           <form action={switchBusinessInviteAccount}>
             <input type="hidden" name="token" value={token} />
             <input type="hidden" name="locale" value={locale} />
-            <SubmitButton pending={false}>Doğru hesapla giriş yap</SubmitButton>
+            <SubmitButton pending={false}>{t("switchAccountCta")}</SubmitButton>
           </form>
         )}
       </div>
@@ -122,13 +109,13 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
           <Mail size={21} aria-hidden />
         </span>
         <div>
-          <h2 className="text-[19px] font-extrabold text-ink">E-postanızı doğrulayın</h2>
+          <h2 className="text-[19px] font-extrabold text-ink">{t("verifyTitle")}</h2>
           <p className="mt-2 text-[13.5px] font-semibold leading-6 text-muted">
-            Doğrulama bağlantısını <strong className="text-ink">{invite.email}</strong> adresine gönderdik. Bağlantıya tıkladığınızda işletme otomatik olarak hesabınıza bağlanacak.
+            {t.rich("verifyDescription", { email: invite.email, strong: (chunks) => <strong className="text-ink">{chunks}</strong> })}
           </p>
         </div>
         <p className="rounded-[9px] border border-emerald-200 bg-white/70 px-3.5 py-3 text-[12px] font-bold leading-5 text-emerald-800">
-          E-posta gelmediyse spam klasörünü kontrol edin. Yeni gönderim için sayfayı yenileyebilirsiniz.
+          {t("verifySpam")}
         </p>
       </div>
     );
@@ -139,7 +126,7 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
       <div className="flex items-center gap-3 rounded-[10px] border border-line bg-cream/45 px-4 py-3">
         <Mail size={18} className="shrink-0 text-brand" aria-hidden />
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[.08em] text-muted">Davet e-postası</p>
+          <p className="text-[11px] font-bold uppercase tracking-[.08em] text-muted">{t("inviteEmail")}</p>
           <p className="truncate text-[14px] font-extrabold text-ink">{invite.email}</p>
         </div>
       </div>
@@ -147,15 +134,15 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
       {existingAccount ? (
         <div className="grid gap-4">
           <div className="rounded-[10px] border border-blue-200 bg-blue-50 px-4 py-3">
-            <p className="text-[13px] font-extrabold text-ink">Bu e-postaya bağlı bir hesap bulundu</p>
-            <p className="mt-1 text-[12.5px] font-semibold leading-5 text-muted">Yeni hesap açmak yerine mevcut şifrenizi girerek işletmeyi teslim alabilirsiniz.</p>
+            <p className="text-[13px] font-extrabold text-ink">{t("accountFoundTitle")}</p>
+            <p className="mt-1 text-[12.5px] font-semibold leading-5 text-muted">{t("accountFoundDescription")}</p>
           </div>
           <form action={loginAction} className="grid gap-4">
             <input type="hidden" name="token" value={token} />
             <input type="hidden" name="locale" value={locale} />
-            <PasswordField name="password" label="Mevcut hesap şifreniz" autoComplete="current-password" />
+            <PasswordField name="password" label={t("currentPassword")} autoComplete="current-password" />
             <Feedback state={loginState} />
-            <SubmitButton pending={loginPending}><KeyRound size={17} aria-hidden /> Giriş yap ve teslim al</SubmitButton>
+            <SubmitButton pending={loginPending}><KeyRound size={17} aria-hidden /> {t("loginAcceptCta")}</SubmitButton>
           </form>
         </div>
       ) : (
@@ -163,13 +150,13 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
           <input type="hidden" name="token" value={token} />
           <input type="hidden" name="locale" value={locale} />
           <label className="grid gap-2 text-[13.5px] font-bold text-ink">
-            Adınız ve soyadınız
-            <input name="fullName" required minLength={2} autoComplete="name" className="field h-[52px] w-full text-[15px] font-semibold" placeholder="Ad Soyad" />
+            {t("fullName")}
+            <input name="fullName" required minLength={2} autoComplete="name" className="field h-[52px] w-full text-[15px] font-semibold" placeholder={t("fullNamePlaceholder")} />
           </label>
-          <PasswordField name="password" label="Şifre oluşturun" autoComplete="new-password" />
-          <PasswordField name="confirm" label="Şifreyi tekrar girin" autoComplete="new-password" />
+          <PasswordField name="password" label={t("createPassword")} autoComplete="new-password" />
+          <PasswordField name="confirm" label={t("confirmPassword")} autoComplete="new-password" />
           <Feedback state={registerState} />
-          <SubmitButton pending={registerPending}><UserRoundPlus size={17} aria-hidden /> Hesap oluştur ve teslim al</SubmitButton>
+          <SubmitButton pending={registerPending}><UserRoundPlus size={17} aria-hidden /> {t("registerAcceptCta")}</SubmitButton>
         </form>
       )}
     </div>

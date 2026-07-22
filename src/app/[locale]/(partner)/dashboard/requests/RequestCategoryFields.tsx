@@ -10,6 +10,7 @@ export default function RequestCategoryFields() {
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
   const tq = useTranslations("quote");
+  const tp = useTranslations("panel");
   const [group, setGroup] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
   const current = CATEGORY_GROUPS.find((item) => item.key === group);
@@ -30,7 +31,7 @@ export default function RequestCategoryFields() {
             setSelected([]);
           }}
         >
-          <option value="">Tüm kategoriler</option>
+          <option value="">{tp("allCategories")}</option>
           {CATEGORY_GROUPS.map((item) => <option key={item.key} value={item.key}>{tc(item.key)}</option>)}
         </PartnerPanelSelect>
       </label>
@@ -54,7 +55,7 @@ export default function RequestCategoryFields() {
               );
             })}
           </div>
-          <p className="mt-2 text-[11px] text-muted">Birden fazla alt kategori seçebilirsin.</p>
+          <p className="mt-2 text-[11px] text-muted">{tp("multipleCategoriesHint")}</p>
         </fieldset>
       )}
     </div>

@@ -20,6 +20,7 @@ const ServiceMultiSelect = ({
   className?: string;
 }) => {
   const ts = useTranslations("service");
+  const tp = useTranslations("panel");
   const [selected, setSelected] = useState<string[]>(initialServices);
   const groupNode = CATEGORY_GROUPS.find((item) => item.key === group) ?? CATEGORY_GROUPS[0];
   const primaryType = selected.length > 0 ? serviceLabel(selected[0]) : initialType;
@@ -56,7 +57,7 @@ const ServiceMultiSelect = ({
                   >
                     <input type="checkbox" name="services" value={child.slug} checked={checked} onChange={() => toggle(child.slug)} className="sr-only" />
                     {ts(child.slug)}
-                    {primary && <span className="rounded-full bg-sapphire px-1.5 text-[10px] font-bold text-paper">Birincil</span>}
+                    {primary && <span className="rounded-full bg-sapphire px-1.5 text-[10px] font-bold text-paper">{tp("primary")}</span>}
                   </label>
                 );
               })}

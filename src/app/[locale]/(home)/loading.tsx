@@ -3,7 +3,6 @@ export default function HomeLoading() {
     <main
       className="relative h-[100dvh] min-h-[620px] overflow-hidden bg-pine"
       aria-busy="true"
-      aria-label="Ana sayfa yükleniyor"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(0,79,230,.22),transparent_42%),linear-gradient(160deg,rgba(1,8,47,.9),rgba(1,11,58,.98))]" />
 

@@ -2,6 +2,7 @@
 
 import { useActionState, useCallback, useEffect, useState } from "react";
 import { Star } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { submitReview, type ReviewState } from "@/lib/actions/reviews";
@@ -18,12 +19,12 @@ type ReviewItem = {
   author: { name: string } | { name: string }[] | null;
 };
 
-const fmt = (v: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(v));
-const authorName = (a: ReviewItem["author"]) => (Array.isArray(a) ? a[0]?.name : a?.name) ?? "Bir iş ortağı";
+const fmt = (v: string, locale: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(v));
+const authorName = (a: ReviewItem["author"], fallback: string) => (Array.isArray(a) ? a[0]?.name : a?.name) ?? fallback;
 
-function Stars({ value }: { value: number }) {
+function Stars({ value, label }: { value: number; label: string }) {
   return (
-    <span className="inline-flex" aria-label={`${value} / 5`}>
+    <span className="inline-flex" aria-label={label}>
       {[1, 2, 3, 4, 5].map((n) => (
         <Star key={n} size={14} className={n <= value ? "fill-star text-star" : "text-line"} aria-hidden />
       ))}
@@ -32,6 +33,8 @@ function Stars({ value }: { value: number }) {
 }
 
 export default function ReviewsSection({ businessId }: { businessId: number }) {
+  const t = useTranslations("supplier");
+  const locale = useLocale();
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [ready, setReady] = useState(false);
@@ -81,14 +84,14 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
     <section className="mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4">
       <div className="mb-4 border-b border-line pb-3">
         <h2 className="heading-subsection inline-flex items-center gap-2 text-[19px] text-ink">
-          Değerlendirmeler
+          {t("reviewsTitle")}
           {reviews.length > 0 && (
             <span className="inline-flex items-center gap-1 text-[13px] font-semibold text-muted">
               · {avg.toFixed(1)} <Star size={13} className="fill-star text-star" aria-hidden /> ({reviews.length})
             </span>
           )}
         </h2>
-        <p className="mt-1 text-[13px] font-medium text-[#4b5875]">İş birliği yaptığınız iş ortaklarını puanlayın — B2B güven duvarı.</p>
+        <p className="mt-1 text-[13px] font-medium text-[#4b5875]">{t("reviewsSubtitle")}</p>
       </div>
 
       {ready && loggedIn && (
@@ -96,47 +99,47 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
           <input type="hidden" name="business_id" value={businessId} />
           <input type="hidden" name="rating" value={rating} />
           <div className="mb-2.5 flex items-center gap-1.5">
-            <span className="text-[13px] font-semibold text-ink">Puanınız:</span>
+            <span className="text-[13px] font-semibold text-ink">{t("reviewYourRating")}</span>
             {[1, 2, 3, 4, 5].map((n) => (
-              <button key={n} type="button" onClick={() => setRating(n)} aria-label={`${n} yıldız`} className="p-0.5">
+              <button key={n} type="button" onClick={() => setRating(n)} aria-label={t("reviewStars", { count: n })} className="p-0.5">
                 <Star size={20} className={n <= rating ? "fill-star text-star" : "text-line hover:text-star/60"} aria-hidden />
               </button>
             ))}
           </div>
-          <textarea name="comment" rows={3} maxLength={2000} placeholder="Deneyiminizi paylaşın (opsiyonel)…" className="field w-full py-2.5" />
+          <textarea name="comment" rows={3} maxLength={2000} placeholder={t("reviewPlaceholder")} className="field w-full py-2.5" />
           <div className="mt-2 flex items-center gap-3">
-            <button type="submit" disabled={pending} className="btn btn-solid btn-sm w-fit disabled:opacity-60">Değerlendir →</button>
-            {state.ok && <span className="text-[12.5px] font-semibold text-emerald-700">✓ Kaydedildi</span>}
-            {state.error === "self" && <span className="text-[12.5px] font-semibold text-red-600">Kendi işletmenizi puanlayamazsınız</span>}
-            {state.error && state.error !== "self" && <span className="text-[12.5px] font-semibold text-red-600">Bir hata oluştu</span>}
+            <button type="submit" disabled={pending} className="btn btn-solid btn-sm w-fit disabled:opacity-60">{t("reviewSubmit")} →</button>
+            {state.ok && <span className="text-[12.5px] font-semibold text-emerald-700">✓ {t("reviewSaved")}</span>}
+            {state.error === "self" && <span className="text-[12.5px] font-semibold text-red-600">{t("reviewSelfError")}</span>}
+            {state.error && state.error !== "self" && <span className="text-[12.5px] font-semibold text-red-600">{t("reviewGenericError")}</span>}
           </div>
         </form>
       )}
 
       {ready && !loggedIn && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-terra/25 bg-[#EDEBFB] px-4 py-3.5">
-          <p className="text-[14px] font-semibold text-ink">Değerlendirme bırakmak için üye girişi gerekir.</p>
+          <p className="text-[14px] font-semibold text-ink">{t("reviewLoginRequired")}</p>
           <Link
             href="/login"
             className="inline-flex items-center rounded-[8px] bg-terra px-4 py-2 text-[13px] font-bold text-white transition-colors hover:bg-terra-deep"
           >
-            Giriş yapın
+            {t("reviewLoginCta")}
           </Link>
         </div>
       )}
 
       {reviews.length === 0 ? (
-        ready && <p className="text-[13.5px] text-muted">Henüz değerlendirme yok. İlk yorumu siz bırakın.</p>
+        ready && <p className="text-[13.5px] text-muted">{t("reviewsEmpty")}</p>
       ) : (
         <ul className="grid gap-3">
           {reviews.map((r) => (
             <li key={r.id} className="rounded-[12px] border border-line/80 bg-paper p-3.5">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[13.5px] font-bold text-ink">{authorName(r.author)}</span>
-                <Stars value={r.rating} />
+                <span className="text-[13.5px] font-bold text-ink">{authorName(r.author, t("reviewAnonymousAuthor"))}</span>
+                <Stars value={r.rating} label={t("reviewScore", { value: r.rating })} />
               </div>
               {r.comment && <p className="mt-1.5 text-[13.5px] leading-5 text-ink/80">{r.comment}</p>}
-              <p className="mt-1 text-[11.5px] font-medium text-muted">{fmt(r.created_at)}</p>
+              <p className="mt-1 text-[11.5px] font-medium text-muted">{fmt(r.created_at, locale)}</p>
             </li>
           ))}
         </ul>

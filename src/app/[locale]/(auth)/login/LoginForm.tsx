@@ -22,9 +22,9 @@ const LoginForm = () => {
       <div className="flex h-full items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-[460px]">
           <span className="mb-3 block text-[12px] font-extrabold uppercase tracking-[.14em] text-brand/70">{t("eyebrow")}</span>
-          <h1 className="text-[30px] font-extrabold leading-tight tracking-tight text-ink">İki faktörlü doğrulama</h1>
+          <h1 className="text-[30px] font-extrabold leading-tight tracking-tight text-ink">{t("mfaTitle")}</h1>
           <p className="mb-8 mt-3 text-[15px] font-medium leading-relaxed text-ink/75">
-            Authenticator uygulamandaki 6 haneli kodu gir.
+            {t("mfaDescription")}
           </p>
           <form className="flex flex-col gap-[18px]" action={action}>
             <input type="hidden" name="mfaFactorId" value={state.factorId} />
@@ -39,9 +39,9 @@ const LoginForm = () => {
               placeholder="000000"
               className="field h-[56px] w-full text-center text-[22px] font-bold tracking-[.4em] text-ink placeholder:text-ink/30"
             />
-            {state.error === "mfa_invalid" && <p className="text-[13px] font-medium text-red-600">Kod hatalı veya süresi doldu. Tekrar dene.</p>}
+            {state.error === "mfa_invalid" && <p className="text-[13px] font-medium text-red-600">{t("mfaInvalid")}</p>}
             <Button type="submit" block size="lg" className="mt-1 h-[58px] text-[16px]" loading={pending}>
-              Doğrula
+              {t("mfaSubmit")}
             </Button>
           </form>
         </div>

@@ -70,8 +70,8 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
             {b.founderPartner && (
               <span
                 className={styles.founderBadge}
-                title="Kurucu Üye"
-                aria-label="Kurucu Üye"
+                title={tCommon("founderPartner")}
+                aria-label={tCommon("founderPartner")}
               >
                 <BadgeCheck size={28} strokeWidth={2.35} aria-hidden />
               </span>
@@ -104,7 +104,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
 
           {(b.serviceTypes?.length ?? 0) > 1 && (
             <section className={styles.svcCard} aria-labelledby="profile-service-types">
-              <h2 id="profile-service-types" className={styles.svcTitle}>Sunulan Hizmetler</h2>
+              <h2 id="profile-service-types" className={styles.svcTitle}>{t("offeredServices")}</h2>
               <div className="flex flex-wrap gap-2">
                 {b.serviceTypes!.map((slug) => (
                   <span key={slug} className="inline-flex items-center rounded-full border border-line bg-cream/50 px-3 py-1.5 text-[13px] font-medium text-ink">
@@ -138,7 +138,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
                     href={{ pathname: "/supplier/[id]", params: { id: partner.slug || String(partner.id) } }}
                     className={styles.partnerItem}
                   >
-                    <span className={styles.partnerMark}>{partner.name.slice(0, 2).toLocaleUpperCase("tr-TR")}</span>
+                    <span className={styles.partnerMark}>{partner.name.slice(0, 2).toLocaleUpperCase(locale)}</span>
                     <span className={styles.partnerBody}>
                       <strong>{partner.name}</strong>
                       <small>{[tc(partner.group), translateService(partner.type), partner.city, partner.country].filter(Boolean).join(" · ")}</small>

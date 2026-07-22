@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DayPicker, type DateRange } from "react-day-picker";
-import { tr } from "react-day-picker/locale";
+import { ar, enUS, ru, tr } from "react-day-picker/locale";
+import { useLocale, useTranslations } from "next-intl";
 import styles from "@/components/QuoteForm/styles";
 
-const dateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "2-digit", month: "short", weekday: "short" });
+const DAY_PICKER_LOCALES = { tr, en: enUS, ar, ru } as const;
 
 const toInputDate = (date?: Date) => {
   if (!date) return "";
@@ -15,7 +16,10 @@ const toInputDate = (date?: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-const formatDateLabel = (date?: Date) => date ? dateFormatter.format(date).replace(",", "") : "Seçin";
+const formatDateLabel = (date: Date | undefined, locale: string, fallback: string) =>
+  date
+    ? new Intl.DateTimeFormat(locale, { day: "2-digit", month: "short", weekday: "short" }).format(date).replace(",", "")
+    : fallback;
 
 export function DateRangePicker({
   label,
@@ -34,6 +38,9 @@ export function DateRangePicker({
   startName?: string;
   endName?: string;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("quote");
+  const calendarLocale = DAY_PICKER_LOCALES[locale as keyof typeof DAY_PICKER_LOCALES] ?? enUS;
   const [open, setOpen] = useState(false);
   const [range, setRange] = useState<DateRange | undefined>();
   const today = useMemo(() => new Date(), []);
@@ -57,17 +64,17 @@ export function DateRangePicker({
         type="button"
         className={styles.dateTrigger}
         aria-expanded={open}
-        aria-label={`${label} seç`}
+        aria-label={t("dateSelect")}
         onClick={() => setOpen((value) => !value)}
       >
         <CalendarIcon />
         <span className={styles.dateTriggerText}>
           <span className={range?.from ? styles.dateValue : styles.datePlaceholder}>
-            {range?.from ? formatDateLabel(range.from) : startLabel}
+            {range?.from ? formatDateLabel(range.from, locale, t("select")) : startLabel}
           </span>
           <span className={styles.dateDash} aria-hidden>-</span>
           <span className={range?.to ? styles.dateValue : styles.datePlaceholder}>
-            {range?.to ? formatDateLabel(range.to) : endLabel}
+            {range?.to ? formatDateLabel(range.to, locale, t("select")) : endLabel}
           </span>
         </span>
       </button>
@@ -83,7 +90,7 @@ export function DateRangePicker({
             defaultMonth={range?.from ?? today}
             startMonth={today}
             endMonth={new Date(today.getFullYear() + 2, today.getMonth(), 1)}
-            locale={tr}
+            locale={calendarLocale}
             weekStartsOn={1}
             disabled={{ before: today }}
             classNames={dayPickerClassNames}
@@ -117,6 +124,9 @@ export function SingleDatePicker({
   doneLabel: string;
   name?: string;
 }) {
+  const locale = useLocale();
+  const t = useTranslations("quote");
+  const calendarLocale = DAY_PICKER_LOCALES[locale as keyof typeof DAY_PICKER_LOCALES] ?? enUS;
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>();
   const today = useMemo(() => new Date(), []);
@@ -142,12 +152,12 @@ export function SingleDatePicker({
         type="button"
         className={styles.dateTrigger}
         aria-expanded={open}
-        aria-label={`${label} seç`}
+        aria-label={t("dateSelect")}
         onClick={() => setOpen((value) => !value)}
       >
         <CalendarIcon />
         <span className={date ? styles.dateValue : styles.datePlaceholder}>
-          {date ? formatDateLabel(date) : placeholder}
+          {date ? formatDateLabel(date, locale, t("select")) : placeholder}
         </span>
       </button>
       {open && (
@@ -162,7 +172,7 @@ export function SingleDatePicker({
             defaultMonth={date ?? today}
             startMonth={today}
             endMonth={new Date(today.getFullYear() + 2, today.getMonth(), 1)}
-            locale={tr}
+            locale={calendarLocale}
             weekStartsOn={1}
             disabled={{ before: today }}
             classNames={dayPickerClassNames}

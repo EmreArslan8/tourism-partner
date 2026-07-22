@@ -107,7 +107,10 @@
     "cities": "cities",
     "suppliers": "suppliers",
     "summary": "{cityCount} cities · {supplierCount} suppliers",
-    "count": "{count} suppliers"
+    "count": "{count} suppliers",
+    "previousCities": "Previous cities",
+    "nextCities": "Next cities",
+    "dominantGroup": "Mostly {group} · {count} suppliers"
   },
   "showcase": {
     "eyebrow": "Showcase",
@@ -219,7 +222,14 @@
     "demoRegion": "Region",
     "demoCategoryLabel": "Category",
     "demoGroupSize": "Group size",
-    "demoPublishHint": "Relevant suppliers are notified when the request is published."
+    "demoPublishHint": "Relevant suppliers are notified when the request is published.",
+    "demoIstanbul": "Istanbul",
+    "demoIstanbulLocation": "Istanbul · Türkiye",
+    "demoCappadocia": "Cappadocia",
+    "demoGroupSizeValue": "{count} people"
+  },
+  "platformTour": {
+    "eyebrow": "Platform overview", "title": "Tourism partnerships in one flow.", "lead": "Tourism Partner is a B2B tourism network where agencies and businesses find trusted suppliers, while suppliers gain visibility and manage quote opportunities.", "flow": "Platform flow", "flowTitle": "Buyers and service providers meet in one workflow.", "buyer": "Agency / Business", "buyerAction": "Defines the need", "match": "Matches", "matchText": "Search, shortlisting, quotes and trust checks work in one flow.", "supplier": "Supplier", "supplierAction": "Submits a quote", "buyerRole": "Buyer", "buyerRoleText": "Finds the right hotel, guide, transfer or service provider faster.", "supplierRole": "Service provider", "supplierRoleText": "Makes its profile visible and responds to relevant requests more consistently.", "value1": "Verified listing", "value2": "Controlled communication", "value3": "Clear quote flow", "tourAria": "Explore the platform", "tourLoading": "Preparing...", "tourButton": "Explore Platform", "tourNext": "Next", "tourBack": "Back", "tourDone": "Finish", "step1Title": "What does Tourism Partner do?", "step1Text": "It brings agencies, businesses and suppliers together in one B2B tourism flow.", "step2Title": "Agency / business side", "step2Text": "Users search for hotels, transfers, guides, agencies or service providers based on their needs.", "step3Title": "The platform matches", "step3Text": "Search, shortlisting, quote requests and trust come together on Tourism Partner.", "step4Title": "Supplier side", "step4Text": "Suppliers gain visibility, respond to requests and manage business opportunities.", "step5Title": "A simple workflow", "step5Text": "Search, build a shortlist, request a quote and receive the supplier's response.", "step6Title": "A clear value proposition", "step6Text": "Agencies find suppliers faster, suppliers gain visibility and the platform supports trust."
   },
   "cta": {
     "title": "Start boosted visibility",

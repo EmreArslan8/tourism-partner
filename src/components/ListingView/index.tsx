@@ -534,7 +534,7 @@ const ListingView = ({
           {city !== "all" ? ` · ${city}` : ""}
         </p>
         {<div className={styles.barRight}>
-          <div className={styles.viewToggle} role="tablist" aria-label="View">
+          <div className={styles.viewToggle} role="tablist" aria-label={t("viewMode")}>
             <button
               type="button"
               role="tab"

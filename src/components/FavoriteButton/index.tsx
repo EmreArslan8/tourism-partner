@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import type { MouseEvent, PointerEvent } from "react";
 import { Heart } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { toggleFavorite } from "@/lib/actions/favorites";
@@ -17,6 +18,7 @@ export default function FavoriteButton({
   businessId: number;
   variant?: "full" | "icon" | "header";
 }) {
+  const t = useTranslations("panel");
   const [fav, setFav] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
   const [ready, setReady] = useState(false);
@@ -52,7 +54,7 @@ export default function FavoriteButton({
 
   const isIcon = variant === "icon";
   const isHeader = variant === "header";
-  const label = fav ? "Favorilerden çıkar" : "Favorilere kaydet";
+  const label = fav ? t("favoriteRemove") : t("favoriteSave");
   const stopCardNavigation = (event: MouseEvent<HTMLElement> | PointerEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -66,8 +68,8 @@ export default function FavoriteButton({
     return (
       <Link
         href="/login"
-        aria-label="Favorilere kaydetmek için giriş yap"
-        title="Favorilere kaydet"
+        aria-label={t("favoriteLoginRequired")}
+        title={t("favoriteSave")}
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => event.stopPropagation()}
         className={
@@ -79,7 +81,7 @@ export default function FavoriteButton({
         }
       >
         <Heart size={22} strokeWidth={2.25} aria-hidden />
-        {!isIcon && <span className={isHeader ? "underline decoration-white/40 underline-offset-2" : undefined}>Favorilere kaydet</span>}
+        {!isIcon && <span className={isHeader ? "underline decoration-white/40 underline-offset-2" : undefined}>{t("favoriteSave")}</span>}
       </Link>
     );
   }
@@ -101,7 +103,7 @@ export default function FavoriteButton({
           const next = await toggleFavorite(businessId);
           console.info("[FavoriteButton] server result", { businessId, optimistic, next });
           setFav(next);
-          if (next) showFeedback("Favorilere eklendi");
+          if (next) showFeedback(t("favoriteAdded"));
         });
       }}
       className={

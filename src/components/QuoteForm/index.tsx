@@ -130,7 +130,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
               autoComplete="tel-national"
               maxLength={13}
               pattern="^5[0-9]{2} [0-9]{3} [0-9]{2} [0-9]{2}$"
-              title="5xx xxx xx xx formatında girin"
+              title={t("phoneFormatHint")}
               onChange={(event) => setPhone(formatTrPhone(event.target.value))}
             />
           </span>

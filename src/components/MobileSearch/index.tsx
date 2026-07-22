@@ -15,6 +15,7 @@ const SearchIcon = ({ size = 22 }: { size?: number }) => (
 const MobileSearch = () => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
+  const common = useTranslations("common");
   const router = useRouter();
   type RouterHref = Parameters<typeof router.push>[0];
   const [open, setOpen] = useState(false);
@@ -63,7 +64,7 @@ const MobileSearch = () => {
         <div className="fixed inset-0 z-[80]">
           <button
             type="button"
-            aria-label="Kapat"
+            aria-label={common("close")}
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-pine/55 backdrop-blur-sm animate-[splashIn_.2s_ease]"
           />

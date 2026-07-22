@@ -1,26 +1,26 @@
 "use client";
 
 import { ArrowRight, BadgeCheck, Building2, Handshake, Search, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import HomeTourButton from "@/components/ProductTour/HomeTourButton";
 import styles from "./styles";
 
 export default function PlatformTour() {
+  const t = useTranslations("platformTour");
+
   return (
     <section className={styles.section} id="platform-turu">
       <div className={styles.copy}>
-        <span className={styles.eyebrow}>Platform özeti</span>
-        <h2 className={styles.title}>Turizm iş ortaklığı tek akışta.</h2>
-        <p className={styles.lead}>
-          Tourism Partner; acente ve firmaların güvenilir tedarikçi bulduğu, tedarikçilerin de görünür olup
-          teklif fırsatlarını yönettiği B2B turizm ağıdır.
-        </p>
+        <span className={styles.eyebrow}>{t("eyebrow")}</span>
+        <h2 className={styles.title}>{t("title")}</h2>
+        <p className={styles.lead}>{t("lead")}</p>
         <HomeTourButton />
       </div>
 
       <div className={styles.visual} data-tour="overview-map">
         <div className={styles.visualTop}>
-          <span>Platform akışı</span>
-          <strong>Arayan taraf ile hizmet veren taraf aynı hatta buluşur.</strong>
+          <span>{t("flow")}</span>
+          <strong>{t("flowTitle")}</strong>
         </div>
 
         <div className={styles.flow} data-tour="overview-flow">
@@ -28,8 +28,8 @@ export default function PlatformTour() {
             <span>
               <Users size={22} strokeWidth={2.35} aria-hidden />
             </span>
-            <small>Acente / Firma</small>
-            <strong>İhtiyacı tanımlar</strong>
+            <small>{t("buyer")}</small>
+            <strong>{t("buyerAction")}</strong>
           </div>
 
           <span className={styles.connector} aria-hidden>
@@ -41,8 +41,8 @@ export default function PlatformTour() {
               <Handshake size={24} strokeWidth={2.35} aria-hidden />
             </span>
             <small>Tourism Partner</small>
-            <strong>Eşleştirir</strong>
-            <p>Arama, kısa liste, teklif ve güven kontrolü tek akışta çalışır.</p>
+            <strong>{t("match")}</strong>
+            <p>{t("matchText")}</p>
           </div>
 
           <span className={styles.connector} aria-hidden>
@@ -53,28 +53,28 @@ export default function PlatformTour() {
             <span>
               <Building2 size={22} strokeWidth={2.35} aria-hidden />
             </span>
-            <small>Tedarikçi</small>
-            <strong>Teklif verir</strong>
+            <small>{t("supplier")}</small>
+            <strong>{t("supplierAction")}</strong>
           </div>
         </div>
 
         <div className={styles.roles}>
           <div>
             <Search size={17} strokeWidth={2.35} aria-hidden />
-            <strong>Arayan taraf</strong>
-            <span>Doğru otel, rehber, transfer veya hizmet sağlayıcıyı daha hızlı bulur.</span>
+            <strong>{t("buyerRole")}</strong>
+            <span>{t("buyerRoleText")}</span>
           </div>
           <div>
             <BadgeCheck size={17} strokeWidth={2.35} aria-hidden />
-            <strong>Hizmet veren taraf</strong>
-            <span>Profilini görünür yapar, uygun taleplere daha düzenli yanıt verir.</span>
+            <strong>{t("supplierRole")}</strong>
+            <span>{t("supplierRoleText")}</span>
           </div>
         </div>
 
         <div className={styles.value} data-tour="overview-value">
-          <span>Onaylı kayıt</span>
-          <span>Kontrollü iletişim</span>
-          <span>Net teklif akışı</span>
+          <span>{t("value1")}</span>
+          <span>{t("value2")}</span>
+          <span>{t("value3")}</span>
         </div>
       </div>
     </section>

@@ -1,13 +1,14 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Lock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { getBusinessContactsForViewer } from "@/lib/business-contacts";
 import styles from "./styles";
 
 export default async function MemberContactSection({ businessId }: { businessId: number }) {
-  const [contactAccess, t] = await Promise.all([
+  const [contactAccess, t, locale] = await Promise.all([
     getBusinessContactsForViewer(businessId),
     getTranslations("supplier"),
+    getLocale(),
   ]);
 
   if (!contactAccess.isAuthenticated) {
@@ -34,7 +35,7 @@ export default async function MemberContactSection({ businessId }: { businessId:
         <div className={styles.memberContactGrid}>
           {contactAccess.contacts.map((contact) => (
             <article key={contact.id} className={styles.memberContactCard}>
-              <div className={styles.memberContactAvatar}>{contact.fullName.slice(0, 2).toLocaleUpperCase("tr-TR")}</div>
+              <div className={styles.memberContactAvatar}>{contact.fullName.slice(0, 2).toLocaleUpperCase(locale)}</div>
               <div className={styles.memberContactBody}>
                 <h3>{contact.fullName}</h3>
                 {contact.title && <p>{contact.title}</p>}
@@ -53,9 +54,9 @@ export default async function MemberContactSection({ businessId }: { businessId:
   );
 }
 
-export function MemberContactSkeleton() {
+export function MemberContactSkeleton({ label }: { label: string }) {
   return (
-    <div className={styles.memberContactsLoading} aria-label="Yetkili kişi bilgileri yükleniyor" aria-busy="true">
+    <div className={styles.memberContactsLoading} aria-label={label} aria-busy="true">
       <div />
       <span />
     </div>

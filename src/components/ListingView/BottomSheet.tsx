@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 import styles from "./styles";
 
 const BottomSheet = ({
@@ -15,6 +16,7 @@ const BottomSheet = ({
   title: string;
   children: ReactNode;
 }) => {
+  const t = useTranslations("common");
   // Açıkken arka plan kaymasını kilitle.
   useEffect(() => {
     if (!open) return;
@@ -32,7 +34,7 @@ const BottomSheet = ({
         <span className={styles.sheetGrab} aria-hidden />
         <div className={styles.sheetHead}>
           <span className={styles.sheetTitle}>{title}</span>
-          <button type="button" className={styles.sheetClose} onClick={onClose} aria-label="Close">
+          <button type="button" className={styles.sheetClose} onClick={onClose} aria-label={t("close")}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden>
               <path d="M6 6l12 12M18 6 6 18" />
             </svg>

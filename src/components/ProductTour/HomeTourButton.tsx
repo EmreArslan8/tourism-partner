@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { PlayCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Driver, DriveStep } from "driver.js";
 
 type TourStep = DriveStep & { panelIndex: number };
@@ -9,13 +10,12 @@ type TourStep = DriveStep & { panelIndex: number };
 const STEP_DELAY_MS = 620;
 const TOUR_PANEL_INDEX = 4;
 
-const steps: TourStep[] = [
-  {
+function createSteps(t: (key: string) => string): TourStep[] {
+  return [{
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-map']",
     popover: {
-      title: "Tourism Partner ne yapar?",
-      description: "Acente/firma ile tedarikçiyi aynı B2B turizm akışında buluşturur.",
+      title: t("step1Title"), description: t("step1Text"),
       side: "left",
       align: "center",
     },
@@ -24,8 +24,7 @@ const steps: TourStep[] = [
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-buyer']",
     popover: {
-      title: "Acente / Firma tarafı",
-      description: "Kullanıcı ihtiyacına göre otel, transfer, rehber, acente veya hizmet sağlayıcı arar.",
+      title: t("step2Title"), description: t("step2Text"),
       side: "right",
       align: "center",
     },
@@ -34,8 +33,7 @@ const steps: TourStep[] = [
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-platform']",
     popover: {
-      title: "Platform eşleştirir",
-      description: "Arama, kısa liste, teklif talebi ve güven katmanı Tourism Partner üzerinde birleşir.",
+      title: t("step3Title"), description: t("step3Text"),
       side: "bottom",
       align: "center",
     },
@@ -44,8 +42,7 @@ const steps: TourStep[] = [
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-supplier']",
     popover: {
-      title: "Tedarikçi tarafı",
-      description: "Tedarikçi görünür olur, gelen talebi karşılar ve iş fırsatını yönetir.",
+      title: t("step4Title"), description: t("step4Text"),
       side: "left",
       align: "center",
     },
@@ -54,8 +51,7 @@ const steps: TourStep[] = [
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-flow']",
     popover: {
-      title: "İş akışı basit",
-      description: "Arama yapılır, kısa liste oluşur, teklif istenir ve tedarikçi yanıt verir.",
+      title: t("step5Title"), description: t("step5Text"),
       side: "bottom",
       align: "center",
     },
@@ -64,15 +60,17 @@ const steps: TourStep[] = [
     panelIndex: TOUR_PANEL_INDEX,
     element: "[data-tour='overview-value']",
     popover: {
-      title: "Değer önerisi net",
-      description: "Acente daha hızlı tedarikçi bulur; tedarikçi daha görünür olur; platform güveni düzenler.",
+      title: t("step6Title"), description: t("step6Text"),
       side: "bottom",
       align: "center",
     },
   },
-];
+  ];
+}
 
 export default function HomeTourButton() {
+  const t = useTranslations("platformTour");
+  const steps = createSteps(t);
   const [loading, setLoading] = useState(false);
   const activeRef = useRef<Driver | null>(null);
 
@@ -96,9 +94,7 @@ export default function HomeTourButton() {
           popoverClass: "tp-home-tour-popover",
           showProgress: true,
           progressText: "{{current}} / {{total}}",
-          nextBtnText: "İleri",
-          prevBtnText: "Geri",
-          doneBtnText: "Bitir",
+          nextBtnText: t("tourNext"), prevBtnText: t("tourBack"), doneBtnText: t("tourDone"),
           onNextClick: (_element, _step, { driver }) => move(driver, 1),
           onPrevClick: (_element, _step, { driver }) => move(driver, -1),
           onDestroyed: () => {
@@ -136,10 +132,10 @@ export default function HomeTourButton() {
       className="inline-flex items-center gap-2 rounded-xl border border-[#0047B8] bg-[#0057D9] px-4 py-3 text-[14px] font-extrabold text-white shadow-[0_18px_38px_-24px_rgba(0,87,217,.75)] transition-colors hover:bg-[#0047B8] focus:outline-none focus:ring-2 focus:ring-[#8EA2FF] disabled:cursor-wait disabled:opacity-70 max-[640px]:w-full max-[640px]:justify-center"
       onClick={startTour}
       disabled={loading}
-      aria-label="Platformu tanı"
+      aria-label={t("tourAria")}
     >
       <PlayCircle size={18} strokeWidth={2.4} aria-hidden />
-      {loading ? "Hazırlanıyor..." : "Platformu Tanı"}
+      {loading ? t("tourLoading") : t("tourButton")}
     </button>
   );
 }

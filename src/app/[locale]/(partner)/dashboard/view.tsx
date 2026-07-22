@@ -751,7 +751,7 @@ const DashboardView = ({
                         void persistDraft(cover, next, documents);
                       }}
                       className={styles.photoDelete}
-                      aria-label="Sil"
+                      aria-label={t("delete")}
                     >
                       ×
                     </button>
