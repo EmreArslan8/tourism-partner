@@ -1,0 +1,45 @@
+# Hostinger VPS (Docker Manager) için compose.
+# Kullanım: Docker Manager > Create project > Compose'a bu dosyayı yapıştır,
+# environment değerlerini gerçekleriyle doldur (asla bu dosyayı gerçek
+# secret'larla commit'leme — bu kopya şablondur).
+#
+# DOMAIN: canlıya geçmeden önce caddy komutundaki adresi gerçek domain'le değiştir
+# ve domain DNS A kaydını VPS IP'sine (76.13.78.187) yönlendir. Caddy SSL'i
+# Let's Encrypt'ten otomatik alır.
+
+services:
+  app:
+    image: ghcr.io/emrearslan8/tourism-partner:latest
+    restart: unless-stopped
+    environment:
+      SUPABASE_SERVICE_ROLE_KEY: "DOLDUR"
+      CRON_SECRET: "DOLDUR"
+      RESEND_API_KEY: "DOLDUR"
+      EMAIL_FROM: "DOLDUR"
+      DEEPL_API_KEY: "DOLDUR"
+      NEXT_PUBLIC_SUPABASE_URL: "DOLDUR"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "DOLDUR"
+      NEXT_PUBLIC_SITE_URL: "https://srv1746085.hstgr.cloud"
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    command: caddy reverse-proxy --from srv1746085.hstgr.cloud --to app:3000
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+  # main'e push sonrası GHCR'daki yeni imajı görüp app'i otomatik günceller.
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    command: --interval 120 --cleanup
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  caddy_data:
+  caddy_config:

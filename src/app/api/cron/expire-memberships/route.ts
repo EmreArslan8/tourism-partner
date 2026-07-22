@@ -3,8 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { authorizeCronRequest } from "@/lib/cron-auth";
 
 /* Üyelik süresi otomasyonu — bitiş tarihi geçmiş (ends_at < now) ve hâlâ active/trial
-   olan üyelikleri 'expired' durumuna çeker. Vercel Cron her gece çağırır; yetki
-   Authorization: Bearer <CRON_SECRET> ile doğrulanır (Vercel bu header'ı otomatik ekler).
+   olan üyelikleri 'expired' durumuna çeker. Supabase pg_cron her gece çağırır
+   (bkz. supabase/migrations/20260722_0001_pg_cron_http_jobs.sql); yetki
+   Authorization: Bearer <CRON_SECRET> ile doğrulanır.
 
    Manuel tetikleme: curl -H "Authorization: Bearer $CRON_SECRET" .../api/cron/expire-memberships */
 

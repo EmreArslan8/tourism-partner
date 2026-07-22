@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*
+*.pdf
+output
+supabase
+scripts
+.github
+Dockerfile
+.dockerignore
+deploy

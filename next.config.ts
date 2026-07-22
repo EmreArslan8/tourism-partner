@@ -35,6 +35,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Docker/VPS deploy'u için minimal çıktı (.next/standalone + server.js); bkz. Dockerfile.
+  output: "standalone",
   // Cache Components: 'use cache' direktifi + PPR (statik kabuk + dynamic stream).
   // Veri varsayılan olarak dynamic; neyin cache'leneceğini 'use cache' ile seçiyoruz.
   cacheComponents: true,
