@@ -179,6 +179,8 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       lat: numberValue(formData, "lat", 0),
       lng: numberValue(formData, "lng", 0),
       description: clean(formData.get("description"), 1400),
+      phone: clean(formData.get("phone"), 40),
+      website: cleanHttpUrl(formData.get("website"), 200),
       rating: Math.max(0, Math.min(5, numberValue(formData, "rating", 0))),
       reviews: Math.max(0, Math.round(numberValue(formData, "reviews", 0))),
       tag: clean(formData.get("tag"), 80),

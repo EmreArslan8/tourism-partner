@@ -252,6 +252,13 @@ export const BusinessForm = ({
           />
         </AdminFormSection>
 
+        <AdminFormSection title="İletişim">
+          <div className="grid grid-cols-2 gap-3 max-[820px]:grid-cols-1">
+            <Field label="Telefon"><input name="phone" type="tel" defaultValue={business?.phone ?? ""} placeholder="+90 5xx xxx xx xx" className={compactInput} /></Field>
+            <Field label="Web sitesi"><input name="website" type="url" inputMode="url" defaultValue={business?.website ?? ""} placeholder="https://ornek.com" className={compactInput} /></Field>
+          </div>
+        </AdminFormSection>
+
         <AdminFormSection title="İçerik Detayları">
           <Field label="Açıklama"><textarea name="description" defaultValue={business?.desc ?? ""} className={compactTextarea} /></Field>
           <div className="grid grid-cols-[minmax(180px,.35fr)_minmax(0,.65fr)] gap-3 max-[820px]:grid-cols-1">
