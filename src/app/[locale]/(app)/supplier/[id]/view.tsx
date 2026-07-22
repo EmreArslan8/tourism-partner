@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { BadgeCheck, Eye } from "lucide-react";
 import { SOCIAL_ICONS } from "@/components/SocialIcons";
@@ -66,6 +67,11 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
       <header className={styles.heroHead}>
         <div>
           <div className={styles.titleWrap}>
+            {gallery[0] && (
+              <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/25 bg-[#EEF2F7]">
+                <Image src={gallery[0]} alt={b.name} fill sizes="48px" className="object-cover" />
+              </span>
+            )}
             <h1 className={styles.title}>{b.name}</h1>
             {b.founderPartner && (
               <span
@@ -87,13 +93,16 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
         </div>
       </header>
 
-      <SupplierGallery
-        images={gallery}
-        title={b.name}
-        eyebrow={`${tc(b.group)} · ${businessType}`}
-        adLabel={tCommon("ad")}
-        sponsored={b.sponsored}
-      />
+      {/* Görseli olmayan ilanda galeri (ve "görsel bekleniyor" kutusu) hiç render edilmez. */}
+      {gallery.length > 0 && (
+        <SupplierGallery
+          images={gallery}
+          title={b.name}
+          eyebrow={`${tc(b.group)} · ${businessType}`}
+          adLabel={tCommon("ad")}
+          sponsored={b.sponsored}
+        />
+      )}
 
       <div className={styles.grid}>
         <article>
