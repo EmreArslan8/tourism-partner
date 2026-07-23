@@ -31,6 +31,7 @@ export type SignupIntentPayload = {
   country?: string;
   city?: string;
   district?: string;
+  address?: string;
   description?: string;
   phone?: string;
   whatsapp?: string;

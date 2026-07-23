@@ -258,6 +258,7 @@ export function docsForGroup(group: GroupKey, type?: string): BizDocField[] {
 /* Rehber çalışma bölgeleri (Brief §2.7): rehberin hizmet verdiği şehirler, virgülle
    birleştirilmiş olarak details.work_regions'ta tutulur; acente araması bununla eşleşir. */
 export const WORK_REGIONS_KEY = "work_regions";
+export const ADDRESS_KEY = "address";
 
 /** Tüm bilinen detail anahtarları (server action güvenli ayrıştırma için). */
 export const ALL_DETAIL_KEYS: Set<string> = new Set(
@@ -268,5 +269,5 @@ export const ALL_DETAIL_KEYS: Set<string> = new Set(
     ...ULASIM_TRANSFER_FIELDS,
   ]
     .map((f) => f.key)
-    .concat(WORK_REGIONS_KEY),
+    .concat(WORK_REGIONS_KEY, ADDRESS_KEY),
 );

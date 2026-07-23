@@ -166,6 +166,7 @@ export async function signUp(
         country: clean(formData.get("bizCountry"), 80) ?? "",
         city: clean(formData.get("bizCity"), 80) ?? "",
         district: clean(formData.get("bizDistrict"), 80) ?? "",
+        address: clean(formData.get("bizAddress"), 260) ?? "",
         description: clean(formData.get("bizDescription"), 2000) ?? "",
         whatsapp: validPhone(clean(formData.get("bizWhatsapp"), 40) ?? ""),
         contactName: clean(formData.get("contactName"), 160) ?? "",
@@ -178,7 +179,19 @@ export async function signUp(
         cover: coverDraft,
       }
     : null;
-  if (cat && bizProfile && (!bizProfile.contactName || !bizProfile.contactPhone || !bizProfile.whatsapp)) {
+  if (
+    cat &&
+    bizProfile &&
+    (
+      !bizProfile.country ||
+      !bizProfile.city ||
+      !bizProfile.district ||
+      !bizProfile.address ||
+      !bizProfile.contactName ||
+      !bizProfile.contactPhone ||
+      !bizProfile.whatsapp
+    )
+  ) {
     return { ok: false, error: "missing" };
   }
   const hasBizProfile = Boolean(
@@ -209,6 +222,7 @@ export async function signUp(
               biz_country: bizProfile.country,
               biz_city: bizProfile.city,
               biz_district: bizProfile.district,
+              biz_address: bizProfile.address,
               biz_description: bizProfile.description,
               biz_phone: bizProfile.whatsapp,
               biz_whatsapp: bizProfile.whatsapp,
@@ -243,6 +257,7 @@ export async function signUp(
       country: bizProfile?.country ?? "",
       city: bizProfile?.city ?? "",
       district: bizProfile?.district ?? "",
+      address: bizProfile?.address ?? "",
       description: bizProfile?.description ?? "",
       phone: bizProfile?.whatsapp ?? "",
       whatsapp: bizProfile?.whatsapp ?? "",

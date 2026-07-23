@@ -89,6 +89,18 @@ function locationSearchText(b: Business): string {
   ].join(" "));
 }
 
+/* Sorguda tanınan bir konum (ülke/şehir/ilçe/çalışma bölgesi) geçiyor mu?
+   Geçiyorsa serbest metin araması, dropdown'daki ülke/şehir/ilçe seçimini gevşetir:
+   TR seçiliyken "mısır DMC" → Mısır sonuçları gelir (Booking/Airbnb tarzı birleşik
+   arama). Konum içermeyen sorgular ("otel") dropdown seçimini korur. */
+export function queryReferencesLocation(businesses: Business[], rawQuery: string): boolean {
+  const tokens = queryTokens(rawQuery);
+  if (tokens.length === 0) return false;
+  return tokens.some((token) =>
+    businesses.some((business) => searchTextMatches(locationSearchText(business), token)),
+  );
+}
+
 /* Önce bütün anlamlı kelimeleri karşılayan kayıtları döndürür. Böyle bir kayıt
    yoksa sorguda tanınan konumu korur ve o konumdaki mevcut tedarikçileri gösterir:
    "Mısır otel" için otel yoksa Mısır'daki acente/transferler kaybolmaz. */
@@ -174,18 +186,20 @@ export function businessPasses(
   b: Business,
   rawQuery: string,
   f: ListingFilters,
-  opts: { ignoreGroup?: boolean; ignoreType?: boolean } = {}
+  opts: { ignoreGroup?: boolean; ignoreType?: boolean; ignoreRegion?: boolean } = {}
 ): boolean {
   if (!opts.ignoreGroup && f.groups.size && !f.groups.has(b.group)) return false;
   // Tür filtresi çoklu-hizmete duyarlı: işletmenin herhangi bir hizmeti eşleşirse geçer.
   if (!opts.ignoreType && f.types.size && !businessTypeLabels(b).some((label) => f.types.has(label))) return false;
-  if (f.country !== "all" && b.country !== f.country) return false;
+  // ignoreRegion: sorgu bir konum içerdiğinde (queryReferencesLocation) ülke/şehir/ilçe
+  // dropdown facet'i gevşetilir; konum eşlemesini serbest metin skoru üstlenir.
+  if (!opts.ignoreRegion && f.country !== "all" && b.country !== f.country) return false;
   // Şehir filtresi: rehber, çalışma bölgeleri arasında aranan şehir varsa da eşleşir
   // (Brief §2.7: rehber birden çok bölgede hizmet verir, acente ona göre arar).
   const guideRegionMatch = b.group === "rehber" && f.city !== "all" && !!b.workRegions?.includes(f.city);
-  if (f.city !== "all" && b.city !== f.city && !guideRegionMatch) return false;
+  if (!opts.ignoreRegion && f.city !== "all" && b.city !== f.city && !guideRegionMatch) return false;
   // Rehber çalışma bölgesiyle eşleştiyse ilçe filtresi uygulanmaz (bölge = şehir düzeyi).
-  if (f.district !== "all" && b.district !== f.district && !guideRegionMatch) return false;
+  if (!opts.ignoreRegion && f.district !== "all" && b.district !== f.district && !guideRegionMatch) return false;
   if (f.minRating > 0 && b.rating < f.minRating) return false;
   if (!attrsPass(b.attributes, f.attrs)) return false;
   if (queryTokens(rawQuery).length > 0 && scoreBusiness(b, rawQuery) === 0) return false;
@@ -200,7 +214,8 @@ export function filterAndSortBusinesses(
   sort: Sort
 ): Business[] {
   const hasQuery = queryTokens(rawQuery).length > 0;
-  const eligible = businesses.filter((b) => businessPasses(b, "", f));
+  const ignoreRegion = queryReferencesLocation(businesses, rawQuery);
+  const eligible = businesses.filter((b) => businessPasses(b, "", f, { ignoreRegion }));
   const items = applySmartQueryFallback(eligible, rawQuery)
     .map((b) => ({ b, s: scoreBusiness(b, rawQuery) }));
 
@@ -234,7 +249,10 @@ export function facetCounts(
   rawQuery: string,
   key: "group" | "type"
 ): Record<string, number> {
-  const opts = key === "group" ? { ignoreGroup: true, ignoreType: true } : { ignoreType: true };
+  const ignoreRegion = queryReferencesLocation(businesses, rawQuery);
+  const opts = key === "group"
+    ? { ignoreGroup: true, ignoreType: true, ignoreRegion }
+    : { ignoreType: true, ignoreRegion };
   const acc: Record<string, number> = {};
   const eligible = businesses.filter((business) => businessPasses(business, "", f, opts));
   applySmartQueryFallback(eligible, rawQuery).forEach((b) => {

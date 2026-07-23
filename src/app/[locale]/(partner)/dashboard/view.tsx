@@ -870,6 +870,18 @@ const DashboardView = ({
                 </select>
               </label>
             </div>
+            <label className={styles.labelCls}>
+              {t("openAddress")}
+              <textarea
+                name="detail_address"
+                rows={2}
+                maxLength={260}
+                defaultValue={detailValues.address ?? ""}
+                className={styles.fieldCls}
+                placeholder={t("openAddressPlaceholder")}
+                autoComplete="street-address"
+              />
+            </label>
 
             {/* Rehber çalışma bölgeleri (Brief §2.7): birden çok şehir; acente araması eşleşir */}
             {isGuide && (

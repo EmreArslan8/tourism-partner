@@ -244,6 +244,44 @@
     "memberValue": "Daha çok fark edil",
     "memberLabel": "üye acentelerce"
   },
+  "about": {
+    "metaTitle": "Hakkımızda · Tourism Partner",
+    "metaDescription": "Tourism Partner B2B Network; turizm profesyonellerini güvenilir, şeffaf ve komisyonsuz iş birlikleri için tek çatı altında buluşturan küresel network platformudur.",
+    "eyebrow": "Tourism Partner B2B Network",
+    "title": "Hakkımızda",
+    "intro": "Tourism Partner B2B Network, küresel turizm endüstrisinin dinamik ihtiyaçlarına yanıt vermek, sektörün her branşından profesyonelleri tek bir çatı altında toplamak ve iş birliklerini daha verimli hale getirmek amacıyla kurulmuş yeni nesil bir B2B iş ortaklığı ve network platformudur.",
+    "approachTitle": "Doğru Partnerle Buluşma Yaklaşımı",
+    "approachText": "Günümüz turizm dünyasında başarının anahtarının doğru zamanda, doğru partnerle buluşmak olduğunun bilincindeyiz. Bu doğrultuda; konaklamadan ulaşıma, sağlık turizminden profesyonel rehberliğe kadar sektörün tüm yapı taşlarını; güvenilir, inovatif ve uçtan uca çözümler sunan küresel bir iş ağında bir araya getiriyoruz.",
+    "missionTitle": "Misyonumuz",
+    "missionText1": "Farklı uzmanlık alanlarına sahip küresel turizm profesyonellerinin aracısız ve komisyon ödemeden doğrudan çalışmasını sağlayarak, işletmelerini maksimum kârlılık hedeflerine ulaştırmaktır.",
+    "missionText2": "Üyelerimize sunduğumuz geniş ve güvenilir network sayesinde; daha önce operasyon yapmadıkları coğrafyalarda bile yerel partnerlerle sıfır riskle, esnek ve eksiksiz iş birlikleri kurmalarını sağlıyoruz. Sektördeki en son trendleri ve pazar fırsatlarını tek bir dijital merkezden sunarak, turizm ekosistemini üyelerimizle birlikte büyütmeyi amaçlıyoruz.",
+    "visionTitle": "Vizyonumuz",
+    "visionText1": "Teknoloji ve güveni tek bir çatı altında harmanlayarak; dünya genelindeki tüm turizm aktörlerinin aracılara ihtiyaç duymadan, özgürce ve yüksek kârlılıkla ticaret yapabildiği sınırların ötesinde, küresel bir dijital turizm ekosistemi inşa etmek.",
+    "visionText2": "Geliştirdiğimiz akıllı B2B network altyapısıyla, operasyonel engelleri ve coğrafi sınırları tamamen ortadan kaldırarak; en küçük yerel tedarikçiden en büyük küresel tur operatörüne kadar herkesin dünya standartlarında, güvenle iş birliği yaptığı küresel turizm ticaretinin bir numaralı ortak dili ve standardı olmak.",
+    "valuesTitle": "Değerlerimiz",
+    "values": {
+      "trust": {
+        "title": "Güven ve Prestij",
+        "text": "Sektör profesyonellerinin bir araya geldiği bir platformda güvenin en büyük sermaye olduğuna inanıyoruz. Network'ümüze dahil olan her bir üyenin niteliğini ve güvenirliğini önemsiyor; ticari ilişkilerin şeffaf, prestijli ve güvenli bir zeminde yürümesini sağlıyoruz."
+      },
+      "innovation": {
+        "title": "İnovasyon ve Gelecek Odaklılık",
+        "text": "Turizm dünyası hızla dijitalleşirken, geleneksel iş yapış şekillerini modern teknolojiyle entegre ediyoruz. Akıllı eşleştirme altyapımız ve sürekli güncellenen dijital çözümlerimizle, üyelerimizin geleceğin turizm trendlerine bugünden hazır olmalarını sağlıyoruz."
+      },
+      "transparency": {
+        "title": "Tam Şeffaflık ve Özgür Ticaret",
+        "text": "Gizli maliyetlere, sürpriz komisyonlara ve sınırlandırıcı kurallara karşıyız. Üyelerimizin kendi aralarında doğrudan, aracısız ve komisyonsuz ticaret yapabilmesini savunuyor; tüm iş süreçlerimizi açık, net ve dürüst bir şeffaflık politikasıyla yönetiyoruz."
+      },
+      "collaboration": {
+        "title": "Sınır Tanımayan İş Birliği",
+        "text": "Farklı ülkelerden, farklı uzmanlık alanlarından turizm profesyonellerini ortak bir akılla birleştiriyoruz. Yerel güçlerin küresel bağlantılarla bir araya geldiğinde büyük bir sinerji yaratacağına inanıyor; sınırları ve mesafeleri iş birliğinin önünden kaldırıyoruz."
+      },
+      "members": {
+        "title": "Üye Odaklılık ve Kârlılık",
+        "text": "Başarımızı, üyelerimizin başarısı ve kârlılığı ile ölçüyoruz. Platformumuza katılan her işletmenin verimliliğini artırmak, operasyonel esneklik kazanmasını sağlamak ve hedef pazarlarda maksimum kârlılığa ulaşmasını desteklemek için kesintisiz çalışıyoruz."
+      }
+    }
+  },
   "footer": {
     "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",
     "categories": "Kategoriler",

@@ -306,6 +306,7 @@ const RegisterForm = () => {
   const [bizCountry, setBizCountry] = useState("");
   const [bizCity, setBizCity] = useState("");
   const [bizDistrict, setBizDistrict] = useState("");
+  const [bizAddress, setBizAddress] = useState("");
   const [bizDesc, setBizDesc] = useState("");
   const [bizWhatsapp, setBizWhatsapp] = useState("");
   const [contactName, setContactName] = useState("");
@@ -379,6 +380,7 @@ const RegisterForm = () => {
   const bizChecks = [
     Boolean(coverPath),
     Boolean(bizCountry && bizCity && bizDistrict),
+    Boolean(bizAddress.trim()),
     Boolean(bizDesc.trim()),
     Boolean(contactName.trim()),
     Boolean(contactPhone.trim()),
@@ -806,6 +808,18 @@ const RegisterForm = () => {
                 ))}
               </select>
             </div>
+            <label className="mt-1 flex flex-col gap-1.5">
+              <span className="text-[12.5px] font-semibold text-ink">{t("bizOpenAddressLabel")}</span>
+              <textarea
+                value={bizAddress}
+                onChange={(event) => setBizAddress(event.target.value)}
+                rows={2}
+                maxLength={260}
+                autoComplete="street-address"
+                className="field min-h-[72px] py-2.5"
+                placeholder={t("bizOpenAddressPh")}
+              />
+            </label>
           </fieldset>
 
           {/* Açıklama */}
@@ -934,6 +948,7 @@ const RegisterForm = () => {
           <input type="hidden" name="bizCountry" value={bizCountry} />
           <input type="hidden" name="bizCity" value={bizCity} />
           <input type="hidden" name="bizDistrict" value={bizDistrict} />
+          <input type="hidden" name="bizAddress" value={bizAddress} />
           <input type="hidden" name="bizDescription" value={bizDesc} />
           <input type="hidden" name="bizWhatsapp" value={fullBizWhatsapp} />
           <input type="hidden" name="contactName" value={contactName} />

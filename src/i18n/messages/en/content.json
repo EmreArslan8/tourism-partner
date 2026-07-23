@@ -244,6 +244,44 @@
     "memberValue": "Get noticed",
     "memberLabel": "by member agencies"
   },
+  "about": {
+    "metaTitle": "About Us · Tourism Partner",
+    "metaDescription": "Tourism Partner B2B Network brings travel professionals together on one global platform for trusted, transparent and commission-free collaboration.",
+    "eyebrow": "Tourism Partner B2B Network",
+    "title": "About Us",
+    "intro": "Tourism Partner B2B Network is a next-generation B2B partnership and networking platform created to respond to the dynamic needs of the global travel industry, bring professionals from every field under one roof and make collaboration more efficient.",
+    "approachTitle": "Connecting with the Right Partner",
+    "approachText": "We know that success in today's travel industry depends on meeting the right partner at the right time. From accommodation and transportation to medical tourism and professional guiding, we bring every part of the industry together in a global business network that offers trusted, innovative and end-to-end solutions.",
+    "missionTitle": "Our Mission",
+    "missionText1": "Our mission is to enable travel professionals with different areas of expertise to work together directly, without intermediaries or commissions, and help their businesses achieve maximum profitability.",
+    "missionText2": "Through our extensive and trusted network, members can build flexible, complete and low-risk partnerships with local partners, even in destinations where they have not operated before. By bringing the latest industry trends and market opportunities into one digital hub, we aim to grow the tourism ecosystem together with our members.",
+    "visionTitle": "Our Vision",
+    "visionText1": "To combine technology and trust in a global digital tourism ecosystem where every industry participant can trade freely and profitably across borders without relying on intermediaries.",
+    "visionText2": "Through our intelligent B2B network infrastructure, we aim to remove operational barriers and geographical boundaries and become the shared language and standard of global tourism commerce—from the smallest local supplier to the largest international tour operator.",
+    "valuesTitle": "Our Values",
+    "values": {
+      "trust": {
+        "title": "Trust and Prestige",
+        "text": "We believe trust is the most valuable asset on a platform that brings industry professionals together. We care about the quality and reliability of every member and provide a transparent, reputable and secure foundation for commercial relationships."
+      },
+      "innovation": {
+        "title": "Innovation and a Future-Focused Mindset",
+        "text": "As tourism rapidly becomes more digital, we combine traditional ways of doing business with modern technology. Our intelligent matching infrastructure and continuously evolving digital solutions help members prepare today for the travel trends of tomorrow."
+      },
+      "transparency": {
+        "title": "Full Transparency and Free Trade",
+        "text": "We stand against hidden costs, surprise commissions and restrictive rules. We support direct, intermediary-free and commission-free trade between members and manage every process with a clear, open and honest transparency policy."
+      },
+      "collaboration": {
+        "title": "Collaboration Without Borders",
+        "text": "We unite travel professionals from different countries and areas of expertise around a shared vision. We believe local strengths create powerful synergy when connected globally, so we remove borders and distance from collaboration."
+      },
+      "members": {
+        "title": "Member Focus and Profitability",
+        "text": "We measure our success by the success and profitability of our members. We work continuously to help every business on the platform improve efficiency, gain operational flexibility and maximize profitability in its target markets."
+      }
+    }
+  },
   "footer": {
     "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",
     "categories": "Categories",

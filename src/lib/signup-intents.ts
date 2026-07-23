@@ -59,6 +59,7 @@ export function payloadFromMetadata(
     country: str(m.biz_country, 80),
     city: str(m.biz_city, 80),
     district: str(m.biz_district, 80),
+    address: str(m.biz_address, 260),
     description: str(m.biz_description, 2000),
     phone: str(m.biz_phone, 40),
     whatsapp: str(m.biz_whatsapp, 40),
@@ -124,6 +125,8 @@ async function createBusinessFromPayload(
   if (!isGroup(group)) return { ok: false, error: "missing_group" };
 
   const name = str(payload.name, 160) || "—";
+  const whatsapp = str(payload.whatsapp, 40);
+  const address = str(payload.address, 260);
   const { data: created, error } = await admin
     .from("businesses")
     .insert({
@@ -136,7 +139,10 @@ async function createBusinessFromPayload(
       district: str(payload.district, 80),
       description: str(payload.description, 2000) || null,
       phone: str(payload.phone, 40) || null,
-      details: str(payload.whatsapp, 40) ? { whatsapp: str(payload.whatsapp, 40) } : {},
+      details: {
+        ...(whatsapp ? { whatsapp } : {}),
+        ...(address ? { address } : {}),
+      },
       status: "pending",
       // Kolon yalnızca niyet varken yazılır: migration henüz uygulanmamış bir DB'de
       // (kod önce deploy edilirse) insert yine de çalışsın — kayıt kaybı olmasın.

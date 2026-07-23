@@ -9,20 +9,29 @@ type BusinessApprovedEmailArgs = {
 
 export function businessApprovedEmail({
   businessName,
-  dashboardUrl,
-  profileUrl,
   logoUrl,
 }: BusinessApprovedEmailArgs) {
   const safeBusinessName = escapeHtml(businessName);
-  const safeDashboardUrl = escapeHtml(dashboardUrl);
-  const safeProfileUrl = escapeHtml(profileUrl);
   const safeLogoUrl = escapeHtml(logoUrl);
-  const subject = `Tebrikler, ${businessName} onaylandı`;
+  const subject = `Congratulations, ${businessName} has been approved`;
+
+  const paragraphs = [
+    "Thank you for joining Tourism Partner. We are excited to have your business among our first members and to welcome you as part of a growing international community of tourism professionals. Your participation is an important step toward building a stronger and more connected global tourism network.",
+    "Our vision is to build a global B2B tourism platform that connects tourism businesses from around the world. By bringing together hotels, travel agencies, tour operators, guides, transportation companies, restaurants, activity providers, and many other tourism suppliers, we aim to create new business opportunities while helping reduce costs and enabling companies to connect without commission-based intermediaries.",
+    "As Tourism Partner is currently in its pre-launch phase, we will notify you as soon as the platform becomes fully active and ready to use.",
+    "Thank you for placing your trust in us and joining us at this exciting stage of our journey. Together, we are building a stronger, more connected global tourism network.",
+    "If you need any assistance or have any questions, please don't hesitate to contact us at any time. Our team will always be happy to help.",
+    "Welcome once again, and thank you for being part of Tourism Partner.",
+  ];
+
+  const htmlParagraphs = paragraphs
+    .map((p) => `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:25px;">${escapeHtml(p)}</p>`)
+    .join("\n                      ");
 
   return {
     subject,
     html: `<!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -30,7 +39,7 @@ export function businessApprovedEmail({
     <title>${escapeHtml(subject)}</title>
   </head>
   <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
-    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${safeBusinessName} profili Tourism Partner'da yayına alındı.</div>
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Welcome to Tourism Partner — ${safeBusinessName} has been approved.</div>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
       <tr>
         <td align="center" style="padding:32px 14px;">
@@ -43,7 +52,7 @@ export function businessApprovedEmail({
                       <img src="${safeLogoUrl}" width="48" height="48" alt="Tourism Partner" style="display:block;width:48px;height:48px;border:0;border-radius:11px;object-fit:cover;">
                     </td>
                     <td style="color:#01145d;font-size:17px;font-weight:900;letter-spacing:-0.3px;vertical-align:middle;">TOURISM <span style="color:#004fe6;">PARTNER</span></td>
-                    <td align="right" style="color:#7b8498;font-size:11px;font-weight:700;letter-spacing:1px;">B2B TURİZM AĞI</td>
+                    <td align="right" style="color:#7b8498;font-size:11px;font-weight:700;letter-spacing:1px;">B2B TOURISM NETWORK</td>
                   </tr>
                 </table>
               </td>
@@ -53,41 +62,23 @@ export function businessApprovedEmail({
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td style="background:#01145d;padding:34px 38px;">
-                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">PROFİL ONAYI</div>
-                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Tebrikler, onaylandınız</h1>
-                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${safeBusinessName}</strong> profili Tourism Partner'da yayına alındı.</p>
+                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">PROFILE APPROVED</div>
+                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Welcome to Tourism Partner!</h1>
+                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${safeBusinessName}</strong> has been approved.</p>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:30px 38px 0;">
-                      <p style="margin:0;color:#334155;font-size:15px;line-height:25px;">Profiliniz artık alıcılar tarafından görüntülenebilir. Profil bilgilerinizi, hizmetlerinizi, açıklamanızı ve galeri görsellerinizi ne kadar eksiksiz tamamlarsanız listelerde daha güçlü görünürsünüz.</p>
+                    <td style="padding:30px 38px 8px;">
+                      ${htmlParagraphs}
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:24px 38px 0;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-radius:12px;background:#f4f7ff;">
-                        <tr>
-                          <td style="padding:18px 20px;">
-                            <div style="color:#01145d;font-size:12px;font-weight:900;letter-spacing:0.7px;">ÖNERİ</div>
-                            <div style="margin-top:7px;color:#334155;font-size:14px;line-height:23px;">Eksik alanları tamamlayın, güncel iletişim bilgilerinizi kontrol edin ve işletmenizi en iyi anlatan galeri görsellerini ekleyin.</div>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:30px 38px 36px;">
-                      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                        <tr>
-                          <td style="border-radius:11px;background:#01145d;">
-                            <a href="${safeDashboardUrl}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">Profili tamamla</a>
-                          </td>
-                          <td style="padding-left:10px;">
-                            <a href="${safeProfileUrl}" style="display:inline-block;padding:13px 17px;border:1px solid #cbd5e1;border-radius:11px;color:#01145d;font-size:14px;font-weight:800;text-decoration:none;">Yayındaki profili gör</a>
-                          </td>
-                        </tr>
-                      </table>
-                      <p style="margin:18px 0 0;color:#7b8498;font-size:12px;line-height:19px;">Bu e-posta, Tourism Partner admin onayı sonrası otomatik olarak gönderildi.</p>
+                    <td style="padding:8px 38px 34px;">
+                      <p style="margin:0;color:#01145d;font-size:15px;line-height:24px;font-weight:700;">Warm regards,</p>
+                      <p style="margin:10px 0 0;color:#334155;font-size:14px;line-height:22px;">
+                        <a href="https://www.tourismpartner.com" style="color:#004fe6;text-decoration:none;font-weight:700;">www.tourismpartner.com</a><br>
+                        <a href="mailto:info@tourismpartner.world" style="color:#004fe6;text-decoration:none;">info@tourismpartner.world</a>
+                      </p>
                     </td>
                   </tr>
                 </table>
@@ -95,7 +86,7 @@ export function businessApprovedEmail({
             </tr>
             <tr>
               <td align="center" style="padding:20px 24px 0;color:#8992a5;font-size:11px;line-height:18px;">
-                Tourism Partner · Turizm profesyonelleri için güvenilir iş ağı
+                Tourism Partner · A trusted B2B network for tourism professionals
               </td>
             </tr>
           </table>
@@ -104,15 +95,15 @@ export function businessApprovedEmail({
     </table>
   </body>
 </html>`,
-    text: `Tebrikler, onaylandınız
+    text: `Welcome to Tourism Partner!
 
-${businessName} profili Tourism Partner'da yayına alındı.
+${businessName} has been approved.
 
-Profil bilgilerinizi, hizmetlerinizi, açıklamanızı ve galeri görsellerinizi ne kadar eksiksiz tamamlarsanız listelerde daha güçlü görünürsünüz.
+${paragraphs.join("\n\n")}
 
-Profili tamamla: ${dashboardUrl}
-Yayındaki profili gör: ${profileUrl}
+Warm regards,
 
-Tourism Partner`,
+www.tourismpartner.com
+info@tourismpartner.world`,
   };
 }
