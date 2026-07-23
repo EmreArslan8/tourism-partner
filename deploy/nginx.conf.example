@@ -1,0 +1,55 @@
+# tourismpartner.com — host nginx reverse proxy örneği
+# Kopya: /etc/nginx/sites-available/tourismpartner-com  (sonra sites-enabled'a symlink + certbot)
+#
+# KRİTİK: proxy_buffer_size / proxy_buffers satırları OLMAZSA giriş 502 verir.
+# Neden: başarılı login/kayıt/e-posta-doğrulama sonrası Supabase auth çerezi
+# (JWT access + refresh, sb-...-auth-token.0/.1 parçalı) çok büyük bir Set-Cookie
+# başlığı üretir. nginx varsayılan proxy buffer'ı (4k/8k) bunu okuyamaz ve
+# "upstream sent too big header" → 502 Bad Gateway döner. Aynı hata auth çerezi
+# yazan TÜM yolları vurur: /en/login, /api/auth/callback (mail doğrulama + şifre
+# sıfırlama), kayıt ve girişli gezinmede token yenilenmesi (proxy.ts updateSession).
+# 16k buffer Supabase çerezini rahat karşılar.
+
+server {
+    server_name tourismpartner.com www.tourismpartner.com;
+
+    client_max_body_size 20m;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+
+        # --- 502 fix: Supabase auth çerezleri büyük başlık üretir ---
+        proxy_buffer_size        16k;
+        proxy_buffers            8 16k;
+        proxy_busy_buffers_size  32k;
+        proxy_read_timeout       60s;
+        # -----------------------------------------------------------
+
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/tourismpartner.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/tourismpartner.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+# HTTP → HTTPS yönlendirme (Certbot üretir)
+server {
+    if ($host = www.tourismpartner.com) { return 301 https://$host$request_uri; }
+    if ($host = tourismpartner.com)     { return 301 https://$host$request_uri; }
+    listen 80;
+    listen [::]:80;
+    server_name tourismpartner.com www.tourismpartner.com;
+    return 404;
+}
+
+# Uygulama sonrası doğrulama:
+#   nginx -t && systemctl reload nginx
+#   sonra doğru şifreyle giriş → panele düşmeli (502 değil)

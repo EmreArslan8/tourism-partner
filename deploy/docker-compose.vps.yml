@@ -23,10 +23,5 @@ services:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "DOLDUR"
       NEXT_PUBLIC_SITE_URL: "https://srv1746085.hstgr.cloud"
 
-  # main'e push sonrası GHCR'daki yeni imajı görüp app'i otomatik günceller.
-  watchtower:
-    image: containrrr/watchtower
-    restart: unless-stopped
-    command: --interval 120 --cleanup
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+# Otomatik güncelleme yok: yeni sürüm için sunucuda `docker compose pull app && docker compose up -d app`.
+# (watchtower Docker daemon API uyumsuzluğu yüzünden kaldırıldı; sonsuz restart'ta güncelleme çekemiyordu.)
