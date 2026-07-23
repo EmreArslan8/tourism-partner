@@ -19,7 +19,7 @@ const FilterBar = ({
   onQ,
   onPick,
 }: {
-  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
+  businesses: Pick<Business, "id" | "name" | "country" | "city" | "district" | "group" | "type">[];
   country: string;
   city: string;
   district: string;
@@ -36,7 +36,13 @@ const FilterBar = ({
   return (
     <div className={styles.bar}>
       <div className={styles.barSearch}>
-        <SearchBox businesses={businesses} value={q} onChange={onQ} onPick={onPick} />
+        <SearchBox
+          businesses={businesses}
+          countryOptions={countries}
+          value={q}
+          onChange={onQ}
+          onPick={onPick}
+        />
       </div>
       <FilterSelects
         country={country}

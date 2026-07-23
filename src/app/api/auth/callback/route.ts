@@ -3,6 +3,7 @@ import { hashBusinessInviteToken } from "@/lib/business-owner-invites";
 import { ensureBusinessForUser } from "@/lib/signup-intents";
 import { createClient } from "@/lib/supabase/server";
 import { sendWelcomeEmailOnce } from "@/lib/welcome-email";
+import { SITE_URL } from "@/lib/site";
 
 /*
  * E-posta doğrulama linki buraya döner (emailRedirectTo). PKCE code'u oturuma
@@ -26,21 +27,24 @@ function asLocale(value: unknown): Locale | null {
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
+  // Yönlendirmeler kanonik SITE_URL üzerinden kurulur; request'in url.origin'i DEĞİL. Host nginx
+  // arkasında request.url iç bind adresine (0.0.0.0:3000) çözülüyor ve kullanıcıyı
+  // ulaşılamaz adrese atıyordu. Buradaki tüm hedefler birinci-taraf sayfalar.
   // Linkteki ?locale= birincil kaynak; bozulmuş/eksikse aşağıda kullanıcının
   // kayıt sırasında yazılan user_metadata.locale'ine düşülür.
   const paramLocale = asLocale(url.searchParams.get("locale"));
   const locale: Locale = paramLocale ?? "tr";
   const d = DEST[locale];
 
-  if (!code) return NextResponse.redirect(new URL(d.login, url.origin));
+  if (!code) return NextResponse.redirect(new URL(d.login, SITE_URL));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) return NextResponse.redirect(new URL(d.login, url.origin));
+  if (error) return NextResponse.redirect(new URL(d.login, SITE_URL));
 
   // Şifre sıfırlama linki: recovery oturumu açıldı → yeni şifre ekranına git.
   if (url.searchParams.get("next") === "reset") {
-    return NextResponse.redirect(new URL(d.reset, url.origin));
+    return NextResponse.redirect(new URL(d.reset, SITE_URL));
   }
 
   // İşletme sahipliği daveti: doğrulanan oturum aynı tek kullanımlık davete döner.
@@ -53,10 +57,10 @@ export async function GET(request: NextRequest) {
       p_token_hash: hashBusinessInviteToken(invite),
     });
     if (accepted === "accepted" || accepted === "already_accepted") {
-      return NextResponse.redirect(new URL(d.dashboard, url.origin));
+      return NextResponse.redirect(new URL(d.dashboard, SITE_URL));
     }
     const segment = locale === "tr" ? "isletme-daveti" : "business-invite";
-    const target = new URL(`/${locale}/${segment}`, url.origin);
+    const target = new URL(`/${locale}/${segment}`, SITE_URL);
     target.searchParams.set("token", invite);
     return NextResponse.redirect(target);
   }
@@ -96,5 +100,5 @@ export async function GET(request: NextRequest) {
   }
 
   // Panel kabuğu kullanıcı tipine göre doğru çalışma alanını gösterir.
-  return NextResponse.redirect(new URL(dest.dashboard, url.origin));
+  return NextResponse.redirect(new URL(dest.dashboard, SITE_URL));
 }

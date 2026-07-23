@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 
 export type GeoTree = Record<string, string[]>;
-export type CountryOption = { value: string; label: string };
+export type CountryOption = { value: string; label: string; aliases: string[] };
 type CountryIndex = [iso2: string, nameTr: string, nameEn: string][];
 
 let indexPromise: Promise<CountryIndex> | null = null;
@@ -71,7 +71,7 @@ export function useRegions(country: string, city: string, district = "") {
     const english = locale === "en";
     const collator = new Intl.Collator(english ? "en" : "tr");
     return index
-      .map(([, tr, en]) => ({ value: tr, label: english ? en : tr }))
+      .map(([, tr, en]) => ({ value: tr, label: english ? en : tr, aliases: [tr, en] }))
       .sort((a, b) => collator.compare(a.label, b.label));
   }, [index, locale]);
 

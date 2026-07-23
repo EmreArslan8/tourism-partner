@@ -12,7 +12,7 @@ import styles from "./styles";
 const HeroSearch = () => {
   const router = useRouter();
   const t = useTranslations("hero");
-  const [country, setCountry] = useState("Türkiye");
+  const [country, setCountry] = useState("all");
   const [city, setCity] = useState("all");
   const [district, setDistrict] = useState("all");
   const [q, setQ] = useState("");

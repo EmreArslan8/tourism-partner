@@ -35,10 +35,14 @@ export function canViewPublicProfile(business: BusinessStatusLike): boolean {
 }
 
 export function canAppearInExplore(business: Business, viewer: ViewerKind): boolean {
-  if (viewer === "guest") return isPremiumVisible(business);
+  // Keşfet tüm onaylı işletmeleri gösterir. Premium/doping görünürlüğü kapı
+  // olarak değil, sonuç sıralamasında öne çıkma avantajı olarak uygulanır.
+  void business;
+  void viewer;
   return true;
 }
 
 export function canUseFullExplore(viewer: ViewerKind): boolean {
-  return viewer !== "guest";
+  void viewer;
+  return true;
 }

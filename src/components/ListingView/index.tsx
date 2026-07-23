@@ -32,8 +32,6 @@ const MapPanel = dynamic(() => import("@/components/MapPanel"), {
   ),
 });
 
-const uniqSorted = (arr: string[]) => [...new Set(arr)].sort((a, b) => a.localeCompare(b, "tr"));
-
 const guestUnlockWideSpan = (itemCount: number) => cn(
   "col-span-1",
   itemCount % 2 === 0
@@ -130,11 +128,6 @@ const ListingView = ({
     city === "all" ? "" : city,
     district === "all" ? "" : district,
   );
-  // "Önce ülke seç" istem çipleri: 250 ülke değil, tedarikçisi olan ülkeler.
-  const promptCountries = useMemo(() => uniqSorted(index.map((b) => b.country)), [index]);
-
-  // Kelime araması yapılıyorsa ülke seçimi zorunlu (önce konum akışı).
-  const needsCountry = qDraft.trim() !== "" && country === "all";
   const shownPage = Math.min(serverPage, pageCount);
   const shownCount = Math.min(visibleItems.length, total);
   const hasMore = pageCount > 1 && shownPage < pageCount && shownCount < total;
@@ -268,7 +261,13 @@ const ListingView = ({
     }
     setQDraft("");
     if (s.kind === "region") {
-      replaceFilters({ country: "all", city: s.city, district: s.district ?? "all", q: "", page: 1 });
+      replaceFilters({
+        country: s.country,
+        city: s.city ?? "all",
+        district: s.district ?? "all",
+        q: "",
+        page: 1,
+      });
     } else if (s.kind === "group") {
       if (!groups.has(s.value)) replaceFilters({ groups: new Set(groups).add(s.value), q: "", page: 1 });
     } else if (s.kind === "type") {
@@ -323,30 +322,6 @@ const ListingView = ({
   }
 
   const hasNoDatabaseResults = !isGuest && index.length === 0;
-  const countryPrompt = (
-    <div className={styles.countryAsk}>
-      <div className={styles.countryAskIcon} aria-hidden>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.6" />
-        </svg>
-      </div>
-      <h3 className={styles.countryAskTitle}>{t("countryAskTitle")}</h3>
-      <p className={styles.countryAskText}>{t("countryAskText")}</p>
-      <div className={styles.countryAskChips}>
-        {promptCountries.map((c) => (
-          <button
-            key={c}
-            type="button"
-            className={styles.countryChip}
-            onClick={() => replaceFilters({ country: c, city: "all", district: "all", page: 1 })}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   const resultsColumn = (gridClass: string, fillGuestRow = false) => (
     <div
       aria-busy={isPending}
@@ -507,7 +482,13 @@ const ListingView = ({
           </div>
           <div className={styles.toolbar}>
             <div className={styles.toolbarSearch}>
-              <SearchBox businesses={index} value={qDraft} onChange={setQDraft} onPick={handlePick} />
+              <SearchBox
+                businesses={index}
+                countryOptions={countries}
+                value={qDraft}
+                onChange={setQDraft}
+                onPick={handlePick}
+              />
             </div>
             <button type="button" className={styles.toolBtn} onClick={() => setCatalogOpen(true)}>
               {t("suggestCategories")}
@@ -520,8 +501,6 @@ const ListingView = ({
 
           <ActiveTags tags={tags} onRemove={removeTag} onClear={reset} />
 
-          {needsCountry ? countryPrompt : (
-          <>
           <div className={styles.resultsBar}>
         <p className={styles.count}>
           {isGuest && fullTotal > total
@@ -584,8 +563,6 @@ const ListingView = ({
             </div>
           ) : (
             resultsColumn(styles.gridWide, true)
-          )}
-          </>
           )}
         </div>
       </div>

@@ -5,11 +5,12 @@ import { useTranslations } from "next-intl";
 import { CATEGORY_GROUPS, GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { cn, normalizeTr } from "@/lib/utils";
 import type { Business, GroupKey } from "@/lib/types";
+import type { CountryOption } from "@/lib/geo";
 import styles from "./styles";
 
 export type Suggestion =
   | { kind: "business"; id: number; label: string; sub: string }
-  | { kind: "region"; city: string; district?: string; label: string }
+  | { kind: "region"; country: string; city?: string; district?: string; label: string }
   | { kind: "group"; value: GroupKey; label: string }
   | { kind: "type"; value: string; label: string };
 
@@ -19,11 +20,13 @@ const MAX_CAT = 3;
 
 const SearchBox = ({
   businesses,
+  countryOptions,
   value,
   onChange,
   onPick,
 }: {
-  businesses: Pick<Business, "id" | "name" | "city" | "district" | "type">[];
+  businesses: Pick<Business, "id" | "name" | "country" | "city" | "district" | "group" | "type">[];
+  countryOptions: CountryOption[];
   value: string;
   onChange: (v: string) => void;
   onPick: (s: Suggestion) => void;
@@ -38,8 +41,13 @@ const SearchBox = ({
   const sections = useMemo(() => {
     const needle = normalizeTr(value);
     if (needle.length < 2) return [] as { key: string; label: string; items: Suggestion[] }[];
+    const needles = needle.split(/[^\p{L}\p{N}]+/u).filter((part) => part.length >= 2);
+    const matchesAnyPart = (text: string) => needles.some((part) => normalizeTr(text).includes(part));
 
-    const bizMatches: Suggestion[] = businesses.filter((b) => normalizeTr(b.name).includes(needle))
+    const bizMatches: Suggestion[] = businesses.filter((b) =>
+      normalizeTr(b.name).includes(needle) ||
+      needles.every((part) => normalizeTr(`${b.name} ${b.type} ${b.country} ${b.city} ${b.district}`).includes(part))
+    )
       .slice(0, MAX_BUSINESS)
       .map((b) => {
         const typeKey = serviceTranslationKey(b.type);
@@ -48,38 +56,68 @@ const SearchBox = ({
 
     const seen = new Set<string>();
     const regions: Suggestion[] = [];
+    const businessCountries = new Set(businesses.map((business) => business.country));
+    // Türkçe ve İngilizce ülke adları birlikte aranır: "mis" ve "egy" → Mısır.
+    const matchingCountries = countryOptions
+      .filter((option) => option.aliases.some(matchesAnyPart))
+      .sort((a, b) =>
+        Number(businessCountries.has(b.value)) - Number(businessCountries.has(a.value)) ||
+        a.label.localeCompare(b.label),
+      );
+    for (const option of matchingCountries) {
+      if (regions.length >= MAX_REGION) break;
+      const key = `country:${option.value}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        regions.push({ kind: "region", country: option.value, label: option.label });
+      }
+    }
     for (const b of businesses) {
       if (regions.length >= MAX_REGION) break;
-      if (normalizeTr(b.city).includes(needle) && !seen.has(b.city)) {
-        seen.add(b.city);
-        regions.push({ kind: "region", city: b.city, label: b.city });
-      } else if (normalizeTr(b.district).includes(needle) && !seen.has(`${b.city}/${b.district}`)) {
-        seen.add(`${b.city}/${b.district}`);
-        regions.push({ kind: "region", city: b.city, district: b.district, label: `${b.district}, ${b.city}` });
+      const cityKey = `city:${b.country}/${b.city}`;
+      const districtKey = `district:${b.country}/${b.city}/${b.district}`;
+      if (matchesAnyPart(b.city) && !seen.has(cityKey)) {
+        seen.add(cityKey);
+        regions.push({ kind: "region", country: b.country, city: b.city, label: `${b.city}, ${b.country}` });
+      } else if (matchesAnyPart(b.district) && !seen.has(districtKey)) {
+        seen.add(districtKey);
+        regions.push({
+          kind: "region",
+          country: b.country,
+          city: b.city,
+          district: b.district,
+          label: `${b.district}, ${b.city}`,
+        });
       }
     }
 
     const cats: Suggestion[] = [];
     for (const g of CATEGORY_GROUPS) {
       if (cats.length >= MAX_CAT) break;
-      if (normalizeTr(tc(g.key)).includes(needle)) cats.push({ kind: "group", value: g.key, label: tc(g.key) });
+      const categoryText = [
+        tc(g.key),
+        g.label,
+        g.key,
+        ...g.children.flatMap((child) => [child.label, child.section ?? ""]),
+      ].join(" ");
+      if (matchesAnyPart(categoryText)) cats.push({ kind: "group", value: g.key, label: tc(g.key) });
     }
     for (const g of CATEGORY_GROUPS) {
       for (const c of g.children) {
         if (cats.length >= MAX_CAT) break;
         const label = ts(c.slug);
-        if (normalizeTr(label).includes(needle) || normalizeTr(c.label).includes(needle)) {
+        if (matchesAnyPart(`${label} ${c.label} ${c.section ?? ""}`)) {
           cats.push({ kind: "type", value: c.label, label });
         }
       }
     }
 
     return [
-      { key: "suggestBusinesses", label: t("suggestBusinesses"), items: bizMatches },
       { key: "suggestRegions", label: t("suggestRegions"), items: regions },
+      { key: "suggestBusinesses", label: t("suggestBusinesses"), items: bizMatches },
       { key: "suggestCategories", label: t("suggestCategories"), items: cats },
     ].filter((s) => s.items.length > 0);
-  }, [value, t, tc, ts, businesses]);
+  }, [value, t, tc, ts, businesses, countryOptions]);
 
   const flat = useMemo(() => sections.flatMap((s) => s.items), [sections]);
 

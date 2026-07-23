@@ -7,6 +7,7 @@ import { canAppearInExplore, type ViewerKind } from "@/lib/business-visibility";
 import type { Business, ListingFilters } from "@/lib/types";
 import type { ExploreInitialFilters } from "@/lib/explore-filters";
 import { EXPLORE_PAGE_SIZE } from "@/lib/explore-filters";
+import { canonicalizeCountryMentions } from "@/lib/geo-server";
 
 /* Keşfet arama MOTORU — SUNUCU tarafı.
    Amaç: filtre/sıralama/sayfalama/facet-sayımı client yerine burada çalışsın; istemciye
@@ -101,19 +102,17 @@ export async function getExploreResults(
       : typeof viewerArg === "boolean"
         ? Promise.resolve<ViewerKind>(viewerArg ? "guest" : "authenticated")
         : getExploreViewerKind();
-  const [all, viewer] = await Promise.all([
+  const [all, viewer, canonicalQuery] = await Promise.all([
     getBusinesses(),
     viewerPromise,
+    canonicalizeCountryMentions(filters.q),
   ]);
   const isGuest = viewer === "guest";
 
-  // Misafir → yalnız dopingli/premium (müşteri kuralı); iletişim alanları da çıkarılır.
+  // Tüm onaylı kayıtlar görünür; premium kayıtlar yalnızca sıralamada öne çıkar.
+  // Liste payload'ından iletişim alanları yine çıkarılır.
   const visible = all.filter((business) => canAppearInExplore(business, viewer)).map(toListingBusiness);
 
-  // Kelime araması ülke seçimi olmadan çalışmaz. UI zaten kullanıcıyı ülke
-  // seçimine yönlendiriyor; burada da sonucu kapatıyoruz ki URL/API seviyesinde
-  // ülkesiz toplu arama verisi dönmesin.
-  const requiresCountry = filters.q.trim() !== "" && filters.country === "all";
   const index: ExploreIndexItem[] = visible.map((b) => ({
     id: b.id,
     name: b.name,
@@ -124,25 +123,10 @@ export async function getExploreResults(
     type: b.type,
   }));
 
-  if (requiresCountry) {
-    return {
-      isGuest,
-      total: 0,
-      fullTotal: 0,
-      page: 1,
-      pageCount: 1,
-      items: [],
-      lockedPreviewItems: [],
-      mapItems: [],
-      facets: { group: {}, type: {} },
-      index,
-    };
-  }
-
   const lf = toListingFilters(filters);
-  const fullFiltered = filterAndSortBusinesses(all.map(toListingBusiness), lf, filters.q, filters.sort);
+  const fullFiltered = filterAndSortBusinesses(all.map(toListingBusiness), lf, canonicalQuery, filters.sort);
   const fullTotal = fullFiltered.length;
-  const filtered = filterAndSortBusinesses(visible, lf, filters.q, filters.sort);
+  const filtered = filterAndSortBusinesses(visible, lf, canonicalQuery, filters.sort);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / EXPLORE_PAGE_SIZE));
@@ -150,8 +134,8 @@ export async function getExploreResults(
   const items = filtered.slice((safe - 1) * EXPLORE_PAGE_SIZE, safe * EXPLORE_PAGE_SIZE);
 
   const facets = {
-    group: facetCounts(visible, lf, filters.q, "group"),
-    type: facetCounts(visible, lf, filters.q, "type"),
+    group: facetCounts(visible, lf, canonicalQuery, "group"),
+    type: facetCounts(visible, lf, canonicalQuery, "type"),
   };
 
   const mapItems: ExploreMapItem[] = filtered.map((b) => ({

@@ -5,6 +5,7 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { normalizeTr } from "@/lib/utils";
 
 type GeoTree = Record<string, string[]>;
 type CountryIndex = [iso2: string, nameTr: string, nameEn: string][];
@@ -38,6 +39,40 @@ async function getTree(countryName: string): Promise<GeoTree> {
 /** Kanonik (Türkçe) ülke adları — kayıt/teklif doğrulamasında kullanılır. */
 export async function getCountryOptions(): Promise<string[]> {
   return (await getIndex()).map(([, tr]) => tr);
+}
+
+/** Aramadaki Türkçe/İngilizce ülke adını kanonik Türkçe değere çevirir.
+ *  Tam adın yanında benzersiz 3+ karakterli başlangıçları da kabul eder:
+ *  "Egypt hotel" / "egy hotel" → "misir hotel". */
+export async function canonicalizeCountryMentions(rawQuery: string): Promise<string> {
+  const normalized = normalizeTr(rawQuery);
+  if (!normalized) return "";
+
+  const countries = (await getIndex()).map(([, tr, en]) => ({
+    canonical: normalizeTr(tr),
+    aliases: [...new Set([normalizeTr(tr), normalizeTr(en)])],
+  }));
+
+  let query = ` ${normalized.replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim()} `;
+  // Önce çok kelimeli/tam ülke adlarını yakala.
+  const exactAliases = countries
+    .flatMap((country) => country.aliases.map((alias) => ({ alias, canonical: country.canonical })))
+    .sort((a, b) => b.alias.length - a.alias.length);
+  for (const { alias, canonical } of exactAliases) {
+    const boundedAlias = ` ${alias} `;
+    if (alias && query.includes(boundedAlias)) {
+      query = query.replaceAll(boundedAlias, ` ${canonical} `);
+    }
+  }
+
+  const tokens = query.trim().split(/\s+/).filter(Boolean);
+  return tokens.map((token) => {
+    if (token.length < 3) return token;
+    const matches = countries.filter((country) =>
+      country.aliases.some((alias) => alias.startsWith(token)),
+    );
+    return matches.length === 1 ? matches[0].canonical : token;
+  }).join(" ");
 }
 
 export async function getCityOptions(country: string): Promise<string[]> {
