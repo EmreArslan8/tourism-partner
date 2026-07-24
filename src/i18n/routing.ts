@@ -107,6 +107,12 @@ export const routing = defineRouting({
       ru: "/dashboard/requests",
       ar: "/dashboard/requests",
     },
+    "/dashboard/teklifler": {
+      tr: "/panel/teklifler",
+      en: "/dashboard/quotes",
+      ru: "/dashboard/quotes",
+      ar: "/dashboard/quotes",
+    },
     "/dashboard/favorites": {
       tr: "/panel/favoriler",
       en: "/dashboard/favorites",

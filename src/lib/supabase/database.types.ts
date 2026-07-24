@@ -387,6 +387,34 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["quotes"]["Insert"]>;
         Relationships: [];
       };
+      quote_responses: {
+        Row: {
+          id: number;
+          quote_id: number;
+          business_id: number;
+          responder_id: string | null;
+          message: string;
+          email_status: string;
+          email_sent_at: Timestamp | null;
+          provider_message_id: string | null;
+          last_error: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          quote_id: number;
+          business_id: number;
+          responder_id?: string | null;
+          message: string;
+          email_status?: string;
+          email_sent_at?: Timestamp | null;
+          provider_message_id?: string | null;
+          last_error?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["quote_responses"]["Insert"]>;
+        Relationships: [];
+      };
       applications: {
         Row: {
           id: number;

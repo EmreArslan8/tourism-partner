@@ -1,21 +1,16 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Building2,
-  Briefcase,
   Search,
   ChevronRight,
   Eye,
   EyeOff,
-  Hotel,
-  Compass,
-  Bus,
   Sparkles,
   Stethoscope,
-  UtensilsCrossed,
   Car,
   Hammer,
   ShoppingBag,
@@ -66,14 +61,28 @@ async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise
   return blob && blob.size < file.size ? blob : file;
 }
 
-const GROUP_ICON: Record<string, LucideIcon> = {
-  konaklama: Hotel,
-  acente: Briefcase,
-  rehber: Compass,
-  ulasim: Bus,
-  aktivite: Sparkles,
-  saglik: Stethoscope,
-  gastronomi: UtensilsCrossed,
+// Kategori kartlarında ana sayfa hero'sundaki public sabit SVG ikonları kullanılır.
+// SVG'ler beyaz stroke'lu (hero koyu zemin içindir); beyaz kartta görünsün diye
+// mask olarak kullanılır, renk `bg-current`/`text-*` ile verilir.
+const maskStyle = (src: string): CSSProperties => ({
+  WebkitMaskImage: `url(${src})`,
+  maskImage: `url(${src})`,
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+});
+
+const GROUP_ICON_SRC: Record<string, string> = {
+  konaklama: "/assets/icons/hotels.svg",
+  acente: "/assets/icons/agencies.svg",
+  rehber: "/assets/icons/guides.svg",
+  ulasim: "/assets/icons/transfers.svg",
+  aktivite: "/assets/icons/activities.svg",
+  saglik: "/assets/icons/health-tourism.svg",
+  gastronomi: "/assets/icons/gastronomy.svg",
 };
 
 // Alıcı (buyer) için opsiyonel sektör seçenekleri — etiketler i18n'de (sector_<slug>).
@@ -622,7 +631,7 @@ const RegisterForm = () => {
                   <legend className="mb-3 text-[13px] font-semibold text-ink">{t("pickGroup")}</legend>
                   <div className="grid grid-cols-3 gap-3 max-[640px]:grid-cols-2 max-[420px]:grid-cols-1">
                     {serviceGroups.map((g) => {
-                      const Icon = GROUP_ICON[g.key];
+                      const iconSrc = GROUP_ICON_SRC[g.key];
                       return (
                         <button
                           key={g.key}
@@ -633,7 +642,13 @@ const RegisterForm = () => {
                           }}
                           className="grid min-h-[118px] place-items-center rounded-[7px] border-2 border-line bg-white px-3 py-4 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-terra/55"
                         >
-                          {Icon && <Icon size={34} strokeWidth={1.9} className="mb-3 text-terra/90" aria-hidden />}
+                          {iconSrc && (
+                            <span
+                              aria-hidden
+                              className="mb-3 block h-[34px] w-[34px] bg-current text-terra/90"
+                              style={maskStyle(iconSrc)}
+                            />
+                          )}
                           <span className="block text-[15px] font-semibold leading-tight text-[#555]">{tc(g.key)}</span>
                         </button>
                       );
@@ -661,7 +676,7 @@ const RegisterForm = () => {
                       .find((g) => g.key === group)
                       ?.children.map((c) => {
                         const on = services.includes(c.slug);
-                        const Icon = GROUP_ICON[group];
+                        const iconSrc = GROUP_ICON_SRC[group];
                         return (
                           <button
                             key={c.slug}
@@ -683,7 +698,7 @@ const RegisterForm = () => {
                               )}
                               aria-hidden
                             >
-                              {Icon && <Icon size={15} strokeWidth={2} />}
+                              {iconSrc && <span aria-hidden className="block h-[15px] w-[15px] bg-current" style={maskStyle(iconSrc)} />}
                             </span>
                             <span className="block text-[13.5px] font-semibold leading-tight text-[#555]">{ts(c.slug)}</span>
                           </button>

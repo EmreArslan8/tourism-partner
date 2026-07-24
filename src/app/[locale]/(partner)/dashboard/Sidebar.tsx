@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Building2, FileText, Heart, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star } from "lucide-react";
+import { Building2, FileText, Heart, Inbox, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star } from "lucide-react";
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
@@ -33,6 +33,7 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/dashboard/businesses", icon: Building2, label: t("businessesNav"), match: "/dashboard/businesses" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
+    { href: "/dashboard/teklifler", icon: Inbox, label: t("quotesInboxNav"), match: "/dashboard/teklifler" },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
     { href: "/dashboard/reviews", icon: Star, label: t("reviewsNav"), match: "/dashboard/reviews" },
