@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getPanelBusiness } from "@/lib/panel-auth";
 import { sendEmail } from "@/lib/email";
 import { quoteOfferEmail } from "@/lib/email-templates/quote-offer";
-import { SITE_URL } from "@/lib/site";
+import { EMAIL_LOGO_URL } from "@/lib/site";
 import type { ActionState } from "@/lib/types";
 import { clean } from "./validate";
 
@@ -43,7 +43,7 @@ export async function sendQuoteOffer(_prev: ActionState, formData: FormData): Pr
   const businessEmail = user.email ?? null;
   const email = quoteOfferEmail({
     businessName: biz.name,
-    logoUrl: `${SITE_URL}/assets/logo.webp`,
+    logoUrl: EMAIL_LOGO_URL,
     recipientName: quote.name,
     offerMessage: message,
     service: quote.service,

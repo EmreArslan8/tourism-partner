@@ -13,7 +13,7 @@ import { businessSlug } from "@/lib/business-slug";
 import { sendEmail } from "@/lib/email";
 import { businessApprovedEmail } from "@/lib/email-templates/business-approved";
 import { businessRejectedEmail } from "@/lib/email-templates/business-rejected";
-import { SITE_URL, supplierPath } from "@/lib/site";
+import { EMAIL_LOGO_URL, SITE_URL, supplierPath } from "@/lib/site";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl, isEmail } from "./validate";
 
@@ -442,7 +442,7 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
     const recipient = contacts?.[0]?.email?.trim();
     if (recipient && isEmail(recipient)) {
       const dashboardUrl = `${SITE_URL}/${locale || "tr"}/panel`;
-      const logoUrl = `${SITE_URL}/assets/logo.webp`;
+      const logoUrl = EMAIL_LOGO_URL;
       const message = becamePublic
         ? businessApprovedEmail({
             businessName: current.name,

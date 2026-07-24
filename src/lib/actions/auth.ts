@@ -245,6 +245,9 @@ export async function signUp(
     if (m.includes("password")) return { ok: false, error: "password" };
     return { ok: false, error: "generic" };
   }
+  if (data.user && data.user.identities?.length === 0) {
+    return { ok: false, error: "exists" };
+  }
 
   // Niyeti HEMEN ve kalıcı olarak yaz — oturum açılmamış olsa bile. İşletme kaydının
   // oluşması artık doğrulama linkinden dönüşe bağlı değil; ensureBusinessForUser bunu

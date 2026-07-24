@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { quoteNotificationEmail } from "@/lib/email-templates/quote-notification";
 import { sendEmail } from "@/lib/email";
-import { SITE_URL } from "@/lib/site";
+import { EMAIL_LOGO_URL, SITE_URL } from "@/lib/site";
 
 const MAX_BATCH = 50;
 const RETRIES = [60, 300, 1800, 7200];
@@ -66,7 +66,7 @@ async function renderDelivery(admin: any, delivery: Delivery) {
     people: quote.people,
     message: quote.message,
     dashboardUrl: `${SITE_URL}/tr/panel/talepler`,
-    logoUrl: `${SITE_URL}/assets/logo.webp`,
+    logoUrl: EMAIL_LOGO_URL,
     }),
     replyTo: quote.email,
   };

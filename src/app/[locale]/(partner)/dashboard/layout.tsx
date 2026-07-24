@@ -22,8 +22,8 @@ export default async function DashboardLayout({
   const session = await getPanelSession();
   if (!session) return redirect({ href: "/login", locale });
 
-  // Kapak görseli kayıt akışının zorunlu son adımı. Bir tedarikçinin işletmesi
-  // varsa ama kapağı yoksa (ör. eski kayıt) panele girmeden önce tamamlatılır.
+  // Kayıt niyeti yarım kaldıysa işletmeyi idempotent olarak tamamla. Kapak görseli
+  // artık kayıt formunda alındığı için panel girişinde ayrı onboarding kapısı yok.
   if (session.accountType !== "buyer") {
     const ob = await getSupplierOnboarding();
 
@@ -32,12 +32,8 @@ export default async function DashboardLayout({
     // normal durumda işletme zaten var, bu dal hiç çalışmaz.
     if (!ob.businessId) {
       const ensured = await ensureBusinessForUser(session.userId);
-      // Yeni oluştuysa taze durumla devam et: onboarding sayfası kapak varsa panele
-      // geri gönderir, yoksa kapağı tamamlatır (kendi request'inde cache tazedir).
-      if (ensured.ok && ensured.created) return redirect({ href: "/onboarding", locale });
+      if (ensured.ok && ensured.created) return redirect({ href: "/dashboard", locale });
     }
-
-    if (ob.businessId && !ob.hasCover) return redirect({ href: "/onboarding", locale });
   }
 
   return (

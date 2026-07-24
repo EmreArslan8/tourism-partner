@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
 import { welcomeEmail, type WelcomeAccountType, type WelcomeEmailLocale } from "@/lib/email-templates/welcome";
-import { SITE_URL } from "@/lib/site";
+import { EMAIL_LOGO_URL, SITE_URL } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /* E-posta doğrulandıktan sonra bir kez gönderilen hoş geldin maili.
@@ -45,7 +45,7 @@ export async function sendWelcomeEmailOnce(
     dashboardUrl: `${SITE_URL}${paths.dashboard}`,
     exploreUrl: `${SITE_URL}${paths.explore}`,
     helpUrl: `${SITE_URL}${paths.help}`,
-    logoUrl: `${SITE_URL}/assets/logo.webp`,
+    logoUrl: EMAIL_LOGO_URL,
   });
 
   // Bayrağı gönderimden ÖNCE yaz: aynı anda iki callback isteği gelirse

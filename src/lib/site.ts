@@ -9,6 +9,11 @@ export const SITE_URL = (
   "http://localhost:3000"
 ).replace(/\/$/, "");
 
+export const EMAIL_LOGO_URL = (
+  process.env.EMAIL_LOGO_URL ??
+  `${SITE_URL}/assets/logo-email.png`
+).replace(/\/$/, "");
+
 /* İndekslemeye izin — YALNIZ NEXT_PUBLIC_ALLOW_INDEXING="true" iken açık.
    Demo/gerçek-olmayan veri döneminde Google sahte profilleri indekslemesin diye
    varsayılan KAPALI. Yayına hazır olunca Vercel'de bu env'i "true" yap. */

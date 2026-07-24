@@ -45,6 +45,12 @@ function cleanDate(value: FormDataEntryValue | null) {
   return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
 }
 
+function cleanRegionPart(value: FormDataEntryValue | null) {
+  const raw = clean(value, 80);
+  if (!raw || raw === "all" || raw === "*") return null;
+  return raw;
+}
+
 function dateRangeValue(formData: FormData) {
   const start = cleanDate(formData.get("dateStart"));
   const end = cleanDate(formData.get("dateEnd"));
@@ -101,9 +107,9 @@ export async function submitQuote(
 
   const company = clean(formData.get("company"), 160);
   const selectedCategory = resolveCategory(clean(formData.get("categoryGroup"), 80), clean(formData.get("categoryType"), 120));
-  const country = clean(formData.get("country"), 80);
-  const city = clean(formData.get("city"), 80);
-  const district = clean(formData.get("district"), 80);
+  const country = cleanRegionPart(formData.get("country"));
+  const city = cleanRegionPart(formData.get("city"));
+  const district = cleanRegionPart(formData.get("district"));
   const service = clean(formData.get("service"), 120) ?? selectedCategory?.type ?? null;
   const dateRange = dateRangeValue(formData);
   const validUntil = cleanDate(formData.get("validUntil"));
