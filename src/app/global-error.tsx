@@ -28,10 +28,13 @@ export default function GlobalError({
           fontFamily: "system-ui, sans-serif",
           textAlign: "center",
           padding: 24,
+          background:
+            "linear-gradient(160deg, #01145d 0%, #0a2472 55%, #071a52 100%)",
+          color: "#fff",
         }}
       >
-        <h1 style={{ fontSize: 28 }}>Bir şeyler ters gitti</h1>
-        <p style={{ color: "#666", maxWidth: 420 }}>
+        <h1 style={{ fontSize: 28, margin: 0 }}>Bir şeyler ters gitti</h1>
+        <p style={{ color: "rgba(255,255,255,.82)", maxWidth: 420, margin: 0 }}>
           Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.
         </p>
         <button

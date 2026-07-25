@@ -11,6 +11,22 @@ type QuoteOfferInput = {
   offerMessage: string;
   service?: string | null;
   businessEmail?: string | null;
+  /* Yanıtın hangi talebe verildiğini netleştiren orijinal talep özeti.
+     Alanlar talep bildirim mailiyle (quote-notification) birebir eşleşir. */
+  request?: {
+    requesterName?: string | null;
+    company?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    service?: string | null;
+    category?: string | null;
+    location?: string | null;
+    dateRange?: string | null;
+    people?: number | null;
+    validUntil?: string | null;
+    message?: string | null;
+    requestedAt?: string | null;
+  };
 };
 
 type QuoteOffer = {
@@ -19,9 +35,58 @@ type QuoteOffer = {
   text: string;
 };
 
+function formatDate(value: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  return new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    timeZone: "Europe/Istanbul",
+  }).format(new Date(`${value}T12:00:00+03:00`));
+}
+
+function formatDateRange(value: string | null | undefined): string | null {
+  if (!value) return null;
+  return value.split(" - ").map((part) => formatDate(part)).join(" – ");
+}
+
 export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
   const subject = `Your quote from ${input.businessName}`;
   const messageHtml = escapeHtml(input.offerMessage).replace(/\r?\n/g, "<br>");
+
+  const req = input.request;
+  const requestDetails = req
+    ? ([
+        ["Requester", req.requesterName ?? null],
+        ["Company", req.company ?? null],
+        ["Email", req.email ?? null],
+        ["Phone", req.phone ?? null],
+        ["Service", req.service ?? input.service ?? null],
+        ["Category", req.category ?? null],
+        ["Region", req.location ?? null],
+        ["Service date", formatDateRange(req.dateRange)],
+        ["Number of guests", req.people != null ? `${req.people.toLocaleString("en-US")} guests` : null],
+        ["Quote deadline", req.validUntil ? formatDate(req.validUntil) : null],
+        ["Requested on", req.requestedAt ? formatDate(req.requestedAt) : null],
+      ].filter((row): row is [string, string] => Boolean(row[1])))
+    : [];
+  const requestRows = requestDetails
+    .map(([label, value], index) => `
+      <tr>
+        <td style="padding:${index === 0 ? "0" : "12px"} 16px 12px 0;border-bottom:1px solid #e8edf5;color:#64748b;font-size:12.5px;line-height:19px;vertical-align:top;width:40%;">${escapeHtml(label)}</td>
+        <td style="padding:${index === 0 ? "0" : "12px"} 0 12px;border-bottom:1px solid #e8edf5;color:#0b102f;font-size:13.5px;font-weight:700;line-height:19px;vertical-align:top;">${escapeHtml(value)}</td>
+      </tr>`)
+    .join("");
+  const requestNoteHtml = req?.message ? escapeHtml(req.message).replace(/\r?\n/g, "<br>") : null;
+  const requestBlock = requestDetails.length || requestNoteHtml
+    ? `<tr>
+                    <td style="padding:26px 38px 0;">
+                      <div style="margin-bottom:12px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:0.7px;">IN RESPONSE TO YOUR REQUEST</div>
+                      ${requestDetails.length ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${requestRows}</table>` : ""}
+                      ${requestNoteHtml ? `<div style="margin-top:14px;border-radius:12px;background:#f7f9fc;padding:14px 16px;color:#475569;font-size:13px;line-height:21px;"><span style="display:block;margin-bottom:4px;color:#94a3b8;font-size:11px;font-weight:800;letter-spacing:0.6px;">YOUR NOTE</span>${requestNoteHtml}</div>` : ""}
+                    </td>
+                  </tr>`
+    : "";
   const replyUrl = input.businessEmail
     ? `mailto:${encodeURIComponent(input.businessEmail)}?subject=${encodeURIComponent(`Re: Your quote from ${input.businessName}`)}`
     : null;
@@ -50,8 +115,8 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
                     <td style="background:#01145d;padding:34px 38px;">
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td width="74" style="width:74px;padding-right:18px;vertical-align:middle;">
-                            <img src="${escapeHtml(input.logoUrl)}" width="64" height="64" alt="Tourism Partner" style="display:block;width:64px;height:64px;border:0;border-radius:14px;object-fit:cover;">
+                          <td style="padding-right:20px;vertical-align:middle;">
+                            <img src="${escapeHtml(input.logoUrl)}" height="72" alt="Tourism Partner" style="display:block;height:72px;width:auto;border:0;">
                           </td>
                           <td style="vertical-align:middle;">
                             <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">YOUR QUOTE</div>
@@ -70,6 +135,7 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
                       <div style="border-left:4px solid #004fe6;border-radius:0 12px 12px 0;background:#f4f7ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
                     </td>
                   </tr>
+                  ${requestBlock}
                   ${replyUrl ? `<tr>
                     <td style="padding:26px 38px 36px;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
@@ -98,12 +164,16 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
   </body>
 </html>`;
 
+  const requestText = requestDetails.length
+    ? ["", "In response to your request:", ...requestDetails.map(([label, value]) => `- ${label}: ${value}`)]
+    : [];
   const text = [
     `Hi ${input.recipientName},`,
     "",
     `${input.businessName} replied to your quote request${input.service ? ` for ${input.service}` : ""}:`,
     "",
     input.offerMessage,
+    ...requestText,
     "",
     input.businessEmail ? `Reply directly: ${input.businessEmail}` : "",
     "— via Tourism Partner",

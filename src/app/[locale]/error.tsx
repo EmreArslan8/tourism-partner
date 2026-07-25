@@ -19,8 +19,8 @@ export default function Error({
 
   return (
     <main className="container-px flex min-h-[60vh] flex-col items-center justify-center gap-4 py-20 text-center">
-      <h1 className="heading-section text-pine">{t("genericTitle")}</h1>
-      <p className="body-muted max-w-[480px]">{t("genericDescription")}</p>
+      <h1 className="heading-section text-white">{t("genericTitle")}</h1>
+      <p className="max-w-[480px] text-body-base text-white/80">{t("genericDescription")}</p>
       <button type="button" onClick={reset} className="btn btn-solid">
         {t("retry")}
       </button>

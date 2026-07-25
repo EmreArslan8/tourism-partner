@@ -34,7 +34,7 @@ export async function sendQuoteOffer(_prev: ActionState, formData: FormData): Pr
   // Sahiplik: teklif bu işletmeye ait olmalı.
   const { data: quote } = await admin
     .from("quotes")
-    .select("id,business_id,name,email,service")
+    .select("id,business_id,name,company,email,phone,service,category_type,country,city,district,date_range,valid_until,people,message,created_at")
     .eq("id", quoteId)
     .maybeSingle();
   if (!quote || quote.business_id !== biz.id) return { ok: false, error: "notFound" };
@@ -48,6 +48,20 @@ export async function sendQuoteOffer(_prev: ActionState, formData: FormData): Pr
     offerMessage: message,
     service: quote.service,
     businessEmail,
+    request: {
+      requesterName: quote.name,
+      company: quote.company,
+      email: quote.email,
+      phone: quote.phone,
+      service: quote.service,
+      category: quote.category_type,
+      location: [quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || null,
+      dateRange: quote.date_range,
+      people: quote.people,
+      validUntil: quote.valid_until,
+      message: quote.message,
+      requestedAt: quote.created_at ? String(quote.created_at).slice(0, 10) : null,
+    },
   });
 
   const result = await sendEmail({
