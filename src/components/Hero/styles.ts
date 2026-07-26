@@ -78,6 +78,14 @@
   mobileCategoryLink:
     "flex min-w-0 flex-[1_1_30%] items-center justify-center gap-1.5 rounded-[10px] border border-white/15 bg-[#071a52]/75 px-2 py-2 text-center text-[10.5px] font-bold leading-tight text-white backdrop-blur-md " +
     "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0",
+  // Öne çıkan etkinlik rozeti — hero'nun sağ üst boşluğunda (yalnız masaüstünde, orada yer var).
+  // İleride tıklanabilir yapmak için wrapper'ı <Link>'e çevirmek yeterli (bkz. Hero/index.tsx notu).
+  eventBadge:
+    "pointer-events-none absolute top-[104px] end-[6%] z-10 hidden " +
+    "rounded-2xl bg-white/95 p-3 ring-1 ring-white/60 backdrop-blur-sm " +
+    "shadow-[0_16px_36px_-22px_rgba(1,8,47,.55)] " +
+    "min-[1025px]:block min-[1440px]:top-[120px] min-[1440px]:end-[7%] min-[1440px]:p-3.5",
+  eventBadgeLogo: "h-auto w-[208px] min-[1440px]:w-[232px]",
   marquee:
     "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/20 " +
     "bg-white/[.06] backdrop-blur-xl backdrop-saturate-150 " +

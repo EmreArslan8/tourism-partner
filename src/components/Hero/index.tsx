@@ -76,6 +76,19 @@ const Hero = () => {
       </picture>
       <div className={styles.overlay} />
 
+      {/* Öne çıkan etkinlik rozeti (sağ üst). Şimdilik dekoratif; ileride butona/link'e
+          çevirmek için bu <div>'i <Link href={{ pathname: "..." }}> ile değiştir ve
+          styles.eventBadge'deki "pointer-events-none"u kaldırıp hover efekti ekle. */}
+      <div className={styles.eventBadge}>
+        <Image
+          src="/assets/health-beauty-expo.webp"
+          alt="Health & Beauty Expo — Amsterdam 2026"
+          width={720}
+          height={439}
+          className={styles.eventBadgeLogo}
+        />
+      </div>
+
       {/* NOT: Etkileşimli 3D küre (Hero/Globe.tsx, three-globe) şimdilik devre dışı —
           görsel ayarı yapılamadan sayfayı bozuyordu. Geri açmak için: Globe import'u +
           styles.globeWrap bloğunu buraya ekle (git geçmişinde hazır). */}
