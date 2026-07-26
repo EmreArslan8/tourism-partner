@@ -81,10 +81,10 @@ const Hero = () => {
           styles.eventBadge'deki "pointer-events-none"u kaldırıp hover efekti ekle. */}
       <div className={styles.eventBadge}>
         <Image
-          src="/assets/health-beauty-expo.webp"
+          src="/assets/health-beauty-expo.png"
           alt="Health & Beauty Expo — Amsterdam 2026"
-          width={720}
-          height={439}
+          width={600}
+          height={365}
           className={styles.eventBadgeLogo}
         />
       </div>
