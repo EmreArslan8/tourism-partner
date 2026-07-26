@@ -78,6 +78,12 @@
   mobileCategoryLink:
     "flex min-w-0 flex-[1_1_30%] items-center justify-center gap-1.5 rounded-[10px] border border-white/15 bg-[#071a52]/75 px-2 py-2 text-center text-[10.5px] font-bold leading-tight text-white backdrop-blur-md " +
     "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0",
+  // Öne çıkan etkinlik logosu — hero'nun sağ üst boşluğunda (yalnız masaüstünde, orada yer var).
+  // Saf logo, zeminsiz. İleride tıklanabilir yapmak için wrapper'ı <Link>'e çevirmek yeterli.
+  eventBadge:
+    "pointer-events-none absolute top-[112px] end-[6%] z-10 hidden " +
+    "min-[1025px]:block min-[1440px]:top-[128px] min-[1440px]:end-[7%]",
+  eventBadgeLogo: "h-auto w-[224px] min-[1440px]:w-[252px]",
   marquee:
     "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/20 " +
     "bg-white/[.06] backdrop-blur-xl backdrop-saturate-150 " +
