@@ -13,6 +13,10 @@
 server {
     server_name tourismpartner.com www.tourismpartner.com;
 
+    # Kanonik host: www'li hali esas alınır. Çıplak alan adı (www'siz) www'ye
+    # kalıcı (301) yönlendirilir — SEO tekilleştirmesi ve tek kanonik URL için.
+    if ($host = tourismpartner.com) { return 301 https://www.tourismpartner.com$request_uri; }
+
     client_max_body_size 20m;
 
     location / {
@@ -42,8 +46,10 @@ server {
 
 # HTTP → HTTPS yönlendirme (Certbot üretir)
 server {
-    if ($host = www.tourismpartner.com) { return 301 https://$host$request_uri; }
-    if ($host = tourismpartner.com)     { return 301 https://$host$request_uri; }
+    # www'li istekler protokolü yükseltir; çıplak alan adı doğrudan www'ye gider
+    # (çift yönlendirmeyi önlemek için kanonik www hedefi burada da uygulanır).
+    if ($host = www.tourismpartner.com) { return 301 https://www.tourismpartner.com$request_uri; }
+    if ($host = tourismpartner.com)     { return 301 https://www.tourismpartner.com$request_uri; }
     listen 80;
     listen [::]:80;
     server_name tourismpartner.com www.tourismpartner.com;

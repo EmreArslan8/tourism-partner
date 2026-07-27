@@ -21,7 +21,7 @@ services:
       DEEPL_API_KEY: "DOLDUR"
       NEXT_PUBLIC_SUPABASE_URL: "DOLDUR"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "DOLDUR"
-      NEXT_PUBLIC_SITE_URL: "https://srv1746085.hstgr.cloud"
+      NEXT_PUBLIC_SITE_URL: "https://www.tourismpartner.com"
 
 # Otomatik güncelleme yok: yeni sürüm için sunucuda `docker compose pull app && docker compose up -d app`.
 # (watchtower Docker daemon API uyumsuzluğu yüzünden kaldırıldı; sonsuz restart'ta güncelleme çekemiyordu.)

@@ -1,7 +1,8 @@
 import { getPathname } from "@/i18n/navigation";
 
 /* Kanonik site kök URL'i — sitemap, robots ve metadataBase için tek kaynak.
-   Üretimde NEXT_PUBLIC_SITE_URL tanımlanmalı (ör. https://tourismpartner.com). */
+   Üretimde NEXT_PUBLIC_SITE_URL tanımlanmalı (ör. https://www.tourismpartner.com).
+   Kanonik host www'li haldir; nginx çıplak alan adını www'ye 301'ler (bkz. deploy/nginx.conf.example). */
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ??
   (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined) ??
