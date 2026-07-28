@@ -51,6 +51,7 @@ next-env.d.ts
 
 # database
 *.sql
+!supabase/migrations/20260728_0001_business_duplicate_guard.sql
 
 # yerel HTML şablonları ve Markdown notları
 *.html

@@ -592,6 +592,7 @@
     "cancel": "Cancel",
     "error": "Could not save, please try again.",
     "invalidRegion": "Please select a valid country, city and district.",
+    "duplicateBusiness": "You already have a business with this name. Edit the existing business instead.",
     "invalidTckn": "Invalid national ID (TCKN). Please check the 11-digit number.",
     "invalidTaxNo": "Invalid tax number. Please check the 10-digit number.",
     "contactsTitle": "Authorised Contacts",

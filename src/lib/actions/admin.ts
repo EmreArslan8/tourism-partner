@@ -155,6 +155,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
     const id = String(formData.get("id") ?? "").trim();
     const locale = clean(formData.get("locale"), 8);
     const group = groupValue(formData);
+    const categoryTouched = formData.get("categoryTouched") === "1";
     // Çoklu hizmet seçimi (business_services). İlk seçilen birincil → type.
     const serviceSlugs = formData
       .getAll("services")
@@ -163,12 +164,24 @@ export async function saveBusiness(formData: FormData): Promise<void> {
     const primaryType = serviceSlugs.length > 0 ? serviceLabel(serviceSlugs[0]) : clean(formData.get("type"), 120) ?? "";
     const address = clean(formData.get("address"), 260);
     let details: Record<string, string> = {};
+    let currentBusiness: { group: GroupKey; type: string; details: unknown } | null = null;
     if (id) {
-      const { data } = await supabase.from("businesses").select("details").eq("id", Number(id)).maybeSingle();
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("group,type,details")
+        .eq("id", Number(id))
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) throw new Error("İşletme bulunamadı.");
+      currentBusiness = data as { group: GroupKey; type: string; details: unknown };
       details = isRecord(data?.details) ? data.details : {};
     }
     if (address) details.address = address;
     else delete details.address;
+    if (id && categoryTouched && serviceSlugs.length === 0) {
+      throw new Error("Kategori değiştirildiğinde en az bir hizmet seçilmelidir.");
+    }
+
     const payload = {
       group,
       type: primaryType,
@@ -197,6 +210,14 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       og_image: cleanImageUrl(formData.get("ogImage"), 260),
     };
 
+    // Admin yalnızca telefon/açıklama gibi başka bir alanı kaydettiğinde tarayıcıdaki
+    // eski kategori state'i DB'ye geri yazılmasın. Kategori ancak ilgili alanlara
+    // bilinçli biçimde dokunulduğunda değişebilir.
+    if (id && !categoryTouched && currentBusiness) {
+      payload.group = currentBusiness.group;
+      payload.type = currentBusiness.type;
+    }
+
     if (!payload.name || !payload.type || !payload.country || !payload.city || !payload.district) {
       throw new Error("Zorunlu alanlar eksik.");
     }
@@ -212,11 +233,24 @@ export async function saveBusiness(formData: FormData): Promise<void> {
     }
 
     // Çoklu hizmetleri senkronize et (yalnızca form açıkça hizmet gönderdiyse).
-    if (businessId != null && serviceSlugs.length > 0) {
+    if (businessId != null && serviceSlugs.length > 0 && (!id || categoryTouched)) {
       await replaceBusinessServices(supabase, businessId, group, serviceSlugs);
     }
 
-    await logAdminAction(context, id ? "business.update" : "business.create", "business", id || null, { ...payload, services: serviceSlugs });
+    await logAdminAction(
+      context,
+      id ? "business.update" : "business.create",
+      "business",
+      id || businessId,
+      {
+        ...payload,
+        ...(categoryTouched || !id ? { services: serviceSlugs } : {}),
+        categoryTouched,
+      },
+      currentBusiness
+        ? { group: currentBusiness.group, type: currentBusiness.type }
+        : null,
+    );
     revalidateAdmin(locale);
     if (!id) createdLocale = locale ?? "tr";
   } catch (error) {

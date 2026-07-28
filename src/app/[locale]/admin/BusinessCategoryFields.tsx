@@ -20,6 +20,7 @@ const BusinessCategoryFields = ({
 }) => {
   const [group, setGroup] = useState<GroupKey>(initialGroup);
   const [selected, setSelected] = useState<string[]>(initialServices);
+  const [touched, setTouched] = useState(false);
   const selectedGroup = CATEGORY_GROUPS.find((item) => item.key === group) ?? CATEGORY_GROUPS[0];
   // Hiç hizmet seçilmezse (eski kayıt) birincil tür fallback'i korunur.
   const primaryType = selected.length > 0 ? serviceLabel(selected[0]) : initialType;
@@ -34,11 +35,15 @@ const BusinessCategoryFields = ({
     return [...map.entries()];
   }, [selectedGroup]);
 
-  const toggle = (slug: string) =>
+  const toggle = (slug: string) => {
+    setTouched(true);
     setSelected((current) => (current.includes(slug) ? current.filter((s) => s !== slug) : [...current, slug]));
+  };
 
   return (
     <div className="grid gap-3">
+      {/* Profilin başka bir alanı kaydedilirken kategori yanlışlıkla güncellenmesin. */}
+      <input type="hidden" name="categoryTouched" value={touched ? "1" : "0"} />
       {/* Hizmet seçilmediğinde bile birincil türü koru (eski kayıt uyumu). */}
       <input type="hidden" name="type" value={primaryType} />
       <Field label="Grup" required>
@@ -47,6 +52,7 @@ const BusinessCategoryFields = ({
           value={group}
           className={inputClassName}
           onChange={(event) => {
+            setTouched(true);
             setGroup(event.target.value as GroupKey);
             setSelected([]); // slug'lar gruba özgü — grup değişince temizle
           }}

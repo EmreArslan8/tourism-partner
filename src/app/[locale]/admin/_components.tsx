@@ -237,7 +237,13 @@ export const BusinessForm = ({
           <div>
             <Field label="Firma adı" required><input name="name" required defaultValue={business?.name ?? ""} className={compactInput} /></Field>
           </div>
-          <BusinessCategoryFields initialGroup={business?.group ?? "konaklama"} initialServices={business?.serviceTypes ?? []} initialType={business?.type ?? ""} inputClassName={compactInput} />
+          <BusinessCategoryFields
+            key={business ? `${business.id}:${business.group}:${business.type}:${(business.serviceTypes ?? []).join(",")}` : "new"}
+            initialGroup={business?.group ?? "konaklama"}
+            initialServices={business?.serviceTypes ?? []}
+            initialType={business?.type ?? ""}
+            inputClassName={compactInput}
+          />
         </AdminFormSection>
 
         <AdminFormSection title="Konum">

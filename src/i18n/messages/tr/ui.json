@@ -592,6 +592,7 @@
     "cancel": "Vazgeç",
     "error": "Kaydedilemedi, lütfen tekrar deneyin.",
     "invalidRegion": "Lütfen geçerli bir ülke, şehir ve ilçe seçin.",
+    "duplicateBusiness": "Bu isimle bir işletmeniz zaten var. Mevcut işletmeyi düzenleyin.",
     "invalidTckn": "Geçersiz T.C. Kimlik No. Lütfen 11 haneli numarayı kontrol edin.",
     "invalidTaxNo": "Geçersiz Vergi No. Lütfen 10 haneli numarayı kontrol edin.",
     "contactsTitle": "Yetkili Kişiler",

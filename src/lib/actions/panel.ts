@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { headers } from "next/headers";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
@@ -16,6 +18,34 @@ import { SOCIAL_PLATFORMS, type GroupKey, type ActionState, type BusinessDocumen
 import { clean, cleanHttpUrl, isEmail } from "./validate";
 
 type ContactInput = { full_name: string; title: string | null; phone: string | null; email: string | null };
+
+function normalizedBusinessName(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+async function logOwnerBusinessCreate(
+  userId: string,
+  businessId: number,
+  value: { name: string; group: GroupKey; type: string },
+) {
+  const admin = createAdminClient();
+  if (!admin) {
+    console.error("[business-owner-create] audit yazılamadı: service_role yok", { businessId, userId });
+    return;
+  }
+  const headerList = await headers();
+  const forwardedFor = headerList.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const { error } = await admin.from("audit_logs").insert({
+    admin_id: userId,
+    action: "business.owner.create",
+    entity_type: "business",
+    entity_id: String(businessId),
+    ip_address: forwardedFor || headerList.get("x-real-ip"),
+    user_agent: headerList.get("user-agent"),
+    new_value: value,
+  });
+  if (error) console.error("[business-owner-create] audit yazılamadı", { businessId, error: error.message });
+}
 
 /** Panelden gelen contacts JSON'ını güvenli parse eder (max 10, alan temizliği). */
 function parseContacts(raw: unknown): ContactInput[] {
@@ -342,6 +372,14 @@ export async function saveMyBusiness(
       const group = formGroup;
       savedGroup = group;
       payload.documents = filterAllowedDocuments(payload.documents, group, payload.type || (meta.biz_type as string) || "");
+      const { data: ownedNames, error: duplicateReadError } = await supabase
+        .from("businesses")
+        .select("id,name")
+        .eq("owner_id", user.id);
+      if (duplicateReadError) return { ok: false, error: duplicateReadError.message };
+      if ((ownedNames ?? []).some((row) => normalizedBusinessName(row.name) === normalizedBusinessName(name))) {
+        return { ok: false, error: "duplicateBusiness" };
+      }
       const { data, error } = await supabase.from("businesses").insert({
         owner_id: user.id,
         group,
@@ -349,10 +387,16 @@ export async function saveMyBusiness(
         ...payload,
         type: payload.type || (meta.biz_type as string) || "—",
       }).select("id").single();
+      if (error?.code === "23505") return { ok: false, error: "duplicateBusiness" };
       if (error) return { ok: false, error: error.message };
       if (!data?.id) return { ok: false, error: "missingBusinessId" };
       savedBusinessId = data.id;
       redirectBusinessId = data.id;
+      await logOwnerBusinessCreate(user.id, data.id, {
+        name,
+        group,
+        type: payload.type || (meta.biz_type as string) || "—",
+      });
 
       const media = await finalizeBusinessMedia(
         supabase,

@@ -1250,7 +1250,13 @@ const DashboardView = ({
 
             {state.ok && <p className={styles.success}>{t("saved")}</p>}
             {state.error && state.error !== "invalidTckn" && state.error !== "invalidTaxNo" && (
-              <p className={styles.error}>{state.error === "invalidRegion" ? t("invalidRegion") : t("error")}</p>
+              <p className={styles.error}>
+                {state.error === "invalidRegion"
+                  ? t("invalidRegion")
+                  : state.error === "duplicateBusiness"
+                    ? t("duplicateBusiness")
+                    : t("error")}
+              </p>
             )}
 
             <div className={styles.formActions}>

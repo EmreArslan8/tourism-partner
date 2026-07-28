@@ -26,6 +26,7 @@ export default function EditableForm({
   children: React.ReactNode;
 }) {
   const [editing, setEditing] = useState(defaultEditing);
+  const [formVersion, setFormVersion] = useState(0);
 
   return (
     <form id={id} action={action} className={className}>
@@ -47,7 +48,12 @@ export default function EditableForm({
             <>
               <button
                 type="button"
-                onClick={() => setEditing(false)}
+                onClick={() => {
+                  setEditing(false);
+                  // Kontrollü kategori alanları dahil tüm formu sunucudan gelen
+                  // başlangıç değerleriyle yeniden kur.
+                  setFormVersion((current) => current + 1);
+                }}
                 className="inline-flex h-9 items-center gap-1.5 rounded-[7px] border border-line px-3 text-[12.5px] font-bold text-ink hover:bg-cream"
               >
                 <X size={15} aria-hidden /> İptal
@@ -70,7 +76,7 @@ export default function EditableForm({
           )}
         </div>
       </div>
-      <fieldset disabled={!editing} className="contents">
+      <fieldset key={formVersion} disabled={!editing} className="contents">
         {children}
       </fieldset>
     </form>
