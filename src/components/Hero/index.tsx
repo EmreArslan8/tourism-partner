@@ -1,9 +1,11 @@
 import Image, { getImageProps } from "next/image";
+import { Suspense } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
 import Partners from "@/components/Partners";
+import { getBusinesses } from "@/lib/businesses";
 import styles from "./styles";
 
 const commonImageProps = {
@@ -50,6 +52,11 @@ const {
   height: 1448,
   quality: 85,
 });
+
+async function ApprovedBusinessMarquee() {
+  const businesses = await getBusinesses();
+  return <Partners brands={businesses.map((business) => business.name)} />;
+}
 
 const Hero = () => {
   const t = useTranslations("hero");
@@ -136,7 +143,9 @@ const Hero = () => {
 
       </div>
       <div className={styles.marquee}>
-        <Partners />
+        <Suspense fallback={<div className="h-[58px]" aria-hidden />}>
+          <ApprovedBusinessMarquee />
+        </Suspense>
       </div>
     </section>
   );

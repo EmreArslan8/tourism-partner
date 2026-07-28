@@ -1,34 +1,31 @@
 import styles from "./styles";
 
-/* Global havayolu / seyahat markaları — algı olarak daha kurumsal bir şerit.
-   Yerel markalar yok. Not: bunlar bilinen markaların isimleridir; "iş ortağı"
-   iddiası taşımaz, yalnızca sektör vitrini olarak dekoratif gösterilir. */
-const BRANDS = [
-  "Emirates",
-  "Qatar Airways",
-  "Lufthansa",
-  "Singapore Airlines",
-  "Air France",
-  "British Airways",
-  "Etihad Airways",
-  "KLM",
-  "Qantas",
-  "Swiss",
-  "Cathay Pacific",
-  "ANA",
-];
+/* Admin onayından geçmiş gerçek işletmeler için kenar fade maskeli marquee. */
+const Partners = ({ brands }: { brands: string[] }) => {
+  const uniqueBrands = Array.from(
+    new Map(
+      brands
+        .map((brand) => brand.trim())
+        .filter(Boolean)
+        .map((brand) => [brand.toLocaleLowerCase("tr"), brand]),
+    ).values(),
+  );
+  if (uniqueBrands.length === 0) return null;
 
-/* Modern "güvenilen markalar" şeridi — kenar fade maskeli sonsuz marquee. */
-const Partners = () => {
-  // Sonsuz döngü için listeyi ikiye katlıyoruz
-  const list = [...BRANDS, ...BRANDS];
+  // Az işletme olduğunda da şerit ekranı doldursun; ikinci kopya sonsuz döngüyü sağlar.
+  const minimumCycleLength = 8;
+  const cycle = Array.from(
+    { length: Math.max(minimumCycleLength, uniqueBrands.length) },
+    (_, index) => uniqueBrands[index % uniqueBrands.length],
+  );
+  const list = [...cycle, ...cycle];
 
   return (
     <section className={styles.section}>
       <div className={styles.viewport}>
         <div className={styles.track}>
           {list.map((brand, i) => (
-            <span key={i} className={styles.item} aria-hidden={i >= BRANDS.length}>
+            <span key={`${brand}-${i}`} className={styles.item} aria-hidden={i >= cycle.length}>
               {brand}
             </span>
           ))}

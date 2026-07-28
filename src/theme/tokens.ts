@@ -55,5 +55,5 @@ export const animation = {
   "splash-out": "splashOut .6s cubic-bezier(.22,1,.36,1) forwards",
   "splash-mark": "splashMark 1.1s cubic-bezier(.22,1,.36,1)",
   "card-in": "cardIn .5s cubic-bezier(.22,1,.36,1) backwards",
-  "scroll-linear": "scroll 30s linear infinite",
+  "scroll-linear": "scroll 70s linear infinite",
 } as const;
