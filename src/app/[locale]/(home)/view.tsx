@@ -70,12 +70,8 @@ function PanelFallback() {
 const HomeView = () => {
   return (
     <>
-      {/* 1 — Hero (ilk ekranı doldurur) */}
-      <section className={styles.hero}>
-        <div className={styles.heroFill}>
-          <Hero />
-        </div>
-      </section>
+      {/* 1 — Hero (ilk ekranı doldurur; yüksekliği kendi kökünde) */}
+      <Hero />
 
       {/* 2 — Vitrin + CTA */}
       <section className={styles.section}>

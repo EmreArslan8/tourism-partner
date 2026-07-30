@@ -8,11 +8,7 @@ const sectionBase =
   "min-[1440px]:py-20 min-[1800px]:py-24 max-[900px]:py-12 max-[640px]:py-10";
 
 const styles = {
-  // Hero ilk ekranı doldurur (kendi glass header'ını hero görselinin üzerine bindirir).
-  // Kesin yükseklik: Hero kökü h-full olduğundan (marquee absolute bottom-0) zincirin
-  // çözülmesi için yüzdesel değil sabit 100dvh gerekir — aksi halde altta boşluk kalır.
-  hero: "relative h-[100dvh] w-full bg-transparent",
-  heroFill: "relative h-full w-full",
+  // Hero yüksekliğini kendi içinde taşır (bkz. components/Hero/styles.ts → section).
   section: sectionBase,
   // İçerik container-px kutusunu doldurur — Hero/Footer ile aynı sol/sağ hizada kalır.
   inner: "w-full",

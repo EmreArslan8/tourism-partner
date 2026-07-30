@@ -5,6 +5,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
 import { ensureBusinessForUser, recordSignupIntent } from "@/lib/signup-intents";
+import { isContactEmailTaken } from "@/lib/business-contacts";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -198,6 +199,12 @@ export async function signUp(
     bizProfile &&
       (bizProfile.country || bizProfile.description || bizProfile.whatsapp || bizProfile.contactName || bizProfile.cover),
   );
+
+  // Mükerrer işletme kaydı engeli — yalnızca listelenecek (tedarikçi) kayıtta.
+  // Alıcı hesapları işletme oluşturmadığı için kapsam dışı.
+  if (cat && (await isContactEmailTaken([bizProfile?.contactEmail ?? "", email!]))) {
+    return { ok: false, error: "businessExists" };
+  }
 
   const locale = await getLocale();
 

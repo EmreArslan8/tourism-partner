@@ -23,13 +23,13 @@ const styles = {
     "max-[860px]:grid-cols-1 max-[860px]:gap-0 max-[860px]:overflow-hidden max-[860px]:rounded-card-lg " +
     "max-[860px]:border max-[860px]:border-line max-[860px]:shadow-card",
 
-  /* SOL — galeri (mobilde yükseklik viewport'a bağlı: dvh → kısa ekranda küçülür,
-     böylece kart + CTA aynı 100dvh panele sığar, alttan kırpılmaz) */
+  /* SOL — galeri (mobilde sabit en-boy oranı; eski dvh ölçüsü ReelDeck panelinden
+     kalmaydı ve scroll'da adres çubuğu daralınca görseli yeniden boyutlandırıyordu) */
   gallery:
     "relative min-h-[360px] overflow-hidden rounded-card-lg shadow-[0_26px_70px_-36px_rgba(0,0,0,.88)] ring-1 ring-white/15 " +
     "min-[1440px]:min-h-[460px] min-[1800px]:min-h-[520px] " +
     "max-[860px]:min-h-[300px] max-[860px]:rounded-none max-[860px]:shadow-none " +
-    "max-[640px]:min-h-0 max-[640px]:h-[34dvh]",
+    "max-[640px]:min-h-0 max-[640px]:aspect-[4/3]",
   galleryImg: "object-cover",
   premium: "absolute start-4 top-4 z-[3]",
   placeholder:

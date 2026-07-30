@@ -1020,7 +1020,9 @@ const RegisterForm = () => {
 
           {state.error && (
             <p className="text-[13px] font-medium text-red-600">
-              {["rate", "exists", "email", "password"].includes(state.error) ? t(`error_${state.error}`) : t("error")}
+              {["rate", "exists", "email", "password", "businessExists"].includes(state.error)
+                ? t(`error_${state.error}`)
+                : t("error")}
             </p>
           )}
 

@@ -34,14 +34,18 @@ export default function AccountMenu({ dashboardHref }: { dashboardHref: Href | n
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="inline-flex h-10 items-center gap-2 rounded-[10px] bg-white px-3.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream min-[1440px]:h-11 min-[1440px]:px-4 min-[1440px]:text-[16px] min-[1800px]:text-[17px]"
+        className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-white px-3.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream min-[1440px]:h-11 min-[1440px]:px-4 min-[1440px]:text-[16px] min-[1800px]:text-[17px] max-[900px]:gap-1.5 max-[900px]:border max-[900px]:border-white/35 max-[900px]:bg-transparent max-[900px]:px-2 max-[900px]:text-white max-[900px]:shadow-none max-[900px]:active:bg-white/15"
+        aria-label={triggerLabel}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        <UserRound size={17} aria-hidden />
-        <span>{triggerLabel}</span>
-        <ChevronDown size={15} className={open ? "rotate-180 transition-transform" : "transition-transform"} aria-hidden />
+        <span className="grid place-items-center max-[900px]:h-6 max-[900px]:w-6 max-[900px]:rounded-full max-[900px]:bg-white max-[900px]:text-brand">
+          <UserRound size={17} strokeWidth={2.4} aria-hidden />
+        </span>
+        <span className="max-[900px]:hidden">{triggerLabel}</span>
+        <span className="hidden text-[11px] font-bold leading-none max-[900px]:inline">{t("account")}</span>
+        <ChevronDown size={15} className={`${open ? "rotate-180 " : ""}transition-transform max-[900px]:hidden`} aria-hidden />
       </button>
 
       {open && (

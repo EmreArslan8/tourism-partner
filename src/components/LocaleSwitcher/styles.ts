@@ -12,6 +12,9 @@
   itemActive: "text-brand bg-brand/5 font-medium",
   itemName: "text-ink",
   itemCode: "text-[11px] opacity-40 font-bold",
+  inlineWrap: "flex items-center gap-1.5",
+  inlineItem: "flex-1 rounded-[10px] border border-line px-2 py-2 text-center text-[13px] font-bold uppercase tracking-wide text-muted transition-colors hover:bg-cream",
+  inlineItemActive: "border-brand bg-brand !text-white shadow-[0_10px_20px_-14px_rgba(1,20,93,.9)]",
 } as const;
 
 export default styles;

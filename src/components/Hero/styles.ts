@@ -1,6 +1,15 @@
 /* Hero — statik marketing görseli + sola hizalı içerik. */
  const styles= {
-  section: "relative isolate h-full w-full overflow-hidden bg-pine",
+  // İlk ekranı doldurur ama ona kilitlenmez (min-h → içerik uzarsa hero büyür, kırpılmaz).
+  // Ölçü svh: Safari'de scroll'la adres/araç çubuğu daralsa da SABİT kalır — dvh olsaydı
+  // hero uzayıp görseli esnetirdi. Marquee de mobilde akışta (flex sonu) olduğundan
+  // içerikle arasındaki boşluk viewport değişiminden etkilenmez.
+  // Mobilde 100svh yerine 100svh-40px: marquee tam katlanma çizgisine oturmaz, altındaki
+  // bölümün bir şeridi baştan görünür. Safari çubuğu geri çekilip ~90px alan açıldığında
+  // "yeni bir kenar belirmiş" hissi olmaz, zaten görünen alan biraz büyür.
+  section:
+    "relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-pine " +
+    "max-[640px]:min-h-[calc(100svh-40px)]",
   picture: "absolute inset-0 -z-10 block",
   image: "h-full w-full object-cover object-center min-[1440px]:object-[44%_center] min-[1800px]:object-[40%_center]",
   overlay:
@@ -18,7 +27,7 @@
     "bg-[radial-gradient(closest-side,#01082f_46%,rgba(1,8,47,.78)_64%,rgba(1,8,47,0)_100%)]",
   globeCanvas: "pointer-events-auto relative h-full w-full",
   inner:
-    "container-px flex h-full min-h-[520px] flex-col items-start justify-center  text-start " +
+    "container-px flex min-h-[520px] flex-1 flex-col items-start justify-center  text-start " +
     // Header absolute olduğundan güvenli alan: ortalanan içerik kısa ekranda header altına giremesin.
     "min-[1025px]:pt-[96px] min-[1025px]:pb-[72px] " +
     // Yukarı kaydırma yalnız yeterince YÜKSEK ekranlarda; kısa laptop ekranında taşmaya yol açıyordu.
@@ -36,8 +45,9 @@
     "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
   eyebrow:
     "mb-3 text-[14px] font-extrabold uppercase tracking-[.16em] text-[#b7c6ff] [text-shadow:0_2px_18px_rgba(1,8,47,.45)] min-[1440px]:mb-4 min-[1440px]:text-[15px] max-[640px]:mb-2 max-[640px]:text-[11px]",
+  // Mobilde açıklama başlığın altında değil, teklif butonunun hemen üstünde durur.
   mobileIntro:
-    "mt-4 hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
+    "hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
   categories:
     "mt-8 flex items-start gap-8 text-white max-[1100px]:gap-5 max-[640px]:hidden min-[1440px]:mt-10 min-[1440px]:gap-10 min-[1800px]:gap-11",
   categoryLink:
@@ -65,21 +75,24 @@
     "hover:-translate-y-0.5 hover:border-white/25 hover:bg-sapphire hover:shadow-[0_18px_38px_-15px_rgba(0,79,230,.95)] hover:before:start-[120%] " +
     "min-[1440px]:min-h-[56px] min-[1440px]:min-w-[340px] min-[1440px]:px-10 min-[1440px]:text-[16px] min-[1800px]:min-h-[60px] min-[1800px]:min-w-[360px] min-[1800px]:text-[17px] " +
     "[&>span]:relative [&>svg]:relative [&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
-  mobileCtas: "mt-5 hidden w-full flex-col gap-2.5 max-[640px]:flex",
-  mobileCtaRow: "flex w-full",
+  mobileCtas: "mt-6 hidden w-full flex-col gap-3 max-[640px]:flex",
   mobileCtaPrimary:
     "flex h-[52px] w-full items-center justify-center rounded-xl bg-white px-4 text-[14.5px] font-bold text-brand " +
     "shadow-[0_18px_38px_-18px_rgba(0,0,0,.55)] transition-transform active:scale-[.97]",
-  mobileCtaGhost:
-    "flex h-[48px] w-full items-center justify-center rounded-xl border border-white/25 bg-white/[.12] px-4 " +
-    "text-[14px] font-bold text-white backdrop-blur-md transition-colors active:bg-white/20",
+  // Mobil: 3 satırlık grid yerine tek satır yatay şerit — ilk ekranda ~125px yer açar.
+  // Kenardaki solma + yarım görünen chip, kaydırılabildiğini gösterir (RTL'de aynası).
   mobileCategories:
-    "mt-5 hidden w-full flex-wrap gap-2 max-[640px]:flex",
+    "mt-5 hidden w-full snap-x snap-mandatory gap-2 overflow-x-auto pb-1 max-[640px]:flex " +
+    "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden " +
+    "[mask-image:linear-gradient(90deg,#000_86%,transparent)] [-webkit-mask-image:linear-gradient(90deg,#000_86%,transparent)] " +
+    "rtl:[mask-image:linear-gradient(270deg,#000_86%,transparent)] rtl:[-webkit-mask-image:linear-gradient(270deg,#000_86%,transparent)]",
   mobileCategoryLink:
-    "flex min-w-0 flex-[1_1_30%] items-center justify-center gap-1.5 rounded-[10px] border border-white/15 bg-[#071a52]/75 px-2 py-2 text-center text-[10.5px] font-bold leading-tight text-white backdrop-blur-md " +
+    "flex shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full border border-white/15 bg-[#071a52]/75 px-3.5 py-2 text-[12px] font-bold leading-tight text-white backdrop-blur-md " +
     "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0",
+  // Mobilde akışa girer (static): alta demirlenirse tarayıcı çubuğu kayarken içerikle
+  // arasındaki boşluk oynuyordu; akışta içeriğin hemen ardından sabit durur.
   marquee:
-    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/20 " +
+    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-white/20 max-[640px]:static " +
     "bg-white/[.06] backdrop-blur-xl backdrop-saturate-150 " +
     "shadow-[inset_0_1px_0_rgba(255,255,255,.22),0_-12px_32px_-18px_rgba(1,8,47,.6)] " +
     "[&_*]:pointer-events-auto",

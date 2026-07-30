@@ -4,7 +4,6 @@ import type { Href } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import MobileMenu from "@/components/MobileMenu";
-import MobileSearch from "@/components/MobileSearch";
 import LangSwitcher from "@/components/LocaleSwitcher";
 import AccountMenu from "./AccountMenu";
 import NavLinks from "./NavLinks";
@@ -12,7 +11,7 @@ import styles from "./styles";
 
 /*
  * Header — server component. Statik yapı sunucuda render edilir; etkileşim parçaları
- * (NavLinks, MobileMenu, MobileSearch, LocaleSwitcher) birer "use client" adasıdır.
+ * (NavLinks, MobileMenu, AccountMenu, LocaleSwitcher) birer "use client" adasıdır.
  * variant="glass": anasayfa hero görseli üstünde camsı; varsayılan iç sayfalarda opak sapphire.
  */
 type HeaderVariant = "glass" | "solid";
@@ -66,14 +65,23 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
   return (
     <header className={`${styles.header} ${resolvedVariant === "glass" ? styles.headerGlass : styles.headerSolid}`}>
       <div className={styles.inner}>
+        <div className={styles.mobileMenu}>
+          <MobileMenu signedIn={auth.signedIn} dashboardHref={auth.dashboardHref} />
+        </div>
+
         <div className={styles.left}>
-          <Logo href="/" height={54} variant="light" priority className="ltr:origin-left rtl:origin-right min-[1440px]:scale-110 min-[1800px]:scale-[1.18]" />
+          <Logo
+            href="/"
+            height={54}
+            variant="light"
+            priority
+            className="ltr:origin-left rtl:origin-right min-[1440px]:scale-110 min-[1800px]:scale-[1.18] max-[900px]:origin-center max-[900px]:scale-[.72]"
+          />
         </div>
 
         <NavLinks links={links} />
 
-        <div className="col-start-3 flex items-center justify-self-end gap-1">
-          <MobileSearch />
+        <div className={styles.right}>
           <div className={styles.actions}>
             {auth.signedIn ? (
               <AccountMenu dashboardHref={auth.dashboardHref} />
@@ -96,7 +104,18 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
             <div className={styles.separator} />
             <LangSwitcher light />
           </div>
-          <MobileMenu signedIn={auth.signedIn} dashboardHref={auth.dashboardHref} />
+          <div className={styles.mobileAccount}>
+            {auth.signedIn ? (
+              <AccountMenu dashboardHref={auth.dashboardHref} />
+            ) : (
+              <Link
+                href={loginHref}
+                className="inline-flex h-10 items-center justify-center rounded-[10px] border border-white/35 px-2.5 text-[11px] font-bold leading-none text-white transition-colors active:bg-white/15"
+              >
+                {t("loginOrJoin")}
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </header>

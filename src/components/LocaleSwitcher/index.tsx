@@ -12,7 +12,7 @@ type Locale = "tr" | "en" | "ru" | "ar";
  * Dropdown dil seçici bileşeni.
  * next-intl navigation yardımcılarını kullanarak locale değiştirir.
  */
-const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
+const LocaleSwitcher = ({ light = false, inline = false }: { light?: boolean; inline?: boolean } = {}) => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -48,6 +48,26 @@ const LocaleSwitcher = ({ light = false }: { light?: boolean } = {}) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Inline varyant (mobil sheet): dropdown yok — dört dil yan yana pill olarak.
+  // Böylece konumlanma/kırpılma sorunu yaşanmaz.
+  if (inline) {
+    return (
+      <div className={styles.inlineWrap}>
+        {locales.map((l) => (
+          <button
+            key={l.code}
+            type="button"
+            className={`${styles.inlineItem} ${l.code === locale ? styles.inlineItemActive : ""}`}
+            onClick={() => handleLocaleChange(l.code as Locale)}
+            aria-current={l.code === locale}
+          >
+            {l.label}
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper} ref={dropdownRef}>

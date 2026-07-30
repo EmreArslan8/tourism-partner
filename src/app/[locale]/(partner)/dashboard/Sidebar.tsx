@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Building2, FileText, Heart, Inbox, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star } from "lucide-react";
+import { Building2, FileText, Heart, Inbox, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star, X } from "lucide-react";
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
@@ -54,6 +54,14 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
 
   return (
     <aside id="partner-dashboard-sidebar" className={`${styles.sidebar} ${open ? styles.sidebarOpen : ""}`}>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t("closeMenu")}
+          className="absolute end-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-[10px] border border-line bg-cream/50 text-brand transition-colors hover:bg-cream active:scale-95 min-[900px]:hidden"
+        >
+          <X size={18} aria-hidden />
+        </button>
         <Link href="/" className={styles.brandMark} aria-label="Tourism Partner" onClick={onClose}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />

@@ -12,7 +12,7 @@ const styles = {
     "text-[11px] font-black text-pine shadow-[0_10px_30px_-24px_rgba(7,9,42,.6)]",
   title: "heading-section text-white",
   lead: "mt-4 max-w-[58ch] text-[15px] font-medium leading-7 !text-[#c7d3f0] min-[1440px]:text-[16.5px] min-[1440px]:leading-8 min-[1800px]:text-[17.5px] max-[640px]:hidden",
-  list: "flex w-full flex-col gap-1.5 max-[860px]:max-h-[50dvh] max-[860px]:overflow-y-auto max-[640px]:!max-h-none max-[640px]:gap-0 max-[640px]:!overflow-visible",
+  list: "flex w-full flex-col gap-1.5 max-[860px]:max-h-[50svh] max-[860px]:overflow-y-auto max-[640px]:!max-h-none max-[640px]:gap-0 max-[640px]:!overflow-visible",
   item: "group border-b border-line transition-all last:border-b-0",
   summary:
     "flex cursor-pointer list-none items-center justify-between gap-5 py-5 text-[15.5px] font-bold leading-snug text-white " +

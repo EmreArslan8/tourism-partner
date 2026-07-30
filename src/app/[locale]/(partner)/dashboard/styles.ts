@@ -3,14 +3,17 @@ import { panelUi } from "@/components/workspace-ui";
 const styles = {
   main: `${panelUi.shell} min-[900px]:grid min-[900px]:grid-cols-[264px_minmax(0,1fr)]`,
   mobileHeader:
-    "flex h-[72px] items-center justify-between border-b border-line bg-paper px-5 text-ink shadow-[0_8px_22px_-20px_rgba(7,9,42,.55)] min-[900px]:hidden",
+    "relative z-[50] flex h-[72px] select-none items-center justify-between border-b border-line bg-paper px-5 text-ink shadow-[0_8px_22px_-20px_rgba(7,9,42,.55)] min-[900px]:hidden",
   mobileHeaderMeta: "flex items-center gap-3",
   sidebar:
-    "border-b border-line bg-paper text-ink transition-transform duration-300 max-[899px]:z-50 max-[899px]:shadow-[14px_0_40px_-28px_rgba(7,9,42,.45)] max-[899px]:fixed max-[899px]:inset-y-0 max-[899px]:start-0 max-[899px]:w-[min(82vw,310px)] max-[899px]:ltr:-translate-x-full max-[899px]:rtl:translate-x-full max-[899px]:overflow-y-auto min-[900px]:sticky min-[900px]:top-0 min-[900px]:h-screen min-[900px]:border-b-0 min-[900px]:border-e min-[900px]:border-line",
-  sidebarOpen: "max-[899px]:translate-x-0",
+    "border-b border-line bg-paper text-ink transition-transform duration-300 max-[899px]:z-[70] max-[899px]:shadow-[14px_0_40px_-28px_rgba(7,9,42,.45)] max-[899px]:fixed max-[899px]:inset-y-0 max-[899px]:start-0 max-[899px]:w-[min(82vw,310px)] max-[899px]:ltr:-translate-x-full max-[899px]:rtl:translate-x-full max-[899px]:overflow-y-auto min-[900px]:sticky min-[900px]:top-0 min-[900px]:h-screen min-[900px]:border-b-0 min-[900px]:border-e min-[900px]:border-line",
+  // Kapalı hâlin ltr/rtl translate kuralları eşit specificity'de ve CSS'te sonra
+  // geldiği için normal `translate-x-0` kaybediyordu; açık hâli !important ile
+  // kesinleştir (aksi hâlde mobilde sidebar açılmıyor).
+  sidebarOpen: "max-[899px]:!translate-x-0",
   mobileMenuButton:
     "grid h-10 w-10 place-items-center rounded-[10px] border border-line bg-cream/45 text-brand transition-[transform,background-color] duration-200 hover:bg-cream active:scale-95",
-  mobileBackdrop: "fixed inset-0 z-40 bg-ink/35 backdrop-blur-[2px] min-[900px]:hidden",
+  mobileBackdrop: "fixed inset-0 z-[55] bg-ink/35 backdrop-blur-[2px] min-[900px]:hidden",
   brandMark:
     "flex h-[92px] items-center border-b border-line/80 px-6 text-ink",
   logoImg: "h-[42px] w-auto max-w-[165px] object-contain",
