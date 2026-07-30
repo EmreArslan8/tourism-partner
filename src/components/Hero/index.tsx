@@ -128,13 +128,17 @@ const Hero = () => {
           ))}
         </nav>
 
-        {/* Mobilde: kategorilerden sonra kısa açıklama, ardından tek ana aksiyon (teklif).
-            Üye girişi burada değil — header'daki hesap ikonundan erişilir. */}
+        {/* Mobilde: kategorilerden sonra kısa açıklama, teklif ana buton, üye girişi ikincil. */}
         <div className={styles.mobileCtas}>
           <p className={styles.mobileIntro}>{t("quickSub")}</p>
           <Link href={{ pathname: "/quote" }} className={styles.mobileCtaPrimary}>
             {tn("quote")}
           </Link>
+          <div className={styles.mobileCtaRow}>
+            <Link href="/login" className={styles.mobileCtaGhost}>
+              {tn("memberLogin")}
+            </Link>
+          </div>
         </div>
 
       </div>

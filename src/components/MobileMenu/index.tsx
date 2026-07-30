@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { ChevronRight, X } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import type { Href } from "@/i18n/navigation";
 import { signOut } from "@/lib/actions/auth";
 import Logo from "@/components/Logo";
@@ -17,8 +17,11 @@ import styles from "./styles";
    yüksekliğine bağlı kalmaz ve dengeli bir düzen sunar. */
 const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boolean; dashboardHref?: Href | null }) => {
   const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
   const t = useTranslations("nav");
   const common = useTranslations("common");
+  const hero = useTranslations("hero");
+  const router = useRouter();
 
   const links = [
     { href: { pathname: "/" }, label: t("home") },
@@ -30,6 +33,15 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boo
   ] as const;
 
   const close = () => setOpen(false);
+
+  // Boş aramada da /kesfet'e götürür — kullanıcı listeye girip filtreleyebilsin.
+  const search = (e: React.FormEvent) => {
+    e.preventDefault();
+    const term = q.trim();
+    router.push(term ? { pathname: "/explore", query: { q: term } } : { pathname: "/explore" });
+    setQ("");
+    close();
+  };
 
   return (
     <>
@@ -56,6 +68,26 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boo
             <button type="button" className={styles.close} aria-label={common("close")} onClick={close}>
               <X size={20} aria-hidden />
             </button>
+          </div>
+
+          <div className={styles.searchWrap}>
+            <form className={styles.searchForm} onSubmit={search}>
+              <svg className={styles.searchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder={hero("searchPh")}
+                aria-label={hero("searchPh")}
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <button type="submit" className={styles.searchSubmit}>
+                {hero("searchBtn")}
+              </button>
+            </form>
           </div>
 
           <nav className={styles.list}>

@@ -76,9 +76,13 @@
     "min-[1440px]:min-h-[56px] min-[1440px]:min-w-[340px] min-[1440px]:px-10 min-[1440px]:text-[16px] min-[1800px]:min-h-[60px] min-[1800px]:min-w-[360px] min-[1800px]:text-[17px] " +
     "[&>span]:relative [&>svg]:relative [&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
   mobileCtas: "mt-6 hidden w-full flex-col gap-3 max-[640px]:flex",
+  mobileCtaRow: "flex w-full",
   mobileCtaPrimary:
     "flex h-[52px] w-full items-center justify-center rounded-xl bg-white px-4 text-[14.5px] font-bold text-brand " +
     "shadow-[0_18px_38px_-18px_rgba(0,0,0,.55)] transition-transform active:scale-[.97]",
+  mobileCtaGhost:
+    "flex h-[48px] w-full items-center justify-center rounded-xl border border-white/25 bg-white/[.12] px-4 " +
+    "text-[14px] font-bold text-white backdrop-blur-md transition-colors active:bg-white/20",
   // Mobil: 3 satırlık grid yerine tek satır yatay şerit — ilk ekranda ~125px yer açar.
   // Kenardaki solma + yarım görünen chip, kaydırılabildiğini gösterir (RTL'de aynası).
   mobileCategories:

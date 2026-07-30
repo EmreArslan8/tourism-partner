@@ -165,7 +165,12 @@ const styles= {
 
   // Mobil araç çubuğu (arama + kategoriler + filtreler)
   toolbar: "mb-4 hidden grid-cols-2 gap-2.5 max-[1120px]:grid max-[640px]:mb-2.5 max-[640px]:gap-2",
-  toolbarSearch: "col-span-2 min-w-0 [&>div]:w-full max-[640px]:hidden",
+  // Arama, daraltma butonlarının ÜSTÜNDE tam genişlik (grid'in ilk çocuğu + col-span-2).
+  // Beyaz yüzey burada veriliyor: acInput kutu görünümünü sarmalayıcıdan bekler
+  // (!border-0 !bg-transparent), masaüstünde bunu `bar` sağlıyor.
+  toolbarSearch:
+    "col-span-2 min-w-0 rounded-[8px] border border-line bg-paper shadow-card [&>div]:w-full " +
+    "max-[640px]:shadow-none",
   toolBtn:
     "inline-flex h-[44px] min-w-0 flex-1 items-center justify-center gap-2 rounded-[8px] border border-line " +
     "bg-paper px-3 text-[13.5px] font-semibold text-ink shadow-card transition-colors hover:border-terra " +
