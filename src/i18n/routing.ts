@@ -3,6 +3,10 @@ import { defineRouting } from "next-intl/routing";
 export const routing = defineRouting({
   locales: ["tr", "en", "ru", "ar"],
   defaultLocale: "en",
+  // hreflang'i proxy'nin `Link` header'ı yerine sayfa metadata'sından veriyoruz
+  // (bkz. lib/seo.ts). Header her istekte bir set alternate ekleyerek büyüyordu:
+  // /ar 555 entry / 39 KB'a çıkıp nginx proxy buffer'ını taşırdı → 502.
+  alternateLinks: false,
   pathnames: {
     "/": "/",
     "/explore": {

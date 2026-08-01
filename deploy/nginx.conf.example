@@ -22,10 +22,10 @@ server {
     location / {
         proxy_pass http://127.0.0.1:3000;
 
-        # --- 502 fix: Supabase auth çerezleri büyük başlık üretir ---
-        proxy_buffer_size        16k;
-        proxy_buffers            8 16k;
-        proxy_busy_buffers_size  32k;
+        # --- 502 fix: büyük yanıt başlıkları (Supabase auth çerezi) ---
+        proxy_buffer_size        128k;
+        proxy_buffers            8 128k;
+        proxy_busy_buffers_size  256k;
         proxy_read_timeout       60s;
         # -----------------------------------------------------------
 
