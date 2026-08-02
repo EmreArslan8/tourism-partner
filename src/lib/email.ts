@@ -5,7 +5,15 @@
      RESEND_API_KEY=re_xxx          (resend.com API anahtarı)
      EMAIL_FROM="Tourism Partner <bildirim@alanadiniz.com>"  (doğrulanmış gönderici) */
 
-type SendArgs = { to: string; subject: string; html: string; text?: string; replyTo?: string };
+type SendArgs = {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+  replyTo?: string;
+  /** Ek SMTP başlıkları — ör. toplu gönderimde List-Unsubscribe. */
+  headers?: Record<string, string>;
+};
 type SendResult = { ok: boolean; skipped?: boolean; error?: string; id?: string };
 
 function maskEmail(value: string) {
@@ -13,7 +21,7 @@ function maskEmail(value: string) {
   return local && domain ? `${local.slice(0, 2)}***@${domain}` : "<invalid-email>";
 }
 
-export async function sendEmail({ to, subject, html, text, replyTo }: SendArgs): Promise<SendResult> {
+export async function sendEmail({ to, subject, html, text, replyTo, headers }: SendArgs): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   const startedAt = Date.now();
@@ -36,7 +44,7 @@ export async function sendEmail({ to, subject, html, text, replyTo }: SendArgs):
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo }),
+      body: JSON.stringify({ from, to, subject, html, text, reply_to: replyTo, headers }),
     });
     if (!res.ok) {
       const error = `Resend ${res.status}: ${await res.text()}`;

@@ -126,7 +126,7 @@ export default async function AdminMembersPage({
           <DataTable
             data={rows}
             getRowKey={(m) => m.id}
-            minWidth={900}
+            minWidth={1040}
             columns={[
               {
                 key: "member",
@@ -159,6 +159,18 @@ export default async function AdminMembersPage({
                 cell: (m) => (
                   <span className="text-[13px] font-bold text-ink/80">{m.quoteCount > 0 ? m.quoteCount : "—"}</span>
                 ),
+              },
+              {
+                key: "referral",
+                header: "Referans",
+                cell: (m) =>
+                  m.referral ? (
+                    <span className="inline-block max-w-[160px] truncate rounded-[6px] bg-cream px-2 py-1 text-[12px] font-semibold text-brand">
+                      {m.referral}
+                    </span>
+                  ) : (
+                    <span className="text-[13px] font-semibold text-muted">—</span>
+                  ),
               },
               {
                 key: "created",

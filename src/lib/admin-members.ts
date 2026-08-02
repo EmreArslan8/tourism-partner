@@ -29,6 +29,8 @@ export type AdminMember = {
   phone: string | null;
   kind: MemberKind;
   sector: string | null;
+  /** Kayıt formundaki referans / temsilci bilgisi — kimin getirdiğini gösterir. */
+  referral: string | null;
   createdAt: string;
   lastSignInAt: string | null;
   emailConfirmed: boolean;
@@ -69,7 +71,7 @@ export const getAdminMembers = cache(async (): Promise<AdminMembersData> => {
       (from, to) =>
         supabase
           .from("profiles")
-          .select("id,full_name,phone,role,account_type,sector,created_at")
+          .select("id,full_name,phone,role,account_type,sector,referral_code,created_at")
           .order("created_at", { ascending: false })
           .order("id", { ascending: false })
           .range(from, to),
@@ -155,6 +157,7 @@ export const getAdminMembers = cache(async (): Promise<AdminMembersData> => {
         phone: row.phone ?? null,
         kind: kindOf(row.account_type),
         sector: row.sector ?? null,
+        referral: row.referral_code ?? null,
         createdAt: String(row.created_at),
         lastSignInAt: auth?.lastSignInAt ?? null,
         emailConfirmed: auth?.confirmed ?? false,

@@ -127,6 +127,8 @@ export async function signUp(
   const accountType = clean(formData.get("accountType"), 20) === "buyer" ? "buyer" : "supplier";
   // Alıcı için opsiyonel sektör (analitik). Tedarikçide yok sayılır.
   const sector = accountType === "buyer" ? clean(formData.get("sector"), 40) : "";
+  // Referans / temsilci — formdan elle ya da tanıtım mailindeki ?ref= ile gelir.
+  const referral = clean(formData.get("referral"), 80);
 
   if (!name || !email || !password) return { ok: false, error: "missing" };
   // Kategori yalnızca tedarikçi (listelenecek) kayıtta zorunlu.
@@ -222,6 +224,7 @@ export async function signUp(
         firm_name: name,
         account_type: accountType,
         ...(sector ? { sector } : {}),
+        ...(referral ? { referral_code: referral } : {}),
         ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category, service_slugs: serviceSlugs } : {}),
         // Kayıt adımı 3 profili — işletme kaydı oluşurken uygulanır (bkz. callback/panel).
         ...(hasBizProfile && bizProfile

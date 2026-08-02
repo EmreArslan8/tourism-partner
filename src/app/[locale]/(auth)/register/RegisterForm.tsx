@@ -300,7 +300,7 @@ function PhoneCodeInput({
   );
 }
 
-const RegisterForm = () => {
+const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) => {
   const [state, action, pending] = useActionState(signUp, { ok: false });
   const [step, setStep] = useState<StepNo>(1);
   const [intent, setIntent] = useState<Intent | "">(""); // "" = henüz seçilmedi
@@ -329,6 +329,8 @@ const RegisterForm = () => {
   const [coverUploading, setCoverUploading] = useState(false);
   const [coverErr, setCoverErr] = useState(false);
   const coverInputRef = useRef<HTMLInputElement>(null);
+  // Referans / temsilci — ?ref= ile gelirse otomatik dolar, kullanıcı düzenleyebilir.
+  const [referral, setReferral] = useState(defaultReferral);
   const [email, setEmail] = useState(""); // verify ekranında göstermek için
   const [emailErr, setEmailErr] = useState("");
   const [pwErr, setPwErr] = useState("");
@@ -1016,6 +1018,20 @@ const RegisterForm = () => {
               </button>
             </div>
             {pwErr && <p className="text-[12px] font-medium text-red-600">{pwErr}</p>}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Input
+              name="referral"
+              label={t("referral")}
+              type="text"
+              maxLength={80}
+              autoComplete="off"
+              placeholder={t("referralPh")}
+              value={referral}
+              onChange={(e) => setReferral(e.target.value)}
+            />
+            <p className="text-[12px] leading-4 text-muted">{t("referralHint")}</p>
           </div>
 
           {state.error && (

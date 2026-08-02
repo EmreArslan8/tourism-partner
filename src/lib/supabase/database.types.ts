@@ -53,6 +53,7 @@ export interface Database {
           role: string;
           account_type: string;
           sector: string | null;
+          referral_code: string | null;
           created_at: Timestamp;
         };
         Insert: {
@@ -62,6 +63,7 @@ export interface Database {
           role?: string;
           account_type?: string;
           sector?: string | null;
+          referral_code?: string | null;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;

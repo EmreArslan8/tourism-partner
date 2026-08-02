@@ -1,9 +1,12 @@
 import AuthShell from "@/components/auth/AuthShell";
 import RegisterForm from "./RegisterForm";
 
-const RegisterPageView = () => (
+/* ?ref=<temsilci> ile gelen ziyaretçide referans alanı hazır dolu gelsin diye
+   değer sunucudan prop olarak iniyor — istemcide efektle doldurmak hidrasyon
+   uyuşmazlığı ve gereksiz render doğuruyordu. */
+const RegisterPageView = ({ referral }: { referral?: string }) => (
   <AuthShell>
-    <RegisterForm />
+    <RegisterForm defaultReferral={referral} />
   </AuthShell>
 );
 
