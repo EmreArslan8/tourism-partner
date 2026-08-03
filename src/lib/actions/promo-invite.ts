@@ -5,6 +5,7 @@ import { requireAdminContext, writeAdminAudit } from "@/lib/admin-audit";
 import { sendEmail } from "@/lib/email";
 import { promoInviteEmail, unsubscribeMailto } from "@/lib/email-templates/promo-invite";
 import { EMAIL_LOGO_URL, LOCALES, SITE_URL, type SiteLocale } from "@/lib/site";
+import { resolvePromoTemplate } from "@/lib/promo-template-store";
 import { clean, isEmail } from "./validate";
 
 /* Admin panelindeki "Tanıtım Maili" sayfasının aksiyonu. Panelden gelen metinle
@@ -93,22 +94,21 @@ export async function sendPromoInvites(
   }
 
   const locale = asLocale(clean(formData.get("locale"), 8) ?? null);
-  const subject = clean(formData.get("subject"), 200);
-  const headline = clean(formData.get("headline"), 200);
-  const intro = clean(formData.get("intro"), 4000);
-  const ctaLabel = clean(formData.get("ctaLabel"), 60);
-  const preheader = clean(formData.get("preheader"), 200) ?? "";
+  const template = await resolvePromoTemplate(context.supabase, clean(formData.get("templateId"), 80));
+  const subject = template.subject;
+  const headline = template.headline;
+  const intro = template.intro;
+  const outro = template.outro;
+  const ctaLabel = template.ctaLabel;
+  const preheader = template.preheader;
   const replyTo = clean(formData.get("replyTo"), 160);
   const senderName = clean(formData.get("senderName"), 160) ?? "Tourism Partner";
   const senderAddress = clean(formData.get("senderAddress"), 240) ?? "";
-  const campaign = (clean(formData.get("campaign"), 60) ?? "tanitim")
+  const campaign = (template.campaign ?? clean(formData.get("campaign"), 60) ?? "tanitim")
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "") || "tanitim";
-  const bullets = (clean(formData.get("bullets"), 2000) ?? "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+  const bullets = template.bullets;
 
   if (!subject || !headline || !intro || !ctaLabel) return { ok: false, error: "missing_content" };
   if (!replyTo || !isEmail(replyTo)) return { ok: false, error: "invalid_reply_to" };
@@ -123,7 +123,12 @@ export async function sendPromoInvites(
     headline,
     intro,
     bullets,
+    outro,
     ctaLabel,
+    imageUrl: template.imageUrl,
+    backgroundColor: template.backgroundColor,
+    textColor: template.textColor,
+    accentColor: template.accentColor,
     registerUrl: registerUrl(locale, campaign),
     logoUrl: EMAIL_LOGO_URL,
     senderName,
@@ -153,6 +158,7 @@ export async function sendPromoInvites(
 
   await writeAdminAudit(context, "promo.invite.send", "email", null, {
     campaign,
+    template_id: template.id,
     locale,
     subject,
     reply_to: replyTo,

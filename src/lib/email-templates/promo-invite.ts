@@ -18,7 +18,14 @@ export type PromoInviteEmailArgs = {
   intro: string;
   /** Satır başına bir madde; boş bırakılırsa liste bloğu render edilmez. */
   bullets: string[];
+  /** Madde listesinden sonra gösterilecek kapanış paragrafları. */
+  outro?: string;
   ctaLabel: string;
+  /** CTA altında gösterilen tek kampanya görseli. */
+  imageUrl?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  accentColor?: string;
   registerUrl: string;
   logoUrl: string;
   senderName: string;
@@ -57,7 +64,12 @@ export function promoInviteEmail({
   headline,
   intro,
   bullets,
+  outro,
   ctaLabel,
+  imageUrl,
+  backgroundColor,
+  textColor,
+  accentColor,
   registerUrl,
   logoUrl,
   senderName,
@@ -68,8 +80,18 @@ export function promoInviteEmail({
   const rtl = locale === "ar";
   const dir = rtl ? "rtl" : "ltr";
   const align = rtl ? "right" : "left";
+  const safeColor = (value: string | undefined, fallback: string) =>
+    /^#[0-9a-fA-F]{6}$/.test(value ?? "") ? value! : fallback;
+  const surface = safeColor(backgroundColor, "#ffffff");
+  const foreground = safeColor(textColor, "#334155");
+  const accent = safeColor(accentColor, "#004fe6");
+  const safeImageUrl = /^https?:\/\/[^\s]+$/i.test(imageUrl ?? "") ? imageUrl! : "";
 
   const paragraphs = intro
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  const outroParagraphs = (outro ?? "")
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean);
@@ -79,25 +101,50 @@ export function promoInviteEmail({
   const paragraphHtml = paragraphs
     .map(
       (block) =>
-        `<p style="margin:0 0 14px;color:#334155;font-size:15px;line-height:25px;">${escapeHtml(block).replace(/\n/g, "<br>")}</p>`,
+        `<p style="margin:0 0 14px;color:${foreground};font-size:15px;line-height:25px;">${escapeHtml(block).replace(/\n/g, "<br>")}</p>`,
     )
     .join("");
+
+  const outroHtml = outroParagraphs.length
+    ? `<tr>
+                    <td style="padding:24px 38px 0;text-align:${align};">
+                      ${outroParagraphs
+                        .map(
+                          (block) =>
+                            `<p style="margin:0 0 14px;color:${foreground};font-size:15px;line-height:25px;">${escapeHtml(block).replace(/\n/g, "<br>")}</p>`,
+                        )
+                        .join("")}
+                    </td>
+                  </tr>`
+    : "";
 
   const bulletsHtml = items.length
     ? `<tr>
                     <td style="padding:8px 38px 0;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-radius:12px;background:#f4f7ff;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-radius:12px;background:${surface};border:1px solid ${foreground};">
                         <tr>
                           <td style="padding:18px 20px;text-align:${align};">
                             ${items
                               .map(
-                                (item) =>
-                                  `<div style="margin-bottom:9px;color:#334155;font-size:14px;line-height:22px;"><span style="color:#004fe6;font-weight:900;">•</span>&nbsp;&nbsp;${escapeHtml(item)}</div>`,
+                                (item) => {
+                                  const hasOwnMarker = item.startsWith("✔️");
+                                  return `<div style="margin-bottom:9px;color:${foreground};font-size:14px;line-height:22px;">${hasOwnMarker ? "" : `<span style="color:${accent};font-weight:900;">•</span>&nbsp;&nbsp;`}${escapeHtml(item)}</div>`;
+                                },
                               )
                               .join("")}
                           </td>
                         </tr>
                       </table>
+                    </td>
+                  </tr>`
+    : "";
+
+  const imageHtml = safeImageUrl
+    ? `<tr>
+                    <td style="padding:20px 38px 34px;">
+                      <a href="${escapeHtml(registerUrl)}" style="display:block;text-decoration:none;">
+                        <img src="${escapeHtml(safeImageUrl)}" width="544" alt="${escapeHtml(headline)}" style="display:block;width:100%;max-width:544px;height:auto;border:0;border-radius:12px;">
+                      </a>
                     </td>
                   </tr>`
     : "";
@@ -118,12 +165,12 @@ export function promoInviteEmail({
         <td align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;margin:0 auto;">
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:${surface};box-shadow:0 18px 45px rgba(1,20,93,0.08);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:32px 38px 34px;text-align:${align};">
+                    <td style="background:#01145d;padding:32px 38px 28px;text-align:${align};">
                       <img src="${escapeHtml(logoUrl)}" width="164" height="100" alt="Tourism Partner" style="display:block;${rtl ? "margin-left:auto;margin-right:0;" : ""}width:164px;height:100px;max-width:100%;border:0;">
-                      <h1 style="margin:22px 0 0;color:#ffffff;font-size:27px;line-height:34px;letter-spacing:-0.7px;">${escapeHtml(headline)}</h1>
+                      <h1 style="margin:22px 0 0;color:#ffffff;font-size:34px;line-height:40px;letter-spacing:-0.9px;">${escapeHtml(headline)}</h1>
                     </td>
                   </tr>
                   <tr>
@@ -132,11 +179,12 @@ export function promoInviteEmail({
                     </td>
                   </tr>
                   ${bulletsHtml}
+                  ${outroHtml}
                   <tr>
                     <td style="padding:26px 38px 0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="${rtl ? "margin-left:auto;margin-right:0;" : "margin-right:auto;margin-left:0;"}">
                         <tr>
-                          <td style="border-radius:11px;background:#004fe6;">
+                          <td style="border-radius:11px;background:${accent};">
                             <a href="${escapeHtml(registerUrl)}" style="display:inline-block;padding:15px 26px;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;">${escapeHtml(ctaLabel)}</a>
                           </td>
                         </tr>
@@ -145,9 +193,10 @@ export function promoInviteEmail({
                   </tr>
                   <tr>
                     <td style="padding:16px 38px 34px;text-align:${align};">
-                      <p style="margin:0;color:#7b8498;font-size:12px;line-height:19px;word-break:break-all;">${escapeHtml(registerUrl)}</p>
+                      <p style="margin:0;color:${foreground};font-size:12px;line-height:19px;word-break:break-all;opacity:.72;">${escapeHtml(registerUrl)}</p>
                     </td>
                   </tr>
+                  ${imageHtml}
                 </table>
               </td>
             </tr>
@@ -169,6 +218,7 @@ export function promoInviteEmail({
 
 ${paragraphs.join("\n\n")}
 ${items.length ? `\n${items.map((item) => `- ${item}`).join("\n")}\n` : ""}
+${outroParagraphs.length ? `\n${outroParagraphs.join("\n\n")}\n` : ""}
 ${ctaLabel}: ${registerUrl}
 
 ${senderName}

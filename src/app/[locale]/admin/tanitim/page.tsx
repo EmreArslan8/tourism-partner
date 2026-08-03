@@ -2,10 +2,12 @@ import { Mail } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { Card, CardHeader, PageHeader } from "../_components";
 import PromoForm from "./PromoForm";
+import { listPromoTemplates } from "@/lib/promo-template-store";
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const templates = await listPromoTemplates();
 
   return (
     <>
@@ -17,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
       <Card className="hover:translate-y-0">
         <CardHeader title="Mail içeriği ve alıcılar" tone="blue" icon={<Mail size={18} aria-hidden />} />
         <div className="p-5">
-          <PromoForm />
+          <PromoForm initialTemplates={templates} />
         </div>
       </Card>
 

@@ -545,6 +545,48 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["content_pages"]["Insert"]>;
         Relationships: [];
       };
+      promo_email_templates: {
+        Row: {
+          id: string;
+          label: string;
+          subject: string;
+          preheader: string;
+          headline: string;
+          intro: string;
+          bullets: string[];
+          outro: string;
+          cta_label: string;
+          campaign: string;
+          image_url: string;
+          background_color: string;
+          text_color: string;
+          accent_color: string;
+          created_by: string | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id: string;
+          label: string;
+          subject: string;
+          preheader?: string;
+          headline: string;
+          intro: string;
+          bullets?: string[];
+          outro?: string;
+          cta_label: string;
+          campaign: string;
+          image_url?: string;
+          background_color?: string;
+          text_color?: string;
+          accent_color?: string;
+          created_by?: string | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["promo_email_templates"]["Insert"]>;
+        Relationships: [];
+      };
       ad_banners: {
         Row: {
           id: number;
@@ -809,6 +851,7 @@ export type BusinessPartnerRequestRow = Database["public"]["Tables"]["business_p
 export type QuoteRow = Database["public"]["Tables"]["quotes"]["Row"];
 export type ApplicationRow = Database["public"]["Tables"]["applications"]["Row"];
 export type ContentPageRow = Database["public"]["Tables"]["content_pages"]["Row"];
+export type PromoEmailTemplateRow = Database["public"]["Tables"]["promo_email_templates"]["Row"];
 export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 export type B2BRequestRow = Database["public"]["Tables"]["b2b_requests"]["Row"];

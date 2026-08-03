@@ -1,20 +1,18 @@
 import { Link } from "@/i18n/navigation";
 import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStatus } from "@/lib/actions/admin";
-import { signOut } from "@/lib/actions/auth";
 import type { AdminAccess } from "@/lib/admin-auth";
 import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
 import { cn } from "@/lib/utils";
-import AdminNav from "./AdminNav";
+import AdminSidebar from "./AdminSidebar";
 import EditableForm from "./EditableForm";
 import LocationFields from "./LocationFields";
 import AdminSearch from "./AdminSearch";
 import AdminChipInput from "./AdminChipInput";
-import Logo from "@/components/Logo";
 import { CardIcon as UICardIcon } from "@/components/common/Card";
 import DataTable, { type Column } from "@/components/common/DataTable";
 import Field from "@/components/common/Field";
-import { CircleHelp, LogOut, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AdminMetric, AdminPageHeader, adminUi } from "./_ui";
 import BusinessCategoryFields from "./BusinessCategoryFields";
 
@@ -88,39 +86,7 @@ export const AdminShell = ({
 
   return (
     <div className="flex min-h-screen w-full bg-panel-bg text-ink">
-      <aside className="sticky top-0 hidden h-screen w-[264px] shrink-0 flex-col border-r border-line bg-paper/90 md:flex">
-        <div className="flex h-[92px] items-center px-6">
-          <Logo href="/admin" height={42} priority className="max-w-[165px]" />
-        </div>
-
-        <AdminNav />
-
-        <div className="mt-auto border-t border-line/80 px-5 pb-6 pt-4">
-          <Link
-            href="/admin/tedarikciler/new"
-            className="mb-4 flex h-10 w-full items-center justify-center gap-2 rounded-[8px] bg-sapphire text-[13px] font-medium text-paper shadow-card transition-colors hover:bg-sapphire-deep"
-          >
-            <Plus size={16} strokeWidth={2.4} aria-hidden />
-            Yeni İşletme Kaydı
-          </Link>
-          <Link
-            href="/admin/destek"
-            className="flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
-          >
-            <CircleHelp size={17} aria-hidden />
-            Destek
-          </Link>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-muted transition-colors hover:bg-cream hover:text-brand"
-            >
-              <LogOut size={17} aria-hidden />
-              Çıkış Yap
-            </button>
-          </form>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye

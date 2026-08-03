@@ -1,9 +1,15 @@
 "use client";
 
+import { useState } from "react";
+import type { FocusEvent, MouseEvent } from "react";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { useLinkStatus } from "next/link";
 import TopProgressBar from "@/components/TopProgressBar";
+import AdminSidebarTooltip, {
+  getAdminSidebarTooltip,
+  type AdminSidebarTooltipState,
+} from "./AdminSidebarTooltip";
 import {
   BarChart3,
   BellDot,
@@ -22,14 +28,14 @@ import {
 
 type Item = { href: Href; label: string; icon: React.ReactNode };
 
-function AdminNavItem({ icon, label }: { icon: React.ReactNode; label: string }) {
+function AdminNavItem({ icon, label, collapsed }: { icon: React.ReactNode; label: string; collapsed: boolean }) {
   const { pending } = useLinkStatus();
 
   return (
     <>
       <TopProgressBar active={pending} />
       <span className={cn("shrink-0 transition-opacity", pending && "opacity-55")}>{icon}</span>
-      <span className={cn("min-w-0 flex-1 truncate transition-opacity", pending && "opacity-55")}>{label}</span>
+      {!collapsed && <span className={cn("min-w-0 flex-1 truncate transition-opacity", pending && "opacity-55")}>{label}</span>}
       <span
         aria-hidden
         className={cn(
@@ -61,30 +67,45 @@ const ITEMS: Item[] = [
   { href: "/admin/guvenlik", label: "Güvenlik & Ayarlar", icon: <ShieldCheck size={17} aria-hidden /> },
 ];
 
-const AdminNav = () => {
+const AdminNav = ({ collapsed = false }: { collapsed?: boolean }) => {
   const pathname = usePathname();
+  const [tooltip, setTooltip] = useState<AdminSidebarTooltipState>(null);
+
+  const showTooltip = (label: string, event: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>) => {
+    if (collapsed) setTooltip(getAdminSidebarTooltip(label, event.currentTarget));
+  };
 
   return (
-    <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-      {ITEMS.map((item) => {
-        const active =
-          item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href as string);
-        return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors",
-              active
-                ? "bg-cream text-brand"
-                : "text-muted hover:bg-cream/70 hover:text-brand",
-            )}
-          >
-            <AdminNavItem icon={item.icon} label={item.label} />
-          </Link>
-        );
-      })}
-    </nav>
+    <>
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3" onScroll={() => setTooltip(null)}>
+        {ITEMS.map((item) => {
+          const active =
+            item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href as string);
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              aria-label={collapsed ? item.label : undefined}
+              onMouseEnter={(event) => showTooltip(item.label, event)}
+              onMouseLeave={() => setTooltip(null)}
+              onFocus={(event) => showTooltip(item.label, event)}
+              onBlur={() => setTooltip(null)}
+              onClick={() => setTooltip(null)}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-[8px] py-2.5 text-[13px] font-medium transition-colors",
+                collapsed ? "justify-center px-0" : "px-3",
+                active
+                  ? "bg-cream text-brand"
+                  : "text-muted hover:bg-cream/70 hover:text-brand",
+              )}
+            >
+              <AdminNavItem icon={item.icon} label={item.label} collapsed={collapsed} />
+            </Link>
+          );
+        })}
+      </nav>
+      <AdminSidebarTooltip tooltip={tooltip} />
+    </>
   );
 };
 

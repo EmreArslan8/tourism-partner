@@ -2,13 +2,15 @@ import { requireAdminContext } from "@/lib/admin-audit";
 import { promoInviteEmail } from "@/lib/email-templates/promo-invite";
 import { EMAIL_LOGO_URL, LOCALES, SITE_URL, type SiteLocale } from "@/lib/site";
 import { getPathname } from "@/i18n/navigation";
+import { resolvePromoTemplate } from "@/lib/promo-template-store";
 
 /* Tanıtım maili önizlemesi — panelde iframe içinde gösterilir. Yalnızca HTML
    üretir, hiçbir şey göndermez ve kaydetmez. */
 
 export async function POST(request: Request) {
+  let context;
   try {
-    await requireAdminContext();
+    context = await requireAdminContext();
   } catch {
     return new Response("Forbidden", { status: 403 });
   }
@@ -20,16 +22,26 @@ export async function POST(request: Request) {
     ? (localeRaw as SiteLocale)
     : "tr";
 
-  const headline = value("headline", 200) || "Başlık";
+  const template = await resolvePromoTemplate(context.supabase, value("templateId", 80));
+  const headline = template.headline;
   const replyTo = value("replyTo", 160) || "sales@tourismpartner.com";
+  const bundledImagePath = "/email-assets/tourism-partner-network-promo.jpg";
+  const imageUrl = template.imageUrl.endsWith(bundledImagePath)
+    ? `${new URL(request.url).origin}${bundledImagePath}`
+    : template.imageUrl;
 
   const { html } = promoInviteEmail({
     locale,
-    preheader: value("preheader", 200) || headline,
+    preheader: template.preheader || headline,
     headline,
-    intro: value("intro", 4000),
-    bullets: value("bullets", 2000).split("\n").map((line) => line.trim()).filter(Boolean),
-    ctaLabel: value("ctaLabel", 60) || "Ücretsiz kayıt ol",
+    intro: template.intro,
+    bullets: template.bullets,
+    outro: template.outro,
+    ctaLabel: template.ctaLabel,
+    imageUrl,
+    backgroundColor: template.backgroundColor,
+    textColor: template.textColor,
+    accentColor: template.accentColor,
     registerUrl: `${SITE_URL}${getPathname({ locale, href: "/register" })}?utm_source=email&utm_medium=outreach&utm_campaign=${encodeURIComponent(value("campaign", 60) || "tanitim")}`,
     logoUrl: EMAIL_LOGO_URL,
     senderName: value("senderName", 160) || "Tourism Partner",
