@@ -188,7 +188,6 @@ export async function signUp(
     (
       !bizProfile.country ||
       !bizProfile.city ||
-      !bizProfile.district ||
       !bizProfile.address ||
       !bizProfile.contactName ||
       !bizProfile.contactPhone ||

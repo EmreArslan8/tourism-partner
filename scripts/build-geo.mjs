@@ -26,6 +26,19 @@ const WORLD_URL =
 /* Mevcut DB/seed'de kullanılan Türkçe şehir adları — üretilen chunk'lara eklenir ki
    kayıtlı işletmelerin country/city/district değerleri seçilebilir kalsın. */
 const LEGACY = {
+  MA: {
+    // dr5hn kaynağında Fas şehirlerinin ilçe listesi boş geliyor; Marakeş'in
+    // idari arrondissement'ları + bilinen turistik bölgeleri elle ekleniyor.
+    "Marrakech": [
+      "Medina",
+      "Guéliz",
+      "Hivernage",
+      "Ménara",
+      "Palmeraie",
+      "Sidi Youssef Ben Ali",
+      "Kasbah",
+    ],
+  },
   GE: {
     "Batum": ["Merkez"],
     "Kutaisi": ["Merkez"],
