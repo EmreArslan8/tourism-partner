@@ -27,16 +27,37 @@ const WORLD_URL =
    kayıtlı işletmelerin country/city/district değerleri seçilebilir kalsın. */
 const LEGACY = {
   MA: {
-    // dr5hn kaynağında Fas şehirlerinin ilçe listesi boş geliyor; Marakeş'in
-    // idari arrondissement'ları + bilinen turistik bölgeleri elle ekleniyor.
-    "Marrakech": [
-      "Medina",
+    // dr5hn kaynağında Fas şehirlerinin ilçe listesi boş geliyor; Marakeş-Safi
+    // bölgesinin şehirleri + Marakeş'in arrondissement'ları elle ekleniyor.
+    "Marrakesh-Safi": [
+      "Abadou",
+      "Adassil",
+      "Al-Haouz",
+      "Bouabout",
+      "Chichaoua",
+      "Essaouira",
       "Guéliz",
       "Hivernage",
-      "Ménara",
-      "Palmeraie",
-      "Sidi Youssef Ben Ali",
       "Kasbah",
+      "Kelaa-Des-Sraghna",
+      "Marrakech",
+      "Marrakesh",
+      "Medina",
+      "Ménara",
+      "Oukaïmedene",
+      "Palmeraie",
+      "Rehamna",
+      "Safi",
+      "Setti Fatma",
+      "Sidi Rahhal",
+      "Sidi Youssef Ben Ali",
+      "Smimou",
+      "Tamanar",
+      "Taouloukoult",
+      "Tidili Mesfioua",
+      "Timezgadiouine",
+      "Youssoufia",
+      "Zerkten",
     ],
   },
   GE: {
