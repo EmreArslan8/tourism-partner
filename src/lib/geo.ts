@@ -19,7 +19,9 @@ let indexPromise: Promise<CountryIndex> | null = null;
 const treeCache = new Map<string, Promise<GeoTree>>();
 
 function loadIndex(): Promise<CountryIndex> {
-  indexPromise ??= fetch("/geo/index.json").then((r) => {
+  // no-cache: her yüklemede origin'e koşullu doğrulama (değişmediyse 304, ~bedava).
+  // Böylece deploy'da güncellenen geo verisi kullanıcıya anında yansır (bkz. build-geo.mjs).
+  indexPromise ??= fetch("/geo/index.json", { cache: "no-cache" }).then((r) => {
     if (!r.ok) throw new Error(`geo index: HTTP ${r.status}`);
     return r.json();
   });
@@ -32,7 +34,7 @@ async function loadTree(countryName: string): Promise<GeoTree> {
   if (!iso2) return {};
   let cached = treeCache.get(iso2);
   if (!cached) {
-    cached = fetch(`/geo/${iso2}.json`).then((r) => (r.ok ? r.json() : {}));
+    cached = fetch(`/geo/${iso2}.json`, { cache: "no-cache" }).then((r) => (r.ok ? r.json() : {}));
     treeCache.set(iso2, cached);
   }
   return cached;
