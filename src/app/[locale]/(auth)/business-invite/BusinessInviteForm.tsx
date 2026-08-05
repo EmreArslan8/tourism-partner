@@ -15,6 +15,16 @@ import { cn } from "@/lib/utils";
 
 const initialState: BusinessInviteActionState = { ok: false };
 
+/* Tarayıcının IANA saat dilimi — kayıt analizi (bölge × saat) için auth
+   metadata'sına taşınır. Yalnızca submit anında istemcide çağrılır. */
+function browserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
+  } catch {
+    return "";
+  }
+}
+
 function Feedback({ state }: { state: BusinessInviteActionState }) {
   const t = useTranslations("businessInvite");
   if (state.notice === "verify_email") {
@@ -70,6 +80,14 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
   const [acceptState, acceptAction, acceptPending] = useActionState(acceptBusinessOwnerInvite, initialState);
   const viewerMatches = Boolean(invite.viewerEmail && invite.viewerEmail === invite.email.toLowerCase());
   const existingAccount = registerState.error === "account_exists";
+
+  // Kayıt submit'inde tarayıcı saat dilimini (IANA) FormData'ya ekle — auth
+  // metadata'sına taşınıp bölge × saat analizine kaynak olur.
+  const registerSubmit = (formData: FormData) => {
+    const tz = browserTimezone();
+    if (tz) formData.set("timezone", tz);
+    registerAction(formData);
+  };
 
   if (invite.viewerId) {
     return (
@@ -146,7 +164,7 @@ export default function BusinessInviteForm({ invite, locale, token }: { invite: 
           </form>
         </div>
       ) : (
-        <form action={registerAction} className="grid gap-4">
+        <form action={registerSubmit} className="grid gap-4">
           <input type="hidden" name="token" value={token} />
           <input type="hidden" name="locale" value={locale} />
           <label className="grid gap-2 text-[13.5px] font-bold text-ink">

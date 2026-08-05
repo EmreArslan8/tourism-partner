@@ -243,6 +243,10 @@ export async function signUpAndAcceptBusinessInvite(
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
   const locale = localeValue(formData.get("locale"));
+  const timezone = String(formData.get("timezone") ?? "")
+    .trim()
+    .slice(0, 64)
+    .replace(/[^A-Za-z_+/-]/g, "");
   const invite = await getPublicBusinessInvite(token);
   if (!invite || invite.status !== "pending") return { ok: false, error: invite?.status ?? "invalid" };
   if (fullName.length < 2) return { ok: false, error: "name_required" };
@@ -270,6 +274,7 @@ export async function signUpAndAcceptBusinessInvite(
         firm_name: invite.businessName,
         account_type: "supplier",
         business_invite: true,
+        ...(timezone ? { timezone } : {}),
       },
     },
   });

@@ -119,3 +119,12 @@ export function CountBarList({ rows }: { rows: Array<{ label: string; count: num
   const data = rows.map((row) => ({ name: row.label, value: row.count }));
   return <BarList data={data} color="gold" valueFormatter={formatNumber} sortOrder="none" />;
 }
+
+export function UtcHourlyTracker({ hourly }: { hourly: number[] }) {
+  const max = Math.max(...hourly, 1);
+  const data = hourly.map((value, hour) => ({
+    color: value === 0 ? "gray" : value / max > 0.66 ? "emerald" : value / max > 0.33 ? "cyan" : "blue",
+    tooltip: `UTC ${String(hour).padStart(2, "0")}:00 · ${formatNumber(value)} kayıt`,
+  }));
+  return <Tracker data={data} className="mt-1" />;
+}

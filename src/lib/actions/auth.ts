@@ -129,6 +129,9 @@ export async function signUp(
   const sector = accountType === "buyer" ? clean(formData.get("sector"), 40) : "";
   // Referans / temsilci — formdan elle ya da tanıtım mailindeki ?ref= ile gelir.
   const referral = clean(formData.get("referral"), 80);
+  // Kayıt anındaki tarayıcı saat dilimi (IANA, ör. Europe/Istanbul). Formdan gizli
+  // alanla gelir; geçersizse yok sayılır. Bölge × saat analizinin kesin kaynağı.
+  const timezone = String(formData.get("timezone") ?? "").trim().slice(0, 64).replace(/[^A-Za-z_+/-]/g, "");
 
   if (!name || !email || !password) return { ok: false, error: "missing" };
   // Kategori yalnızca tedarikçi (listelenecek) kayıtta zorunlu.
@@ -224,6 +227,7 @@ export async function signUp(
         account_type: accountType,
         ...(sector ? { sector } : {}),
         ...(referral ? { referral_code: referral } : {}),
+        ...(timezone ? { timezone } : {}),
         ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category, service_slugs: serviceSlugs } : {}),
         // Kayıt adımı 3 profili — işletme kaydı oluşurken uygulanır (bkz. callback/panel).
         ...(hasBizProfile && bizProfile

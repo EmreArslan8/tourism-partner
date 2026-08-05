@@ -39,6 +39,16 @@ import VerifyEmail from "./VerifyEmail";
 type Intent = "service" | "buyer";
 type StepNo = 1 | 2 | 3 | 4;
 
+/* Tarayıcının IANA saat dilimi — yalnızca istemci olay işleyicisinde çağrılır
+   (submit anında), SSR render'ında server TZ'i devreye girmez. */
+function browserTimezone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
+  } catch {
+    return "";
+  }
+}
+
 /* Kapak görselini tarayıcıda küçült (canvas → jpeg) — yükleme öncesi boyutu düşürür. */
 async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
@@ -952,6 +962,10 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
           className="flex flex-col gap-3.5"
           action={(formData) => {
             setEditingAgain(false);
+            // Kayıt anında tarayıcı saat dilimi (IANA) — bölge × saat analizi için.
+            // Submit sırasında okunur: SSR render'ında server TZ'i araya girmesin.
+            const tz = browserTimezone();
+            if (tz) formData.set("timezone", tz);
             action(formData);
           }}
         >

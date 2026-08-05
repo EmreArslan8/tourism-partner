@@ -1,11 +1,13 @@
 import {
   BarChart3,
+  Clock,
   Eye,
   MapPin,
   MessageSquare,
   Percent,
   Target,
   TrendingUp,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
@@ -17,7 +19,7 @@ import { selectAll } from "@/lib/supabase/select-all";
 import type { AdminBusiness, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AdminEmptyState, AdminPage, AdminPanel, adminUi } from "../_ui";
-import { ConversionFunnelChart, CountBarList, DailyTrendChart, HourlyTracker, KpiSparkline, QuoteStatusDonut, type DayBucket } from "./charts";
+import { ConversionFunnelChart, CountBarList, DailyTrendChart, HourlyTracker, KpiSparkline, QuoteStatusDonut, UtcHourlyTracker, type DayBucket } from "./charts";
 
 type Period = "7d" | "30d" | "month";
 
@@ -45,7 +47,9 @@ async function fetchReportData(period: Period) {
   const supabase = await createClient();
   // Sayfalanarak çekilir: PostgREST tek yanıtta 1000 satırda keser ve bunu sessizce
   // yapar; doğrudan .limit(20_000) yazmak veriyi fark edilmeden eksiltir (bkz. select-all.ts).
-  const [viewsRes, quotesRes] = await Promise.all([
+  // Kayıtlar üye düzeyindedir: profiles.created_at üzerinden işletme/şehir filtrelerinden
+  // bağımsız tutulur (role admin hesapları panel işletenleridir, sayılmaz).
+  const [viewsRes, quotesRes, profilesRes] = await Promise.all([
     selectAll(
       (from, to) =>
         supabase
@@ -68,6 +72,18 @@ async function fetchReportData(period: Period) {
           .range(from, to),
       { label: "raporlar/quotes" },
     ),
+    selectAll(
+      (from, to) =>
+        supabase
+          .from("profiles")
+          .select("created_at,timezone")
+          .neq("role", "admin")
+          .gte("created_at", prevStart.toISOString())
+          .order("created_at", { ascending: false })
+          .order("id", { ascending: false })
+          .range(from, to),
+      { label: "raporlar/profiles" },
+    ),
   ]);
 
   const views: ReportView[] = (viewsRes.data ?? []).map((row) => ({
@@ -83,8 +99,14 @@ async function fetchReportData(period: Period) {
     status: String(row.status ?? "new"),
     createdAt: row.created_at,
   }));
+  // timezone: kayıt anındaki tarayıcı saat dilimi (IANA). Yeni kayıtlarda dolar;
+  // eski kayıtlarda null kalır → bölge analizinde "Bilinmiyor" olarak gruplanır.
+  const signups: Array<{ createdAt: string; timezone: string | null }> = (profilesRes.data ?? []).map((row) => ({
+    createdAt: row.created_at,
+    timezone: row.timezone ?? null,
+  }));
 
-  return { views, quotes, currentStart, prevStart, now };
+  return { views, quotes, signups, currentStart, prevStart, now };
 }
 
 export default async function Page({
@@ -104,7 +126,7 @@ export default async function Page({
   const selectedGroup = sp.group ?? "";
   const hasFilter = Boolean(selectedCity || selectedGroup);
 
-  const { views, quotes, currentStart, now } = await fetchReportData(period);
+  const { views, quotes, signups, currentStart, now } = await fetchReportData(period);
 
   // Bölge/kategori filtresi: business eşlemesi üzerinden tüm panellere uygulanır.
   const bizById = new Map(data.businesses.map((b) => [b.id, b]));
@@ -127,6 +149,8 @@ export default async function Page({
   const prevViews = views.filter((v) => new Date(v.viewedAt).getTime() < startMs && viewInFilter(v));
   const currentQuotes = quotes.filter((q) => new Date(q.createdAt).getTime() >= startMs && quoteInFilter(q));
   const prevQuotes = quotes.filter((q) => new Date(q.createdAt).getTime() < startMs && quoteInFilter(q));
+  const currentSignups = signups.filter((s) => new Date(s.createdAt).getTime() >= startMs);
+  const prevSignups = signups.filter((s) => new Date(s.createdAt).getTime() < startMs);
 
   const cur = windowStats(currentViews, currentQuotes.length);
   const prev = windowStats(prevViews, prevQuotes.length);
@@ -147,6 +171,12 @@ export default async function Page({
   const hourly = hourlyBuckets(currentViews);
   const hourlyPeakValue = Math.max(...hourly, 0);
   const hourlyPeak = hourlyPeakValue > 0 ? hourly.indexOf(hourlyPeakValue) : null;
+  const signupRows = signupTableRows(currentSignups.map((s) => s.createdAt), period);
+  const utcHourly = utcHourlyBuckets(currentSignups.map((s) => s.createdAt));
+  const utcPeakValue = Math.max(...utcHourly, 0);
+  const utcPeak = utcPeakValue > 0 ? utcHourly.indexOf(utcPeakValue) : null;
+  const signupAvg = signupRows.length > 0 ? currentSignups.length / signupRows.length : 0;
+  const regionRows = signupRegions(currentSignups, 6);
   const quoteStatuses = countBy(currentQuotes.map((q) => q.status || "new"));
   const quoteCities = countBy(
     currentQuotes.map((q) => q.city).filter((c): c is string => !!c),
@@ -221,8 +251,52 @@ export default async function Page({
         <KpiCard icon={<MessageSquare size={18} aria-hidden />} label="Teklif Talebi" value={cur.quotes.toLocaleString("tr-TR")} delta={deltaPct(cur.quotes, prev.quotes)} hint="Gelen teklif talepleri" trend={quoteTrend} />
       </section>
 
+      {/* Üye kayıtları — üye düzeyinde veridir; bölge/kategori filtresinden etkilenmez */}
+      <div className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
+        <AdminPanel title="Günlük Üye Kayıtları" icon={<UserPlus size={18} aria-hidden />} bodyClassName="p-5">
+          <div className="mb-5 grid gap-3 sm:grid-cols-3">
+            <SignupStat label="Toplam kayıt" value={currentSignups.length.toLocaleString("tr-TR")} delta={deltaPct(currentSignups.length, prevSignups.length)} hint="Önceki eşdeğer döneme göre" />
+            <SignupStat label="Günlük ortalama" value={signupAvg.toLocaleString("tr-TR", { maximumFractionDigits: 1 })} hint={`Seçili dönemde ${signupRows.length} gün`} />
+            <SignupStat label="En yoğun saat (UTC)" value={utcPeak === null ? "—" : `${String(utcPeak).padStart(2, "0")}:00`} hint={utcPeak === null ? "Henüz kayıt verisi yok" : `${utcPeakValue.toLocaleString("tr-TR")} kayıt bu saatte`} />
+          </div>
+          {currentSignups.length > 0 ? (
+            <>
+              <SignupTable rows={signupRows} />
+              <div className="mt-5 border-t border-line/80 pt-4">
+                <p className="mb-2 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">Kayıt saati · UTC</p>
+                <UtcHourlyTracker hourly={utcHourly} />
+                <div className="mt-2 flex justify-between text-[11px] font-semibold text-muted"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div>
+                <p className="mt-2 text-[12px] font-medium text-muted">Saatler UTC cinsindendir — Türkiye için +3 (ör. 09:00 UTC = 12:00 TR saati). Böylece hangi bölgenin saat kaçta aktif olduğu görülür.</p>
+              </div>
+            </>
+          ) : (
+            <AdminEmptyState icon={<UserPlus size={18} aria-hidden />} title="Bu dönemde kayıt yok" description="Seçili dönemde üye kaydı bulunamadı." />
+          )}
+        </AdminPanel>
+
+        <AdminPanel title="Kayıt Saati Dağılımı" icon={<Clock size={18} aria-hidden />} bodyClassName="p-5">
+          {currentSignups.length > 0 ? (
+            <>
+              <UtcHourlyTracker hourly={utcHourly} />
+              <div className="mt-2 flex justify-between text-[11px] font-semibold text-muted"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span></div>
+              <p className="mt-2 text-[12px] font-medium text-muted">{utcPeak === null ? "Henüz kayıt verisi yok." : `En yoğun UTC saati ${String(utcPeak).padStart(2, "0")}:00 · ${utcPeakValue.toLocaleString("tr-TR")} kayıt`}</p>
+              <div className="mt-5 border-t border-line/80 pt-4">
+                <p className="mb-2 text-[12px] font-extrabold uppercase tracking-[.08em] text-muted">Bölge dağılımı · yerel saat</p>
+                <RegionTable rows={regionRows} />
+                <p className="mt-2 text-[12px] font-medium text-muted">Saatler kayıt anındaki tarayıcı saat diliminin yerel saatidir — hangi bölgenin saat kaçta aktif olduğu. Saat dilimi yakalanamayan kayıtlar &quot;Bilinmiyor&quot; olarak gruplanır.</p>
+              </div>
+            </>
+          ) : (
+            <div className="flex items-start gap-3 rounded-[10px] bg-cream/55 p-4">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-paper text-brand"><Clock size={17} aria-hidden /></span>
+              <div><p className="text-[13.5px] font-semibold text-ink">Henüz kayıt verisi yok</p><p className="mt-1 text-[12.5px] leading-5 text-muted">Üye kaydı olduğunda saat dilimi dağılımı burada gösterilecek.</p></div>
+            </div>
+          )}
+        </AdminPanel>
+      </div>
+
       {/* Ana satır: trend + saatlik şerit | huni */}
-      <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+      <div className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
         <AdminPanel title="Günlük Trend" icon={<BarChart3 size={18} aria-hidden />} bodyClassName="p-5">
           <DailyTrendChart days={days} />
           <div className="mt-5 border-t border-line/80 pt-4">
@@ -336,6 +410,96 @@ const KpiCard = ({
       <KpiSparkline values={trend} />
     </div>
   </article>
+);
+
+type SignupTableRow = { label: string; day: string; count: number; diff: number | null; total: number; isToday: boolean };
+type SignupRegionRow = { label: string; count: number; peakHour: number | null };
+
+const RegionTable = ({ rows }: { rows: SignupRegionRow[] }) => (
+  <div className="overflow-hidden rounded-[10px] border border-line/70">
+    <table className="w-full border-collapse text-[12.5px]">
+      <thead className="bg-cream/95">
+        <tr className="text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
+          <th className="px-3 py-2 text-left">Bölge</th>
+          <th className="px-3 py-2 text-right">Kayıt</th>
+          <th className="px-3 py-2 text-right">En yoğun saat</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.label} className="border-t border-line/60">
+            <td className="px-3 py-1.5 font-semibold text-ink">{row.label}</td>
+            <td className="px-3 py-1.5 text-right font-bold text-ink">{row.count.toLocaleString("tr-TR")}</td>
+            <td className="px-3 py-1.5 text-right text-muted">
+              {row.peakHour === null ? "—" : `${String(row.peakHour).padStart(2, "0")}:00 (yerel)`}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const SignupTable = ({ rows }: { rows: SignupTableRow[] }) => (
+  <div className="max-h-[300px] overflow-y-auto rounded-[10px] border border-line/70">
+    <table className="w-full border-collapse text-[12.5px]">
+      <thead className="sticky top-0 z-10 bg-cream/95 backdrop-blur">
+        <tr className="text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
+          <th className="px-3 py-2 text-left">Gün</th>
+          <th className="px-3 py-2 text-right">Kayıt</th>
+          <th className="px-3 py-2 text-right">Önceki güne fark</th>
+          <th className="px-3 py-2 text-right">Kümülatif</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.label} className={cn("border-t border-line/60", row.isToday && "bg-sapphire/5")}>
+            <td className="whitespace-nowrap px-3 py-1.5">
+              <span className={cn("font-semibold", row.isToday ? "text-sapphire" : "text-ink")}>{row.day}</span>
+              <span className="ml-1.5 font-medium text-muted">{row.label}</span>
+              {row.isToday && (
+                <span className="ml-1.5 rounded-full bg-sapphire/15 px-1.5 py-0.5 text-[10px] font-bold text-sapphire">Bugün</span>
+              )}
+            </td>
+            <td className="px-3 py-1.5 text-right text-[13px] font-bold text-ink">{row.count.toLocaleString("tr-TR")}</td>
+            <td className="px-3 py-1.5 text-right">
+              {row.diff === null ? (
+                <span className="text-muted">—</span>
+              ) : row.diff === 0 ? (
+                <span className="text-muted">%0</span>
+              ) : (
+                <span className={cn("font-semibold", row.diff > 0 ? "text-group-saglik" : "text-red-700")}>
+                  {row.diff > 0 ? `▲ ${row.diff.toLocaleString("tr-TR")}` : `▼ ${Math.abs(row.diff).toLocaleString("tr-TR")}`}
+                </span>
+              )}
+            </td>
+            <td className="px-3 py-1.5 text-right font-semibold text-muted">{row.total.toLocaleString("tr-TR")}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const SignupStat = ({
+  label,
+  value,
+  delta,
+  hint,
+}: {
+  label: string;
+  value: string;
+  delta?: number | null;
+  hint?: string;
+}) => (
+  <div className="rounded-[10px] bg-cream/55 px-3.5 py-3">
+    <p className="text-[11.5px] font-medium text-muted">{label}</p>
+    <p className="mt-1 flex flex-wrap items-baseline gap-1.5 text-[22px] font-semibold leading-none tracking-[-.02em] text-ink">
+      {value}
+      {delta !== undefined && <DeltaBadge delta={delta} />}
+    </p>
+    {hint && <p className="mt-1.5 text-[11.5px] font-normal text-muted">{hint}</p>}
+  </div>
 );
 
 const DeltaBadge = ({ delta }: { delta: number | null }) => {
@@ -538,6 +702,153 @@ function hourlyBuckets(views: ReportView[]): number[] {
     if (h >= 0 && h < 24) hours[h] += 1;
   }
   return hours;
+}
+
+/* Günler yerel saatle sayılır (işletme yerel bakışla takip eder); saat dilimi
+   istatistiği ise kullanıcının istediği gibi UTC cinsindendir (getUTCHours).
+   Küçük günlük sayılar (0-7) için kolon grafik okunmuyordu; bu yüzden kayıt
+   analizi mini tabloda: gün · kayıt · önceki güne fark · kümülatif toplam. */
+function signupTableRows(timestamps: string[], period: Period): SignupTableRow[] {
+  const dayNames = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+  const now = new Date();
+  const dayCount = period === "7d" ? 7 : period === "30d" ? 30 : now.getDate();
+  const days: SignupTableRow[] = [];
+  const keys: string[] = [];
+  for (let i = dayCount - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    keys.push(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    days.push({
+      label: `${d.getDate()}/${d.getMonth() + 1}`,
+      day: dayNames[d.getDay()],
+      count: 0,
+      diff: null,
+      total: 0,
+      isToday: i === 0,
+    });
+  }
+  const idx = new Map(keys.map((k, i) => [k, i]));
+  for (const ts of timestamps) {
+    const d = new Date(ts);
+    const i = idx.get(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`);
+    if (i != null) days[i].count += 1;
+  }
+  let running = 0;
+  for (const day of days) {
+    running += day.count;
+    day.total = running;
+  }
+  for (let i = 1; i < days.length; i++) {
+    days[i].diff = days[i].count - days[i - 1].count;
+  }
+  return days;
+}
+
+function utcHourlyBuckets(timestamps: string[]): number[] {
+  const hours = new Array(24).fill(0) as number[];
+  for (const ts of timestamps) {
+    const h = new Date(ts).getUTCHours();
+    if (h >= 0 && h < 24) hours[h] += 1;
+  }
+  return hours;
+}
+
+/* Bölge analizi: kaydın IANA saat dilimi üzerinden gruplar ve her bölgenin en
+   yoğun YEREL saatini bulur. Kayıt öncesi yakalanmayan tz → "Bilinmiyor". */
+function signupRegions(signups: Array<{ createdAt: string; timezone: string | null }>, maxRows: number): SignupRegionRow[] {
+  const byTz = new Map<string, Array<number | null>>();
+  for (const s of signups) {
+    const tz = s.timezone || "unknown";
+    const hours = byTz.get(tz) ?? [];
+    hours.push(localHour(s.createdAt, tz === "unknown" ? undefined : tz));
+    byTz.set(tz, hours);
+  }
+  const rows: SignupRegionRow[] = Array.from(byTz.entries()).map(([tz, hours]) => {
+    const known = hours.filter((h): h is number => h !== null);
+    return {
+      label: tz === "unknown" ? "Bilinmiyor" : tzLabel(tz),
+      count: hours.length,
+      peakHour: known.length > 0 ? mode(known) : null,
+    };
+  });
+  rows.sort((a, b) => (a.label === "Bilinmiyor" ? 1 : b.label === "Bilinmiyor" ? -1 : b.count - a.count || a.label.localeCompare(b.label, "tr")));
+  if (rows.length <= maxRows) return rows;
+  const top = rows.slice(0, maxRows);
+  const rest = rows.slice(maxRows);
+  top.push({ label: `Diğer (${rest.length})`, count: rest.reduce((sum, r) => sum + r.count, 0), peakHour: null });
+  return top;
+}
+
+function localHour(iso: string, tz: string | undefined): number | null {
+  if (!tz) return null;
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", hourCycle: "h23" }).formatToParts(new Date(iso));
+    const hour = Number(parts.find((p) => p.type === "hour")?.value);
+    return Number.isFinite(hour) ? hour : null;
+  } catch {
+    return null;
+  }
+}
+
+function mode(values: number[]): number {
+  const counts = new Map<number, number>();
+  for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
+  let best = values[0];
+  let bestCount = 0;
+  for (const [v, c] of counts) if (c > bestCount) {
+    best = v;
+    bestCount = c;
+  }
+  return best;
+}
+
+const TZ_LABELS: Record<string, string> = {
+  "Europe/Istanbul": "Türkiye",
+  "Asia/Dubai": "Dubai / Körfez",
+  "Asia/Qatar": "Katar",
+  "Asia/Riyadh": "Suudi Arabistan",
+  "Asia/Kuwait": "Kuveyt",
+  "Asia/Bahrain": "Bahreyn",
+  "Asia/Baghdad": "Irak",
+  "Asia/Tehran": "İran",
+  "Asia/Baku": "Azerbaycan",
+  "Asia/Tbilisi": "Gürcistan",
+  "Asia/Yerevan": "Ermenistan",
+  "Asia/Almaty": "Kazakistan",
+  "Asia/Tashkent": "Özbekistan",
+  "Asia/Bishkek": "Kırgızistan",
+  "Asia/Dushanbe": "Tacikistan",
+  "Asia/Ashgabat": "Türkmenistan",
+  "Europe/Berlin": "Almanya",
+  "Europe/Vienna": "Avusturya",
+  "Europe/Zurich": "İsviçre",
+  "Europe/London": "İngiltere",
+  "Europe/Paris": "Fransa",
+  "Europe/Amsterdam": "Hollanda",
+  "Europe/Brussels": "Belçika",
+  "Europe/Madrid": "İspanya",
+  "Europe/Rome": "İtalya",
+  "Europe/Moscow": "Rusya",
+  "Europe/Kyiv": "Ukrayna",
+  "Europe/Bucharest": "Romanya",
+  "Europe/Sofia": "Bulgaristan",
+  "Europe/Belgrade": "Sırbistan",
+  "Europe/Athens": "Yunanistan",
+  "Europe/Warsaw": "Polonya",
+  "America/New_York": "ABD (Doğu)",
+  "America/Chicago": "ABD (Merkez)",
+  "America/Denver": "ABD (Dağ)",
+  "America/Los_Angeles": "ABD (Batı)",
+  "America/Toronto": "Kanada",
+  "America/Sao_Paulo": "Brezilya",
+  "Asia/Kolkata": "Hindistan",
+  "Asia/Karachi": "Pakistan",
+  "Asia/Dhaka": "Bangladeş",
+  "Asia/Shanghai": "Çin",
+  "Asia/Tokyo": "Japonya",
+};
+
+function tzLabel(tz: string): string {
+  return TZ_LABELS[tz] ?? tz.split("/").slice(-1)[0].replaceAll("_", " ");
 }
 
 function formatDate(d: Date) {
