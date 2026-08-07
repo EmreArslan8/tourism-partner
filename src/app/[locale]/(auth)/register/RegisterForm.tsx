@@ -250,24 +250,33 @@ function PhoneCodeInput({
 }) {
   const locale = useLocale();
   const [open, setOpen] = useState(false);
-  const q = value.trim().toLocaleLowerCase(locale).replace(/^\+/, "");
-  const filtered = PHONE_CODES.filter((code) => {
-    const digits = code.value.replace("+", "");
-    const text = `${localizedPhoneCodeLabel(code.label, code.value, locale)} ${code.value}`.toLocaleLowerCase(locale);
-    return !q || digits.startsWith(q) || text.includes(q);
-  });
+  // draft: kullanıcının yazdığı metin; null = henüz yazılmadı. Eski davranışta
+  // mevcut değer (+1) filtre sorgusu oluyordu → ilk tıklamada "1" içeren birkaç kod
+  // görünüyor, +90 Türkiye gibi kodlar ancak aramayla çıkıyordu. Şimdi açılışta tam
+  // liste (Türkiye üstte) gösterilir, yazınca filtre devreye girer.
+  const [draft, setDraft] = useState<string | null>(null);
+  const shown = draft ?? value;
+  const filtered = draft === null
+    ? PHONE_CODES.slice().sort((a, b) => (a.value === "+90" ? -1 : b.value === "+90" ? 1 : 0))
+    : PHONE_CODES.filter((code) => {
+        const digits = code.value.replace("+", "");
+        const text = `${localizedPhoneCodeLabel(code.label, code.value, locale)} ${code.value}`.toLocaleLowerCase(locale);
+        const q = shown.trim().toLocaleLowerCase(locale).replace(/^\+/, "");
+        return !q || digits.startsWith(q) || text.includes(q);
+      });
 
   return (
     <div className="relative w-[72px] shrink-0">
       <input
-        value={value}
+        value={shown}
         onChange={(event) => {
-          onChange(event.target.value);
+          setDraft(event.target.value);
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
         onBlur={() => {
-          onChange(normalizePhoneCode(value) || "+1");
+          onChange(normalizePhoneCode(draft ?? value) || "+1");
+          setDraft(null);
           window.setTimeout(() => setOpen(false), 120);
         }}
         inputMode="tel"
@@ -288,7 +297,7 @@ function PhoneCodeInput({
         <span className="text-[10px] leading-none" aria-hidden>▾</span>
       </button>
       {open && filtered.length > 0 && (
-        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[220px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-white py-1 shadow-card">
+        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-white py-1 shadow-card">
           {filtered.map((code) => (
             <button
               key={code.value}
@@ -296,6 +305,7 @@ function PhoneCodeInput({
               onMouseDown={(event) => {
                 event.preventDefault();
                 onChange(code.value);
+                setDraft(null);
                 setOpen(false);
               }}
               className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-[13px] font-semibold text-ink transition-colors hover:bg-terra/8"
