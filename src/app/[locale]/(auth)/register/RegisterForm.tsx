@@ -410,7 +410,8 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
   // Bu adım zorunlu — kapak, adres, açıklama ve yetkili kişi dolmadan hesaba geçilemez.
   const bizChecks = [
     Boolean(coverPath),
-    Boolean(bizCountry && bizCity), // ilçe opsiyonel (bazı ülkelerde ilçe verisi yok)
+    // İlçe: seçili şehirde ilçe verisi varsa zorunlu; hiç veri yoksa (bazı ülkeler) opsiyonel.
+    Boolean(bizCountry && bizCity && (districts.length === 0 || bizDistrict)),
     Boolean(bizAddress.trim()),
     Boolean(bizDesc.trim()),
     Boolean(contactName.trim()),

@@ -26,40 +26,6 @@ const WORLD_URL =
 /* Mevcut DB/seed'de kullanılan Türkçe şehir adları — üretilen chunk'lara eklenir ki
    kayıtlı işletmelerin country/city/district değerleri seçilebilir kalsın. */
 const LEGACY = {
-  MA: {
-    // dr5hn kaynağında Fas şehirlerinin ilçe listesi boş geliyor; Marakeş-Safi
-    // bölgesinin şehirleri + Marakeş'in arrondissement'ları elle ekleniyor.
-    "Marrakesh-Safi": [
-      "Abadou",
-      "Adassil",
-      "Al-Haouz",
-      "Bouabout",
-      "Chichaoua",
-      "Essaouira",
-      "Guéliz",
-      "Hivernage",
-      "Kasbah",
-      "Kelaa-Des-Sraghna",
-      "Marrakech",
-      "Marrakesh",
-      "Medina",
-      "Ménara",
-      "Oukaïmedene",
-      "Palmeraie",
-      "Rehamna",
-      "Safi",
-      "Setti Fatma",
-      "Sidi Rahhal",
-      "Sidi Youssef Ben Ali",
-      "Smimou",
-      "Tamanar",
-      "Taouloukoult",
-      "Tidili Mesfioua",
-      "Timezgadiouine",
-      "Youssoufia",
-      "Zerkten",
-    ],
-  },
   GE: {
     "Batum": ["Merkez"],
     "Kutaisi": ["Merkez"],
@@ -72,6 +38,49 @@ const LEGACY = {
     "Rodos": ["Merkez"],
     "Santorini": ["Fira", "Imerovigli", "Oia"],
     "Selanik": ["Merkez"],
+    // dr5hn'de ilçe listesi boş gelen iki bölge — ilçe zorunlu olduğu için elle dolduruldu.
+    "Achaea": ["Patras", "Aigio", "Kalavryta"],
+    "North Aegean": ["Midilli", "Sakız", "Sisam"],
+  },
+  // Aşağıdaki ülkelerde dr5hn kaynağında ilçesi boş gelen şehirler; ilçe alanı
+  // zorunlu olduğu için (Orta Doğu + komşu ülkeler) elle dolduruldu.
+  IQ: {
+    "Iqlim Kurdistan": ["Erbil", "Süleymaniye", "Dohuk", "Halepçe"],
+  },
+  QA: {
+    "Al Daayen": ["Lusail", "Umm Qarn", "Al Kheesa", "Rawdat Al Hamama"],
+  },
+  OM: {
+    "Ash Sharqiyah North": ["Ibra", "Al Mudaybi", "Bidiyah", "Al Qabil", "Wadi Bani Khalid"],
+  },
+  AZ: {
+    "Babek": ["Merkez"],
+    "Julfa": ["Merkez"],
+    "Kangarli": ["Merkez"],
+    "Ordubad": ["Merkez"],
+    "Sadarak": ["Merkez"],
+    "Shahbuz": ["Merkez"],
+    "Sharur": ["Merkez"],
+  },
+};
+
+/* Kaynak (dr5hn) ağacını tamamen değiştiren ülkeler. dr5hn Fas'ta hem 12 bölgeyi
+   hem illeri karışık döndürüp çift kayıt üretiyordu (Casablanca + Casablanca-Settat…).
+   Wikipedia'nın resmi yapısıyla (12 bölge = şehir, il/prefektür = ilçe) elle kuruldu. */
+const OVERRIDE = {
+  MA: {
+    "Béni Mellal-Khénifra": ["Azilal", "Béni Mellal", "Fquih Ben Salah", "Khénifra", "Khouribga"],
+    "Casablanca-Settat": ["Benslimane", "Berrechid", "Casablanca", "El Jadida", "Médiouna", "Mohammedia", "Nouaceur", "Settat", "Sidi Bennour"],
+    "Drâa-Tafilalet": ["Errachidia", "Midelt", "Ouarzazate", "Tinghir", "Zagora"],
+    "Fès-Meknès": ["Boulemane", "El Hajeb", "Fès", "Ifrane", "Meknès", "Moulay Yacoub", "Sefrou", "Taounate", "Taza"],
+    "Marrakesh-Safi": ["Al Haouz", "Chichaoua", "El Kelâa des Sraghna", "Essaouira", "Marrakesh", "Rehamna", "Safi", "Youssoufia"],
+    "Oriental": ["Berkane", "Driouch", "Figuig", "Guercif", "Jerada", "Nador", "Oujda-Angad", "Taourirt"],
+    "Rabat-Salé-Kénitra": ["Kénitra", "Khémisset", "Rabat", "Salé", "Sidi Kacem", "Sidi Slimane", "Skhirate-Témara"],
+    "Souss-Massa": ["Agadir-Ida Ou Tanane", "Chtouka Aït Baha", "Inezgane-Aït Melloul", "Taroudant", "Tata", "Tiznit"],
+    "Tanger-Tétouan-Al Hoceïma": ["Al Hoceïma", "Chefchaouen", "Fahs-Anjra", "Larache", "M'diq-Fnideq", "Ouezzane", "Tanger-Assilah", "Tétouan"],
+    "Guelmim-Oued Noun": ["Assa-Zag", "Guelmim", "Sidi Ifni", "Tan-Tan"],
+    "Laâyoune-Sakia El Hamra": ["Boujdour", "Es Semara", "Laâyoune", "Tarfaya"],
+    "Dakhla-Oued Ed-Dahab": ["Aousserd", "Oued Ed-Dahab"],
   },
 };
 
@@ -124,6 +133,12 @@ for (const c of world) {
   for (const s of c.states ?? []) {
     const districts = (s.cities ?? []).map((x) => x.name);
     if (s.name) tree[s.name] = districts;
+  }
+  // OVERRIDE: kaynağı tamamen değiştir (bkz. Fas çift-kayıt sorunu).
+  const overridden = OVERRIDE[c.iso2];
+  if (overridden) {
+    for (const k of Object.keys(tree)) delete tree[k];
+    Object.assign(tree, overridden);
   }
   // Eyaleti olmayan mikro ülkeler: ülke adını tek şehir yap (boş bırakma).
   if (Object.keys(tree).length === 0) tree[c.translations?.tr || c.name] = [];

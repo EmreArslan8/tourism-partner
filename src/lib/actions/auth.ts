@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
 import { ensureBusinessForUser, recordSignupIntent } from "@/lib/signup-intents";
 import { isContactEmailTaken } from "@/lib/business-contacts";
+import { getDistrictOptions } from "@/lib/geo-server";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { GroupKey, ActionState } from "@/lib/types";
@@ -198,6 +199,14 @@ export async function signUp(
     )
   ) {
     return { ok: false, error: "missing" };
+  }
+  // İlçe: şehrin ilçe verisi varsa zorunlu ve listede olmalı; hiç veri yoksa opsiyonel
+  // (istemci doğrulaması baypas edilse bile). İstemci mantığıyla birebir aynı kural.
+  if (cat && bizProfile) {
+    const districtOptions = await getDistrictOptions(bizProfile.country, bizProfile.city);
+    if (districtOptions.length > 0 && !districtOptions.includes(bizProfile.district)) {
+      return { ok: false, error: "missing" };
+    }
   }
   const hasBizProfile = Boolean(
     bizProfile &&
