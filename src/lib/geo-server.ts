@@ -1,14 +1,14 @@
 /* Coğrafya SERVER katmanı — server action doğrulamaları için public/geo chunk'larını
    dosya sisteminden okur (dış istek yok, module-level cache; dosyalar deploy'da sabit).
    Kanonik değerler Türkçe ülke adı + chunk'taki şehir/ilçe adlarıdır.
-   Client tarafı için bkz. lib/geo.ts. Üretim: scripts/build-geo.mjs */
+   Client tarafı için bkz. lib/geo.ts. Veri kaynağı: elle bakımlı public/geo/*.json. */
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { normalizeTr } from "@/lib/utils";
 
 type GeoTree = Record<string, string[]>;
-type CountryIndex = [iso2: string, nameTr: string, nameEn: string][];
+type CountryIndex = [iso2: string, nameTr: string, nameEn: string, nameRu: string, nameAr: string][];
 
 const GEO_DIR = path.join(process.cwd(), "public", "geo");
 
@@ -24,7 +24,7 @@ function getIndex(): Promise<CountryIndex> {
 
 async function getTree(countryName: string): Promise<GeoTree> {
   const index = await getIndex();
-  const iso2 = index.find(([, tr, en]) => tr === countryName || en === countryName)?.[0];
+  const iso2 = index.find(([, tr, en, ru, ar]) => tr === countryName || en === countryName || ru === countryName || ar === countryName)?.[0];
   if (!iso2 || !/^[A-Z]{2}$/.test(iso2)) return {};
   let cached = treeCache.get(iso2);
   if (!cached) {

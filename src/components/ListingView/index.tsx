@@ -300,7 +300,7 @@ const ListingView = ({
     const key = serviceTranslationKey(ty);
     tags.push({ kind: "type", value: ty, label: key ? ts(key) : ty });
   });
-  if (country !== "all") tags.push({ kind: "country", value: country, label: country });
+  if (country !== "all") tags.push({ kind: "country", value: country, label: countries.find((c) => c.value === country)?.label ?? country });
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
   attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: tFacet(slug) }));
