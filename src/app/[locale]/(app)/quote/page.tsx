@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import QuoteForm, { type QuoteInitialFilters } from "@/components/QuoteForm";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, canonicalServiceSlug, groupKeyFromUrl } from "@/lib/categories";
 import { getBusinessById } from "@/lib/businesses";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
 import { localeAlternates } from "@/lib/seo";
@@ -67,14 +67,24 @@ type QuoteSearchParams = {
   attr?: string;
 };
 
-const GROUPS = new Set(CATEGORY_GROUPS.map((group) => group.key));
-const TYPES = new Set(CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => child.label)));
+const SLUG_SET = new Set(CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => child.slug)));
+const SLUG_BY_LABEL = new Map(
+  CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => [child.label, child.slug] as const)),
+);
+
+/* URL token → kanonik tür slug'ı (explore-filters ile aynı geriye uyum: yeni slug,
+   eski slug alias'ı, eski Türkçe label). */
+function typeTokenToSlug(token: string): string | null {
+  const canonical = canonicalServiceSlug(token);
+  if (SLUG_SET.has(canonical)) return canonical;
+  return SLUG_BY_LABEL.get(token) ?? null;
+}
 
 function parseQuoteFilters(sp: QuoteSearchParams): QuoteInitialFilters {
-  const group = sp.cat?.split(",").find((value): value is GroupKey => GROUPS.has(value as GroupKey));
-  const types = sp.type?.split(",").filter((value) => TYPES.has(value)) ?? [];
+  const group = sp.cat?.split(",").map(groupKeyFromUrl).find((v): v is GroupKey => v !== null);
+  const types = sp.type?.split(",").map(typeTokenToSlug).filter((v): v is string => v !== null) ?? [];
   const validTypesForGroup = group
-    ? CATEGORY_GROUPS.find((item) => item.key === group)?.children.map((child) => child.label) ?? []
+    ? CATEGORY_GROUPS.find((item) => item.key === group)?.children.map((child) => child.slug) ?? []
     : [];
   const primaryType = types.find((type) => validTypesForGroup.includes(type)) ?? types[0];
   return {

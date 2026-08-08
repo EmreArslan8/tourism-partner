@@ -237,7 +237,7 @@ export async function signUp(
         ...(sector ? { sector } : {}),
         ...(referral ? { referral_code: referral } : {}),
         ...(timezone ? { timezone } : {}),
-        ...(cat ? { biz_group: cat.group, biz_type: cat.typeLabel, category_slug: category, service_slugs: serviceSlugs } : {}),
+        ...(cat ? { biz_group: cat.group, biz_type: category, category_slug: category, service_slugs: serviceSlugs } : {}),
         // Kayıt adımı 3 profili — işletme kaydı oluşurken uygulanır (bkz. callback/panel).
         ...(hasBizProfile && bizProfile
           ? {
@@ -277,7 +277,7 @@ export async function signUp(
   if (data.user && cat) {
     await recordSignupIntent(data.user.id, email, {
       group: cat.group,
-      type: cat.typeLabel,
+      type: category ?? "",
       name,
       country: bizProfile?.country ?? "",
       city: bizProfile?.city ?? "",

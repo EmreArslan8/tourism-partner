@@ -1,4 +1,4 @@
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, canonicalServiceSlug, groupUrlSlug, groupKeyFromUrl } from "@/lib/categories";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
 import type { GroupKey, Sort } from "@/lib/types";
 
@@ -40,12 +40,25 @@ export type ExploreFilterValues = {
   page: number;
 };
 
-const GROUPS = new Set(CATEGORY_GROUPS.map((group) => group.key));
-const TYPES = new Set(CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => child.label)));
+/* Tür (leaf) katmanı slug-kanonik: internal değer, URL ve (migration sonrası) DB
+   business.type hepsi İngilizce slug. Tür facet/kıyas slug === slug ile eşleşir. */
+const SLUG_SET = new Set(CATEGORY_GROUPS.flatMap((g) => g.children.map((c) => c.slug)));
+const SLUG_BY_LABEL = new Map(
+  CATEGORY_GROUPS.flatMap((g) => g.children.map((c) => [c.label, c.slug] as const)),
+);
+
+/* URL token'ını kanonik slug'a çevirir. Kabul edilenler (geriye uyum):
+   yeni slug (airport-transfer) · eski slug (havalimani-transfer) · eski Türkçe
+   label (Havalimanı Transfer — indeksli eski linkler). Tanınmayan → null. */
+function typeTokenToSlug(token: string): string | null {
+  const canonical = canonicalServiceSlug(token);
+  if (SLUG_SET.has(canonical)) return canonical;
+  return SLUG_BY_LABEL.get(token) ?? null; // eski URL doğrudan label taşıyordu
+}
 
 export function parseExploreFilters(sp: ExploreSearchParams): ExploreInitialFilters {
-  const groups = (sp.cat?.split(",").filter((value): value is GroupKey => GROUPS.has(value as GroupKey)) ?? []);
-  const types = sp.type?.split(",").filter((value) => TYPES.has(value)) ?? [];
+  const groups = (sp.cat?.split(",").map(groupKeyFromUrl).filter((v): v is GroupKey => v !== null) ?? []);
+  const types = sp.type?.split(",").map(typeTokenToSlug).filter((v): v is string => v !== null) ?? [];
 
   return {
     groups,
@@ -72,7 +85,8 @@ export function serializeExploreFilters(filters: ExploreFilterValues): Record<st
   const q = filters.q.trim();
   const query: Record<string, string> = {};
 
-  if (groups.length) query.cat = groups.join(",");
+  // Grup anahtarı → URL slug (accommodation); tür zaten slug.
+  if (groups.length) query.cat = groups.map(groupUrlSlug).join(",");
   if (types.length) query.type = types.join(",");
   if (filters.country !== "all") query.country = filters.country;
   if (filters.city !== "all") query.city = filters.city;

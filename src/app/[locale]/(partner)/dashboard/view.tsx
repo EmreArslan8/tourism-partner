@@ -313,6 +313,7 @@ const DashboardView = ({
   const t = useTranslations("panel");
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
+  const tFacet = useTranslations("facet");
   const serviceName = (value: string) => {
     const key = serviceTranslationKey(value);
     return key ? ts(key) : value;
@@ -945,12 +946,12 @@ const DashboardView = ({
               <span className={styles.labelCls}>{isAgency ? t("agencyServices") : t("services")}</span>
               {facets.map((f) => (
                 <div key={f.key}>
-                  <p className={styles.checkGroup}>{f.label}</p>
+                  <p className={styles.checkGroup}>{tFacet(f.key)}</p>
                   <div className={styles.checkList}>
                     {f.options.map((o) => (
                       <label key={o.slug} className={styles.checkLabel}>
                         <input type="checkbox" name="attr" value={o.slug} defaultChecked={selectedAttrs.has(o.slug)} className="accent-terra" />
-                        {o.label}
+                        {tFacet(o.slug)}
                       </label>
                     ))}
                   </div>

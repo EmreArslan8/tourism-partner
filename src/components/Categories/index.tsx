@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, groupUrlSlug } from "@/lib/categories";
 import type { Business, GroupKey } from "@/lib/types";
 import styles from "./styles";
 
@@ -141,7 +141,7 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
             return (
               <Link
                 key={g.key}
-                href={{ pathname: "/explore", query: { cat: g.key } }}
+                href={{ pathname: "/explore", query: { cat: groupUrlSlug(g.key) } }}
                 className={active ? `${styles.item} ${styles.itemActive}` : styles.item}
                 role="listitem"
                 onMouseEnter={() => setActiveKey(g.key)}
@@ -170,7 +170,7 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
           })}
         </div>
 
-        <Link href={{ pathname: "/explore", query: { cat: activeGroup.key } }} className={styles.visual} aria-label={`${tc(activeGroup.key)} ${t("cta")}`}>
+        <Link href={{ pathname: "/explore", query: { cat: groupUrlSlug(activeGroup.key) } }} className={styles.visual} aria-label={`${tc(activeGroup.key)} ${t("cta")}`}>
           {/* Küçültülmüş görsel şeridi — marka hissi kalsın, alan bilgiye açılsın */}
           <span className={styles.visualMedia} aria-hidden="true">
             <Image

@@ -2,7 +2,7 @@
    ListingView yalnızca state tutar; süzme/sıralama/skor burada yaşar. */
 import type { Business, Sort, ListingFilters } from "./types";
 import { attrsPass } from "./facets";
-import { CATEGORY_GROUPS, serviceLabel } from "./categories";
+import { CATEGORY_GROUPS, serviceLabel, serviceTranslationKey, canonicalServiceSlug } from "./categories";
 import { normalizeTr } from "./utils";
 import { isPremiumVisible, premiumVisibilityRank } from "./business-visibility";
 
@@ -61,7 +61,7 @@ function searchableFields(b: Business): { text: string; weight: number }[] {
     { text: normalizeTr(b.name), weight: 4 },
     {
       text: normalizeTr([
-        b.type,
+        serviceLabel(b.type),
         ...(b.serviceTypes ?? []).map(serviceLabel),
       ].join(" ")),
       weight: 3,
@@ -190,7 +190,7 @@ export function businessPasses(
 ): boolean {
   if (!opts.ignoreGroup && f.groups.size && !f.groups.has(b.group)) return false;
   // Tür filtresi çoklu-hizmete duyarlı: işletmenin herhangi bir hizmeti eşleşirse geçer.
-  if (!opts.ignoreType && f.types.size && !businessTypeLabels(b).some((label) => f.types.has(label))) return false;
+  if (!opts.ignoreType && f.types.size && !businessTypeSlugs(b).some((slug) => f.types.has(slug))) return false;
   // ignoreRegion: sorgu bir konum içerdiğinde (queryReferencesLocation) ülke/şehir/ilçe
   // dropdown facet'i gevşetilir; konum eşlemesini serbest metin skoru üstlenir.
   if (!opts.ignoreRegion && f.country !== "all" && b.country !== f.country) return false;
@@ -259,17 +259,19 @@ export function facetCounts(
     if (key === "group") {
       acc[b.group] = (acc[b.group] ?? 0) + 1;
     } else {
-      // Tür facet'i: işletme her hizmeti için ayrı sayılır (çoklu-hizmet).
-      for (const label of businessTypeLabels(b)) acc[label] = (acc[label] ?? 0) + 1;
+      // Tür facet'i: işletme her hizmeti için ayrı sayılır (çoklu-hizmet). Anahtar = slug.
+      for (const slug of businessTypeSlugs(b)) acc[slug] = (acc[slug] ?? 0) + 1;
     }
   });
   return acc;
 }
 
-/** İşletmenin tür etiketleri: birincil type + tüm çoklu hizmetler (slug→label). Tekilleştirilmiş. */
-export function businessTypeLabels(b: Business): string[] {
-  const labels = new Set<string>();
-  if (b.type) labels.add(b.type);
-  for (const slug of b.serviceTypes ?? []) labels.add(serviceLabel(slug));
-  return [...labels];
+/** İşletmenin tür slug'ları: birincil type + tüm çoklu hizmetler. Tekilleştirilmiş.
+   Tolerant: b.type hâlâ eski Türkçe label ya da eski slug olabilir → kanonik slug'a çevrilir
+   (migration öncesi/sonrası ikisi de çalışır). */
+export function businessTypeSlugs(b: Business): string[] {
+  const slugs = new Set<string>();
+  if (b.type) slugs.add(serviceTranslationKey(b.type) ?? b.type);
+  for (const slug of b.serviceTypes ?? []) slugs.add(canonicalServiceSlug(slug));
+  return [...slugs];
 }

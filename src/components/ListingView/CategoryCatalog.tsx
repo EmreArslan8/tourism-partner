@@ -49,7 +49,7 @@ const CategoryCatalog = ({
           <div className={styles.catList}>
           {visibleGroups.map((g) => {
         const active = groups.has(g.key);
-        const showChildren = active || g.children.some((c) => types.has(c.label));
+        const showChildren = active || g.children.some((c) => types.has(c.slug));
         return (
           <div key={g.key} className={styles.catBlock}>
             <button
@@ -65,13 +65,13 @@ const CategoryCatalog = ({
             {showChildren && (
               <div className={styles.catChildren}>
                 {g.children.map((c) => {
-                  const on = types.has(c.label);
+                  const on = types.has(c.slug);
                   return (
                     <button
                       key={c.slug}
                       type="button"
                       className={cn(styles.catChild, on && styles.catChildActive)}
-                      onClick={() => onToggleType(c.label)}
+                      onClick={() => onToggleType(c.slug)}
                       aria-pressed={on}
                     >
                       <span className={cn(styles.catCheckbox, on && styles.catCheckboxActive)} aria-hidden />

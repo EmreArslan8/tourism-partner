@@ -8,15 +8,6 @@ import type { Business, GroupKey, Facet } from "./types";
 export const FACETS: Facet[] = [
   // ——— KONAKLAMA ———
   {
-    key: "yildiz", label: "Yıldız", scope: ["konaklama"],
-    options: [
-      { slug: "yildiz-5", label: "5 yıldız" },
-      { slug: "yildiz-4", label: "4 yıldız" },
-      { slug: "yildiz-3", label: "3 yıldız" },
-      { slug: "butik", label: "Butik" },
-    ],
-  },
-  {
     key: "konsept", label: "Konsept", scope: ["konaklama"],
     options: [
       { slug: "ultra-hersey-dahil", label: "Ultra her şey dahil" },

@@ -44,9 +44,9 @@ const MobileSearch = () => {
   };
 
   const chips: Array<{ label: string; href: RouterHref }> = [
-    { label: t("pop1"), href: { pathname: "/explore", query: { city: "İstanbul", cat: "konaklama" } } },
+    { label: t("pop1"), href: { pathname: "/explore", query: { city: "İstanbul", cat: "accommodation" } } },
     { label: t("pop2"), href: { pathname: "/explore", query: { city: "Nevşehir", q: "balon" } } },
-    { label: t("pop3"), href: { pathname: "/explore", query: { city: "Antalya", cat: "acente" } } },
+    { label: t("pop3"), href: { pathname: "/explore", query: { city: "Antalya", cat: "agency" } } },
   ];
 
   return (

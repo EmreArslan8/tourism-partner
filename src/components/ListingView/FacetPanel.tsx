@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown } from "lucide-react";
 import type { GroupKey } from "@/lib/types";
 import { visibleFacets } from "@/lib/facets";
@@ -23,6 +24,7 @@ const FacetPanel = ({
   bare?: boolean;
 }) => {
   const [closed, setClosed] = useState<Set<string>>(new Set());
+  const t = useTranslations("facet");
   const facets = visibleFacets(groups);
   if (facets.length === 0) return null;
 
@@ -47,12 +49,12 @@ const FacetPanel = ({
                 }
                 aria-expanded={open}
               >
-                <span className={styles.facetRowLabel}>{f.label}</span>
+                <span className={styles.facetRowLabel}>{t(f.key)}</span>
                 <ChevronDown className={cn(styles.facetChevron, open && styles.facetChevronOpen)} aria-hidden />
               </button>
               {selected.size > 0 && f.options.some((option) => selected.has(option.slug)) && (
                 <button type="button" className={styles.facetClear} onClick={onClear}>
-                  Temizle
+                  {t("clear")}
                 </button>
               )}
             </div>
@@ -68,7 +70,7 @@ const FacetPanel = ({
                       className="sr-only"
                     />
                     <span className={cn(styles.catCheckbox, active && styles.catCheckboxActive)} aria-hidden />
-                    {o.label}
+                    {t(o.slug)}
                   </label>
                 );
               })}

@@ -6,7 +6,7 @@ import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
 import type { FeaturedFacetTag } from "@/lib/facets";
-import { serviceTranslationKey } from "@/lib/categories";
+import { serviceTranslationKey, groupUrlSlug } from "@/lib/categories";
 import { businessDescription } from "@/lib/business-localization";
 import SupplierGallery from "@/components/SupplierGallery";
 import { businessImageUrl } from "@/lib/business-images";
@@ -64,7 +64,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
       <nav className={styles.nav}>
         <Link href="/" className={styles.navLink}>{t("home")}</Link><span>›</span>
         <Link href={{ pathname: "/explore" }} className={styles.navLink}>{t("explore")}</Link><span>›</span>
-        <Link href={{ pathname: "/explore", query: { cat: b.group } }} className={styles.navLink}>{tc(b.group)}</Link>
+        <Link href={{ pathname: "/explore", query: { cat: groupUrlSlug(b.group) } }} className={styles.navLink}>{tc(b.group)}</Link>
       </nav>
 
       <header className={styles.heroHead}>

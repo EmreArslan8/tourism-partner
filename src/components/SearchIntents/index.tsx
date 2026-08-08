@@ -11,10 +11,10 @@ type Intent = {
 };
 
 const INTENTS: Intent[] = [
-  { key: "intentIstanbulHotels", query: { cat: "konaklama", city: "İstanbul" } },
-  { key: "intentCappadociaGuides", query: { cat: "rehber", city: "Nevşehir" } },
-  { key: "intentAntalyaAgencies", query: { cat: "acente", city: "Antalya" } },
-  { key: "intentActivities", query: { cat: "aktivite" } },
+  { key: "intentIstanbulHotels", query: { cat: "accommodation", city: "İstanbul" } },
+  { key: "intentCappadociaGuides", query: { cat: "guide", city: "Nevşehir" } },
+  { key: "intentAntalyaAgencies", query: { cat: "agency", city: "Antalya" } },
+  { key: "intentActivities", query: { cat: "activities" } },
 ];
 
 const SearchIntents = () => {

@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { CATEGORY_GROUPS, serviceTranslationKey } from "@/lib/categories";
 import { businessSlug } from "@/lib/business-slug";
-import { facetLabel } from "@/lib/facets";
 import { cn } from "@/lib/utils";
 import { dopingRank } from "@/lib/listing";
 import { useRegions } from "@/lib/geo";
@@ -97,6 +96,7 @@ const ListingView = ({
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
   const tCommon = useTranslations("common");
+  const tFacet = useTranslations("facet");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -303,7 +303,7 @@ const ListingView = ({
   if (country !== "all") tags.push({ kind: "country", value: country, label: country });
   if (city !== "all") tags.push({ kind: "city", value: city, label: city });
   if (district !== "all") tags.push({ kind: "district", value: district, label: district });
-  attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: facetLabel(slug) }));
+  attrs.forEach((slug) => tags.push({ kind: "attr", value: slug, label: tFacet(slug) }));
   if (qDraft.trim()) tags.push({ kind: "q", value: "", label: `“${qDraft.trim()}”` });
 
   function removeTag(kind: string, value: string) {

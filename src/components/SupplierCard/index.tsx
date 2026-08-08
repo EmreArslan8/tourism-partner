@@ -82,7 +82,7 @@ const SupplierCard = ({
         <div className={styles.tags}>
           <Badge className={styles.badge}>{tc(business.group)} · {businessTypeKey ? ts(businessTypeKey) : business.type}</Badge>
           {(business.serviceTypes?.length ?? 0) > 1 && (
-            <Badge className={styles.badge}>+{business.serviceTypes!.length - 1} hizmet</Badge>
+            <Badge className={styles.badge}>{tCommon("moreServices", { count: business.serviceTypes!.length - 1 })}</Badge>
           )}
         </div>
         <div className={styles.nameWrap}>
