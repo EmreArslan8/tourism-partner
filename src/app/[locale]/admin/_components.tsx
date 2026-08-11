@@ -3,6 +3,7 @@ import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStat
 import type { AdminAccess } from "@/lib/admin-auth";
 import type { AdminApplication, AdminBusiness, AdminQuote, ContentPage } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
+import { groupLabel, serviceLabel } from "@/lib/categories";
 import { cn } from "@/lib/utils";
 import AdminSidebar from "./AdminSidebar";
 import EditableForm from "./EditableForm";
@@ -161,7 +162,7 @@ export const BusinessTable = ({ businesses }: { businesses: AdminBusiness[] }) =
           </div>
         ),
       },
-      { key: "cat", header: "Kategori", cell: (b) => `${b.group} · ${b.type}` },
+      { key: "cat", header: "Kategori", cell: (b) => `${groupLabel(b.group)} · ${serviceLabel(b.type)}` },
       { key: "status", header: "Durum", cell: (b) => <StatusPill value={b.status} /> },
       { key: "seo", header: "SEO", cell: (b) => (b.seoTitle && b.seoDescription ? "Tam" : "Eksik") },
       { key: "loc", header: "Konum", cell: (b) => `${b.city}, ${b.country}` },

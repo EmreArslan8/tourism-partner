@@ -4,8 +4,8 @@ import { groupPalette } from "@/theme";
 /* Hiyerarşik kategori taksonomisi — sol kenar kataloğunu besler.
    Ana başlık (group) → alt tür (leaf). İleride DB'de self-referencing tablo olacak.
 
-   slug = dilden bağımsız İngilizce kanonik kimlik (URL + çeviri anahtarı).
-   label = DB'de business.type olarak saklanan Türkçe kanonik değer (legacy uyum).
+   slug = dilden bağımsız İngilizce kanonik kimlik (DB + URL + çeviri anahtarı).
+   label = yalnızca Türkçe görünen metin; business.type alanına yazılmaz.
    Görünen metin daima slug üzerinden i18n'den gelir (bkz. service namespace). */
 export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
@@ -188,16 +188,26 @@ const LEAF_SLUG_BY_LABEL = new Map(
   CATEGORY_GROUPS.flatMap((group) => group.children.map((child) => [child.label, child.slug] as const)),
 );
 
-/** Alt kategori slug'ından etiket; bulunamazsa slug'ın kendisi döner. */
-export function serviceLabel(slug: string): string {
-  return LEAF_BY_SLUG.get(canonicalServiceSlug(slug))?.label ?? slug;
+/** Alt kategori slug'ından etiket; legacy Türkçe etiketi de geriye uyumlu kabul eder. */
+export function serviceLabel(value: string): string {
+  const slug = serviceSlug(value);
+  return slug ? LEAF_BY_SLUG.get(slug)?.label ?? value : value;
 }
 
 /** Alt kategori slug'ı (eski/yeni) veya kayıtlı Türkçe etiketinden i18n anahtarını çözer. */
-export function serviceTranslationKey(value: string): string | null {
+export function serviceSlug(value: string, group?: GroupKey): string | null {
   const canonical = canonicalServiceSlug(value);
-  if (LEAF_BY_SLUG.has(canonical)) return canonical;
+  const leaf = LEAF_BY_SLUG.get(canonical);
+  if (leaf && (!group || leaf.group === group)) return canonical;
+  if (group) {
+    return CATEGORY_GROUPS.find((item) => item.key === group)?.children.find((item) => item.label === value)?.slug ?? null;
+  }
   return LEAF_SLUG_BY_LABEL.get(value) ?? null;
+}
+
+/** Görüntüleme çevirilerinin anahtarı da kanonik hizmet slug'ıdır. */
+export function serviceTranslationKey(value: string): string | null {
+  return serviceSlug(value);
 }
 
 /** Slug geçerli mi ve verilen gruba ait mi? */

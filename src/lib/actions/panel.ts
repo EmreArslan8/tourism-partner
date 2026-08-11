@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
 import { ALL_FACET_SLUGS } from "@/lib/facets";
 import { ALL_DETAIL_KEYS, docsForGroup } from "@/lib/business-fields";
@@ -291,11 +291,16 @@ export async function saveMyBusiness(
 
   // Çoklu hizmet seçimi (business_services). İlk seçilen birincil → type.
   const rawServices = formData.getAll("services").map((value) => String(value));
-  const payloadType = rawServices.length > 0 ? serviceLabel(rawServices[0]) : clean(formData.get("type"), 80) ?? "";
   const meta = user.user_metadata ?? {};
   const requestedGroup = groupFromMetadata(meta.biz_group);
   const idRaw = String(formData.get("id") ?? "").trim();
   const formGroup = groupFromForm(formData.get("group"), requestedGroup);
+  const inputGroup = idRaw ? requestedGroup : formGroup;
+  const serviceSlugs = rawServices
+    .map((value) => serviceSlug(value, inputGroup))
+    .filter((value): value is string => Boolean(value));
+  const payloadType = serviceSlugs[0] ?? serviceSlug(clean(formData.get("type"), 80) ?? "", inputGroup) ?? "";
+  if (!payloadType || (!idRaw && !isServiceOfGroup(payloadType, formGroup))) return { ok: false, error: "missing" };
   let savedGroup: GroupKey = idRaw ? requestedGroup : formGroup;
 
   const payload = {
@@ -345,7 +350,11 @@ export async function saveMyBusiness(
 
       const effectiveGroup = groupFromMetadata(currentBusiness.group);
       savedGroup = effectiveGroup;
-      const effectiveType = payload.type || currentBusiness.type || "";
+      const effectiveType = serviceSlug(payload.type || currentBusiness.type || "", effectiveGroup) ?? "";
+      if (!effectiveType || !isServiceOfGroup(effectiveType, effectiveGroup)) {
+        return { ok: false, error: "missing" };
+      }
+      payload.type = effectiveType;
       payload.documents = filterAllowedDocuments(payload.documents, effectiveGroup, effectiveType);
 
       const media = await finalizeBusinessMedia(
@@ -385,7 +394,7 @@ export async function saveMyBusiness(
         group,
         status: "pending",
         ...payload,
-        type: payload.type || (meta.biz_type as string) || "—",
+        type: payload.type || serviceSlug(String(meta.biz_type ?? ""), group) || "—",
       }).select("id").single();
       if (error?.code === "23505") return { ok: false, error: "duplicateBusiness" };
       if (error) return { ok: false, error: error.message };
@@ -395,7 +404,7 @@ export async function saveMyBusiness(
       await logOwnerBusinessCreate(user.id, data.id, {
         name,
         group,
-        type: payload.type || (meta.biz_type as string) || "—",
+        type: payload.type || serviceSlug(String(meta.biz_type ?? ""), group) || "—",
       });
 
       const media = await finalizeBusinessMedia(
@@ -429,7 +438,7 @@ export async function saveMyBusiness(
 
     // Çoklu hizmetleri senkronize et (form açıkça hizmet gönderdiyse).
     if (savedBusinessId && rawServices.length > 0) {
-      await replaceBusinessServices(supabase, savedBusinessId, savedGroup, rawServices);
+      await replaceBusinessServices(supabase, savedBusinessId, savedGroup, serviceSlugs);
     }
 
     if (draftKey) {

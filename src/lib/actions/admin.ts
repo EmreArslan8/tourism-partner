@@ -4,7 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CATEGORY_GROUPS, isServiceOfGroup, serviceLabel } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
 import { replaceBusinessServices } from "@/lib/business-services";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { sanitizePublicHtml } from "@/lib/sanitize-public-html";
@@ -161,7 +161,7 @@ export async function saveBusiness(formData: FormData): Promise<void> {
       .getAll("services")
       .map((value) => String(value))
       .filter((slug) => isServiceOfGroup(slug, group));
-    const primaryType = serviceSlugs.length > 0 ? serviceLabel(serviceSlugs[0]) : clean(formData.get("type"), 120) ?? "";
+    const primaryType = serviceSlugs[0] ?? serviceSlug(clean(formData.get("type"), 120) ?? "", group) ?? "";
     const address = clean(formData.get("address"), 260);
     let details: Record<string, string> = {};
     let currentBusiness: { group: GroupKey; type: string; details: unknown } | null = null;

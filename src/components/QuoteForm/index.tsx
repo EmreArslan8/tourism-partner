@@ -176,7 +176,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
                   >
                     <option value="" disabled>{selectedGroup ? t("select") : t("categoryFirst")}</option>
                     {selectedGroup?.children.map((item) => (
-                      <option key={item.slug} value={item.label}>{ts(item.slug)}</option>
+                      <option key={item.slug} value={item.slug}>{ts(item.slug)}</option>
                     ))}
                   </select>
                 </SelectShell>

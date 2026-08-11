@@ -54,6 +54,7 @@ next-env.d.ts
 !supabase/migrations/20260728_0001_business_duplicate_guard.sql
 !supabase/migrations/20260803_0001_promo_email_templates.sql
 !supabase/migrations/20260803_0002_promo_email_visuals.sql
+!supabase/migrations/20260811_0001_canonical_business_type_slugs.sql
 
 # yerel HTML şablonları ve Markdown notları
 *.html
