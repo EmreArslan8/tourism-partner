@@ -5,6 +5,7 @@ import { updateBusinessStatus } from "@/lib/actions/admin";
 import { docsForGroup, COMPANY_FIELDS, GUIDE_FIELDS } from "@/lib/business-fields";
 import { Tabs, TabList, Tab, TabPanel } from "@/components/common/Tabs";
 import { Dialog, DialogTrigger, DialogClose, DialogContent } from "@/components/common/Dialog";
+import { serviceLabel } from "@/lib/categories";
 import type { AdminBusiness } from "@/lib/types";
 
 type TabKey = "pending" | "rejected" | "approved";
@@ -86,7 +87,7 @@ const Card = ({ b, locale, lang }: { b: AdminBusiness; locale: string; lang: "tr
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-[16px] font-bold leading-tight text-ink">{b.name}</h3>
-            <span className="rounded-full bg-cream px-2.5 py-0.5 text-[12px] font-semibold text-brand">{b.type}</span>
+            <span className="rounded-full bg-cream px-2.5 py-0.5 text-[12px] font-semibold text-brand">{serviceLabel(b.type)}</span>
           </div>
           <div className="mt-2 space-y-1 text-[13px] text-muted">
             <p className="flex items-center gap-1.5">

@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { processRecentQuoteEmailDeliveries } from "@/lib/email-delivery";
 import { processRecentQuoteWhatsappDeliveries } from "@/lib/whatsapp-delivery";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, serviceLabel, serviceSlug } from "@/lib/categories";
 import { ALL_FACET_SLUGS, attrsPass } from "@/lib/facets";
 import { isValidCity, isValidDistrict } from "@/lib/geo-server";
 import { normalizeTr } from "@/lib/utils";
@@ -16,9 +16,10 @@ import { isEmail, isBot, clean } from "./validate";
 function resolveCategory(group: string | null, type: string | null) {
   const category = CATEGORY_GROUPS.find((item) => item.key === group);
   if (!category) return null;
-  const child = category.children.find((item) => item.label === type || item.slug === type);
+  const canonicalType = serviceSlug(type ?? "", category.key);
+  const child = category.children.find((item) => item.slug === canonicalType);
   if (!child) return null;
-  return { group: category.key, type: child.label };
+  return { group: category.key, type: child.slug };
 }
 
 function cleanList(value: FormDataEntryValue | null, allowed?: Set<string>) {
@@ -110,7 +111,8 @@ export async function submitQuote(
   const country = cleanRegionPart(formData.get("country"));
   const city = cleanRegionPart(formData.get("city"));
   const district = cleanRegionPart(formData.get("district"));
-  const service = clean(formData.get("service"), 120) ?? selectedCategory?.type ?? null;
+  const rawService = clean(formData.get("service"), 120);
+  const service = rawService ? serviceLabel(rawService) : selectedCategory ? serviceLabel(selectedCategory.type) : null;
   const dateRange = dateRangeValue(formData);
   const validUntil = cleanDate(formData.get("validUntil"));
   if (!validUntil || validUntil < todayInIstanbul()) return { ok: false, error: "valid_until" };
@@ -119,10 +121,9 @@ export async function submitQuote(
     formData.get("filterGroups"),
     new Set(CATEGORY_GROUPS.map((item) => item.key)),
   );
-  const filterTypes = cleanList(
-    formData.get("filterTypes"),
-    new Set(CATEGORY_GROUPS.flatMap((item) => item.children.map((child) => child.label))),
-  );
+  const filterTypes = cleanList(formData.get("filterTypes"))
+    .map((value) => serviceSlug(value, selectedCategory?.group))
+    .filter((value): value is string => Boolean(value));
   const filterAttrs = cleanList(formData.get("filterAttrs"), ALL_FACET_SLUGS);
   const filterQ = clean(formData.get("filterQ"), 160);
   const filterRatingRaw = Number(formData.get("filterRating"));

@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import type { GroupKey } from "@/lib/types";
-import { groupServiceSlugs } from "@/lib/categories";
+import { groupServiceSlugs, serviceSlug } from "@/lib/categories";
 
 /* business_services (M2M) okuma/yazma yardımcıları — bir işletme birden fazla alt
    kategori (hizmet) sunabilir. slug tutulur; etiket gösterimde serviceLabel ile çözülür. */
@@ -17,13 +17,14 @@ export async function getServiceSlugsByBusiness(
   if (businessIds.length === 0) return map;
   const { data } = await supabase
     .from("business_services")
-    .select("business_id,service_slug,is_primary")
+    .select("business_id,group_key,service_slug,is_primary")
     .in("business_id", businessIds)
     .order("is_primary", { ascending: false })
     .order("id", { ascending: true });
   for (const row of data ?? []) {
     const list = map.get(row.business_id) ?? [];
-    list.push(row.service_slug);
+    const slug = serviceSlug(row.service_slug, row.group_key);
+    if (slug) list.push(slug);
     map.set(row.business_id, list);
   }
   return map;
@@ -43,7 +44,11 @@ export async function replaceBusinessServices(
   slugs: string[],
 ): Promise<void> {
   const allowed = groupServiceSlugs(group);
-  const clean = [...new Set(slugs.filter((slug) => allowed.has(slug)))];
+  const clean = [...new Set(
+    slugs
+      .map((value) => serviceSlug(value, group))
+      .filter((slug): slug is string => Boolean(slug && allowed.has(slug))),
+  )];
 
   await supabase.from("business_services").delete().eq("business_id", businessId);
   if (clean.length === 0) return;

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Field from "@/components/common/Field";
-import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
 import type { CategoryNode, GroupKey } from "@/lib/types";
 
 /* Grup + çoklu hizmet seçimi. Bir işletme birden fazla alt kategori (hizmet)
@@ -19,11 +19,21 @@ const BusinessCategoryFields = ({
   inputClassName: string;
 }) => {
   const [group, setGroup] = useState<GroupKey>(initialGroup);
-  const [selected, setSelected] = useState<string[]>(initialServices);
+  const initialPrimary = serviceSlug(initialType, initialGroup);
+  const normalizedInitialServices = initialServices
+    .map((value) => serviceSlug(value, initialGroup))
+    .filter((value): value is string => Boolean(value && isServiceOfGroup(value, initialGroup)));
+  const [selected, setSelected] = useState<string[]>(
+    normalizedInitialServices.length > 0
+      ? normalizedInitialServices
+      : initialPrimary && isServiceOfGroup(initialPrimary, initialGroup)
+        ? [initialPrimary]
+        : [],
+  );
   const [touched, setTouched] = useState(false);
   const selectedGroup = CATEGORY_GROUPS.find((item) => item.key === group) ?? CATEGORY_GROUPS[0];
   // Hiç hizmet seçilmezse (eski kayıt) birincil tür fallback'i korunur.
-  const primaryType = selected.length > 0 ? serviceLabel(selected[0]) : initialType;
+  const primaryType = selected[0] ?? initialPrimary ?? "";
 
   // Alt kategorileri section başlıklarına göre grupla (görseldeki gibi).
   const sections = useMemo(() => {

@@ -4,7 +4,7 @@ import type { GroupKey } from "@/lib/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { promoteSignupCover } from "@/lib/business-bootstrap";
 import { replaceBusinessServices } from "@/lib/business-services";
-import { CATEGORY_GROUPS } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
 
 /*
  * Kayıt niyeti (signup intent) — kayıt → işletme akışının TEK doğruluk kaynağı.
@@ -46,15 +46,16 @@ export function payloadFromMetadata(
   const m = meta ?? {};
   const accountType = typeof m.account_type === "string" ? m.account_type : "supplier";
   if (accountType === "buyer") return null;
-  if (!isGroup(m.biz_group)) return null;
+  const group = m.biz_group;
+  if (!isGroup(group)) return null;
 
   const contact =
     m.biz_contact && typeof m.biz_contact === "object" ? (m.biz_contact as Record<string, unknown>) : null;
   const coverRaw = str(m.biz_cover, 400);
 
   return {
-    group: m.biz_group,
-    type: str(m.biz_type, 80),
+    group,
+    type: serviceSlug(str(m.biz_type, 80), group) ?? "",
     name: str(m.firm_name, 160) || str(m.full_name, 160),
     country: str(m.biz_country, 80),
     city: str(m.biz_city, 80),
@@ -66,7 +67,10 @@ export function payloadFromMetadata(
     // Public bucket'taki oturumsuz draft yolu (bkz. api/signup/cover).
     cover: coverRaw.startsWith("signup-drafts/") && !coverRaw.includes("..") ? coverRaw : "",
     serviceSlugs: Array.isArray(m.service_slugs)
-      ? (m.service_slugs as unknown[]).filter((s): s is string => typeof s === "string")
+      ? (m.service_slugs as unknown[])
+          .filter((s): s is string => typeof s === "string")
+          .map((value) => serviceSlug(value, group))
+          .filter((value): value is string => Boolean(value))
       : [],
     contact: contact
       ? { name: str(contact.name, 160), phone: str(contact.phone, 40), email: str(contact.email, 200) }
@@ -123,6 +127,8 @@ async function createBusinessFromPayload(
 ): Promise<{ ok: true; businessId: number } | { ok: false; error: string }> {
   const group = payload.group;
   if (!isGroup(group)) return { ok: false, error: "missing_group" };
+  const type = serviceSlug(str(payload.type, 80), group);
+  if (!type || !isServiceOfGroup(type, group)) return { ok: false, error: "missing_type" };
 
   const name = str(payload.name, 160) || "—";
   const whatsapp = str(payload.whatsapp, 40);
@@ -132,7 +138,7 @@ async function createBusinessFromPayload(
     .insert({
       owner_id: userId,
       group,
-      type: str(payload.type, 80) || "—",
+      type,
       name,
       country: str(payload.country, 80),
       city: str(payload.city, 80),
@@ -184,7 +190,9 @@ async function createBusinessFromPayload(
     }
   }
 
-  const serviceSlugs = (payload.serviceSlugs ?? []).filter((slug) => typeof slug === "string");
+  const serviceSlugs = [type, ...(payload.serviceSlugs ?? [])]
+    .map((value) => serviceSlug(value, group))
+    .filter((value): value is string => Boolean(value && isServiceOfGroup(value, group)));
   if (serviceSlugs.length > 0) {
     await replaceBusinessServices(admin, businessId, group, serviceSlugs);
   }

@@ -7,6 +7,7 @@ import { ConfirmAction, DataTable, EmptyState, StatusBadge, type Column } from "
 import type { BadgeTone } from "@/components/common/StatusBadge";
 import { Card, CardHeader, PageHeader } from "../_components";
 import { AdminMetric, adminUi } from "../_ui";
+import { serviceLabel } from "@/lib/categories";
 
 const STATUS_LABEL: Record<AdminPartnerRequest["status"], string> = {
   pending: "Bekliyor",
@@ -159,7 +160,7 @@ function BusinessCell({ business }: { business: AdminPartnerRequest["requester"]
       >
         {business.name}
       </Link>
-      <p className="mt-0.5 truncate text-[12px] text-muted">{[business.type, business.city].filter(Boolean).join(" · ")}</p>
+      <p className="mt-0.5 truncate text-[12px] text-muted">{[serviceLabel(business.type), business.city].filter(Boolean).join(" · ")}</p>
     </div>
   );
 }

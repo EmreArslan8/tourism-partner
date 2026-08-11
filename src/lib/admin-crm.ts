@@ -1,4 +1,5 @@
 import type { AdminBusiness, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
+import { groupLabel, serviceLabel } from "@/lib/categories";
 import { normalizeTr } from "@/lib/utils";
 
 export type CrmFilters = {
@@ -140,7 +141,7 @@ function valueForColumn(
   if (column === "address") return `${business.district}, ${business.city}, ${business.country}`;
   if (column === "phone") return business.phone ?? "";
   if (column === "email") return emails[business.id] ?? businessEmail(business);
-  if (column === "category") return `${business.group} / ${business.type}`;
+  if (column === "category") return `${groupLabel(business.group)} / ${serviceLabel(business.type)}`;
   if (column === "status") return business.status;
   if (column === "website") return business.website ?? "";
   return "";

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CATEGORY_GROUPS, serviceLabel } from "@/lib/categories";
+import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
 import type { CategoryNode, GroupKey } from "@/lib/types";
 
 /* Sabit gruba ait alt kategorilerin çoklu seçimi (business_services). Grup değişmez —
@@ -21,9 +21,19 @@ const ServiceMultiSelect = ({
 }) => {
   const ts = useTranslations("service");
   const tp = useTranslations("panel");
-  const [selected, setSelected] = useState<string[]>(initialServices);
+  const initialPrimary = serviceSlug(initialType, group);
+  const normalizedInitialServices = initialServices
+    .map((value) => serviceSlug(value, group))
+    .filter((value): value is string => Boolean(value && isServiceOfGroup(value, group)));
+  const [selected, setSelected] = useState<string[]>(
+    normalizedInitialServices.length > 0
+      ? normalizedInitialServices
+      : initialPrimary && isServiceOfGroup(initialPrimary, group)
+        ? [initialPrimary]
+        : [],
+  );
   const groupNode = CATEGORY_GROUPS.find((item) => item.key === group) ?? CATEGORY_GROUPS[0];
-  const primaryType = selected.length > 0 ? serviceLabel(selected[0]) : initialType;
+  const primaryType = selected[0] ?? initialPrimary ?? "";
 
   const sections = useMemo(() => {
     const map = new Map<string, CategoryNode[]>();

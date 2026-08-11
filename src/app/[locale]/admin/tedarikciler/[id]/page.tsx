@@ -20,6 +20,7 @@ import { BusinessForm, Empty, QuoteList, panel } from "../../_components";
 import { getCrmBusinessDetail, type CrmBusinessDetailData, type CrmContact } from "@/lib/admin-crm-data";
 import type { AdminBusiness, AdminMembership } from "@/lib/types";
 import { businessSlug } from "@/lib/businesses";
+import { serviceLabel } from "@/lib/categories";
 import { businessImageUrl } from "@/lib/business-images";
 import { isPublicBusinessStatus } from "@/lib/business-visibility";
 import { membershipDaysLeft, membershipState } from "@/lib/membership";
@@ -78,7 +79,7 @@ export default async function AdminBusinessDetailPage({
       <SupplierHeader
         id={business.id}
         name={business.name}
-        type={business.type}
+        type={serviceLabel(business.type)}
         city={business.city}
         country={business.country}
         cover={cover}

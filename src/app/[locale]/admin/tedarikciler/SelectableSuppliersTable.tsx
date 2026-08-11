@@ -11,6 +11,7 @@ import {
   EXPORT_COLUMNS,
   type CrmFilters,
 } from "@/lib/admin-crm";
+import { serviceLabel } from "@/lib/categories";
 import type { AdminBusiness, BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -122,7 +123,7 @@ const SelectableSuppliersTable = ({
               </div>
             ),
           },
-          { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={b.type} extra={(b.serviceTypes?.length ?? 0) - 1} /> },
+          { key: "cat", header: "Kategori", cell: (b) => <CategoryPill group={b.group} label={serviceLabel(b.type)} extra={(b.serviceTypes?.length ?? 0) - 1} /> },
           { key: "city", header: "Şehir", cell: (b) => <span className="font-medium text-ink">{b.city}</span> },
           { key: "status", header: "Durum", cell: (b) => <StatusPill status={b.status} /> },
           {
