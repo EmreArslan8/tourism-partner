@@ -4,7 +4,7 @@ export default function HomeLoading() {
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-pine"
       aria-busy="true"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,rgba(0,79,230,.22),transparent_42%),linear-gradient(160deg,rgba(1,8,47,.9),rgba(1,11,58,.98))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_38%,theme(colors.sapphire-top/.24),transparent_42%),linear-gradient(160deg,theme(colors.sapphire-deep/.94),theme(colors.brand-deep/.98))]" />
 
       <div className="container-px relative z-10 flex flex-1 flex-col">
         <div className="flex h-[88px] items-center justify-between border-b border-white/10">

@@ -1,19 +1,27 @@
-/* Trust - tek satirlik kompakt guven bandi. */
+/* Trust - SSS altındaki yatay dönüşüm bandı. */
 const styles = {
-  section: "w-full border-t border-white/15 pt-6 max-[560px]:pt-4",
-  list:
-    "flex w-full items-stretch justify-center gap-x-4 gap-y-3 " +
-    "px-5 py-6 " +
-    "min-[1440px]:gap-x-7 min-[1440px]:py-8 min-[1800px]:gap-x-9 min-[1800px]:py-10 " +
-    // Mobil: 3 sütun 9px'e sıkışıyordu — alt alta ikon-solda satırlar, okunur ölçü.
-    "max-[560px]:grid max-[560px]:grid-cols-1 max-[560px]:gap-2 max-[560px]:px-0 max-[560px]:py-4",
-  item:
-    "flex min-w-0 flex-1 flex-col items-center gap-3 px-3 py-2 text-center " +
-    "max-[560px]:flex-row max-[560px]:items-center max-[560px]:gap-3 max-[560px]:px-1 max-[560px]:py-1.5 max-[560px]:text-start",
-  icon: "grid h-11 w-11 shrink-0 place-items-center rounded-[12px] bg-white/10 text-white ring-1 ring-white/15 min-[1440px]:h-[52px] min-[1440px]:w-[52px] min-[1440px]:rounded-[14px] min-[1440px]:[&_svg]:h-[24px] min-[1440px]:[&_svg]:w-[24px] min-[1800px]:h-14 min-[1800px]:w-14 max-[560px]:h-12 max-[560px]:w-12 max-[560px]:rounded-[12px] max-[560px]:[&_svg]:h-[24px] max-[560px]:[&_svg]:w-[24px]",
-  body: "flex min-w-0 flex-wrap items-baseline justify-center gap-x-1.5 max-[560px]:block",
-  itemTitle: "text-[12.5px] font-semibold uppercase tracking-[.16em] text-white/90 min-[1440px]:text-[13.5px] min-[1800px]:text-[14.5px] max-[900px]:text-[11px] max-[560px]:block max-[560px]:text-[12.5px] max-[560px]:leading-[1.25] max-[560px]:tracking-[.1em]",
-  itemDesc: "text-[13px] font-medium leading-snug text-white/65 min-[1440px]:text-[14px] min-[1800px]:text-[15px] max-[900px]:text-[12.5px] max-[560px]:mt-1 max-[560px]:block max-[560px]:text-[13.5px] max-[560px]:leading-[1.4]",
+  section:
+    "relative left-1/2 isolate min-h-[190px] w-screen -translate-x-1/2 overflow-hidden bg-sapphire-deep " +
+    "max-[760px]:min-h-[300px]",
+  image: "object-cover object-center",
+  overlay:
+    "absolute inset-0 -z-0 bg-[linear-gradient(90deg,rgba(36,17,63,.92)_0%,rgba(76,29,149,.76)_46%,rgba(36,17,63,.34)_100%)]",
+  content:
+    "container-px relative z-[1] mx-auto grid min-h-[190px] grid-cols-[minmax(0,1fr)_auto] items-center gap-8 py-8 " +
+    "max-[900px]:gap-5 max-[900px]:px-6 max-[760px]:min-h-[300px] max-[760px]:grid-cols-1 max-[760px]:content-center max-[760px]:items-start max-[760px]:py-9",
+  title:
+    "grid max-w-[520px] gap-0.5 font-display text-[24px] font-semibold leading-[1.08] tracking-normal text-white " +
+    "min-[1440px]:text-[28px] max-[760px]:text-[25px] max-[420px]:text-[22px]",
+  actions:
+    "flex min-w-[360px] items-center justify-end gap-5 max-[900px]:min-w-0 max-[900px]:gap-3 max-[760px]:w-full max-[760px]:flex-wrap max-[760px]:justify-start",
+  primary:
+    "group inline-flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-[6px] bg-white px-6 text-[13px] font-bold text-sapphire-deep " +
+    "shadow-[0_16px_34px_-22px_rgba(0,0,0,.75)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-cream " +
+    "[&>svg]:transition-transform group-hover:[&>svg]:translate-x-0.5 rtl:group-hover:[&>svg]:-translate-x-0.5 max-[520px]:w-full",
+  secondary:
+    "group inline-flex h-12 min-w-[190px] items-center justify-center gap-2 rounded-[6px] border border-white/35 bg-white/5 px-6 text-[13px] font-bold text-white " +
+    "backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-white/60 hover:bg-white/12 " +
+    "[&>svg]:transition-transform group-hover:[&>svg]:translate-x-0.5 rtl:group-hover:[&>svg]:-translate-x-0.5 max-[520px]:w-full",
 } as const;
 
 export default styles;

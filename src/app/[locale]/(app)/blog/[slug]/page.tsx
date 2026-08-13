@@ -51,7 +51,7 @@ export default async function BlogPost({
 
   return (
     <main className="container-px mx-auto w-full max-w-[760px] py-12 max-[640px]:py-8">
-      <Link href={{ pathname: "/blog" }} className="mb-6 inline-flex items-center gap-1 text-[13px] font-semibold text-cream/75 transition-colors hover:text-white">
+      <Link href={{ pathname: "/blog" }} className="mb-6 inline-flex items-center gap-1 text-[13px] font-semibold text-muted transition-colors hover:text-brand">
         ‹ {t("back")}
       </Link>
 

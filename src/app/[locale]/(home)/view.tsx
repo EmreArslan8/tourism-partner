@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
 import Categories from "@/components/Categories";
 import HowItWorks from "@/components/HowItWorks";
+import WhyJoin from "@/components/WhyJoin";
 import Cta from "@/components/Cta";
 import Faq from "@/components/Faq";
 import Trust from "@/components/Trust";
@@ -96,7 +97,10 @@ const HomeView = () => {
         </div>
       </section>
 
-      {/* 5 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
+      {/* 5 — Neden Tourism Partner? + hemen üye ol (tam genişlik dönüşüm bandı) */}
+      <WhyJoin />
+
+      {/* 6 — Sık sorulan sorular + güven rozetleri (FAQ üstte, rozetler altta) */}
       <section className={styles.section}>
         <div className={styles.faqStack}>
           <Faq />

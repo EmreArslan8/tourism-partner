@@ -10,8 +10,13 @@
   section:
     "relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-pine " +
     "max-[640px]:min-h-[calc(100svh-40px)]",
-  picture: "absolute inset-0 -z-10 block",
-  image: "h-full w-full object-cover object-center min-[1440px]:object-[44%_center] min-[1800px]:object-[40%_center]",
+  picture:
+    "absolute inset-0 -z-10 block bg-[#03062b] " +
+    "min-[1025px]:bg-[radial-gradient(circle_at_78%_48%,#12105c_0%,#070838_42%,#03062b_76%)]",
+  // Görsel tüm hero alanını doldurur (object-cover) — üst/alt boşluk ya da
+  // dikiş olmaz. Sahne 2:1: küre sağda, sol taraf metin için koyu boş alan.
+  // Mobil ve tablet kendi tam-kaplayan görsellerinde kalır.
+  image: "h-full w-full object-cover object-center max-[640px]:object-[72%_center]",
   overlay:
     "pointer-events-none absolute inset-0 -z-10 " +
     "bg-[linear-gradient(90deg,rgba(1,8,47,.82)_0%,rgba(1,8,47,.42)_42%,rgba(1,8,47,.05)_72%,rgba(1,8,47,0)_100%)]",
@@ -36,44 +41,46 @@
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
     "max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
   title:
-    "heading-hero max-w-[20ch] [text-wrap:balance] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.06] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block max-[640px]:[&_em]:whitespace-nowrap " +
-    "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.04] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
+    "heading-hero max-w-[20ch] [text-wrap:balance] text-white max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.12] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block max-[640px]:[&_em]:whitespace-nowrap " +
+    "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.14] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
+    // Masaüstü tabanı biraz küçültüldü (nefes alanı) — heading-hero clamp'ini ezer.
+    "min-[1025px]:!text-[64px] min-[1025px]:!leading-[1.13] " +
     // Dev başlık yalnız geniş VE yüksek ekranlarda; 1600×900 laptop'ta taban ölçü kalır.
-    "[@media(min-width:1440px)_and_(min-height:940px)]:!text-[88px] " +
-    "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[.98] " +
-    "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[96px] " +
-    "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#9db4ff]",
+    "[@media(min-width:1440px)_and_(min-height:940px)]:!text-[74px] " +
+    "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[1.08] " +
+    "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[80px] " +
+    "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#8b5cf6]",
   eyebrow:
-    "mb-3 text-[14px] font-extrabold uppercase tracking-[.16em] text-[#b7c6ff] [text-shadow:0_2px_18px_rgba(1,8,47,.45)] min-[1440px]:mb-4 min-[1440px]:text-[15px] max-[640px]:mb-2 max-[640px]:text-[11px]",
+    "mb-2.5 text-[13px] font-extrabold uppercase tracking-[.16em] text-[#b7a6f0] [text-shadow:0_2px_18px_rgba(36,17,63,.5)] min-[1440px]:mb-3 min-[1440px]:text-[14px] max-[640px]:mb-2 max-[640px]:text-[11px]",
   // Mobilde açıklama başlığın altında değil, teklif butonunun hemen üstünde durur.
   mobileIntro:
     "hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
   categories:
-    "mt-8 flex items-start gap-8 text-white max-[1100px]:gap-5 max-[640px]:hidden min-[1440px]:mt-10 min-[1440px]:gap-10 min-[1800px]:gap-11",
+    "mt-6 flex items-start gap-6 text-white max-[1100px]:gap-4 max-[640px]:hidden min-[1440px]:mt-8 min-[1440px]:gap-8 min-[1800px]:gap-9",
   categoryLink:
-    "group flex min-w-[68px] flex-col items-center gap-2 !text-white text-[13px] font-semibold transition-opacity hover:opacity-80 min-[1440px]:min-w-[78px] min-[1440px]:text-[14px] min-[1800px]:text-[15px]",
+    "group flex min-w-[62px] flex-col items-center gap-1.5 !text-white text-[12.5px] font-semibold transition-opacity hover:opacity-80 min-[1440px]:min-w-[70px] min-[1440px]:text-[13px] min-[1800px]:text-[14px]",
   categoryIcon:
-    "h-8 w-8 text-white stroke-white stroke-[1.55] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-9 min-[1440px]:w-9 min-[1800px]:h-10 min-[1800px]:w-10",
+    "h-7 w-7 text-white stroke-white stroke-[1.55] transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-8 min-[1440px]:w-8 min-[1800px]:h-9 min-[1800px]:w-9",
   gastronomyIcon:
-    "-my-1 h-10 w-10 text-white stroke-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-11 min-[1440px]:w-11 min-[1800px]:h-12 min-[1800px]:w-12",
+    "-my-1 h-9 w-9 text-white stroke-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-10 min-[1440px]:w-10 min-[1800px]:h-11 min-[1800px]:w-11",
   transferIcon:
-    "h-8 w-11 object-contain text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-9 min-[1440px]:w-[50px] min-[1800px]:h-10 min-[1800px]:w-[55px]",
-  searchWrap: "mt-7 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full min-[1440px]:mt-8 min-[1440px]:max-w-[860px] min-[1800px]:max-w-[940px]",
+    "h-7 w-10 object-contain text-white transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 min-[1440px]:h-8 min-[1440px]:w-[46px] min-[1800px]:h-9 min-[1800px]:w-[50px]",
+  searchWrap: "mt-5 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full min-[1440px]:mt-6 min-[1440px]:max-w-[860px] min-[1800px]:max-w-[940px]",
   ctaBlock:
-    "relative mt-8 flex w-full max-w-[760px] flex-col items-start gap-4 pt-5 max-[640px]:hidden " +
-    "min-[1440px]:mt-9 min-[1440px]:max-w-[860px] min-[1440px]:gap-5 min-[1440px]:pt-6 min-[1800px]:max-w-[940px] " +
+    "relative mt-6 flex w-full max-w-[760px] flex-col items-start gap-3.5 pt-4 max-[640px]:hidden " +
+    "min-[1440px]:mt-7 min-[1440px]:max-w-[860px] min-[1440px]:gap-4 min-[1440px]:pt-5 min-[1800px]:max-w-[940px] " +
     "before:absolute before:inset-x-0 before:top-0 before:h-px before:content-[''] " +
     "before:bg-[linear-gradient(90deg,rgba(157,180,255,.58),rgba(157,180,255,.16)_58%,transparent)]",
   ctaCopy: "min-w-0 max-w-[560px]",
   ctaPrompt:
-    "font-display text-[25px] font-medium leading-[1.15] tracking-[-.01em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.35)] min-[1440px]:text-[28px] min-[1800px]:text-[31px]",
+    "font-display text-[22px] font-medium leading-[1.15] tracking-[-.01em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.35)] min-[1440px]:text-[25px] min-[1800px]:text-[27px]",
   ctaPrimary:
-    "group/quote relative inline-flex min-h-[50px] min-w-[300px] shrink-0 items-center justify-center gap-3 overflow-hidden rounded-[12px] " +
-    "border border-white/15 bg-sapphire-top px-8 text-[15px] font-bold text-white " +
+    "group/quote relative inline-flex min-h-[46px] min-w-[240px] shrink-0 items-center justify-center gap-3 overflow-hidden rounded-[12px] " +
+    "border border-white/15 bg-sapphire-top px-7 text-[15px] font-bold text-white " +
     "shadow-[0_14px_34px_-16px_rgba(0,79,230,.85)] ring-1 ring-[#8eb0ff]/15 transition-all duration-200 " +
     "before:absolute before:inset-y-0 before:start-[-45%] before:w-[38%] before:skew-x-[-18deg] before:bg-white/12 before:content-[''] before:transition-[left] before:duration-500 " +
     "hover:-translate-y-0.5 hover:border-white/25 hover:bg-sapphire hover:shadow-[0_18px_38px_-15px_rgba(0,79,230,.95)] hover:before:start-[120%] " +
-    "min-[1440px]:min-h-[56px] min-[1440px]:min-w-[340px] min-[1440px]:px-10 min-[1440px]:text-[16px] min-[1800px]:min-h-[60px] min-[1800px]:min-w-[360px] min-[1800px]:text-[17px] " +
+    "min-[1440px]:min-h-[52px] min-[1440px]:min-w-[270px] min-[1440px]:px-9 min-[1440px]:text-[16px] min-[1800px]:min-h-[56px] min-[1800px]:min-w-[290px] min-[1800px]:text-[17px] " +
     "[&>span]:relative [&>svg]:relative [&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
   mobileCtas: "mt-6 hidden w-full flex-col gap-3 max-[640px]:flex",
   mobileCtaRow: "flex w-full",

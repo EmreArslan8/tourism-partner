@@ -2,11 +2,10 @@
 const styles = {
   head: "mb-4 flex items-end justify-between gap-4 min-[1440px]:mb-6 min-[1800px]:mb-7 max-[560px]:mb-[9.6px] max-[560px]:gap-[12.8px] [@media(max-height:720px)]:mb-2.5",
   copy: "section-copy",
-  /* Koyu (sapphire degrade) zemin üstünde başlıklar beyaz. */
-  eyebrow: "eyebrow mb-2 !text-[#9db4ff] max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
-  title: "heading-section text-white [@media(max-height:720px)]:text-[20px]",
+  eyebrow: "eyebrow mb-2 !text-brand/75 max-[560px]:mb-[6.4px] [@media(max-height:720px)]:mb-1",
+  title: "heading-section text-ink [@media(max-height:720px)]:text-[20px]",
   // Kısa ekranlarda alt açıklamayı gizle — galeriye yer açar.
-  sub: "section-desc max-w-[52ch] !text-[#c7d3f0] [@media(max-height:720px)]:hidden",
+  sub: "section-desc max-w-[52ch] !text-muted [@media(max-height:720px)]:hidden",
   nav: "flex items-center gap-2 max-[560px]:gap-[6.4px]",
   arrow:
     "grid h-10 w-10 place-items-center rounded-full border border-white/20 bg-white/95 text-sapphire-deep " +

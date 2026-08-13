@@ -2,8 +2,8 @@
    Kart görünümü SupplierCard'da; burada yalnız filtre/sonuç/harita düzeni. */
 const styles= {
   head: "mb-6 py-2 max-[1120px]:mb-4 max-[640px]:mb-3",
-  eyebrow: "mb-1 block text-[10.5px] font-bold uppercase tracking-[.1em] text-[#aebfff]",
-  title: "whitespace-nowrap font-display text-[44px] font-medium leading-[1.05] tracking-[-.03em] text-white min-[1440px]:text-[54px] min-[1800px]:text-[62px] max-[900px]:text-[38px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
+  eyebrow: "mb-1 block text-[10.5px] font-bold uppercase tracking-[.1em] text-brand/70",
+  title: "whitespace-nowrap font-display text-[44px] font-medium leading-[1.05] tracking-[-.03em] text-ink min-[1440px]:text-[54px] min-[1800px]:text-[62px] max-[900px]:text-[38px] max-[640px]:whitespace-normal max-[640px]:text-[27px]",
   topSearch: "mb-5 max-[1120px]:hidden",
 
   bar:
@@ -48,13 +48,13 @@ const styles= {
   toggleBox: "grid h-4 w-4 place-items-center rounded-full border-[1.5px] border-current text-white",
 
   active: "mt-3 flex flex-wrap items-center gap-2",
-  activeLabel: "text-[12.5px] font-semibold text-cream/80",
+  activeLabel: "text-[12.5px] font-semibold text-muted",
   tag:
     "inline-flex items-center gap-1.5 rounded-pill border border-white bg-white " +
     "px-2.5 py-1 text-[12.5px] font-semibold text-[#10265f] shadow-[0_8px_18px_-16px_rgba(0,0,0,.65)] transition-colors hover:bg-cream",
   tagX: "text-[14px] leading-none text-[#10265f]/60",
   clearTag:
-    "px-1 py-1 text-[12.5px] font-semibold text-white underline underline-offset-4 transition-colors hover:text-cream",
+    "px-1 py-1 text-[12.5px] font-semibold text-brand underline underline-offset-4 transition-colors hover:text-brand-deep",
 
   // Hizmet/koşul facet paneli (sol kenar — filtreleme motoru)
   facetWrap: "mt-3 flex flex-col rounded-[14px] border border-line bg-paper p-2 shadow-card",
@@ -83,16 +83,16 @@ const styles= {
   // Checkbox listesi (chip yerine)
   facetCheckList: "flex flex-col pb-2",
   facetCheck:
-    "flex h-[28px] cursor-pointer select-none items-center gap-2.5 rounded-none px-0 text-[13px] font-normal text-[#5a6072] hover:text-[#0f3bb0]",
+    "flex h-[28px] cursor-pointer select-none items-center gap-2.5 rounded-none px-0 text-[13px] font-normal text-[#5a6072] hover:text-brand-deep",
   facetCheckActive: "text-terra-deep",
   facetCheckbox: "h-[17px] w-[17px] shrink-0 accent-terra",
 
   resultsBar:
     "mb-5 mt-6 flex flex-wrap items-center justify-between gap-4 py-3 " +
     "max-[1120px]:mb-4 max-[1120px]:mt-4 max-[640px]:mb-3 max-[640px]:mt-3 max-[640px]:gap-3 max-[640px]:py-2.5",
-  count: "text-[14px] font-medium tracking-[-.01em] text-cream/90",
-  countStrong: "font-semibold text-white",
-  guestCountStrong: "text-[17px] font-bold tracking-[-.025em] text-white",
+  count: "text-[14px] font-medium tracking-[-.01em] text-muted",
+  countStrong: "font-semibold text-ink",
+  guestCountStrong: "text-[17px] font-bold tracking-[-.025em] text-ink",
   barRight: "flex items-center gap-2.5 max-[560px]:w-full max-[560px]:justify-between max-[560px]:gap-2",
   viewToggle: "inline-flex items-center gap-0.5 rounded-[9px] bg-[#edf2fc] p-0.5",
   viewBtn:
@@ -100,7 +100,7 @@ const styles= {
   viewBtnActive: "!bg-paper !font-semibold !text-terra-deep shadow-[0_2px_6px_rgba(24,55,116,.12)] hover:!text-terra-deep",
   viewIcon: "h-3.5 w-3.5",
   sortWrap: "flex items-center gap-2",
-  sortLabel: "text-[12.5px] font-medium text-cream/85 max-[560px]:hidden",
+  sortLabel: "text-[12.5px] font-medium text-muted max-[560px]:hidden",
   sortSelectWrap: "relative inline-flex w-[106px] max-[640px]:w-[98px]",
   sortSelect:
     "h-9 w-full appearance-none rounded-[8px] border border-[#d7deec] bg-paper py-0 ps-2.5 pe-7 text-[12.5px] font-medium text-ink focus:border-terra focus:outline-none max-[640px]:text-[12px]",
@@ -133,15 +133,15 @@ const styles= {
   catalogChevronOpen: "rotate-180",
   catalogSearch:
     "my-2 h-[32px] w-full rounded-[8px] border border-[#e4e7ef] bg-[#fafbfc] px-2.5 text-[12.5px] font-normal text-[#3d4453] " +
-    "placeholder:text-[#8a8f9c] focus:border-[#0f3bb0] focus:bg-white focus:outline-none",
+    "placeholder:text-[#8a8f9c] focus:border-brand focus:bg-white focus:outline-none",
   catList: "flex flex-col",
   catBlock: "",
   catHead:
     "group relative flex h-[30px] w-full items-center gap-2.5 rounded-none border-0 bg-transparent px-0 text-start " +
     "text-[13.5px] font-normal text-[#3d4453] transition-colors focus-visible:!outline-none " +
     "before:absolute before:start-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-transparent " +
-    "hover:text-[#0f3bb0]",
-  catHeadActive: "!bg-transparent !text-[#0f3bb0] before:!bg-transparent",
+    "hover:text-brand-deep",
+  catHeadActive: "!bg-transparent !text-brand-deep before:!bg-transparent",
   catHeadMain:
     "flex min-w-0 flex-1 items-center gap-2.5 rounded-s-[10px] py-2.5 ps-3 pe-1 text-[14px] font-semibold text-ink " +
     "focus-visible:!outline-none",
@@ -151,7 +151,7 @@ const styles= {
   catCheckbox:
     "grid h-[17px] w-[17px] shrink-0 place-items-center rounded-[5px] border border-[#cbd0dc] bg-white transition-colors " +
     "after:hidden after:h-[9px] after:w-[5px] after:rotate-45 after:border-b-[1.5px] after:border-e-[1.5px] after:border-white after:content-['']",
-  catCheckboxActive: "!border-[#0f3bb0] !bg-[#0f3bb0] after:block",
+  catCheckboxActive: "!border-brand !bg-brand after:block",
   catCount: "shrink-0 rounded-full bg-[#dfe7fb] px-2 text-[11px] font-bold leading-[20px] text-[#24304a]",
   catChevBtn: "grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[#4b5875]",
   catChev: "h-3.5 w-3.5 transition-transform duration-200",
@@ -159,8 +159,8 @@ const styles= {
   catChildren: "mb-2 ms-[18px] mt-1 flex flex-col ps-3",
   catChild:
     "flex h-[28px] items-center gap-2.5 rounded-none px-0 text-[13px] font-normal text-[#5a6072] " +
-    "transition-colors hover:text-[#0f3bb0] focus-visible:!outline-none",
-  catChildActive: "!border-[#0f3bb0] !font-semibold !text-terra-deep",
+    "transition-colors hover:text-brand-deep focus-visible:!outline-none",
+  catChildActive: "!border-brand !font-semibold !text-brand-deep",
   catChildLabel: "min-w-0 flex-1 truncate text-start",
 
   // Mobil araç çubuğu (arama + kategoriler + filtreler)
@@ -252,8 +252,7 @@ const styles= {
   loadMoreWrap: "mt-7 flex flex-col items-center gap-3 max-[640px]:mt-5",
   loadMoreText: "text-[13px] font-medium text-cream/75",
   loadMoreBtn:
-    "inline-flex h-11 min-w-[172px] items-center justify-center rounded-[11px] border border-white/70 bg-white px-5 text-[14px] " +
-    "font-semibold text-sapphire-deep shadow-[0_14px_30px_-22px_rgba(0,0,0,.7)] transition-colors hover:bg-cream disabled:cursor-wait disabled:opacity-65",
+    "btn btn-contained h-11 min-w-[172px] px-5 text-[14px] disabled:cursor-wait disabled:opacity-65",
   pagination: "mt-7 flex justify-center gap-2",
   pageBtn:
     "grid h-9 min-w-9 place-items-center rounded-[9px] border border-line bg-paper px-2 text-[14px] " +

@@ -61,6 +61,53 @@ function toListingFilters(f: ExploreInitialFilters): ListingFilters {
   };
 }
 
+const COUNTRY_CENTER_COORDS: Record<string, [number, number]> = {
+  "Türkiye": [39.0, 35.0],
+  "Fas": [31.7917, -7.0926],
+  "Mısır": [26.8206, 30.8025],
+  "Tunus": [33.8869, 9.5375],
+  "Cezayir": [28.0339, 1.6596],
+  "Birleşik Arap Emirlikleri": [23.4241, 53.8478],
+  "Suudi Arabistan": [23.8859, 45.0792],
+  "Katar": [25.3548, 51.1839],
+  "Bahreyn": [26.0667, 50.5577],
+  "Umman": [21.4735, 55.9754],
+  "Ürdün": [30.5852, 36.2384],
+  "Lübnan": [33.8547, 35.8623],
+  "Irak": [33.2232, 43.6793],
+  "İran": [32.4279, 53.6880],
+  "İsrail": [31.0461, 34.8516],
+  "Yunanistan": [39.0742, 21.8243],
+  "Kuzey Kıbrıs Türk Cumhuriyeti": [35.1264, 33.4299],
+  "Gürcistan": [42.3154, 43.3569],
+  "Azerbaycan": [40.1431, 47.5769],
+  "İtalya": [41.8719, 12.5674],
+  "İspanya": [40.4637, -3.7492],
+  "Fransa": [46.2276, 2.2137],
+  "Almanya": [51.1657, 10.4515],
+  "Birleşik Krallik": [55.3781, -3.4360],
+  "Amerika": [37.0902, -95.7129],
+  "Tayland": [15.8700, 100.9925],
+  "Endonezya": [-0.7893, 113.9213],
+  "Malezya": [4.2105, 101.9758],
+  "Singapur": [1.3521, 103.8198],
+  "Japonya": [36.2048, 138.2529],
+  "Güney Kore": [35.9078, 127.7669],
+  "Çin": [35.8617, 104.1954],
+  "Hindistan": [20.5937, 78.9629],
+  "Maldivler": [3.2028, 73.2207],
+};
+
+function isValidCoords(coords: [number, number]): boolean {
+  const [lat, lng] = coords;
+  return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
+}
+
+function resolveMapCoords(business: Business): [number, number] | null {
+  if (isValidCoords(business.coords)) return business.coords;
+  return COUNTRY_CENTER_COORDS[business.country] ?? null;
+}
+
 export async function getIsGuest(): Promise<boolean> {
   if (!hasEnv()) return false;
   const supabase = await createClient();
@@ -138,12 +185,10 @@ export async function getExploreResults(
     type: facetCounts(visible, lf, canonicalQuery, "type"),
   };
 
-  const mapItems: ExploreMapItem[] = filtered.map((b) => ({
-    id: b.id,
-    name: b.name,
-    group: b.group,
-    coords: b.coords,
-  }));
+  const mapItems: ExploreMapItem[] = filtered.flatMap((b) => {
+    const coords = resolveMapCoords(b);
+    return coords ? [{ id: b.id, name: b.name, group: b.group, coords }] : [];
+  });
 
   const lockedPreviewItems = isGuest
     ? fullFiltered.filter((business) => !filtered.some((visibleBusiness) => visibleBusiness.id === business.id)).slice(0, 3)

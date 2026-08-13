@@ -20,7 +20,7 @@ export default async function MarketingLayout({
 
   return (
     <>
-      <div className="bg-sapphire-deep">
+      <div className="bg-transparent">
         {children}
         <SiteFooter seamless />
       </div>

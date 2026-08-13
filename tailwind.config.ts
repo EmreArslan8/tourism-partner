@@ -2,6 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import {
   tailwindColors,
+  palette,
   fontFamily,
   fontSize,
   borderRadius,
@@ -38,52 +39,52 @@ const shadcnColors = {
 const tremorColors = {
   tremor: {
     brand: {
-      faint: "#dbe3f5", // cream
-      muted: "#c9d5ef", // cream-deep
-      subtle: "#004fe6", // sapphire-top
-      DEFAULT: "#01145d", // sapphire
-      emphasis: "#010b3a", // sapphire-deep
-      inverted: "#ffffff", // paper
+      faint: palette.cream,
+      muted: palette.creamDeep,
+      subtle: palette.sapphireTop,
+      DEFAULT: palette.sapphire,
+      emphasis: palette.sapphireDeep,
+      inverted: palette.paper,
     },
     background: {
-      muted: "#f6f9fd", // panel-bg
-      subtle: "#dbe3f5", // cream
-      DEFAULT: "#ffffff", // paper
-      emphasis: "#5c6684", // muted
+      muted: palette.panelBg,
+      subtle: palette.cream,
+      DEFAULT: palette.paper,
+      emphasis: palette.muted,
     },
-    border: { DEFAULT: "#c6d2ec" }, // line
-    ring: { DEFAULT: "#c6d2ec" }, // line
+    border: { DEFAULT: palette.line },
+    ring: { DEFAULT: palette.line },
     content: {
-      subtle: "#8b94b0",
-      DEFAULT: "#5c6684", // muted
-      emphasis: "#0b102f", // ink
-      strong: "#0b102f", // ink
-      inverted: "#ffffff", // paper
+      subtle: palette.muted,
+      DEFAULT: palette.muted,
+      emphasis: palette.ink,
+      strong: palette.ink,
+      inverted: palette.paper,
     },
   },
   "dark-tremor": {
     brand: {
-      faint: "#010b3a",
-      muted: "#01145d",
-      subtle: "#8ea2ff",
-      DEFAULT: "#8ea2ff",
-      emphasis: "#dbe3f5",
-      inverted: "#0b102f",
+      faint: palette.sapphireDeep,
+      muted: palette.sapphire,
+      subtle: palette.gold,
+      DEFAULT: palette.gold,
+      emphasis: palette.cream,
+      inverted: palette.ink,
     },
     background: {
-      muted: "#01082f",
-      subtle: "#12237f",
-      DEFAULT: "#0b102f",
-      emphasis: "#c6d2ec",
+      muted: palette.pine,
+      subtle: palette.pineSoft,
+      DEFAULT: palette.ink,
+      emphasis: palette.line,
     },
-    border: { DEFAULT: "#12237f" },
-    ring: { DEFAULT: "#12237f" },
+    border: { DEFAULT: palette.pineSoft },
+    ring: { DEFAULT: palette.pineSoft },
     content: {
-      subtle: "#5c6684",
-      DEFAULT: "#8b94b0",
-      emphasis: "#dbe3f5",
-      strong: "#ffffff",
-      inverted: "#0b102f",
+      subtle: palette.muted,
+      DEFAULT: palette.creamDeep,
+      emphasis: palette.cream,
+      strong: palette.paper,
+      inverted: palette.ink,
     },
   },
 };

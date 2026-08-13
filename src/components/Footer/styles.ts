@@ -4,7 +4,9 @@
     "relative bg-sapphire-deep text-cream/[.78] " +
     "before:absolute before:inset-x-0 before:top-0 before:h-px before:content-[''] " +
     "before:bg-[linear-gradient(90deg,transparent,rgba(255,255,255,.12)_18%,rgba(255,255,255,.12)_82%,transparent)]",
-  footerSeamless: "!bg-transparent ![background-image:none]",
+  footerSeamless:
+    "!bg-transparent !text-muted ![background-image:none] " +
+    "[&>div:last-child]:!border-line [&_h4]:!text-ink [&_a]:!text-muted [&_a:hover]:!text-brand",
   inner:
     "container-px grid grid-cols-[1.6fr_1fr_1fr_1fr] gap-7 py-12 pb-8 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1",
   logo: "w-fit",

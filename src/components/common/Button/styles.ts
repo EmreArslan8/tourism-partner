@@ -1,6 +1,9 @@
 const styles = {
   base: "btn transition-all duration-200 ease-brand",
   variants: {
+    contained: "btn-contained",
+    outlined: "btn-outlined",
+    text: "btn-text",
     solid: "btn-solid",
     prominent: "btn-solid btn-elevated",
     secondary: "btn-secondary",

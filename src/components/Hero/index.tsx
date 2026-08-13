@@ -1,6 +1,6 @@
 import Image, { getImageProps } from "next/image";
 import { Suspense } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import Header from "@/components/Header";
 import HeroSearch from "@/components/HeroSearch";
@@ -17,29 +17,19 @@ const {
   props: { srcSet: desktopSrcSet },
 } = getImageProps({
   ...commonImageProps,
-  src: "/assets/hero-2.webp",
-  width: 1672,
-  height: 941,
-  quality: 85,
-});
-
-const {
-  props: { srcSet: desktopSrcSetAr },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/hero-ar.png",
-  width: 1672,
-  height: 941,
-  quality: 85,
+  src: "/assets/hero-mobile-globe.webp",
+  width: 2000,
+  height: 1000,
+  quality: 90,
 });
 
 const {
   props: { srcSet: mobileSrcSet, ...imageProps },
 } = getImageProps({
   ...commonImageProps,
-  src: "/assets/hero-mobile.webp",
-  width: 1086,
-  height: 1448,
+  src: "/assets/hero-mobile.png",
+  width: 1376,
+  height: 768,
   quality: 85,
 });
 
@@ -61,7 +51,6 @@ async function ApprovedBusinessMarquee() {
 const Hero = () => {
   const t = useTranslations("hero");
   const tn = useTranslations("nav");
-  const locale = useLocale();
   const categoryLinks = [
     { key: "konaklama", label: t("catHotels"), icon: <Image src="/assets/icons/hotels.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "acente", label: t("catAgencies"), icon: <Image src="/assets/icons/agencies.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
@@ -78,7 +67,7 @@ const Hero = () => {
       <picture className={styles.picture}>
         <source media="(max-width: 640px)" srcSet={mobileSrcSet} />
         <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={tabletSrcSet} />
-        <source media="(min-width: 1025px)" srcSet={locale === "ar" ? desktopSrcSetAr : desktopSrcSet} />
+        <source media="(min-width: 1025px)" srcSet={desktopSrcSet} />
         <img {...imageProps} alt="" className={styles.image} fetchPriority="high" loading="eager" decoding="async" />
       </picture>
       <div className={styles.overlay} />

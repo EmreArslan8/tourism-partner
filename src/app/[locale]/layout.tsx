@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Inter, Noto_Sans_Arabic } from "next/font/google";
+import { Poppins, Noto_Sans_Arabic } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getMessages, type Locale } from "@/i18n/messages";
 import { SITE_URL } from "@/lib/site";
+import { themeCssVariables } from "@/theme";
 import { AnalyticsScripts, GoogleTagManagerNoScript } from "@/components/Analytics";
 import "../globals.css";
 
@@ -15,8 +16,9 @@ import "../globals.css";
    duplike ediyor, woff2 sayısını ikiye katlıyordu → Lighthouse sim LCP şişiyordu).
    display:"optional": font LCP kritik yolundan çıkar; ilk boyamaya yetişemezse
    metrik-uyumlu fallback ile kalır (CLS yok), sonraki gezinmede web font gelir. */
-const sans = Inter({
+const sans = Poppins({
   subsets: ["latin", "latin-ext"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",
   display: "optional",
 });
@@ -62,7 +64,13 @@ export default async function LocaleLayout({
   const fontVars = isAr ? sansAr.variable : sans.variable;
 
   return (
-    <html lang={locale} dir={isAr ? "rtl" : "ltr"} data-scroll-behavior="smooth" className={fontVars}>
+    <html
+      lang={locale}
+      dir={isAr ? "rtl" : "ltr"}
+      data-scroll-behavior="smooth"
+      className={fontVars}
+      style={themeCssVariables as React.CSSProperties}
+    >
       <body>
         <GoogleTagManagerNoScript />
         <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>

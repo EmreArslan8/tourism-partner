@@ -9,25 +9,7 @@
   /* Başlık fontu gövdeyle aynı aileden türer — tek next/font instance'ı
      (layout.tsx). AR'de Noto'nun --font-body'si otomatik buraya da yansır. */
   --font-display: var(--font-body);
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222 47% 11%;
-  --primary: 217 89% 50%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 214 32% 95%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 214 32% 95%;
-  --muted-foreground: 215 16% 47%;
-  --accent: 214 32% 95%;
-  --accent-foreground: 222 47% 11%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 214 32% 91%;
-  --input: 214 32% 91%;
-  --ring: 217 89% 50%;
+  /* Renk değişkenleri locale layout'ta theme/palette.ts kaynağından eklenir. */
 }
 
 /* ---------- temel katman ---------- */
@@ -39,23 +21,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-sapphire text-ink font-body leading-relaxed antialiased;
-    /* Sayfa zemini düz renk değil, hero-2.webp ile aynı aileden degrade.
-       Doküman üstü hero fotoğrafının altında kaldığı için degrade hero'nun
-       bittiği koyulukta (pine ≈ fotoğrafın alt kenarı) başlar, sayfa ortasında
-       hafifçe sapphire'e aydınlanır, footer'a doğru tekrar gece tonuna iner.
-       Işıma hotspot değil; fark edilmeyecek kadar hafif bir yıkama. */
-    background-image:
-      radial-gradient(100% 50% at 70% 30%, rgba(0, 79, 230, 0.08) 0%, rgba(0, 79, 230, 0) 60%),
-      linear-gradient(
-        180deg,
-        theme("colors.pine") 0%,
-        theme("colors.pine") 18%,
-        theme("colors.sapphire-deep") 40%,
-        theme("colors.sapphire") 58%,
-        theme("colors.sapphire-deep") 80%,
-        theme("colors.pine") 100%
-      );
+    @apply bg-transparent text-ink font-body leading-relaxed antialiased;
     /* clip (hidden değil): yatay taşmayı engeller ama scroll konteyneri OLUŞTURMAZ,
        böylece sticky sidebar viewport'a göre sabit kalır (hidden bunu bozuyordu). */
     overflow-x: clip;
@@ -173,19 +139,28 @@
     @apply w-full;
   }
   .btn-solid {
-    @apply bg-terra text-white hover:bg-terra-deep hover:-translate-y-px;
+    @apply bg-sapphire text-white shadow-[0_18px_34px_-22px_rgba(76,29,149,.82)] hover:bg-sapphire-deep hover:-translate-y-px;
+  }
+  .btn-contained {
+    @apply bg-sapphire text-white shadow-[0_18px_34px_-22px_rgba(76,29,149,.82)] hover:bg-sapphire-deep hover:-translate-y-px;
   }
   .btn-pine {
     @apply bg-pine text-cream hover:bg-pine-soft hover:-translate-y-px;
   }
   .btn-outline {
-    @apply border-line text-ink hover:border-pine;
+    @apply border-sapphire/35 bg-paper text-sapphire shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-sapphire hover:bg-cream hover:-translate-y-px;
+  }
+  .btn-outlined {
+    @apply border-sapphire/35 bg-paper text-sapphire shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-sapphire hover:bg-cream hover:-translate-y-px;
+  }
+  .btn-text {
+    @apply border-transparent bg-transparent px-0 text-sapphire hover:text-sapphire-deep hover:underline hover:underline-offset-4;
   }
   .btn-secondary {
-    @apply border-line bg-paper text-brand hover:border-brand hover:bg-cream;
+    @apply border-sapphire/35 bg-paper text-sapphire hover:border-sapphire hover:bg-cream;
   }
   .btn-elevated {
-    @apply shadow-[0_18px_34px_-22px_rgba(43,80,216,.8)] hover:-translate-y-px;
+    @apply shadow-[0_18px_34px_-22px_rgba(76,29,149,.82)] hover:-translate-y-px;
   }
   .btn-cream {
     @apply bg-cream text-pine hover:-translate-y-px hover:bg-white;

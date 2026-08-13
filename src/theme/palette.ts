@@ -1,49 +1,121 @@
-/* Koyu zeminler hero-2.webp'den örneklendi: kenarlar #01094a–#020c49, baskın orta mavi
-   #0a3297, derin ton #00136b. Zemin token'ları bu görselle aynı ailede kalmalı. */
+/**
+ * Tourism Partner marka renkleri.
+ *
+ * Bu nesne renkler için tek kaynak noktasıdır. Tailwind renkleri, shadcn CSS
+ * değişkenleri ve kategori renkleri aşağıdaki değerlerden türetilir.
+ */
+export const brandPalette = {
+  royalPurple: "#6d28d9",
+  deepPurple: "#4c1d95",
+  midnightPurple: "#24113f",
+  softLavender: "#ede9fe",
+  ultraLightPurple: "#f7f5ff",
+  white: "#ffffff",
+  charcoal: "#17151c",
+  slateGray: "#6b6675",
+  borderPurple: "#ddd6fe",
+} as const;
+
+/**
+ * Uygulamanın mevcut semantik renk adları yeni marka paletine bağlı kalır.
+ * Böylece tüm ekranlar tek merkezden güncellenirken mevcut utility sınıfları
+ * (`bg-sapphire`, `text-ink`, `border-line` vb.) geriye uyumlu çalışır.
+ */
 export const palette = {
-  pine: "#01082f",
-  pineSoft: "#12237f",
-  /* İç sayfa zemini — marka rengi sapphire'in (#0f3bb0) açık "wash"ı. Landing hero + butonlarla
-     aynı mavi aileden; kartlar `paper` (beyaz) kaldığı için zeminin üstünde net öne çıkar. */
-  cream: "#dbe3f5",
-  creamDeep: "#c9d5ef",
-  /* Panel/workspace zemini — sakin operasyon ekranları için eski özel zemin rengi. */
-  panelBg: "#f6f9fd",
-  paper: "#ffffff",
-  /* Sapphire — hero görseliyle aynı aile, koyu zemin. Ana: #01145D · Parlak: #004FE6 · Gece: #010B3A. */
-  sapphire: "#01145d",
-  sapphireTop: "#004fe6",
-  sapphireDeep: "#010b3a",
-  terra: "#01145d",
-  terraDeep: "#010b3a",
-  gold: "#8ea2ff",
-  /* Değerlendirme yıldızları — sarı. */
+  pine: brandPalette.midnightPurple,
+  pineSoft: brandPalette.deepPurple,
+  cream: brandPalette.softLavender,
+  creamDeep: brandPalette.borderPurple,
+  panelBg: brandPalette.ultraLightPurple,
+  paper: brandPalette.white,
+  sapphire: brandPalette.deepPurple,
+  sapphireTop: brandPalette.royalPurple,
+  sapphireDeep: brandPalette.midnightPurple,
+  terra: brandPalette.royalPurple,
+  terraDeep: brandPalette.deepPurple,
+  gold: brandPalette.borderPurple,
+  // Durum bildiren yıldız rengi marka paletinden bağımsız semantik renktir.
   star: "#f5b301",
-  brandBlue: "#0f3bb0",
-  /* Logodan örneklenen marka mavileri (TOURISM PARTNER wordmark). */
-  brand: "#0a2472",
-  brandDeep: "#071a52",
-  ink: "#0b102f",
-  muted: "#5c6684",
-  line: "#c6d2ec",
+  brandBlue: brandPalette.royalPurple,
+  brand: brandPalette.deepPurple,
+  brandDeep: brandPalette.midnightPurple,
+  ink: brandPalette.charcoal,
+  muted: brandPalette.slateGray,
+  line: brandPalette.borderPurple,
 } as const;
 
-/* Kategori (ana grup) renkleri — katalog noktaları ve kart kapakları için. */
+/** Kategori renkleri aynı marka ailesinin tonlarından türetilir. */
 export const groupPalette = {
-  konaklama: "#3542ee",
-  acente: "#172178",
-  ulasim: "#0a56c2",
-  rehber: "#5b6cff",
-  aktivite: "#0e75cf",
-  saglik: "#0891b2",
-  gastronomi: "#2f6fd6",
+  konaklama: brandPalette.royalPurple,
+  acente: brandPalette.deepPurple,
+  ulasim: brandPalette.royalPurple,
+  rehber: brandPalette.deepPurple,
+  aktivite: brandPalette.royalPurple,
+  saglik: brandPalette.deepPurple,
+  gastronomi: brandPalette.midnightPurple,
 } as const;
 
+export type BrandPaletteKey = keyof typeof brandPalette;
 export type PaletteKey = keyof typeof palette;
 export type GroupColorKey = keyof typeof groupPalette;
 
-/* Tailwind `theme.colors` için düz harita (kebab-case anahtarlar). */
+const hexToHslChannels = (hex: string) => {
+  const value = hex.replace("#", "");
+  const red = Number.parseInt(value.slice(0, 2), 16) / 255;
+  const green = Number.parseInt(value.slice(2, 4), 16) / 255;
+  const blue = Number.parseInt(value.slice(4, 6), 16) / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const lightness = (max + min) / 2;
+  const delta = max - min;
+
+  let hue = 0;
+  let saturation = 0;
+
+  if (delta !== 0) {
+    saturation = delta / (1 - Math.abs(2 * lightness - 1));
+    if (max === red) hue = 60 * (((green - blue) / delta) % 6);
+    else if (max === green) hue = 60 * ((blue - red) / delta + 2);
+    else hue = 60 * ((red - green) / delta + 4);
+  }
+
+  if (hue < 0) hue += 360;
+  return `${Math.round(hue)} ${Math.round(saturation * 100)}% ${Math.round(lightness * 100)}%`;
+};
+
+/** shadcn bileşenlerinin kullandığı CSS değişkenleri de aynı kaynaktan üretilir. */
+export const themeCssVariables = {
+  "--background": hexToHslChannels(brandPalette.ultraLightPurple),
+  "--foreground": hexToHslChannels(brandPalette.charcoal),
+  "--card": hexToHslChannels(brandPalette.white),
+  "--card-foreground": hexToHslChannels(brandPalette.charcoal),
+  "--popover": hexToHslChannels(brandPalette.white),
+  "--popover-foreground": hexToHslChannels(brandPalette.charcoal),
+  "--primary": hexToHslChannels(brandPalette.royalPurple),
+  "--primary-foreground": hexToHslChannels(brandPalette.white),
+  "--secondary": hexToHslChannels(brandPalette.softLavender),
+  "--secondary-foreground": hexToHslChannels(brandPalette.midnightPurple),
+  "--muted": hexToHslChannels(brandPalette.softLavender),
+  "--muted-foreground": hexToHslChannels(brandPalette.slateGray),
+  "--accent": hexToHslChannels(brandPalette.softLavender),
+  "--accent-foreground": hexToHslChannels(brandPalette.deepPurple),
+  "--destructive": "0 72% 51%",
+  "--destructive-foreground": hexToHslChannels(brandPalette.white),
+  "--border": hexToHslChannels(brandPalette.borderPurple),
+  "--input": hexToHslChannels(brandPalette.borderPurple),
+  "--ring": hexToHslChannels(brandPalette.royalPurple),
+} as const;
+
+/** Tailwind `theme.colors` için düz harita (kebab-case anahtarlar). */
 export const tailwindColors = {
+  "royal-purple": brandPalette.royalPurple,
+  "deep-purple": brandPalette.deepPurple,
+  "midnight-purple": brandPalette.midnightPurple,
+  "soft-lavender": brandPalette.softLavender,
+  "ultra-light-purple": brandPalette.ultraLightPurple,
+  charcoal: brandPalette.charcoal,
+  "slate-gray": brandPalette.slateGray,
+  "border-purple": brandPalette.borderPurple,
   pine: palette.pine,
   "pine-soft": palette.pineSoft,
   cream: palette.cream,

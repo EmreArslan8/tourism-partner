@@ -21,7 +21,7 @@ export default async function AppLayout({
   return (
     <>
       <SiteHeader />
-      <div className="min-h-screen bg-sapphire-deep">
+      <div className="min-h-screen bg-transparent">
         {children}
       </div>
       <SiteFooter />

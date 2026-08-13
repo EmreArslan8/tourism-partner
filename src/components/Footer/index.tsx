@@ -14,7 +14,7 @@ const Footer = ({ seamless = false }: { seamless?: boolean }) => {
     <footer className={`${styles.footer} ${seamless ? styles.footerSeamless : ""}`}>
       <div className={styles.inner}>
         <div>
-          <Logo href="/" height={54} variant="light" className={styles.logo} />
+          <Logo href="/" height={54} variant={seamless ? "brand" : "light"} className={styles.logo} />
           <p className={styles.brandText}>{t("tagline")}</p>
           <div className={styles.socialRow}>
             {SOCIAL_PLATFORMS.map((platform) => {

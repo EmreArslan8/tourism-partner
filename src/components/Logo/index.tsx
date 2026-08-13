@@ -1,8 +1,13 @@
 import Image from "next/image";
 import { Link, type Href } from "@/i18n/navigation";
 
-// logo.svg viewBox: 493.2 × 300.24 → en/boy oranı (= 685/417 ile aynı)
-const RATIO = 493.2 / 300.24;
+// Marka lockup'ları (işaret + iki satır "TOURISM PARTNER"). Her varyantın
+// kendi SVG'si var; light versiyon degradeyi filtrelemek yerine tek parça
+// temiz beyaz işaret kullanır.
+const VARIANTS = {
+  brand: { src: "/assets/logo.svg", ratio: 590.6 / 213.09 },
+  light: { src: "/assets/logo-white.svg", ratio: 595.6 / 217.09 },
+} as const;
 
 type Props = {
   href?: Href | null;
@@ -13,15 +18,15 @@ type Props = {
 };
 
 const Img = ({ height = 100, variant = "brand", priority }: Omit<Props, "href" | "className">) => {
+  const { src, ratio } = VARIANTS[variant];
   return (
     <Image
-      src="/assets/logo.svg"
+      src={src}
       alt="Tourism Partner"
-      width={Math.round(height * RATIO)}
+      width={Math.round(height * ratio)}
       height={height}
       priority={priority}
       style={{ height, width: "auto" }}
-      className={variant === "light" ? "[filter:brightness(0)_invert(1)]" : ""}
     />
   );
 };
