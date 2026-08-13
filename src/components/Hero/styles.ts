@@ -11,15 +11,21 @@
     "relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden bg-pine " +
     "max-[640px]:min-h-[calc(100svh-40px)]",
   picture:
-    "absolute inset-0 -z-10 block bg-[#03062b] " +
-    "min-[1025px]:bg-[radial-gradient(circle_at_78%_48%,#12105c_0%,#070838_42%,#03062b_76%)]",
+    "absolute inset-0 -z-10 block bg-sapphire-deep " +
+    "min-[1025px]:bg-[radial-gradient(circle_at_78%_48%,theme(colors.deep-purple)_0%,theme(colors.sapphire-deep)_60%,theme(colors.sapphire-deep)_100%)]",
   // Görsel tüm hero alanını doldurur (object-cover) — üst/alt boşluk ya da
   // dikiş olmaz. Sahne 2:1: küre sağda, sol taraf metin için koyu boş alan.
   // Mobil ve tablet kendi tam-kaplayan görsellerinde kalır.
-  image: "h-full w-full object-cover object-center max-[640px]:object-[72%_center]",
+  // Masaüstünde görsel çok doygun/parlak mor → hafif desatüre + koyulaştır ki
+  // mor "aksan" olsun, tüm alanı kaplayan boğucu bir zemin olmasın.
+  image:
+    "h-full w-full object-cover object-center max-[640px]:object-[72%_center] " +
+    "min-[1025px]:[filter:saturate(.72)_brightness(.82)]",
+  // Overlay: sol/genel koyulaştırma (metin için derin nefes alanı) + kürenin
+  // çevresini açık bırakan vinyet. Ton derin mor-siyah (#0b0620).
   overlay:
     "pointer-events-none absolute inset-0 -z-10 " +
-    "bg-[linear-gradient(90deg,rgba(1,8,47,.82)_0%,rgba(1,8,47,.42)_42%,rgba(1,8,47,.05)_72%,rgba(1,8,47,0)_100%)]",
+    "bg-[linear-gradient(90deg,rgba(11,6,32,.94)_0%,rgba(11,6,32,.62)_40%,rgba(11,6,32,.2)_66%,rgba(11,6,32,0)_100%),radial-gradient(135%_120%_at_80%_46%,transparent_26%,rgba(8,4,22,.55)_80%)]",
   // Etkileşimli küre (yalnız masaüstü ≥1025px; mobil/tablet statik fotoğrafla kalır).
   // Sağ tarafa demirli; içerik (sol) DOM'da sonra geldiği için üstte kalır.
   globeWrap:
@@ -49,9 +55,9 @@
     "[@media(min-width:1440px)_and_(min-height:940px)]:!text-[74px] " +
     "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[1.08] " +
     "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[80px] " +
-    "[text-shadow:0_2px_28px_rgba(1,8,47,.55)] [&_em]:not-italic [&_em]:text-[#8b5cf6]",
+    "[text-shadow:0_2px_28px_rgba(36,17,63,.55)] [&_em]:not-italic [&_em]:text-border-purple",
   eyebrow:
-    "mb-2.5 text-[13px] font-extrabold uppercase tracking-[.16em] text-[#b7a6f0] [text-shadow:0_2px_18px_rgba(36,17,63,.5)] min-[1440px]:mb-3 min-[1440px]:text-[14px] max-[640px]:mb-2 max-[640px]:text-[11px]",
+    "mb-2.5 text-[13px] font-extrabold uppercase tracking-[.16em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.4)] min-[1440px]:mb-3 min-[1440px]:text-[14px] max-[640px]:mb-2 max-[640px]:text-[11px]",
   // Mobilde açıklama başlığın altında değil, teklif butonunun hemen üstünde durur.
   mobileIntro:
     "hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-white/75 max-[640px]:block",
@@ -74,14 +80,14 @@
   ctaCopy: "min-w-0 max-w-[560px]",
   ctaPrompt:
     "font-display text-[22px] font-medium leading-[1.15] tracking-[-.01em] text-white [text-shadow:0_2px_18px_rgba(0,0,0,.35)] min-[1440px]:text-[25px] min-[1800px]:text-[27px]",
+  // İkincil aksiyon (Search birincil dolu mor buton). Sadeleştirme: dolu mor
+  // yerine cam/outline — tek dolu mor buton kalsın, hiyerarşi netleşsin.
   ctaPrimary:
-    "group/quote relative inline-flex min-h-[46px] min-w-[240px] shrink-0 items-center justify-center gap-3 overflow-hidden rounded-[12px] " +
-    "border border-white/15 bg-sapphire-top px-7 text-[15px] font-bold text-white " +
-    "shadow-[0_14px_34px_-16px_rgba(0,79,230,.85)] ring-1 ring-[#8eb0ff]/15 transition-all duration-200 " +
-    "before:absolute before:inset-y-0 before:start-[-45%] before:w-[38%] before:skew-x-[-18deg] before:bg-white/12 before:content-[''] before:transition-[left] before:duration-500 " +
-    "hover:-translate-y-0.5 hover:border-white/25 hover:bg-sapphire hover:shadow-[0_18px_38px_-15px_rgba(0,79,230,.95)] hover:before:start-[120%] " +
+    "group/quote relative inline-flex min-h-[46px] min-w-[240px] shrink-0 items-center justify-center gap-3 rounded-[12px] " +
+    "border border-white/30 bg-white/[.06] px-7 text-[15px] font-bold text-white backdrop-blur-sm " +
+    "transition-all duration-200 hover:-translate-y-0.5 hover:border-white/55 hover:bg-white/[.12] " +
     "min-[1440px]:min-h-[52px] min-[1440px]:min-w-[270px] min-[1440px]:px-9 min-[1440px]:text-[16px] min-[1800px]:min-h-[56px] min-[1800px]:min-w-[290px] min-[1800px]:text-[17px] " +
-    "[&>span]:relative [&>svg]:relative [&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
+    "[&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
   mobileCtas: "mt-6 hidden w-full flex-col gap-3 max-[640px]:flex",
   mobileCtaRow: "flex w-full",
   mobileCtaPrimary:
