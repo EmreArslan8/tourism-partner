@@ -9,7 +9,69 @@
   /* Başlık fontu gövdeyle aynı aileden türer — tek next/font instance'ı
      (layout.tsx). AR'de Noto'nun --font-body'si otomatik buraya da yansır. */
   --font-display: var(--font-body);
-  /* Renk değişkenleri locale layout'ta theme/palette.ts kaynağından eklenir. */
+  /* Gerçek renk değerleri theme/palette.ts'ten root layout'a yazılır. */
+  --tp-pine: var(--tp-light-pine);
+  --tp-pine-soft: var(--tp-light-pine-soft);
+  --tp-cream: var(--tp-light-cream);
+  --tp-cream-deep: var(--tp-light-cream-deep);
+  --tp-panel-bg: var(--tp-light-panel-bg);
+  --tp-paper: var(--tp-light-paper);
+  --tp-ink: var(--tp-light-ink);
+  --tp-muted: var(--tp-light-muted);
+  --tp-line: var(--tp-light-line);
+  --tp-hero-title: var(--tp-light-hero-title);
+  --tp-hero-highlight: var(--tp-light-hero-highlight);
+  --tp-hero-eyebrow: var(--tp-light-hero-eyebrow);
+  --background: var(--tp-light-background);
+  --foreground: var(--tp-light-foreground);
+  --card: var(--tp-light-card);
+  --card-foreground: var(--tp-light-card-foreground);
+  --popover: var(--tp-light-popover);
+  --popover-foreground: var(--tp-light-popover-foreground);
+  --primary: var(--tp-light-primary);
+  --primary-foreground: var(--tp-light-primary-foreground);
+  --secondary: var(--tp-light-secondary);
+  --secondary-foreground: var(--tp-light-secondary-foreground);
+  --muted: var(--tp-light-muted-surface);
+  --muted-foreground: var(--tp-light-muted-foreground);
+  --accent: var(--tp-light-accent);
+  --accent-foreground: var(--tp-light-accent-foreground);
+  --border: var(--tp-light-border);
+  --input: var(--tp-light-input);
+  --ring: var(--tp-light-ring);
+}
+
+html.dark {
+  color-scheme: dark;
+  --tp-pine: var(--tp-dark-pine);
+  --tp-pine-soft: var(--tp-dark-pine-soft);
+  --tp-cream: var(--tp-dark-cream);
+  --tp-cream-deep: var(--tp-dark-cream-deep);
+  --tp-panel-bg: var(--tp-dark-panel-bg);
+  --tp-paper: var(--tp-dark-paper);
+  --tp-ink: var(--tp-dark-ink);
+  --tp-muted: var(--tp-dark-muted);
+  --tp-line: var(--tp-dark-line);
+  --tp-hero-title: var(--tp-dark-hero-title);
+  --tp-hero-highlight: var(--tp-dark-hero-highlight);
+  --tp-hero-eyebrow: var(--tp-dark-hero-eyebrow);
+  --background: var(--tp-dark-background);
+  --foreground: var(--tp-dark-foreground);
+  --card: var(--tp-dark-card);
+  --card-foreground: var(--tp-dark-card-foreground);
+  --popover: var(--tp-dark-popover);
+  --popover-foreground: var(--tp-dark-popover-foreground);
+  --primary: var(--tp-dark-primary);
+  --primary-foreground: var(--tp-dark-primary-foreground);
+  --secondary: var(--tp-dark-secondary);
+  --secondary-foreground: var(--tp-dark-secondary-foreground);
+  --muted: var(--tp-dark-muted-surface);
+  --muted-foreground: var(--tp-dark-muted-foreground);
+  --accent: var(--tp-dark-accent);
+  --accent-foreground: var(--tp-dark-accent-foreground);
+  --border: var(--tp-dark-border);
+  --input: var(--tp-dark-input);
+  --ring: var(--tp-dark-ring);
 }
 
 /* ---------- temel katman ---------- */
@@ -21,7 +83,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-transparent text-ink font-body leading-relaxed antialiased;
+    @apply bg-panel-bg text-ink font-body leading-relaxed antialiased transition-colors duration-200;
     /* clip (hidden değil): yatay taşmayı engeller ama scroll konteyneri OLUŞTURMAZ,
        böylece sticky sidebar viewport'a göre sabit kalır (hidden bunu bozuyordu). */
     overflow-x: clip;

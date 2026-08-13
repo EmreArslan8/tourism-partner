@@ -58,7 +58,7 @@ export default function VerifyEmail({ email, onBack }: { email: string; onBack: 
           <span aria-hidden className="absolute inset-0 rounded-full bg-terra/[.06]" />
           <span aria-hidden className="absolute inset-[10px] rounded-full bg-terra/10" />
           <span aria-hidden className="absolute inset-[18px] rounded-full bg-terra/20 motion-safe:animate-ping" />
-          <span className="relative grid h-16 w-16 place-items-center rounded-full bg-[linear-gradient(150deg,#0a2472_0%,#0f3bb0_100%)] text-white shadow-[0_14px_34px_-12px_rgba(15,59,176,.75)]">
+          <span className="relative grid h-16 w-16 place-items-center rounded-full bg-[linear-gradient(150deg,theme(colors.sapphire)_0%,theme(colors.sapphire-top)_100%)] text-white shadow-[0_14px_34px_-12px_rgba(0,0,0,.4)]">
             <MailCheck size={30} aria-hidden />
           </span>
         </div>

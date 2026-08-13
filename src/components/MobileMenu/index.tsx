@@ -9,13 +9,14 @@ import type { Href } from "@/i18n/navigation";
 import { signOut } from "@/lib/actions/auth";
 import Logo from "@/components/Logo";
 import LangSwitcher from "@/components/LocaleSwitcher";
+import ThemeToggle from "@/components/ThemeToggle";
 import styles from "./styles";
 
 
 /* Mobil menü — sadece <900px'te görünür hamburger + tam ekran sheet.
    Sheet kendi üst çubuğunu (logo + kapat) taşır; böylece değişken header
    yüksekliğine bağlı kalmaz ve dengeli bir düzen sunar. */
-const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boolean; dashboardHref?: Href | null }) => {
+const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }: { signedIn?: boolean; dashboardHref?: Href | null; onLight?: boolean }) => {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const t = useTranslations("nav");
@@ -47,15 +48,15 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boo
     <>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${onLight ? styles.buttonOnLight : ""}`}
         aria-label={common("menu")}
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
         <span className="flex flex-col gap-[5px]">
-          <span className={styles.bar} />
-          <span className={styles.bar} />
-          <span className={styles.bar} />
+          <span className={`${styles.bar} ${onLight ? styles.barOnLight : ""}`} />
+          <span className={`${styles.bar} ${onLight ? styles.barOnLight : ""}`} />
+          <span className={`${styles.bar} ${onLight ? styles.barOnLight : ""}`} />
         </span>
       </button>
 
@@ -100,6 +101,7 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null }: { signedIn?: boo
           </nav>
 
           <div className={styles.actions}>
+            <ThemeToggle inline />
             <LangSwitcher inline />
             {signedIn ? (
               <>

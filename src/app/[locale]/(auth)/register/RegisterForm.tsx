@@ -565,7 +565,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                   className={cn(
                     "flex items-center gap-4 rounded-[14px] border-[1.5px] bg-paper px-4 py-4 text-start transition-all lg:gap-5 lg:rounded-[16px] lg:px-6 lg:py-7",
                     on
-                      ? "border-terra bg-terra/5 shadow-[0_10px_26px_-18px_rgba(15,59,176,.55)]"
+                      ? "border-terra bg-terra/5 shadow-[0_10px_26px_-18px_rgba(0,0,0,.55)]"
                       : "border-line hover:border-terra/50 hover:bg-terra/[.03]",
                   )}
                 >
@@ -579,7 +579,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[15px] font-bold !text-ink lg:text-[17px]">{title}</span>
-                    <span className="mt-0.5 block text-[12.5px] font-medium leading-snug !text-[#33415f] lg:mt-1 lg:text-[13.5px]">{desc}</span>
+                    <span className="mt-0.5 block text-[12.5px] font-medium leading-snug !text-slate-gray lg:mt-1 lg:text-[13.5px]">{desc}</span>
                   </span>
                   <ChevronRight size={20} className={cn("ms-auto shrink-0 rtl:rotate-180 lg:h-6 lg:w-6", on ? "text-terra" : "text-muted/60")} aria-hidden />
                 </button>
@@ -612,7 +612,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                       className={cn(
                         "grid min-h-[82px] place-items-center rounded-[7px] border-2 bg-white px-3 py-3 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px",
                         on
-                          ? "border-terra shadow-[0_16px_28px_-24px_rgba(15,59,176,.9)]"
+                          ? "border-terra shadow-[0_16px_28px_-24px_rgba(0,0,0,.9)]"
                           : "border-line hover:border-terra/55",
                       )}
                     >
@@ -625,7 +625,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                       >
                         <Icon size={16} strokeWidth={2} />
                       </span>
-                      <span className="block text-[13.5px] font-semibold leading-tight text-[#555]">{t(`sector_${s}`)}</span>
+                      <span className="block text-[13.5px] font-semibold leading-tight text-slate-gray">{t(`sector_${s}`)}</span>
                     </button>
                   );
                 })}
@@ -672,7 +672,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                               style={maskStyle(iconSrc)}
                             />
                           )}
-                          <span className="block text-[15px] font-semibold leading-tight text-[#555]">{tc(g.key)}</span>
+                          <span className="block text-[15px] font-semibold leading-tight text-slate-gray">{tc(g.key)}</span>
                         </button>
                       );
                     })}
@@ -688,11 +688,11 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                         setGroup("");
                         setServices([]);
                       }}
-                      className="inline-flex items-center gap-1 text-[13px] font-semibold !text-[#33415f] transition-colors hover:!text-terra"
+                      className="inline-flex items-center gap-1 text-[13px] font-semibold !text-slate-gray transition-colors hover:!text-terra"
                     >
                       ‹ {tc(group)}
                     </button>
-                    <span className="text-[12.5px] font-semibold text-[#555]">{t("pickSub")}</span>
+                    <span className="text-[12.5px] font-semibold text-slate-gray">{t("pickSub")}</span>
                   </div>
                   <div role="radiogroup" aria-label={t("pickSub")} className="grid grid-cols-3 gap-3 max-[640px]:grid-cols-2 max-[420px]:grid-cols-1">
                     {serviceGroups
@@ -710,7 +710,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                             className={cn(
                               "grid min-h-[96px] place-items-center rounded-[7px] border-2 bg-white px-3 py-3 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px",
                               on
-                                ? "border-terra shadow-[0_16px_28px_-24px_rgba(15,59,176,.9)]"
+                                ? "border-terra shadow-[0_16px_28px_-24px_rgba(0,0,0,.9)]"
                                 : "border-line hover:border-terra/55",
                             )}
                           >
@@ -723,7 +723,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                             >
                               {iconSrc && <span aria-hidden className="block h-[15px] w-[15px] bg-current" style={maskStyle(iconSrc)} />}
                             </span>
-                            <span className="block text-[13.5px] font-semibold leading-tight text-[#555]">{ts(c.slug)}</span>
+                            <span className="block text-[13.5px] font-semibold leading-tight text-slate-gray">{ts(c.slug)}</span>
                           </button>
                         );
                       })}

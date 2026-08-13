@@ -91,6 +91,7 @@ const tremorColors = {
 
 /* Tailwind teması projedeki theme/ klasöründen beslenir (tek kaynak). */
 const config: Config = {
+  darkMode: "class",
   content: [
     "./src/**/*.{ts,tsx,mdx}",
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",

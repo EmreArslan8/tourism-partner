@@ -3,7 +3,7 @@ const styles = {
   section: "py-7 min-[1440px]:py-9 min-[1800px]:py-10 max-[640px]:py-4",
   headline:
     "mb-6 flex items-end justify-between gap-8 max-[860px]:items-start max-[860px]:flex-col max-[860px]:gap-2 max-[640px]:mb-4",
-  eyebrow: "eyebrow mb-1.5 !text-brand/75 max-[640px]:hidden",
+  eyebrow: "eyebrow mb-1.5 !text-brand/75 dark:!text-soft-lavender/80 max-[640px]:hidden",
   title: "heading-section text-ink",
   lead:
     "section-desc max-w-[560px] pb-1 text-end !text-muted max-[860px]:max-w-[62ch] max-[860px]:text-start max-[640px]:hidden",
@@ -22,35 +22,37 @@ const styles = {
   tabActive:
     "flex h-[38px] items-center justify-center gap-1.5 rounded-[9px] bg-white px-2.5 text-[12px] font-extrabold text-sapphire-deep shadow-[0_8px_20px_-16px_rgba(0,0,0,.75)] transition-all [&>svg]:h-3.5 [&>svg]:w-3.5 min-[1440px]:h-11 min-[1440px]:text-[13.5px] min-[1800px]:h-12 min-[1800px]:text-[14.5px]",
 
-  steps: "relative mt-4 grid flex-1 auto-rows-fr gap-1.5 before:absolute before:bottom-[52px] before:start-[21px] before:top-[52px] before:w-px before:bg-line before:content-[''] " +
-    "max-[640px]:hidden",
+  steps: "relative mt-4 flex flex-1 flex-col justify-center gap-2 max-[640px]:hidden",
   mobileSteps: "mx-3 mb-2 hidden grid-cols-3 auto-rows-[54px] gap-1 max-[640px]:grid",
-  stepItem: "relative z-10",
+  stepItem:
+    "relative min-h-[90px] min-[1440px]:min-h-[108px] min-[1800px]:min-h-[118px] max-[640px]:min-h-0",
   step:
-    "grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-transparent px-2 py-2.5 text-start transition-all duration-200 hover:bg-cream/45 " +
+    "relative grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-transparent px-2 py-2.5 text-start transition-all duration-200 hover:bg-cream/45 " +
     "min-[1440px]:min-h-[104px] min-[1440px]:grid-cols-[52px_minmax(0,1fr)_26px] min-[1440px]:gap-4 min-[1440px]:px-3 min-[1800px]:min-h-[116px] " +
     "max-[640px]:min-h-0 max-[640px]:grid-cols-1 max-[640px]:place-items-center max-[640px]:gap-0.5 max-[640px]:rounded-[10px] max-[640px]:px-1 max-[640px]:py-1 max-[640px]:text-center",
   stepActive:
-    "grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-brand/20 bg-cream/65 px-2 py-2.5 text-start shadow-card transition-all duration-200 " +
+    "relative grid h-full min-h-[86px] w-full grid-cols-[44px_minmax(0,1fr)_22px] items-center gap-3 rounded-[16px] border border-brand/20 bg-cream/65 px-2 py-2.5 text-start shadow-card transition-all duration-200 " +
+    "dark:border-[#8b5cf6] dark:bg-[#32175a] dark:shadow-[inset_0_1px_0_rgba(196,181,253,.12),0_18px_42px_-28px_rgba(109,40,217,.95)] " +
     "min-[1440px]:min-h-[104px] min-[1440px]:grid-cols-[52px_minmax(0,1fr)_26px] min-[1440px]:gap-4 min-[1440px]:px-3 min-[1800px]:min-h-[116px] " +
     "max-[640px]:min-h-0 max-[640px]:grid-cols-1 max-[640px]:place-items-center max-[640px]:gap-0.5 max-[640px]:rounded-[10px] max-[640px]:px-1 max-[640px]:py-1 max-[640px]:text-center",
   stepMarker:
-    "grid h-11 w-11 place-items-center rounded-full border border-line bg-cream text-[11px] font-black text-brand/45 max-[640px]:h-6 max-[640px]:w-6 max-[640px]:text-[8px]",
+    "relative z-20 grid h-11 w-11 place-items-center rounded-full border border-line bg-cream text-[11px] font-black text-brand/45 max-[640px]:h-6 max-[640px]:w-6 max-[640px]:text-[8px]",
   stepMarkerActive:
-    "grid h-11 w-11 place-items-center rounded-full border border-brand bg-brand text-[11px] font-black text-white shadow-[0_10px_26px_-18px_rgba(109,40,217,.7)] max-[640px]:h-6 max-[640px]:w-6 max-[640px]:text-[8px]",
+    "relative z-20 grid h-11 w-11 place-items-center rounded-full border border-brand bg-brand text-[11px] font-black text-white shadow-[0_10px_26px_-18px_rgba(109,40,217,.7)] dark:border-soft-lavender/30 dark:bg-royal-purple dark:shadow-[0_0_0_4px_rgba(109,40,217,.16),0_14px_28px_-16px_rgba(109,40,217,.95)] max-[640px]:h-6 max-[640px]:w-6 max-[640px]:text-[8px]",
   stepMarkerComplete:
-    "grid h-11 w-11 place-items-center rounded-full border border-brand/25 bg-brand/10 text-brand max-[640px]:h-6 max-[640px]:w-6 max-[640px]:[&_svg]:h-3 max-[640px]:[&_svg]:w-3",
+    "relative z-20 grid h-11 w-11 place-items-center rounded-full border border-brand/25 bg-brand/10 text-brand max-[640px]:h-6 max-[640px]:w-6 max-[640px]:[&_svg]:h-3 max-[640px]:[&_svg]:w-3",
   stepCopy: "min-w-0",
   stepTitle: "block text-[15px] font-extrabold leading-tight text-ink min-[1440px]:text-[17px] min-[1800px]:text-[18px] max-[640px]:line-clamp-2 max-[640px]:text-[9px] max-[640px]:leading-[1.1]",
   stepDesc:
     "mt-1 block overflow-hidden text-[12px] font-medium leading-[1.45] text-muted [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] min-[1440px]:text-[13.5px] min-[1800px]:text-[14.5px] max-[640px]:hidden",
-  stepIcon: "text-brand opacity-[.82] max-[640px]:hidden",
+  stepIcon: "text-brand opacity-[.82] dark:text-[#a78bfa] max-[640px]:hidden",
   cta:
     "mt-4 inline-flex h-[52px] items-center justify-between rounded-[13px] bg-white px-5 text-[14px] font-extrabold text-sapphire-deep shadow-[0_16px_34px_-24px_rgba(0,0,0,.72)] transition-all hover:bg-cream hover:px-[22px] active:scale-[.99] max-[640px]:hidden",
   mobileCta: "mx-3 mb-3 hidden h-11 items-center justify-between rounded-[10px] bg-white px-4 text-[12px] font-extrabold text-sapphire-deep shadow-[0_16px_34px_-24px_rgba(0,0,0,.72)] active:scale-[.99] max-[640px]:flex",
 
   preview:
     "relative m-3 ms-0 flex min-h-0 flex-col overflow-hidden rounded-[22px] border border-white/20 bg-[linear-gradient(145deg,rgba(255,255,255,.98),rgba(231,238,255,.94))] text-ink " +
+    "dark:[--tp-cream:237_233_254] dark:[--tp-cream-deep:221_214_254] dark:[--tp-paper:255_255_255] dark:[--tp-ink:23_21_28] dark:[--tp-muted:107_102_117] dark:[--tp-line:221_214_254] " +
     "shadow-[0_28px_70px_-40px_rgba(0,0,0,.9)] min-[1440px]:m-4 min-[1440px]:ms-0 min-[1800px]:m-5 min-[1800px]:ms-0 max-[860px]:m-3 max-[860px]:mt-0 max-[860px]:min-h-[390px] " +
     "max-[640px]:mx-3 max-[640px]:mb-3 max-[640px]:h-[360px] max-[640px]:min-h-[360px] max-[640px]:max-h-[360px] max-[640px]:rounded-[22px] max-[640px]:border-white/35",
   previewGlow:
@@ -63,8 +65,8 @@ const styles = {
   previewBody: "relative z-10 grid min-h-0 flex-1 animate-card-in grid-rows-[20px_40px_32px_minmax(0,1fr)] p-4 max-[640px]:flex max-[640px]:flex-col max-[640px]:p-3.5",
   previewHead: "flex items-center justify-between text-brand",
   previewKicker: "text-[10.5px] font-black uppercase tracking-[.13em] text-brand/[.65]",
-  previewTitle: "self-end truncate font-display text-[26px] font-medium leading-tight tracking-[-.025em] text-ink max-[640px]:hidden",
-  previewSummary: "line-clamp-1 max-w-[54ch] self-center text-[12px] font-medium leading-4 text-muted max-[640px]:hidden",
+  previewTitle: "self-end truncate font-display text-[26px] font-medium leading-tight tracking-[-.025em] text-ink dark:text-charcoal max-[640px]:hidden",
+  previewSummary: "line-clamp-1 max-w-[54ch] self-center text-[12px] font-medium leading-4 text-muted dark:text-slate-gray max-[640px]:hidden",
   desktopDemo: "contents max-[640px]:hidden",
   mobileDemo: "hidden max-[640px]:flex max-[640px]:min-h-0 max-[640px]:flex-1 max-[640px]:items-stretch max-[640px]:justify-start",
   mobilePhone: "h-full w-full overflow-hidden bg-transparent",

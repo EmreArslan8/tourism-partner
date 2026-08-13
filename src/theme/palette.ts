@@ -44,6 +44,38 @@ export const palette = {
   line: brandPalette.borderPurple,
 } as const;
 
+/** Açık/koyu modun semantik rolleri. Koyu zemin hero görselinin sol alanından örneklendi. */
+export const themePalettes = {
+  light: {
+    background: brandPalette.white,
+    surface: brandPalette.white,
+    surfaceSoft: brandPalette.softLavender,
+    surfaceStrong: brandPalette.borderPurple,
+    text: brandPalette.charcoal,
+    textMuted: brandPalette.slateGray,
+    border: brandPalette.borderPurple,
+    primary: brandPalette.deepPurple,
+    accent: brandPalette.royalPurple,
+    heroTitle: brandPalette.charcoal,
+    heroHighlight: brandPalette.deepPurple,
+    heroEyebrow: brandPalette.deepPurple,
+  },
+  dark: {
+    background: "#0d0a2f",
+    surface: brandPalette.midnightPurple,
+    surfaceSoft: brandPalette.midnightPurple,
+    surfaceStrong: brandPalette.deepPurple,
+    text: brandPalette.softLavender,
+    textMuted: brandPalette.borderPurple,
+    border: brandPalette.deepPurple,
+    primary: brandPalette.deepPurple,
+    accent: brandPalette.royalPurple,
+    heroTitle: brandPalette.white,
+    heroHighlight: "#c4b5fd",
+    heroEyebrow: "#a78bfa",
+  },
+} as const;
+
 /** Kategori renkleri aynı marka ailesinin tonlarından türetilir. */
 export const groupPalette = {
   konaklama: brandPalette.royalPurple,
@@ -58,6 +90,11 @@ export const groupPalette = {
 export type BrandPaletteKey = keyof typeof brandPalette;
 export type PaletteKey = keyof typeof palette;
 export type GroupColorKey = keyof typeof groupPalette;
+
+const hexToRgbChannels = (hex: string) => {
+  const value = hex.replace("#", "");
+  return `${Number.parseInt(value.slice(0, 2), 16)} ${Number.parseInt(value.slice(2, 4), 16)} ${Number.parseInt(value.slice(4, 6), 16)}`;
+};
 
 const hexToHslChannels = (hex: string) => {
   const value = hex.replace("#", "");
@@ -83,27 +120,48 @@ const hexToHslChannels = (hex: string) => {
   return `${Math.round(hue)} ${Math.round(saturation * 100)}% ${Math.round(lightness * 100)}%`;
 };
 
-/** shadcn bileşenlerinin kullandığı CSS değişkenleri de aynı kaynaktan üretilir. */
+const modeCssVariables = (mode: keyof typeof themePalettes) => {
+  const colors = themePalettes[mode];
+  const prefix = `--tp-${mode}`;
+  return {
+    [`${prefix}-pine`]: hexToRgbChannels(brandPalette.midnightPurple),
+    [`${prefix}-pine-soft`]: hexToRgbChannels(brandPalette.deepPurple),
+    [`${prefix}-cream`]: hexToRgbChannels(colors.surfaceSoft),
+    [`${prefix}-cream-deep`]: hexToRgbChannels(colors.surfaceStrong),
+    [`${prefix}-panel-bg`]: hexToRgbChannels(colors.background),
+    [`${prefix}-paper`]: hexToRgbChannels(colors.surface),
+    [`${prefix}-ink`]: hexToRgbChannels(colors.text),
+    [`${prefix}-muted`]: hexToRgbChannels(colors.textMuted),
+    [`${prefix}-line`]: hexToRgbChannels(colors.border),
+    [`${prefix}-hero-title`]: hexToRgbChannels(colors.heroTitle),
+    [`${prefix}-hero-highlight`]: hexToRgbChannels(colors.heroHighlight),
+    [`${prefix}-hero-eyebrow`]: hexToRgbChannels(colors.heroEyebrow),
+    [`${prefix}-background`]: hexToHslChannels(colors.background),
+    [`${prefix}-foreground`]: hexToHslChannels(colors.text),
+    [`${prefix}-card`]: hexToHslChannels(colors.surface),
+    [`${prefix}-card-foreground`]: hexToHslChannels(colors.text),
+    [`${prefix}-popover`]: hexToHslChannels(colors.surface),
+    [`${prefix}-popover-foreground`]: hexToHslChannels(colors.text),
+    [`${prefix}-primary`]: hexToHslChannels(colors.primary),
+    [`${prefix}-primary-foreground`]: hexToHslChannels(brandPalette.white),
+    [`${prefix}-secondary`]: hexToHslChannels(colors.surfaceSoft),
+    [`${prefix}-secondary-foreground`]: hexToHslChannels(colors.text),
+    [`${prefix}-muted-surface`]: hexToHslChannels(colors.surfaceSoft),
+    [`${prefix}-muted-foreground`]: hexToHslChannels(colors.textMuted),
+    [`${prefix}-accent`]: hexToHslChannels(colors.accent),
+    [`${prefix}-accent-foreground`]: hexToHslChannels(brandPalette.white),
+    [`${prefix}-border`]: hexToHslChannels(colors.border),
+    [`${prefix}-input`]: hexToHslChannels(colors.border),
+    [`${prefix}-ring`]: hexToHslChannels(colors.accent),
+  };
+};
+
+/** Her iki modun CSS değişkenleri de tema kaynağından üretilip root layout'a yazılır. */
 export const themeCssVariables = {
-  "--background": hexToHslChannels(brandPalette.ultraLightPurple),
-  "--foreground": hexToHslChannels(brandPalette.charcoal),
-  "--card": hexToHslChannels(brandPalette.white),
-  "--card-foreground": hexToHslChannels(brandPalette.charcoal),
-  "--popover": hexToHslChannels(brandPalette.white),
-  "--popover-foreground": hexToHslChannels(brandPalette.charcoal),
-  "--primary": hexToHslChannels(brandPalette.royalPurple),
-  "--primary-foreground": hexToHslChannels(brandPalette.white),
-  "--secondary": hexToHslChannels(brandPalette.softLavender),
-  "--secondary-foreground": hexToHslChannels(brandPalette.midnightPurple),
-  "--muted": hexToHslChannels(brandPalette.softLavender),
-  "--muted-foreground": hexToHslChannels(brandPalette.slateGray),
-  "--accent": hexToHslChannels(brandPalette.softLavender),
-  "--accent-foreground": hexToHslChannels(brandPalette.deepPurple),
+  ...modeCssVariables("light"),
+  ...modeCssVariables("dark"),
   "--destructive": "0 72% 51%",
   "--destructive-foreground": hexToHslChannels(brandPalette.white),
-  "--border": hexToHslChannels(brandPalette.borderPurple),
-  "--input": hexToHslChannels(brandPalette.borderPurple),
-  "--ring": hexToHslChannels(brandPalette.royalPurple),
 } as const;
 
 /** Tailwind `theme.colors` için düz harita (kebab-case anahtarlar). */
@@ -116,12 +174,12 @@ export const tailwindColors = {
   charcoal: brandPalette.charcoal,
   "slate-gray": brandPalette.slateGray,
   "border-purple": brandPalette.borderPurple,
-  pine: palette.pine,
-  "pine-soft": palette.pineSoft,
-  cream: palette.cream,
-  "cream-deep": palette.creamDeep,
-  "panel-bg": palette.panelBg,
-  paper: palette.paper,
+  pine: "rgb(var(--tp-pine) / <alpha-value>)",
+  "pine-soft": "rgb(var(--tp-pine-soft) / <alpha-value>)",
+  cream: "rgb(var(--tp-cream) / <alpha-value>)",
+  "cream-deep": "rgb(var(--tp-cream-deep) / <alpha-value>)",
+  "panel-bg": "rgb(var(--tp-panel-bg) / <alpha-value>)",
+  paper: "rgb(var(--tp-paper) / <alpha-value>)",
   sapphire: palette.sapphire,
   "sapphire-top": palette.sapphireTop,
   "sapphire-deep": palette.sapphireDeep,
@@ -132,9 +190,9 @@ export const tailwindColors = {
   "brand-blue": palette.brandBlue,
   brand: palette.brand,
   "brand-deep": palette.brandDeep,
-  ink: palette.ink,
-  muted: palette.muted,
-  line: palette.line,
+  ink: "rgb(var(--tp-ink) / <alpha-value>)",
+  muted: "rgb(var(--tp-muted) / <alpha-value>)",
+  line: "rgb(var(--tp-line) / <alpha-value>)",
   group: {
     konaklama: groupPalette.konaklama,
     acente: groupPalette.acente,

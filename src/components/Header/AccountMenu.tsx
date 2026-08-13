@@ -7,7 +7,7 @@ import { Link } from "@/i18n/navigation";
 import type { Href } from "@/i18n/navigation";
 import { signOut } from "@/lib/actions/auth";
 
-export default function AccountMenu({ dashboardHref }: { dashboardHref: Href | null }) {
+export default function AccountMenu({ dashboardHref, onLight = false }: { dashboardHref: Href | null; onLight?: boolean }) {
   const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -34,7 +34,7 @@ export default function AccountMenu({ dashboardHref }: { dashboardHref: Href | n
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        className="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-white px-3.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream min-[1440px]:h-11 min-[1440px]:px-4 min-[1440px]:text-[16px] min-[1800px]:text-[17px] max-[900px]:gap-1.5 max-[900px]:border max-[900px]:border-white/35 max-[900px]:bg-transparent max-[900px]:px-2 max-[900px]:text-white max-[900px]:shadow-none max-[900px]:active:bg-white/15"
+        className={`inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-white px-3.5 text-[15px] font-semibold text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] transition-colors hover:bg-cream min-[1440px]:h-11 min-[1440px]:px-4 min-[1440px]:text-[16px] min-[1800px]:text-[17px] max-[900px]:gap-1.5 max-[900px]:border max-[900px]:bg-transparent max-[900px]:px-2 max-[900px]:shadow-none ${onLight ? "max-[900px]:border-brand/25 max-[900px]:text-brand max-[900px]:active:bg-brand/5" : "max-[900px]:border-white/35 max-[900px]:text-white max-[900px]:active:bg-white/15"}`}
         aria-label={triggerLabel}
         aria-haspopup="menu"
         aria-expanded={open}

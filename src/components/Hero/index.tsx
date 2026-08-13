@@ -14,33 +14,63 @@ const commonImageProps = {
 };
 
 const {
-  props: { srcSet: desktopSrcSet },
+  props: { srcSet: lightDesktopSrcSet },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/hero-mobile-globe-light-v4.webp",
+  width: 1774,
+  height: 887,
+  quality: 88,
+});
+
+const {
+  props: { srcSet: lightTabletSrcSet },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/tourism-network-globe-hero-transparent.webp",
+  width: 2000,
+  height: 1000,
+  quality: 82,
+});
+
+const {
+  props: { srcSet: lightMobileSrcSet, ...lightImageProps },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/hero-mobile-globe-light-v5.webp",
+  width: 941,
+  height: 1672,
+  quality: 84,
+});
+
+const {
+  props: { srcSet: darkDesktopSrcSet },
+} = getImageProps({
+  ...commonImageProps,
+  src: "/assets/hero-globe-midnight.webp",
+  width: 1376,
+  height: 768,
+  quality: 88,
+});
+
+const {
+  props: { srcSet: darkTabletSrcSet },
 } = getImageProps({
   ...commonImageProps,
   src: "/assets/hero-mobile-globe.webp",
-  width: 2000,
-  height: 1000,
-  quality: 90,
-});
-
-const {
-  props: { srcSet: mobileSrcSet, ...imageProps },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/hero-mobile.png",
   width: 1376,
   height: 768,
-  quality: 85,
+  quality: 84,
 });
 
 const {
-  props: { srcSet: tabletSrcSet },
+  props: { srcSet: darkMobileSrcSet, ...darkImageProps },
 } = getImageProps({
   ...commonImageProps,
-  src: "/assets/hero-tablet.webp",
-  width: 1086,
-  height: 1448,
-  quality: 85,
+  src: "/assets/hero-mobile-v2.webp",
+  width: 1024,
+  height: 1536,
+  quality: 84,
 });
 
 async function ApprovedBusinessMarquee() {
@@ -64,14 +94,18 @@ const Hero = () => {
   return (
     <section className={styles.section}>
       <Header variant="glass" />
-      <picture className={styles.picture}>
-        <source media="(max-width: 640px)" srcSet={mobileSrcSet} />
-        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={tabletSrcSet} />
-        <source media="(min-width: 1025px)" srcSet={desktopSrcSet} />
-        <img {...imageProps} alt="" className={styles.image} fetchPriority="high" loading="eager" decoding="async" />
+      <picture className={`${styles.picture} ${styles.pictureLight}`}>
+        <source media="(min-width: 1025px)" srcSet={lightDesktopSrcSet} />
+        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={lightTabletSrcSet} />
+        <source media="(max-width: 640px)" srcSet={lightMobileSrcSet} />
+        <img {...lightImageProps} alt="" className={`${styles.image} ${styles.imageLight}`} fetchPriority="high" decoding="async" />
       </picture>
-      <div className={styles.overlay} />
-
+      <picture className={`${styles.picture} ${styles.pictureDark}`}>
+        <source media="(min-width: 1025px)" srcSet={darkDesktopSrcSet} />
+        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={darkTabletSrcSet} />
+        <source media="(max-width: 640px)" srcSet={darkMobileSrcSet} />
+        <img {...darkImageProps} alt="" className={`${styles.image} ${styles.imageDark}`} fetchPriority="high" decoding="async" />
+      </picture>
       {/* NOT: Etkileşimli 3D küre (Hero/Globe.tsx, three-globe) şimdilik devre dışı —
           görsel ayarı yapılamadan sayfayı bozuyordu. Geri açmak için: Globe import'u +
           styles.globeWrap bloğunu buraya ekle (git geçmişinde hazır). */}

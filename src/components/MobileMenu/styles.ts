@@ -1,7 +1,9 @@
 /* MobileMenu — Tailwind sınıf token'ları (hamburger + tam ekran sheet). */
  const styles = {
   button: "ms-auto grid h-10 w-10 place-items-center rounded-[10px] text-white transition-colors active:bg-white/15 min-[900px]:hidden",
+  buttonOnLight: "!text-brand active:!bg-brand/5 dark:!text-white dark:active:!bg-white/15",
   bar: "block h-[2px] w-5 rounded-full bg-white",
+  barOnLight: "!bg-brand dark:!bg-white",
   sheet: "fixed inset-0 z-[100] flex flex-col overflow-y-auto overscroll-contain bg-paper min-[900px]:hidden",
   top: "flex h-[72px] shrink-0 items-center justify-between border-b border-line px-5",
   close: "grid h-10 w-10 place-items-center rounded-[10px] border border-line text-ink transition-colors hover:bg-cream active:scale-95",

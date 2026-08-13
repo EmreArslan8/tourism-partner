@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title,
       description,
       type: "website",
+      siteName: "Tourism Partner",
       images: override?.ogImage ? [{ url: override.ogImage }] : undefined,
     },
   };

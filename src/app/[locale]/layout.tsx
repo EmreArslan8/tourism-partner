@@ -35,6 +35,8 @@ const sansAr = Noto_Sans_Arabic({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Google arama sonucundaki "site adı" sinyali (og:site_name ana sayfada da verilir).
+  applicationName: "Tourism Partner",
   title: "Tourism Partner - B2B Tourism Network",
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
@@ -42,6 +44,21 @@ export const metadata: Metadata = {
   // Marka/statik sayfalar (ana sayfa, keşfet) her zaman indekslenebilir — .com Google'da çıksın.
   // Sahte tedarikçi PROFİL sayfaları ayrıca noindex (bkz. supplier/[id]/page.tsx).
   robots: { index: true, follow: true },
+};
+
+/* Google'a site adını ("Tourism Partner") açıkça bildiren yapısal veri.
+   Tüm sayfalarda render edilir; arama sonucundaki kalın site adını netleştirir. */
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", name: "Tourism Partner", url: SITE_URL },
+    {
+      "@type": "Organization",
+      name: "Tourism Partner",
+      url: SITE_URL,
+      logo: `${SITE_URL}/assets/logo-mark.svg`,
+    },
+  ],
 };
 
 export function generateStaticParams() {
@@ -69,9 +86,22 @@ export default async function LocaleLayout({
       dir={isAr ? "rtl" : "ltr"}
       data-scroll-behavior="smooth"
       className={fontVars}
+      suppressHydrationWarning
       style={themeCssVariables as React.CSSProperties}
     >
+      <head>
+        <meta name="color-scheme" content="light dark" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('tp-theme');var d=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.classList.toggle('dark',d);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         <GoogleTagManagerNoScript />
         <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
         <Suspense fallback={null}>

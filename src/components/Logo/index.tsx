@@ -5,8 +5,8 @@ import { Link, type Href } from "@/i18n/navigation";
 // kendi SVG'si var; light versiyon degradeyi filtrelemek yerine tek parça
 // temiz beyaz işaret kullanır.
 const VARIANTS = {
-  brand: { src: "/assets/logo.svg", ratio: 590.6 / 213.09 },
-  light: { src: "/assets/logo-white.svg", ratio: 595.6 / 217.09 },
+  brand: { src: "/assets/logo-light.svg", ratio: 497 / 199 },
+  light: { src: "/assets/logo-dark.png", ratio: 482 / 181 },
 } as const;
 
 type Props = {
@@ -18,16 +18,31 @@ type Props = {
 };
 
 const Img = ({ height = 100, variant = "brand", priority }: Omit<Props, "href" | "className">) => {
-  const { src, ratio } = VARIANTS[variant];
-  return (
+  const image = (src: string, ratio: number, className?: string, scale = 1) => {
+    const renderedHeight = Math.round(height * scale);
+
+    return (
     <Image
       src={src}
-      alt="Tourism Partner"
-      width={Math.round(height * ratio)}
-      height={height}
+      alt=""
+      width={Math.round(renderedHeight * ratio)}
+      height={renderedHeight}
       priority={priority}
-      style={{ height, width: "auto" }}
+      className={className}
+      style={{ height: renderedHeight, width: "auto" }}
     />
+    );
+  };
+
+  if (variant === "light") {
+    return image(VARIANTS.light.src, VARIANTS.light.ratio, undefined, 0.88);
+  }
+
+  return (
+    <>
+      {image(VARIANTS.brand.src, VARIANTS.brand.ratio, "block dark:hidden")}
+      {image(VARIANTS.light.src, VARIANTS.light.ratio, "hidden dark:block", 0.88)}
+    </>
   );
 };
 
@@ -40,7 +55,7 @@ const Logo = ({
 }: Props) => {
   if (href === null) {
     return (
-      <span className={className} aria-label="Tourism Partner">
+      <span className={className} role="img" aria-label="Tourism Partner">
         <Img height={height} variant={variant} priority={priority} />
       </span>
     );

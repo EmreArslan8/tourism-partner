@@ -8,7 +8,7 @@ type NavHref = Extract<Href, { pathname: string }>;
 type NavLink = { href: NavHref; label: string };
 
 /* Aktif-link vurgusu pathname gerektirir → header'ın tek client adası. */
-const NavLinks = ({ links }: { links: NavLink[] }) => {
+const NavLinks = ({ links, onLight = false }: { links: NavLink[]; onLight?: boolean }) => {
   const pathname = usePathname();
 
   return (
@@ -21,7 +21,7 @@ const NavLinks = ({ links }: { links: NavLink[] }) => {
             key={link.href.pathname + (link.href.hash || "")}
             href={link.href}
             scroll={!link.href.hash}
-            className={`${styles.navLink} ${isActive ? styles.navLinkActive : ""}`}
+            className={`${styles.navLink} ${onLight ? styles.navLinkOnLight : ""} ${isActive ? (onLight ? styles.navLinkActiveOnLight : styles.navLinkActive) : ""}`}
           >
             {link.label}
           </Link>
