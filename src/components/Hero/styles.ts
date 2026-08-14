@@ -4,13 +4,14 @@
   // Ölçü svh: Safari'de scroll'la adres/araç çubuğu daralsa da SABİT kalır — dvh olsaydı
   // hero uzayıp görseli esnetirdi. Marquee de mobilde akışta (flex sonu) olduğundan
   // içerikle arasındaki boşluk viewport değişiminden etkilenmez.
-  // Mobilde 100svh yerine 100svh-40px: marquee tam katlanma çizgisine oturmaz, altındaki
-  // bölümün bir şeridi baştan görünür. Safari çubuğu geri çekilip ~90px alan açıldığında
-  // "yeni bir kenar belirmiş" hissi olmaz, zaten görünen alan biraz büyür.
+  // Mobilde hero viewport yüksekliğine BAĞLANMAZ (min-h-0): Safari'de alt/üst çubuk
+  // gizlenince viewport değişir, viewport'a kilitli bir hero + flex-1 içerik marquee'yi
+  // aşağı-yukarı oynatır (zıplama). İçerik-yüksekliği hero'da oynayacak bir şey kalmaz;
+  // marquee içeriğin hemen ardından sabit durur, altından VİTRİN bölümü akışta gelir.
   section:
     "relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden " +
     "bg-white dark:bg-panel-bg " +
-    "max-[640px]:min-h-[calc(100svh-40px)]",
+    "max-[640px]:min-h-0",
   picture:
     "absolute inset-0 -z-10 overflow-hidden",
   pictureLight: "block bg-white dark:hidden",
@@ -46,7 +47,9 @@
     "[@media(min-width:1440px)_and_(min-height:940px)]:-translate-y-6 " +
     "[@media(min-width:1800px)_and_(min-height:940px)]:-translate-y-10 " +
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
-    "max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
+    // Mobilde flex-1 stretch KAPALI + min-h yok: içerik doğal yükseklikte kalır ki
+    // viewport değişince (Safari çubuğu) marquee konumu oynamasın.
+    "max-[640px]:flex-none max-[640px]:min-h-0 max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
   title:
     "heading-hero max-w-[20ch] [text-wrap:balance] [color:rgb(var(--tp-hero-title))] max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.12] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block max-[640px]:[&_em]:whitespace-nowrap " +
     "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.14] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
@@ -65,13 +68,13 @@
   categories:
     "mt-6 flex items-start gap-3 text-brand max-[1100px]:gap-3 max-[640px]:hidden min-[1440px]:mt-8 min-[1440px]:gap-8 min-[1800px]:gap-9",
   categoryLink:
-    "group flex min-w-[62px] flex-col items-center gap-1.5 !text-brand text-[12.5px] font-semibold transition-colors hover:!text-royal-purple dark:!text-white/85 dark:hover:!text-white min-[1440px]:min-w-[70px] min-[1440px]:text-[13px] min-[1800px]:text-[14px]",
+    "group flex min-w-[62px] flex-col items-center gap-1.5 !text-brand/55 text-[12.5px] font-semibold transition-colors hover:!text-royal-purple dark:!text-white/85 dark:hover:!text-white min-[1440px]:min-w-[70px] min-[1440px]:text-[13px] min-[1800px]:text-[14px]",
   categoryIcon:
-    "h-7 w-7 [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-8 min-[1800px]:h-9 min-[1800px]:w-9",
+    "h-7 w-7 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-8 min-[1800px]:h-9 min-[1800px]:w-9",
   gastronomyIcon:
-    "-my-1 h-9 w-9 [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-10 min-[1440px]:w-10 min-[1800px]:h-11 min-[1800px]:w-11",
+    "-my-1 h-9 w-9 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-10 min-[1440px]:w-10 min-[1800px]:h-11 min-[1800px]:w-11",
   transferIcon:
-    "h-7 w-10 object-contain [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-[46px] min-[1800px]:h-9 min-[1800px]:w-[50px]",
+    "h-7 w-10 object-contain opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-[46px] min-[1800px]:h-9 min-[1800px]:w-[50px]",
   searchWrap: "mt-5 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full min-[1440px]:mt-6 min-[1440px]:max-w-[860px] min-[1800px]:max-w-[940px]",
   ctaBlock:
     "relative mt-6 flex w-full max-w-[760px] flex-col items-start gap-3.5 pt-4 max-[640px]:hidden " +
@@ -97,16 +100,13 @@
   mobileCtaGhost:
     "flex h-[48px] w-full items-center justify-center rounded-xl border border-brand/20 bg-paper/75 px-4 " +
     "text-[14px] font-bold text-brand backdrop-blur-md transition-colors active:bg-brand/5 dark:border-white/20 dark:text-white dark:active:bg-white/10",
-  // Mobil: 3 satırlık grid yerine tek satır yatay şerit — ilk ekranda ~125px yer açar.
-  // Kenardaki solma + yarım görünen chip, kaydırılabildiğini gösterir (RTL'de aynası).
+  // Mobil: yatay kaydırma yerine 4 sütunlu ikon grid (2 satır: 4+3). Tüm kategoriler
+  // tek ekranda görünür — gizli içerik / kaydırma ipucu gerektiren şerit kalktı.
   mobileCategories:
-    "mt-5 hidden w-full snap-x snap-mandatory gap-2 overflow-x-auto pb-1 max-[640px]:flex " +
-    "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden " +
-    "[mask-image:linear-gradient(90deg,#000_86%,transparent)] [-webkit-mask-image:linear-gradient(90deg,#000_86%,transparent)] " +
-    "rtl:[mask-image:linear-gradient(270deg,#000_86%,transparent)] rtl:[-webkit-mask-image:linear-gradient(270deg,#000_86%,transparent)]",
+    "mt-5 hidden w-full grid-cols-4 gap-x-2 gap-y-4 max-[640px]:grid",
   mobileCategoryLink:
-    "flex shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full border border-brand/15 bg-paper/80 px-3.5 py-2 text-[12px] font-bold leading-tight text-brand backdrop-blur-md dark:border-white/20 dark:text-white/85 " +
-    "[&_img]:h-4 [&_img]:w-4 [&_img]:shrink-0 [&_img]:[filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] dark:[&_img]:opacity-95 dark:[&_img]:[filter:brightness(0)_invert(1)]",
+    "flex flex-col items-center gap-1.5 text-center text-[11px] font-semibold leading-tight text-brand/60 dark:text-white/85 " +
+    "[&_img]:h-6 [&_img]:w-6 [&_img]:shrink-0 [&_img]:opacity-[.55] [&_img]:[filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] dark:[&_img]:opacity-95 dark:[&_img]:[filter:brightness(0)_invert(1)]",
   // Mobilde akışa girer (static): alta demirlenirse tarayıcı çubuğu kayarken içerikle
   // arasındaki boşluk oynuyordu; akışta içeriğin hemen ardından sabit durur.
   marquee:

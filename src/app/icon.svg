@@ -1,4 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="295.50 136.12 250.79 250.79" width="251" height="251" role="img" aria-label="Tourism Partner">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="320.30 160.39 201.19 202.25" width="201.19" height="202.25" role="img" aria-label="Tourism Partner">
+<style>
+/* Light: markanın mor tonları (inline fill'ler).
+   Dark: tarayıcı/OS koyu temada tüm mark beyaza döner (sekmede görünür kalsın). */
+@media (prefers-color-scheme: dark) {
+  path { fill: #ffffff !important; }
+}
+</style>
 <path fill-rule="nonzero" fill="rgb(34.899902%, 3.09906%, 56.898499%)" fill-opacity="1" d="M 412.378906 301.242188 L 411.925781 301.242188 L 413.3125 303.371094 L 424.214844 320.105469 L 448.019531 356.644531 L 448.054688 356.644531 L 448.054688 356.410156 Z M 412.378906 301.242188 "/>
 <path fill-rule="nonzero" fill="rgb(47.499084%, 4.299927%, 75.698853%)" fill-opacity="1" d="M 428.847656 214.605469 C 423.933594 219.519531 420.894531 226.3125 420.894531 233.8125 L 380.636719 233.8125 C 380.636719 215.195312 388.183594 198.335938 400.378906 186.136719 Z M 428.847656 214.605469 "/>
 <path fill-rule="nonzero" fill="rgb(58.799744%, 5.099487%, 94.499207%)" fill-opacity="1" d="M 495.730469 186.148438 L 467.273438 214.605469 C 462.359375 209.691406 455.554688 206.652344 448.054688 206.652344 C 440.554688 206.652344 433.761719 209.691406 428.847656 214.605469 L 400.378906 186.136719 C 412.585938 173.9375 429.4375 166.394531 448.054688 166.394531 C 466.683594 166.394531 483.542969 173.9375 495.730469 186.148438 "/>

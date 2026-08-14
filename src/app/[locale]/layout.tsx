@@ -41,6 +41,8 @@ export const metadata: Metadata = {
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
   verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
+  // Favicon: src/app/icon.svg (adaptif — içinde prefers-color-scheme media query;
+  // Chrome dahil tarayıcılarda çalışır). /favicon.ico (public) Google + eski tarayıcı fallback'ı.
   // Marka/statik sayfalar (ana sayfa, keşfet) her zaman indekslenebilir — .com Google'da çıksın.
   // Sahte tedarikçi PROFİL sayfaları ayrıca noindex (bkz. supplier/[id]/page.tsx).
   robots: { index: true, follow: true },
