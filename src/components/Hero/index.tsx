@@ -31,6 +31,11 @@ const {
   width: 941,
   height: 1672,
   quality: 84,
+  // LCP görseli — lazy OLMAMALI (Lighthouse: "LCP kaynaklarında loading=lazy
+  // kullanılmamalıdır"). getImageProps varsayılanı lazy; eager'a çekmezsek görsel
+  // ~1.6sn geç keşfediliyordu. Koyu tema hero'su lazy KALIR: display:none + lazy
+  // sayesinde açık tema kullanıcısında hiç inmez (çift indirme yok).
+  loading: "eager",
 });
 
 const {

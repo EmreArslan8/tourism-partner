@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import {
   BadgeCheck,
@@ -26,9 +27,17 @@ const MembershipPromoPopup = () => {
   const t = useTranslations("membershipPopup");
   const locale = useLocale();
   const [closed, setClosed] = useState(false);
+  // İlk boyamada AÇILMAZ: popup hemen açılırsa dev görseli LCP elemanı olur (mobilde
+  // LCP'yi şişirir). Kısa gecikme → hero LCP'yi belirler, popup sonra devreye girer.
+  const [armed, setArmed] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  const open = isClient && !closed && shouldOpen();
+  useEffect(() => {
+    const id = window.setTimeout(() => setArmed(true), 1800);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  const open = isClient && armed && !closed && shouldOpen();
 
   const close = useCallback(() => {
     try {
@@ -77,14 +86,12 @@ const MembershipPromoPopup = () => {
           </button>
 
           <div aria-hidden className="absolute inset-0 z-0 md:hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/popup-image.webp" alt="" className="h-full w-full object-cover" />
+            <Image src="/assets/popup-image.webp" alt="" fill sizes="100vw" quality={75} className="object-cover" />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(1,8,47,.62),rgba(1,8,47,.72)_45%,rgba(1,8,47,.86))]" />
           </div>
 
           <section className="relative hidden min-h-0 overflow-hidden bg-ink text-white md:block">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/popup-image.webp" alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <Image src="/assets/popup-image.webp" alt="" fill sizes="(min-width: 768px) 520px, 100vw" quality={75} className="object-cover" />
             <div
               aria-hidden
               className="absolute inset-0 bg-[radial-gradient(circle_at_70%_72%,rgba(0,125,255,.2),transparent_30%),linear-gradient(180deg,rgba(1,8,47,.4),rgba(1,8,47,.15)_36%,rgba(1,8,47,.72)_100%)]"

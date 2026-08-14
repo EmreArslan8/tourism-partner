@@ -13,6 +13,9 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     console.error("[global error]", error);
+    // Kök çökmeyi Sentry'ye ilet. Dinamik import: ana bundle'a girmez, yalnız
+    // bu hata sınırı render olduğunda yüklenir. DSN yoksa/init olmadıysa no-op.
+    void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error));
   }, [error]);
 
   return (

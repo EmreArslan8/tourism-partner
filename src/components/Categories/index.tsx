@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import SectionHeader from "@/components/common/SectionHeader";
 import { CATEGORY_GROUPS, groupUrlSlug } from "@/lib/categories";
-import type { Business, GroupKey } from "@/lib/types";
+import type { GroupKey } from "@/lib/types";
 import styles from "./styles";
 
 const IMG: Record<GroupKey, string> = {
@@ -37,14 +37,13 @@ const cardSummary = (
   return `${labels.join(", ")} ${moreSuffix}`;
 };
 
-const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
+// Yalnız grup başına tedarikçi SAYISI gerekir; tüm business dizisini prop olarak
+// taşımak RSC flight payload'ını ~55KB şişiriyordu (döküman kritik yolda). Sunucu
+// (view.tsx) sayımları hesaplayıp yalnız bu küçük haritayı geçirir.
+const Categories = ({ counts = {} }: { counts?: Partial<Record<GroupKey, number>> }) => {
   const t = useTranslations("categories");
   const tc = useTranslations("cat");
   const ts = useTranslations("service");
-  const stats = businesses.reduce<Record<string, number>>((acc, business) => {
-    acc[business.group] = (acc[business.group] ?? 0) + 1;
-    return acc;
-  }, {});
 
   return (
     <section className={styles.section} id="kategoriler" data-tour="supplier-categories">
@@ -80,9 +79,9 @@ const Categories = ({ businesses = [] }: { businesses?: Business[] }) => {
                   sizes="(max-width: 640px) 50vw, (max-width: 1100px) 50vw, 33vw"
                   className={styles.img}
                 />
-                {stats[group.key] ? (
+                {counts[group.key] ? (
                   <span className={styles.count}>
-                    {stats[group.key]} {t("suppliersShort")}
+                    {counts[group.key]} {t("suppliersShort")}
                   </span>
                 ) : null}
               </span>

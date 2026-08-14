@@ -11,7 +11,7 @@ import { realBusinessImages } from "@/lib/business-images";
 import { featuredFacetTags } from "@/lib/facets";
 import { businessDescription } from "@/lib/business-localization";
 import { premiumVisibilityRank } from "@/lib/business-visibility";
-import { profileScore } from "@/lib/listing";
+import { rankShowcaseCandidates } from "@/lib/showcase";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
 import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
@@ -29,17 +29,6 @@ const shuffle = <T,>(items: T[]) => {
   }
   return list;
 };
-
-function rankedShowcaseBusinesses(businesses: Business[]) {
-  return businesses
-    .filter((business) => premiumVisibilityRank(business) > 0 && galleryFor(business).length > 0)
-    .sort(
-      (a, b) =>
-        premiumVisibilityRank(b) - premiumVisibilityRank(a) ||
-        b.rating - a.rating ||
-        profileScore(b) - profileScore(a),
-    );
-}
 
 function balancedShowcaseBusinesses(businesses: Business[]) {
   const premium = businesses.filter((business) => premiumVisibilityRank(business) === 2);
@@ -179,7 +168,9 @@ const Slide = ({ business }: { business: Business }) => {
 const Showcase = ({ businesses }: { businesses: Business[] }) => {
   const locale = useLocale();
   const t = useTranslations("showcase");
-  const rankedItems = useMemo(() => rankedShowcaseBusinesses(businesses), [businesses]);
+  // businesses sunucuda zaten filtrelenip sıralanmış küçük havuz olarak gelir;
+  // rankShowcaseCandidates burada idempotent (sıra korunur, SSR ile tutarlı).
+  const rankedItems = useMemo(() => rankShowcaseCandidates(businesses), [businesses]);
   const [balancedItems, setBalancedItems] = useState<Business[] | null>(null);
   const items = balancedItems ?? rankedItems.slice(0, SHOWCASE_LIMIT);
   const [i, setI] = useState(0);

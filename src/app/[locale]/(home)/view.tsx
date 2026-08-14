@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
 import Categories from "@/components/Categories";
@@ -9,6 +10,7 @@ import Faq from "@/components/Faq";
 import Trust from "@/components/Trust";
 import AdSlider from "@/components/AdSlider";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
+import { rankShowcaseCandidates, SHOWCASE_POOL_LIMIT } from "@/lib/showcase";
 import { getActiveAdBanners } from "@/lib/platform-data";
 import styles from "./styles";
 
@@ -25,12 +27,20 @@ import styles from "./styles";
 /* Panel 2 içeriği — reklam bandı + vitrin + CTA. Kendi verisini bekler;
    'use cache' sayesinde sorgular panel 3 ile paylaşılır. */
 async function ShowcaseContent() {
+  // Vitrin sıralaması Date.now()'a bağlı (doping süresi). cacheComponents/PPR
+  // prerender'da geçerli saat yasak; bu bölüm zaten Suspense ile stream ediliyor,
+  // connection() ile açıkça dinamik işaretliyoruz (Hero static shell'de kalır).
+  await connection();
   const [businesses, adBanners] = await Promise.all([
     getBusinesses(),
     getActiveAdBanners("home"),
   ]);
   // Liste payload'ında iletişim alanları taşınmaz (telefon/website yalnız detay sayfasında).
   const listing = businesses.map(toListingBusiness);
+  // Vitrin yalnız 5 kart gösterir; filtre+sıralamayı SUNUCUDA yapıp uygun havuzu
+  // birkaç yedekle kırpıyoruz — tüm diziyi client'a taşımak RSC payload'ını ~85KB
+  // şişiriyordu (döküman kritik yolda). Client bu küçük havuzda karıştırır.
+  const showcasePool = rankShowcaseCandidates(listing).slice(0, SHOWCASE_POOL_LIMIT);
   return (
     <>
       {adBanners.length > 0 && (
@@ -39,7 +49,7 @@ async function ShowcaseContent() {
         </div>
       )}
       <div className={styles.inner}>
-        <Showcase businesses={listing} />
+        <Showcase businesses={showcasePool} />
       </div>
       <div className={styles.inner}>
         <Cta />
@@ -48,10 +58,15 @@ async function ShowcaseContent() {
   );
 }
 
-/* Panel 3 içeriği — tedarikçi türleri (getBusinesses cache'ten okunur). */
+/* Panel 3 içeriği — tedarikçi türleri. Categories yalnız grup başına SAYI kullanır;
+   tüm business dizisini prop'layıp RSC payload'ını şişirmek yerine sunucuda sayıp
+   küçük bir harita geçiriyoruz (getBusinesses cache'ten, ekstra sorgu yok). */
 async function CategoriesContent() {
-  const businesses = (await getBusinesses()).map(toListingBusiness);
-  return <Categories businesses={businesses} />;
+  const counts = (await getBusinesses()).reduce<Record<string, number>>((acc, b) => {
+    acc[b.group] = (acc[b.group] ?? 0) + 1;
+    return acc;
+  }, {});
+  return <Categories counts={counts} />;
 }
 
 /* Veri beklerken gösterilen nabız iskeleti — bölüm yerine geçer, akış oynamaz. */

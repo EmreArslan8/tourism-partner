@@ -1,4 +1,19 @@
 import { type Instrumentation } from "next";
+import * as Sentry from "@sentry/nextjs";
+
+/*
+ * Sentry init'i runtime'a göre yükler. Client init BURADA değil — o
+ * instrumentation-client.ts'te idle'a ertelenir (LCP/TBT'ye dokunmamak için).
+ * DSN yoksa her iki config de no-op'tur.
+ */
+export async function register() {
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("./sentry.server.config");
+  }
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("./sentry.edge.config");
+  }
+}
 
 /*
  * Sunucu hatalarını gözlemlemek için Next'in onRequestError hook'u.
@@ -25,4 +40,6 @@ export const onRequestError: Instrumentation.onRequestError = (err, request, con
     routeType: context.routeType, // 'render' | 'route' | 'action' | 'proxy'
     routePath: context.routePath,
   });
+  // Sunucu hatasını Sentry'ye de ilet (DSN yoksa no-op).
+  Sentry.captureRequestError(err, request, context);
 };

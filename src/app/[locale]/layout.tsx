@@ -43,9 +43,12 @@ export const metadata: Metadata = {
   verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
   // Favicon: src/app/icon.svg (adaptif — içinde prefers-color-scheme media query;
   // Chrome dahil tarayıcılarda çalışır). /favicon.ico (public) Google + eski tarayıcı fallback'ı.
+  // src/app/icon.png (desktop PNG fallback), src/app/apple-icon.png (iOS touch icon).
   // Marka/statik sayfalar (ana sayfa, keşfet) her zaman indekslenebilir — .com Google'da çıksın.
   // Sahte tedarikçi PROFİL sayfaları ayrıca noindex (bkz. supplier/[id]/page.tsx).
   robots: { index: true, follow: true },
+  // iOS "ana ekrana ekle" başlığı (apple-mobile-web-app-title).
+  appleWebApp: { capable: true, title: "Tourism Partner", statusBarStyle: "default" },
 };
 
 /* Google'a site adını ("Tourism Partner") açıkça bildiren yapısal veri.
