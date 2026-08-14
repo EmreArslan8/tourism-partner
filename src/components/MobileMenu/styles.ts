@@ -1,19 +1,19 @@
 /* MobileMenu — Tailwind sınıf token'ları (hamburger + tam ekran sheet). */
  const styles = {
-  button: "ms-auto grid h-10 w-10 place-items-center rounded-[10px] text-white transition-colors active:bg-white/15 min-[900px]:hidden",
-  buttonOnLight: "!text-brand active:!bg-brand/5 dark:!text-white dark:active:!bg-white/15",
-  bar: "block h-[2px] w-5 rounded-full bg-white",
-  barOnLight: "!bg-brand dark:!bg-white",
+  button: "ms-auto grid h-10 w-10 place-items-center rounded-[10px] text-interactive transition-colors active:bg-cream min-[900px]:hidden",
+  buttonOnLight: "!text-hero-title active:!bg-hero-title/15",
+  bar: "block h-[2px] w-5 rounded-full bg-current",
+  barOnLight: "bg-current",
   sheet: "fixed inset-0 z-[100] flex flex-col overflow-y-auto overscroll-contain bg-paper min-[900px]:hidden",
   top: "flex h-[72px] shrink-0 items-center justify-between border-b border-line px-5",
   close: "grid h-10 w-10 place-items-center rounded-[10px] border border-line text-ink transition-colors hover:bg-cream active:scale-95",
   // Arama, linklerin üstünde: menü açılınca ilk görülen aksiyon.
   searchWrap: "shrink-0 px-3 pt-3",
   searchForm: "relative flex items-center",
-  searchIcon: "pointer-events-none absolute start-3.5 h-[18px] w-[18px] text-[#3f4b67]",
+  searchIcon: "pointer-events-none absolute start-3.5 h-[18px] w-[18px] text-muted",
   searchInput:
     "field h-[46px] w-full !rounded-[12px] ps-11 pe-[86px] text-[15px] font-medium " +
-    "placeholder:font-medium placeholder:text-[#727b97]",
+    "placeholder:font-medium placeholder:text-muted",
   searchSubmit:
     "absolute end-1.5 inline-flex h-[36px] items-center rounded-[9px] bg-sapphire-top px-3.5 " +
     "text-[13px] font-bold text-white transition-transform active:scale-95",

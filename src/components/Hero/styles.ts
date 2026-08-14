@@ -24,7 +24,7 @@
     "max-[1024px]:object-[62%_65%] max-[640px]:object-center",
   // Görsel tüm hero alanını doldurur (object-cover) — üst/alt boşluk ya da
   // dikiş olmaz. Sahne 2:1: küre sağda, sol taraf metin için koyu boş alan.
-  // Mobil ve tablet kendi tam-kaplayan görsellerinde kalır.
+  // Yalnız telefon kendi dikey görselini kullanır; tablet masaüstü sahnesini paylaşır.
   // Masaüstünde görsel çok doygun/parlak mor → hafif desatüre + koyulaştır ki
   // mor "aksan" olsun, tüm alanı kaplayan boğucu bir zemin olmasın.
   // Etkileşimli küre (yalnız masaüstü ≥1025px; mobil/tablet statik fotoğrafla kalır).
@@ -110,9 +110,9 @@
   // Mobilde akışa girer (static): alta demirlenirse tarayıcı çubuğu kayarken içerikle
   // arasındaki boşluk oynuyordu; akışta içeriğin hemen ardından sabit durur.
   marquee:
-    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-brand/10 max-[640px]:static " +
-    "bg-white/95 backdrop-blur-xl backdrop-saturate-100 dark:border-white/10 dark:bg-paper/70 dark:backdrop-saturate-150 " +
-    "shadow-[inset_0_1px_0_rgba(255,255,255,.8),0_-12px_32px_-24px_rgba(74,26,151,.3)] " +
+    "pointer-events-none absolute inset-x-0 bottom-0 z-10 border-t border-line/55 max-[640px]:static " +
+    "bg-paper/70 backdrop-blur-xl backdrop-saturate-150 " +
+    "shadow-[inset_0_1px_0_rgba(255,255,255,.38),0_-12px_32px_-24px_rgba(74,26,151,.28)] " +
     "[&_*]:pointer-events-auto",
   stats:
     "mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 max-[640px]:hidden " +

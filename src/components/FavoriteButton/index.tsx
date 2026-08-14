@@ -76,12 +76,12 @@ export default function FavoriteButton({
           isIcon
             ? "relative z-[6] inline-grid h-9 w-9 shrink-0 place-items-center text-paper drop-shadow-[0_2px_8px_rgba(0,0,0,.28)] transition-colors hover:text-brand-deep"
             : isHeader
-              ? "inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold text-white transition-colors hover:bg-white/10"
+              ? "inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold text-ink transition-colors hover:bg-cream"
             : "mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border border-line px-4 py-2.5 text-[13.5px] font-semibold text-ink transition-colors hover:border-sapphire hover:text-brand"
         }
       >
         <Heart size={22} strokeWidth={2.25} aria-hidden />
-        {!isIcon && <span className={isHeader ? "underline decoration-white/40 underline-offset-2" : undefined}>{t("favoriteSave")}</span>}
+        {!isIcon && <span className={isHeader ? "underline decoration-current/40 underline-offset-2" : undefined}>{t("favoriteSave")}</span>}
       </Link>
     );
   }
@@ -112,7 +112,7 @@ export default function FavoriteButton({
               fav ? "text-sapphire hover:text-paper" : "text-paper hover:text-sapphire"
             }`
           : isHeader
-            ? `inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold transition-colors hover:bg-white/10 disabled:opacity-60 ${fav ? "text-gold" : "text-white"}`
+            ? `inline-flex h-10 items-center gap-2 rounded-[9px] px-3 text-[13px] font-semibold transition-colors hover:bg-cream disabled:opacity-60 ${fav ? "text-gold" : "text-ink"}`
           : `mt-3 inline-flex w-full items-center justify-center gap-2 rounded-[10px] border px-4 py-2.5 text-[13.5px] font-semibold transition-colors disabled:opacity-60 ${
               fav ? "border-sapphire bg-cream text-brand" : "border-line text-ink hover:border-sapphire hover:text-brand"
             }`

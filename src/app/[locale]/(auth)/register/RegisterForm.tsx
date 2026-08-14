@@ -31,6 +31,7 @@ import { CATEGORY_GROUPS } from "@/lib/categories";
 import { useRegions } from "@/lib/geo";
 import { signUp } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
+import styles from "./styles";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
@@ -297,7 +298,7 @@ function PhoneCodeInput({
         <span className="text-[10px] leading-none" aria-hidden>▾</span>
       </button>
       {open && filtered.length > 0 && (
-        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-white py-1 shadow-card">
+        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-paper py-1 shadow-card">
           {filtered.map((code) => (
             <button
               key={code.value}
@@ -516,13 +517,13 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                   }}
                   disabled={(n === 2 && !intent) || ((n === 3 || n === 4) && !hasCategory) || (n === 4 && isSupplier && !bizComplete)}
                   className={cn(
-                    "min-w-0 rounded-[8px] px-2 py-1 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-55",
-                    flow.indexOf(n) <= stepIndex ? "text-terra" : "text-ink/55 hover:text-ink/70",
+                    styles.step,
+                    flow.indexOf(n) <= stepIndex ? styles.stepReached : styles.stepUpcoming,
                   )}
                   aria-current={step === n ? "step" : undefined}
                 >
                   <span className="block truncate text-[14px] font-extrabold leading-tight">{shortFor(n)}</span>
-                  <span className={cn("mt-1 block truncate text-[12px] font-semibold", flow.indexOf(n) <= stepIndex ? "text-ink/65" : "text-ink/50")}>{descFor(n)}</span>
+                  <span className={cn("mt-1 block truncate text-[12px] font-semibold", flow.indexOf(n) <= stepIndex ? styles.stepDescriptionReached : styles.stepDescriptionUpcoming)}>{descFor(n)}</span>
                 </button>
               ))}
             </div>
@@ -536,7 +537,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
             {t("haveAccount")}{" "}
             <Link
               href={{ pathname: "/login" }}
-              className="font-extrabold text-brand underline decoration-brand/25 underline-offset-4 transition-colors hover:text-terra hover:decoration-terra/40"
+              className={styles.authLink}
             >
               {t("loginLink")}
             </Link>
@@ -563,23 +564,21 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                   onClick={() => choose(key)}
                   aria-pressed={on}
                   className={cn(
-                    "flex items-center gap-4 rounded-[14px] border-[1.5px] bg-paper px-4 py-4 text-start transition-all lg:gap-5 lg:rounded-[16px] lg:px-6 lg:py-7",
-                    on
-                      ? "border-terra bg-terra/5 shadow-[0_10px_26px_-18px_rgba(0,0,0,.55)]"
-                      : "border-line hover:border-terra/50 hover:bg-terra/[.03]",
+                    styles.intentCard,
+                    on ? styles.intentCardActive : styles.intentCardIdle,
                   )}
                 >
                   <span
                     className={cn(
-                      "grid h-12 w-12 shrink-0 place-items-center rounded-[12px] transition-colors lg:h-[58px] lg:w-[58px] lg:rounded-[15px]",
-                      on ? "bg-terra text-white" : "bg-cream-deep text-terra",
+                      styles.intentIcon,
+                      on ? styles.intentIconActive : styles.intentIconIdle,
                     )}
                   >
                     <Icon className="h-[22px] w-[22px] lg:h-7 lg:w-7" aria-hidden />
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[15px] font-bold !text-ink lg:text-[17px]">{title}</span>
-                    <span className="mt-0.5 block text-[12.5px] font-medium leading-snug !text-slate-gray lg:mt-1 lg:text-[13.5px]">{desc}</span>
+                    <span className={styles.intentDescription}>{desc}</span>
                   </span>
                   <ChevronRight size={20} className={cn("ms-auto shrink-0 rtl:rotate-180 lg:h-6 lg:w-6", on ? "text-terra" : "text-muted/60")} aria-hidden />
                 </button>
@@ -610,22 +609,21 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                         setSectorNote("");
                       }}
                       className={cn(
-                        "grid min-h-[82px] place-items-center rounded-[7px] border-2 bg-white px-3 py-3 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px",
-                        on
-                          ? "border-terra shadow-[0_16px_28px_-24px_rgba(0,0,0,.9)]"
-                          : "border-line hover:border-terra/55",
+                        styles.choiceCard,
+                        "min-h-[82px] py-3",
+                        on ? styles.choiceCardActive : styles.choiceCardIdle,
                       )}
                     >
                       <span
                         className={cn(
-                          "mb-2 grid h-7 w-7 place-items-center rounded-full border text-[12px] font-bold",
-                          on ? "border-terra bg-terra text-white" : "border-terra/70 text-terra",
+                          styles.choiceIndicator,
+                          on ? styles.choiceIndicatorActive : styles.choiceIndicatorIdle,
                         )}
                         aria-hidden
                       >
                         <Icon size={16} strokeWidth={2} />
                       </span>
-                      <span className="block text-[13.5px] font-semibold leading-tight text-slate-gray">{t(`sector_${s}`)}</span>
+                      <span className={cn(styles.choiceLabel, "text-[13.5px]")}>{t(`sector_${s}`)}</span>
                     </button>
                   );
                 })}
@@ -663,16 +661,16 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                             setGroup(g.key);
                             setServices([]);
                           }}
-                          className="grid min-h-[118px] place-items-center rounded-[7px] border-2 border-line bg-white px-3 py-4 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px hover:border-terra/55"
+                          className={cn(styles.choiceCard, styles.choiceCardIdle, "min-h-[118px] py-4")}
                         >
                           {iconSrc && (
                             <span
                               aria-hidden
-                              className="mb-3 block h-[34px] w-[34px] bg-current text-terra/90"
+                              className={styles.categoryIcon}
                               style={maskStyle(iconSrc)}
                             />
                           )}
-                          <span className="block text-[15px] font-semibold leading-tight text-slate-gray">{tc(g.key)}</span>
+                          <span className={cn(styles.choiceLabel, "text-[15px]")}>{tc(g.key)}</span>
                         </button>
                       );
                     })}
@@ -688,11 +686,11 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                         setGroup("");
                         setServices([]);
                       }}
-                      className="inline-flex items-center gap-1 text-[13px] font-semibold !text-slate-gray transition-colors hover:!text-terra"
+                      className={styles.subBack}
                     >
                       ‹ {tc(group)}
                     </button>
-                    <span className="text-[12.5px] font-semibold text-slate-gray">{t("pickSub")}</span>
+                    <span className={styles.subHint}>{t("pickSub")}</span>
                   </div>
                   <div role="radiogroup" aria-label={t("pickSub")} className="grid grid-cols-3 gap-3 max-[640px]:grid-cols-2 max-[420px]:grid-cols-1">
                     {serviceGroups
@@ -708,22 +706,21 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
                             aria-checked={on}
                             onClick={() => toggleService(c.slug)}
                             className={cn(
-                              "grid min-h-[96px] place-items-center rounded-[7px] border-2 bg-white px-3 py-3 text-center transition-[border-color,box-shadow,transform] hover:-translate-y-px",
-                              on
-                                ? "border-terra shadow-[0_16px_28px_-24px_rgba(0,0,0,.9)]"
-                                : "border-line hover:border-terra/55",
+                              styles.choiceCard,
+                              "min-h-[96px] py-3",
+                              on ? styles.choiceCardActive : styles.choiceCardIdle,
                             )}
                           >
                             <span
                               className={cn(
-                                "mb-2 grid h-7 w-7 place-items-center rounded-full border text-[12px] font-bold",
-                                on ? "border-terra bg-terra text-white" : "border-terra/70 text-terra",
+                                styles.choiceIndicator,
+                                on ? styles.choiceIndicatorActive : styles.choiceIndicatorIdle,
                               )}
                               aria-hidden
                             >
                               {iconSrc && <span aria-hidden className="block h-[15px] w-[15px] bg-current" style={maskStyle(iconSrc)} />}
                             </span>
-                            <span className="block text-[13.5px] font-semibold leading-tight text-slate-gray">{ts(c.slug)}</span>
+                            <span className={cn(styles.choiceLabel, "text-[13.5px]")}>{ts(c.slug)}</span>
                           </button>
                         );
                       })}

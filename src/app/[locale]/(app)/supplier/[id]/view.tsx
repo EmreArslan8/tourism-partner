@@ -51,13 +51,13 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
     <main className={styles.main}>
       {!preview && <RecordView type="business" id={b.id} />}
       {preview && (
-        <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
+        <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-950/40">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
             <Eye size={18} aria-hidden />
           </span>
           <div className="min-w-0">
-            <p className="text-[13.5px] font-extrabold text-amber-900">{t("previewTitle")}</p>
-            <p className="mt-0.5 text-[12.5px] font-medium leading-snug text-amber-800">{t("previewSub")}</p>
+            <p className="text-[13.5px] font-extrabold text-amber-900 dark:text-amber-100">{t("previewTitle")}</p>
+            <p className="mt-0.5 text-[12.5px] font-medium leading-snug text-amber-800 dark:text-amber-200">{t("previewSub")}</p>
           </div>
         </div>
       )}
@@ -71,7 +71,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
         <div>
           <div className={styles.titleWrap}>
             {cover && (
-              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[14px] border border-white/25 bg-[#EEF2F7]">
+              <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[14px] border border-line bg-panel-bg">
                 <Image src={cover} alt={b.name} fill sizes="64px" className="object-cover" />
               </span>
             )}
@@ -243,7 +243,7 @@ const Row = ({ k, v, href }: { k: string; v: ReactNode; href?: string }) => (
         href={href}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel={href.startsWith("http") ? "noreferrer" : undefined}
-        className={cn(styles.rowVal, "text-terra hover:underline")}
+        className={cn(styles.rowVal, "text-terra hover:underline dark:text-border-purple")}
       >
         {v}
       </a>

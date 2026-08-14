@@ -21,7 +21,7 @@ const NavLinks = ({ links, onLight = false }: { links: NavLink[]; onLight?: bool
             key={link.href.pathname + (link.href.hash || "")}
             href={link.href}
             scroll={!link.href.hash}
-            className={`${styles.navLink} ${onLight ? styles.navLinkOnLight : ""} ${isActive ? (onLight ? styles.navLinkActiveOnLight : styles.navLinkActive) : ""}`}
+            className={`${styles.navLink} ${onLight ? styles.navLinkOnHero : ""} ${isActive ? (onLight ? styles.navLinkActiveOnHero : styles.navLinkActive) : ""}`}
           >
             {link.label}
           </Link>

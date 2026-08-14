@@ -3,6 +3,7 @@ import { ShieldCheck, LayoutGrid, Sparkles } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import Logo from "@/components/Logo";
+import styles from "./styles";
 
 /*
  * Auth split-screen kabuğu (kayıt/giriş için yeniden kullanılır).
@@ -25,55 +26,55 @@ export default async function AuthShell({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-ultra-light-purple">
+    <div className={styles.shell}>
       {/* Sol marka paneli — ekran kenarına bitişik; yalnızca forma bakan sağ köşeler yuvarlak */}
-      <aside className="relative hidden w-[400px] shrink-0 flex-col justify-between overflow-hidden rounded-e-[36px] bg-[linear-gradient(158deg,theme(colors.sapphire-deep)_0%,theme(colors.sapphire-top)_100%)] p-10 text-white shadow-[0_24px_70px_-34px_rgba(0,0,0,.55)] lg:flex">
-        <div aria-hidden className="pointer-events-none absolute -end-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-        <div aria-hidden className="pointer-events-none absolute -bottom-28 -start-16 h-64 w-64 rounded-full bg-white/5 blur-2xl" />
+      <aside className={styles.brandPanel}>
+        <div aria-hidden className={styles.glowTop} />
+        <div aria-hidden className={styles.glowBottom} />
 
         {/* Logo (beyaz varyant, koyu panel) + slogan */}
-        <div className="relative">
+        <div className={styles.brandIntro}>
           <Logo href="/" variant="light" height={58} priority />
-          <p className="mt-3 text-[15px] font-medium ">{t("brandSlogan")}</p>
+          <p className={styles.slogan}>{t("brandSlogan")}</p>
         </div>
 
-        <ul className="relative flex flex-col gap-8">
+        <ul className={styles.benefits}>
           {bullets.map(({ Icon, title, desc }) => (
-            <li key={title} className="flex items-start gap-4">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-white text-terra shadow-[0_8px_18px_-8px_rgba(0,0,0,.45)]">
+            <li key={title} className={styles.benefit}>
+              <span className={styles.benefitIcon}>
                 <Icon size={20} aria-hidden />
               </span>
-              <span className="min-w-0">
-                <span className="block text-[14.5px] font-bold leading-snug">{title}</span>
-                <span className="mt-1.5 block text-[12.5px] leading-relaxed text-white/65">{desc}</span>
+              <span className={styles.benefitCopy}>
+                <span className={styles.benefitTitle}>{title}</span>
+                <span className={styles.benefitDescription}>{desc}</span>
               </span>
             </li>
           ))}
         </ul>
 
-        <div className="relative flex flex-col gap-3">
+        <div className={styles.footer}>
           <Link
             href={{ pathname: "/help" }}
-            className="inline-flex w-fit items-center rounded-pill bg-white/12 px-4 py-2 text-[13px] font-semibold text-white ring-1 ring-white/15 transition-colors hover:bg-white/20"
+            className={styles.helpLink}
           >
             {t("help")}
           </Link>
-          <p className="flex items-center gap-3 text-[11.5px] text-white/45">
+          <p className={styles.legal}>
             <span>© {year} {t("brandName")}.</span>
-            <Link href={{ pathname: "/terms" }} className="transition-colors hover:text-white/80">{t("terms")}</Link>
-            <Link href={{ pathname: "/privacy" }} className="transition-colors hover:text-white/80">{t("privacy")}</Link>
+            <Link href={{ pathname: "/terms" }} className={styles.legalLink}>{t("terms")}</Link>
+            <Link href={{ pathname: "/privacy" }} className={styles.legalLink}>{t("privacy")}</Link>
           </p>
         </div>
       </aside>
 
       {/* Sağ — kendi içinde dikey akış (başlık sabit, gövde scroll, CTA sticky) */}
-      <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <section className={styles.content}>
         {/* Mobil header — sol panel yerine */}
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-paper px-5 py-3 lg:hidden">
+        <header className={styles.mobileHeader}>
           <Logo href="/" variant="brand" height={36} />
-          <span className="text-[11.5px] font-medium text-muted">{t("b1t")}</span>
+          <span className={styles.mobileTrust}>{t("b1t")}</span>
         </header>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <div className={styles.contentBody}>{children}</div>
       </section>
     </div>
   );

@@ -19,6 +19,7 @@
   --tp-ink: var(--tp-light-ink);
   --tp-muted: var(--tp-light-muted);
   --tp-line: var(--tp-light-line);
+  --tp-interactive: var(--tp-light-interactive);
   --tp-hero-title: var(--tp-light-hero-title);
   --tp-hero-highlight: var(--tp-light-hero-highlight);
   --tp-hero-eyebrow: var(--tp-light-hero-eyebrow);
@@ -52,6 +53,7 @@ html.dark {
   --tp-ink: var(--tp-dark-ink);
   --tp-muted: var(--tp-dark-muted);
   --tp-line: var(--tp-dark-line);
+  --tp-interactive: var(--tp-dark-interactive);
   --tp-hero-title: var(--tp-dark-hero-title);
   --tp-hero-highlight: var(--tp-dark-hero-highlight);
   --tp-hero-eyebrow: var(--tp-dark-hero-eyebrow);
@@ -210,16 +212,16 @@ html.dark {
     @apply bg-pine text-cream hover:bg-pine-soft hover:-translate-y-px;
   }
   .btn-outline {
-    @apply border-sapphire/35 bg-paper text-sapphire shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-sapphire hover:bg-cream hover:-translate-y-px;
+    @apply border-interactive/35 bg-paper text-interactive shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-interactive hover:bg-cream hover:-translate-y-px;
   }
   .btn-outlined {
-    @apply border-sapphire/35 bg-paper text-sapphire shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-sapphire hover:bg-cream hover:-translate-y-px;
+    @apply border-interactive/35 bg-paper text-interactive shadow-[0_14px_28px_-24px_rgba(76,29,149,.5)] hover:border-interactive hover:bg-cream hover:-translate-y-px;
   }
   .btn-text {
-    @apply border-transparent bg-transparent px-0 text-sapphire hover:text-sapphire-deep hover:underline hover:underline-offset-4;
+    @apply border-transparent bg-transparent px-0 text-interactive hover:text-interactive/80 hover:underline hover:underline-offset-4;
   }
   .btn-secondary {
-    @apply border-sapphire/35 bg-paper text-sapphire hover:border-sapphire hover:bg-cream;
+    @apply border-interactive/35 bg-paper text-interactive hover:border-interactive hover:bg-cream;
   }
   .btn-elevated {
     @apply shadow-[0_18px_34px_-22px_rgba(76,29,149,.82)] hover:-translate-y-px;
@@ -229,7 +231,7 @@ html.dark {
   }
   /* Ortak form alanı görünümü (input/select/textarea). Yükseklik/genişlik kullanım yerinde. */
   .field {
-    @apply rounded-[11px] border-[1.5px] border-ink/25 bg-white px-3.5 text-[14.5px] transition-[border-color,box-shadow,background-color]
+    @apply rounded-[11px] border-[1.5px] border-ink/25 bg-paper px-3.5 text-[14.5px] text-ink placeholder:text-muted transition-[border-color,box-shadow,background-color,color]
            hover:border-ink/45 focus:border-ink focus:outline-none focus:ring-4 focus:ring-ink/10
            disabled:cursor-not-allowed disabled:opacity-55;
   }

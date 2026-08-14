@@ -75,7 +75,7 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
           <Logo
             href="/"
             height={54}
-            variant={onLight ? "brand" : "light"}
+            variant="brand"
             priority
             className="ltr:origin-left rtl:origin-right min-[1440px]:scale-110 min-[1800px]:scale-[1.18] max-[900px]:origin-center max-[900px]:scale-[.72]"
           />
@@ -91,21 +91,21 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
               <>
                 <Link
                   href={loginHref}
-                  className={`rounded-[10px] border px-4 py-2 text-[15px] font-semibold transition-colors min-[1440px]:px-5 min-[1440px]:py-2.5 min-[1440px]:text-[16px] min-[1800px]:text-[17px] ${onLight ? "border-brand/25 text-brand hover:bg-brand/5 dark:border-white/30 dark:text-white dark:hover:bg-white/10" : "border-white/30 text-white hover:bg-white/10"}`}
+                  className={`${styles.loginButton} ${onLight ? styles.loginButtonOnHero : ""}`}
                 >
                   {t("login")}
                 </Link>
                 <Link
                   href={registerHref}
-                  className={`rounded-[10px] px-4 py-2 text-[15px] font-semibold transition-colors min-[1440px]:px-5 min-[1440px]:py-2.5 min-[1440px]:text-[16px] min-[1800px]:text-[17px] ${onLight ? "bg-brand text-white shadow-[0_14px_30px_-18px_rgba(74,26,151,.65)] hover:bg-brand-deep" : "bg-white text-brand shadow-[0_14px_28px_-20px_rgba(255,255,255,.75)] hover:bg-cream"}`}
+                  className={styles.registerButton}
                 >
                   {t("addBusiness")}
                 </Link>
               </>
             )}
             <ThemeToggle />
-            <div className={`${styles.separator} ${onLight ? styles.separatorOnLight : ""}`} />
-            <LangSwitcher light={!onLight} />
+            <div className={`${styles.separator} ${onLight ? styles.separatorOnHero : ""}`} />
+            <LangSwitcher light={onLight} />
           </div>
           <div className={styles.mobileAccount}>
             {auth.signedIn ? (
@@ -113,7 +113,7 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
             ) : (
               <Link
                 href={loginHref}
-                  className={`inline-flex h-10 items-center justify-center rounded-[10px] border px-2.5 text-[11px] font-bold leading-none transition-colors ${onLight ? "border-brand/25 text-brand active:bg-brand/5 dark:border-white/35 dark:text-white dark:active:bg-white/15" : "border-white/35 text-white active:bg-white/15"}`}
+                  className={`${styles.mobileLogin} ${onLight ? styles.mobileLoginOnHero : ""}`}
               >
                 {t("loginOrJoin")}
               </Link>

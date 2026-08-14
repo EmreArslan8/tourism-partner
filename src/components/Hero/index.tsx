@@ -24,16 +24,6 @@ const {
 });
 
 const {
-  props: { srcSet: lightTabletSrcSet },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/tourism-network-globe-hero-transparent.webp",
-  width: 2000,
-  height: 1000,
-  quality: 82,
-});
-
-const {
   props: { srcSet: lightMobileSrcSet, ...lightImageProps },
 } = getImageProps({
   ...commonImageProps,
@@ -51,16 +41,6 @@ const {
   width: 1376,
   height: 768,
   quality: 88,
-});
-
-const {
-  props: { srcSet: darkTabletSrcSet },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/hero-mobile-globe.webp",
-  width: 1376,
-  height: 768,
-  quality: 84,
 });
 
 const {
@@ -95,14 +75,12 @@ const Hero = () => {
     <section className={styles.section}>
       <Header variant="glass" />
       <picture className={`${styles.picture} ${styles.pictureLight}`}>
-        <source media="(min-width: 1025px)" srcSet={lightDesktopSrcSet} />
-        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={lightTabletSrcSet} />
+        <source media="(min-width: 641px)" srcSet={lightDesktopSrcSet} />
         <source media="(max-width: 640px)" srcSet={lightMobileSrcSet} />
         <img {...lightImageProps} alt="" className={`${styles.image} ${styles.imageLight}`} fetchPriority="high" decoding="async" />
       </picture>
       <picture className={`${styles.picture} ${styles.pictureDark}`}>
-        <source media="(min-width: 1025px)" srcSet={darkDesktopSrcSet} />
-        <source media="(min-width: 641px) and (max-width: 1024px)" srcSet={darkTabletSrcSet} />
+        <source media="(min-width: 641px)" srcSet={darkDesktopSrcSet} />
         <source media="(max-width: 640px)" srcSet={darkMobileSrcSet} />
         <img {...darkImageProps} alt="" className={`${styles.image} ${styles.imageDark}`} fetchPriority="high" decoding="async" />
       </picture>

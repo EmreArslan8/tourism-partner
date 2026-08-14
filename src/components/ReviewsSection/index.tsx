@@ -91,7 +91,7 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
             </span>
           )}
         </h2>
-        <p className="mt-1 text-[13px] font-medium text-[#4b5875]">{t("reviewsSubtitle")}</p>
+        <p className="mt-1 text-[13px] font-medium text-muted">{t("reviewsSubtitle")}</p>
       </div>
 
       {ready && loggedIn && (
@@ -109,15 +109,15 @@ export default function ReviewsSection({ businessId }: { businessId: number }) {
           <textarea name="comment" rows={3} maxLength={2000} placeholder={t("reviewPlaceholder")} className="field w-full py-2.5" />
           <div className="mt-2 flex items-center gap-3">
             <button type="submit" disabled={pending} className="btn btn-solid btn-sm w-fit disabled:opacity-60">{t("reviewSubmit")} →</button>
-            {state.ok && <span className="text-[12.5px] font-semibold text-emerald-700">✓ {t("reviewSaved")}</span>}
-            {state.error === "self" && <span className="text-[12.5px] font-semibold text-red-600">{t("reviewSelfError")}</span>}
-            {state.error && state.error !== "self" && <span className="text-[12.5px] font-semibold text-red-600">{t("reviewGenericError")}</span>}
+            {state.ok && <span className="text-[12.5px] font-semibold text-emerald-700 dark:text-emerald-300">✓ {t("reviewSaved")}</span>}
+            {state.error === "self" && <span className="text-[12.5px] font-semibold text-red-600 dark:text-red-300">{t("reviewSelfError")}</span>}
+            {state.error && state.error !== "self" && <span className="text-[12.5px] font-semibold text-red-600 dark:text-red-300">{t("reviewGenericError")}</span>}
           </div>
         </form>
       )}
 
       {ready && !loggedIn && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-terra/25 bg-[#EDEBFB] px-4 py-3.5">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-dashed border-terra/25 bg-cream/60 px-4 py-3.5">
           <p className="text-[14px] font-semibold text-ink">{t("reviewLoginRequired")}</p>
           <Link
             href="/login"

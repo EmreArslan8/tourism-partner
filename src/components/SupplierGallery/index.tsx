@@ -63,8 +63,8 @@ const SupplierGallery = ({
 
   if (!hasImages || !main) {
     return (
-      <section className="grid h-[360px] place-items-center rounded-[18px] border border-line bg-[#EEF2F7] max-[900px]:h-[280px]">
-        <span className="rounded-full border border-[#CBD5E1] bg-white px-4 py-2 text-[13px] font-semibold text-[#64748B]">
+      <section className="grid h-[360px] place-items-center rounded-[18px] border border-line bg-panel-bg max-[900px]:h-[280px]">
+        <span className="rounded-full border border-line bg-paper px-4 py-2 text-[13px] font-semibold text-muted">
           {t("galleryImagePending")}
         </span>
       </section>
@@ -79,7 +79,7 @@ const SupplierGallery = ({
           secondary.length > 0 ? "grid-cols-[minmax(0,1fr)_minmax(0,1fr)]" : "grid-cols-1",
         )}
       >
-        <button type="button" onClick={() => openGallery(0)} className="relative block min-h-[320px] w-full overflow-hidden border-0 p-0 bg-[#EEF2F7] max-[900px]:min-h-[260px]">
+        <button type="button" onClick={() => openGallery(0)} className="relative block min-h-[320px] w-full overflow-hidden border-0 bg-panel-bg p-0 max-[900px]:min-h-[260px]">
           <Image
             src={main}
             alt={title}
@@ -101,7 +101,7 @@ const SupplierGallery = ({
                   type="button"
                   onClick={() => openGallery(imageIndex)}
                   className={cn(
-                    "relative block overflow-hidden border-0 p-0 bg-[#EEF2F7]",
+                    "relative block overflow-hidden border-0 bg-panel-bg p-0",
                     // 3 küçük görselde ilki sol sütunu tam kaplar, ızgarada boşluk kalmaz.
                     secondary.length === 3 && index === 0 && "row-span-2",
                   )}
@@ -135,7 +135,7 @@ const SupplierGallery = ({
         <button
           type="button"
           onClick={() => openGallery(0)}
-          className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-[#CBD5E1] bg-white px-3.5 py-2 text-[13px] font-bold text-[#0B102F] transition hover:border-terra hover:text-terra-deep"
+          className="absolute bottom-4 end-4 z-[2] rounded-[10px] border border-border-purple bg-soft-lavender px-3.5 py-2 text-[13px] font-bold text-charcoal transition hover:border-terra hover:text-deep-purple"
         >
           {t("galleryShowAll")}
         </button>

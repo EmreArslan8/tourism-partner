@@ -37,7 +37,7 @@ export default function ThemeToggle({ inline = false }: { inline?: boolean }) {
       type="button"
       className={inline
         ? "flex h-11 w-full items-center justify-between rounded-[10px] border border-line bg-paper px-3.5 text-[14px] font-semibold text-ink transition-colors hover:bg-cream"
-        : "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-brand/20 bg-paper/70 text-brand shadow-sm backdrop-blur-md transition-colors hover:border-brand/45 hover:bg-cream dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"}
+        : "grid h-10 w-10 shrink-0 place-items-center rounded-[10px] border border-interactive/25 bg-paper/70 text-interactive shadow-sm backdrop-blur-md transition-colors hover:border-interactive/50 hover:bg-cream"}
       onClick={toggleTheme}
       aria-label={isDark ? label.light : label.dark}
       title={isDark ? label.light : label.dark}
