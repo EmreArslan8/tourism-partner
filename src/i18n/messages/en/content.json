@@ -4,6 +4,10 @@
     "titlePre": "Connect directly with",
     "titleEm": "global tourism",
     "titlePost": "suppliers.",
+    "mobileTitlePre": "Connect directly with",
+    "mobileTitleEm": "tourism",
+    "mobileTitlePost": "suppliers.",
+    "mobileSub": "Search, connect and grow with trusted tourism professionals worldwide.",
     "sub": "Search, compare and request quotes from hotels, agencies, guides, transfers, activities and health-tourism providers in one workflow.",
     "popularLabel": "Popular:",
     "pop1": "Istanbul hotels",
@@ -13,6 +17,9 @@
     "statSuppliers": "listed suppliers",
     "statCities": "cities / regions",
     "statCountries": "countries",
+    "statBusinesses": "businesses",
+    "statConnections": "connections",
+    "statsLabel": "Tourism Partner network statistics",
     "statResponse": "avg. response",
     "searchCat": "All categories",
     "searchLabel": "Search",
@@ -37,7 +44,8 @@
     "quickEyebrow": "Smart matching",
     "quickPrompt": "Looking for a faster solution?",
     "quickSub": "Share your requirements and receive tailored proposals from suitable travel companies.",
-    "quickQuote": "Get a Quick Quote"
+    "quickQuote": "Get a Quick Quote",
+    "mobileGetStarted": "Get Started"
   },
   "categories": {
     "eyebrow": "Explore",

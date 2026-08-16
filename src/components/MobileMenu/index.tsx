@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { ChevronRight, X } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -60,15 +59,18 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }:
         </span>
       </button>
 
-      {open && createPortal(
+      {open && (
         <div className={styles.sheet} role="dialog" aria-modal="true" aria-label={common("menu")}>
           <div className={styles.top}>
             <span onClick={close}>
               <Logo href="/" height={34} variant="brand" />
             </span>
-            <button type="button" className={styles.close} aria-label={common("close")} onClick={close}>
-              <X size={20} aria-hidden />
-            </button>
+            <div className={styles.topActions}>
+              <ThemeToggle />
+              <button type="button" className={styles.close} aria-label={common("close")} onClick={close}>
+                <X size={20} aria-hidden />
+              </button>
+            </div>
           </div>
 
           <div className={styles.searchWrap}>
@@ -95,13 +97,12 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }:
             {links.map((l) => (
               <Link key={l.label} href={l.href} scroll={!("hash" in l.href)} className={styles.link} onClick={close}>
                 <span>{l.label}</span>
-                <ChevronRight size={18} className="text-muted" aria-hidden />
+                <ChevronRight size={18} className="text-muted dark:text-white" aria-hidden />
               </Link>
             ))}
           </nav>
 
           <div className={styles.actions}>
-            <ThemeToggle inline />
             <LangSwitcher inline />
             {signedIn ? (
               <>
@@ -114,13 +115,18 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }:
               </>
             ) : (
               <>
-                <Link href={{ pathname: "/login" }} className="btn btn-outline w-full" onClick={close}>{t("login")}</Link>
+                <Link
+                  href={{ pathname: "/login" }}
+                  className="btn w-full !border-brand/30 !bg-white !text-brand hover:!border-brand/55 hover:!bg-white/95"
+                  onClick={close}
+                >
+                  {t("login")}
+                </Link>
                 <Link href={{ pathname: "/register" }} className="btn btn-solid w-full" onClick={close}>{t("addBusiness")}</Link>
               </>
             )}
           </div>
-        </div>,
-        document.body,
+        </div>
       )}
     </>
   );

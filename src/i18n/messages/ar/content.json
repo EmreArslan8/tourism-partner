@@ -4,6 +4,10 @@
     "titlePre": "تواصل مباشرة مع",
     "titleEm": "موردي السياحة",
     "titlePost": "العالميين.",
+    "mobileTitlePre": "تواصل مباشرة مع",
+    "mobileTitleEm": "موردي السياحة",
+    "mobileTitlePost": ".",
+    "mobileSub": "ابحث وتواصل وانمُ مع محترفي السياحة الموثوقين حول العالم.",
     "sub": "ابحث وقارن واطلب عروض أسعار من الفنادق والوكالات والمرشدين والنقل والأنشطة ومقدمي السياحة العلاجية ضمن مسار واحد.",
     "popularLabel": "الأكثر بحثًا:",
     "pop1": "فنادق إسطنبول",
@@ -13,6 +17,9 @@
     "statSuppliers": "مورد مدرج",
     "statCities": "مدينة / منطقة",
     "statCountries": "دول",
+    "statBusinesses": "شركة",
+    "statConnections": "اتصال",
+    "statsLabel": "إحصاءات شبكة Tourism Partner",
     "statResponse": "متوسط الاستجابة",
     "searchCat": "كل الفئات",
     "searchLabel": "بحث",
@@ -37,7 +44,8 @@
     "quickEyebrow": "مطابقة ذكية",
     "quickPrompt": "هل تبحث عن حل أسرع؟",
     "quickSub": "شارك احتياجك واحصل على عروض مخصصة من شركات سياحية مناسبة.",
-    "quickQuote": "احصل على عرض سريع"
+    "quickQuote": "احصل على عرض سريع",
+    "mobileGetStarted": "ابدأ الآن"
   },
   "categories": {
     "eyebrow": "استكشف",

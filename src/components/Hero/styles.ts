@@ -49,9 +49,9 @@
     "min-[641px]:max-[1024px]:justify-start min-[641px]:max-[1024px]:pt-[15vh] " +
     // Mobilde flex-1 stretch KAPALI + min-h yok: içerik doğal yükseklikte kalır ki
     // viewport değişince (Safari çubuğu) marquee konumu oynamasın.
-    "max-[640px]:flex-none max-[640px]:min-h-0 max-[640px]:justify-start max-[640px]:pt-[112px] max-[640px]:pb-8",
+    "max-[640px]:flex-none max-[640px]:min-h-[720px] max-[640px]:justify-start max-[640px]:pt-[130px] max-[640px]:pb-10",
   title:
-    "heading-hero max-w-[20ch] [text-wrap:balance] [color:rgb(var(--tp-hero-title))] max-[640px]:max-w-[12ch] max-[640px]:text-[38px] max-[640px]:leading-[1.12] max-[640px]:tracking-[-.025em] max-[640px]:[&_em]:block max-[640px]:[&_em]:whitespace-nowrap " +
+    "heading-hero max-w-[20ch] [text-wrap:balance] [color:rgb(var(--tp-hero-title))] max-[640px]:max-w-[13ch] max-[640px]:text-[41px] max-[640px]:leading-[1.08] max-[640px]:tracking-[-.035em] " +
     "min-[641px]:max-[1024px]:!text-[4.25rem] min-[641px]:max-[1024px]:!leading-[1.14] min-[641px]:max-[1024px]:!tracking-[-.02em] " +
     // Masaüstü tabanı biraz küçültüldü (nefes alanı) — heading-hero clamp'ini ezer.
     "min-[1025px]:!text-[64px] min-[1025px]:!leading-[1.13] " +
@@ -60,8 +60,12 @@
     "[@media(min-width:1440px)_and_(min-height:940px)]:!leading-[1.08] " +
     "[@media(min-width:1800px)_and_(min-height:940px)]:!text-[80px] " +
     "[&_em]:not-italic [&_em]:[color:rgb(var(--tp-hero-highlight))]",
+  desktopTitle: "inline max-[640px]:hidden",
+  mobileTitle: "hidden max-[640px]:inline",
   eyebrow:
-    "mb-2.5 text-[13px] font-extrabold uppercase tracking-[.16em] [color:rgb(var(--tp-hero-eyebrow))] min-[1440px]:mb-3 min-[1440px]:text-[14px] max-[640px]:mb-2 max-[640px]:text-[11px]",
+    "mb-2.5 text-[13px] font-extrabold uppercase tracking-[.16em] [color:rgb(var(--tp-hero-eyebrow))] min-[1440px]:mb-3 min-[1440px]:text-[14px] max-[640px]:mb-3 max-[640px]:text-[10.5px] max-[640px]:tracking-[.14em]",
+  mobileLead:
+    "mt-6 hidden max-w-[31ch] text-[16px] font-medium leading-[1.55] text-muted dark:text-white/72 max-[640px]:block",
   // Mobilde açıklama başlığın altında değil, teklif butonunun hemen üstünde durur.
   mobileIntro:
     "hidden max-w-[34ch] text-[13.5px] font-medium leading-5 text-muted dark:text-white/70 max-[640px]:block",
@@ -70,11 +74,11 @@
   categoryLink:
     "group flex min-w-[62px] flex-col items-center gap-1.5 !text-brand/55 text-[12.5px] font-semibold transition-colors hover:!text-royal-purple dark:!text-white/85 dark:hover:!text-white min-[1440px]:min-w-[70px] min-[1440px]:text-[13px] min-[1800px]:text-[14px]",
   categoryIcon:
-    "h-7 w-7 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-8 min-[1800px]:h-9 min-[1800px]:w-9",
+    "h-8 w-8 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-9 min-[1440px]:w-9 min-[1800px]:h-10 min-[1800px]:w-10",
   gastronomyIcon:
-    "-my-1 h-9 w-9 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-10 min-[1440px]:w-10 min-[1800px]:h-11 min-[1800px]:w-11",
+    "-my-1 h-10 w-10 opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-11 min-[1440px]:w-11 min-[1800px]:h-12 min-[1800px]:w-12",
   transferIcon:
-    "h-7 w-10 object-contain opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-8 min-[1440px]:w-[46px] min-[1800px]:h-9 min-[1800px]:w-[50px]",
+    "h-8 w-[46px] object-contain opacity-[.55] [filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] transition-all duration-200 group-hover:opacity-100 group-hover:-translate-y-0.5 group-hover:scale-110 group-hover:[filter:brightness(0)_saturate(100%)_invert(21%)_sepia(94%)_saturate(3692%)_hue-rotate(258deg)_brightness(88%)_contrast(94%)] dark:opacity-95 dark:[filter:brightness(0)_invert(1)] dark:group-hover:opacity-100 min-[1440px]:h-9 min-[1440px]:w-[50px] min-[1800px]:h-10 min-[1800px]:w-14",
   searchWrap: "mt-5 w-full max-w-[760px] max-[640px]:hidden min-[641px]:max-[1024px]:mt-8 min-[641px]:max-[1024px]:w-fit min-[641px]:max-[1024px]:max-w-full min-[1440px]:mt-6 min-[1440px]:max-w-[860px] min-[1800px]:max-w-[940px]",
   ctaBlock:
     "relative mt-6 flex w-full max-w-[760px] flex-col items-start gap-3.5 pt-4 max-[640px]:hidden " +
@@ -92,10 +96,10 @@
     "shadow-[0_12px_30px_-22px_rgba(74,26,151,.55)] transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/55 hover:bg-paper dark:shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_18px_40px_-26px_rgba(0,0,0,.8)] dark:hover:border-white/55 dark:hover:bg-white/[.12] " +
     "min-[1440px]:min-h-[52px] min-[1440px]:min-w-[270px] min-[1440px]:px-9 min-[1440px]:text-[16px] min-[1800px]:min-h-[56px] min-[1800px]:min-w-[290px] min-[1800px]:text-[17px] " +
     "[&_svg]:h-4 [&_svg]:w-4 [&_svg]:transition-transform group-hover/quote:[&_svg]:translate-x-1 rtl:group-hover/quote:[&_svg]:-translate-x-1",
-  mobileCtas: "mt-6 hidden w-full flex-col gap-3 max-[640px]:flex",
+  mobileCtas: "mt-7 hidden max-[640px]:flex",
   mobileCtaRow: "flex w-full",
   mobileCtaPrimary:
-    "flex h-[52px] w-full items-center justify-center rounded-xl bg-brand px-4 text-[14.5px] font-bold text-white " +
+    "flex h-[54px] min-w-[220px] items-center justify-center rounded-[12px] bg-brand px-7 text-[16px] font-bold text-white " +
     "shadow-[0_18px_38px_-18px_rgba(74,26,151,.65)] transition-all active:scale-[.97] active:bg-brand-deep",
   mobileCtaGhost:
     "flex h-[48px] w-full items-center justify-center rounded-xl border border-brand/20 bg-paper/75 px-4 " +
@@ -103,7 +107,7 @@
   // Mobil: yatay kaydırma yerine 4 sütunlu ikon grid (2 satır: 4+3). Tüm kategoriler
   // tek ekranda görünür — gizli içerik / kaydırma ipucu gerektiren şerit kalktı.
   mobileCategories:
-    "mt-5 hidden w-full grid-cols-4 gap-x-2 gap-y-4 max-[640px]:grid",
+    "mt-5 hidden w-full grid-cols-4 gap-x-2 gap-y-4",
   mobileCategoryLink:
     "flex flex-col items-center gap-1.5 text-center text-[11px] font-semibold leading-tight text-brand/60 dark:text-white/85 " +
     "[&_img]:h-6 [&_img]:w-6 [&_img]:shrink-0 [&_img]:opacity-[.55] [&_img]:[filter:brightness(0)_saturate(100%)_invert(13%)_sepia(92%)_saturate(3447%)_hue-rotate(255deg)_brightness(76%)_contrast(108%)] dark:[&_img]:opacity-95 dark:[&_img]:[filter:brightness(0)_invert(1)]",
@@ -114,6 +118,13 @@
     "bg-paper/70 backdrop-blur-xl backdrop-saturate-150 " +
     "shadow-[inset_0_1px_0_rgba(255,255,255,.38),0_-12px_32px_-24px_rgba(74,26,151,.28)] " +
     "[&_*]:pointer-events-auto",
+  mobileStats:
+    "mt-12 hidden w-full grid-cols-3 gap-3 border-t border-brand/10 pt-6 max-[640px]:grid dark:border-white/10",
+  mobileStat: "min-w-0 text-center",
+  mobileStatValue:
+    "font-display text-[23px] font-semibold leading-none tracking-[-.02em] text-ink dark:text-white",
+  mobileStatLabel:
+    "mt-2 text-[11.5px] font-medium leading-tight text-muted dark:text-white/62",
   stats:
     "mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 max-[640px]:hidden " +
     "min-[641px]:max-[1024px]:mt-14 min-[641px]:max-[1024px]:flex-nowrap min-[641px]:max-[1024px]:items-baseline min-[641px]:max-[1024px]:gap-x-9 min-[641px]:max-[1024px]:ps-[28px]",

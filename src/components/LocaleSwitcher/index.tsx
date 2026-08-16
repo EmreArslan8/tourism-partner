@@ -49,8 +49,7 @@ const LocaleSwitcher = ({ light = false, inline = false }: { light?: boolean; in
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Inline varyant (mobil sheet): dropdown yok — dört dil yan yana pill olarak.
-  // Böylece konumlanma/kırpılma sorunu yaşanmaz.
+  // Inline varyant (mobil sheet): dört dil yan yana pill olarak gösterilir.
   if (inline) {
     return (
       <div className={styles.inlineWrap}>

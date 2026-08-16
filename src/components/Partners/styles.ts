@@ -15,7 +15,7 @@ const styles = {
     "inline-flex items-center whitespace-nowrap text-[20px] leading-[1.5] font-semibold tracking-tight text-brand/75 dark:text-white " +
     "transition-colors duration-200 hover:text-brand dark:hover:text-white " +
     "before:mx-9 before:text-[9px] before:text-border-purple/55 before:content-['●'] dark:before:text-white/45 " +
-    "max-[640px]:text-[16px] max-[640px]:before:mx-6",
+    "max-[640px]:text-[15px] max-[640px]:before:mx-6",
 } as const;
 
 export default styles;

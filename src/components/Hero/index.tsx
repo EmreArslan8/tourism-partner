@@ -65,7 +65,6 @@ async function ApprovedBusinessMarquee() {
 
 const Hero = () => {
   const t = useTranslations("hero");
-  const tn = useTranslations("nav");
   const categoryLinks = [
     { key: "konaklama", label: t("catHotels"), icon: <Image src="/assets/icons/hotels.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
     { key: "acente", label: t("catAgencies"), icon: <Image src="/assets/icons/agencies.svg" alt="" width={32} height={32} className={styles.categoryIcon} /> },
@@ -96,9 +95,15 @@ const Hero = () => {
       <div className={styles.inner}>
         <p className={styles.eyebrow}>{t("eyebrow")}</p>
         <h1 className={styles.title}>
-          {t("titlePre").trim()}{" "}
-          <em>{t("titleEm")}</em> {t("titlePost").trim()}
+          <span className={styles.desktopTitle}>
+            {t("titlePre").trim()}{" "}
+            <em>{t("titleEm")}</em> {t("titlePost").trim()}
+          </span>
+          <span className={styles.mobileTitle}>
+            {t("mobileTitlePre")} <em>{t("mobileTitleEm")}</em> {t("mobileTitlePost")}
+          </span>
         </h1>
+        <p className={styles.mobileLead}>{t("mobileSub")}</p>
         <nav className={styles.categories} aria-label={t("categoryNavLabel")}>
           {categoryLinks.map(({ key, label, icon }) => (
             <Link key={key} href={{ pathname: "/explore", query: { cat: key } }} prefetch={false} className={styles.categoryLink}>
@@ -134,18 +139,27 @@ const Hero = () => {
           ))}
         </nav>
 
-        {/* Mobilde: kategorilerden sonra kısa açıklama, teklif ana buton, üye girişi ikincil. */}
+        {/* Mobilde referanstaki sade hiyerarşi: tek ana aksiyon ve güven metrikleri. */}
         <div className={styles.mobileCtas}>
-          <p className={styles.mobileIntro}>{t("quickSub")}</p>
-          <Link href={{ pathname: "/quote" }} className={styles.mobileCtaPrimary}>
-            {tn("quote")}
+          <Link href={{ pathname: "/register" }} className={styles.mobileCtaPrimary}>
+            {t("mobileGetStarted")}
           </Link>
-          <div className={styles.mobileCtaRow}>
-            <Link href="/login" className={styles.mobileCtaGhost}>
-              {tn("memberLogin")}
-            </Link>
-          </div>
         </div>
+
+        <dl className={styles.mobileStats} aria-label={t("statsLabel")}>
+          <div className={styles.mobileStat}>
+            <dt className={styles.mobileStatValue}>50+</dt>
+            <dd className={styles.mobileStatLabel}>{t("statBusinesses")}</dd>
+          </div>
+          <div className={styles.mobileStat}>
+            <dt className={styles.mobileStatValue}>200+</dt>
+            <dd className={styles.mobileStatLabel}>{t("statCountries")}</dd>
+          </div>
+          <div className={styles.mobileStat}>
+            <dt className={styles.mobileStatValue}>100+</dt>
+            <dd className={styles.mobileStatLabel}>{t("statConnections")}</dd>
+          </div>
+        </dl>
 
       </div>
       <div className={styles.marquee}>

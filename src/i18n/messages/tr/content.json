@@ -4,6 +4,10 @@
     "titlePre": "Global turizm tedarikçileriyle",
     "titleEm": "doğrudan bağlantı",
     "titlePost": "kurun.",
+    "mobileTitlePre": "Turizm tedarikçileriyle",
+    "mobileTitleEm": "doğrudan bağlantı",
+    "mobileTitlePost": "kurun.",
+    "mobileSub": "Dünyanın dört bir yanındaki güvenilir turizm profesyonelleriyle arayın, bağlantı kurun ve büyüyün.",
     "sub": "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi sağlayıcılarını tek yerden arayın, karşılaştırın ve hızlıca teklif alın.",
     "popularLabel": "Popüler:",
     "pop1": "İstanbul otelleri",
@@ -13,6 +17,9 @@
     "statSuppliers": "kayıtlı tedarikçi",
     "statCities": "il / bölge",
     "statCountries": "ülke",
+    "statBusinesses": "işletme",
+    "statConnections": "bağlantı",
+    "statsLabel": "Tourism Partner ağ istatistikleri",
     "statResponse": "ort. yanıt",
     "searchCat": "Tüm kategoriler",
     "searchLabel": "Arama",
@@ -37,7 +44,8 @@
     "quickEyebrow": "Akıllı eşleştirme",
     "quickPrompt": "Daha hızlı bir çözüm mü arıyorsunuz?",
     "quickSub": "İhtiyacınızı paylaşın; uygun turizm firmalarından size özel teklifler alın.",
-    "quickQuote": "Hızlı Teklif Al"
+    "quickQuote": "Hızlı Teklif Al",
+    "mobileGetStarted": "Hemen Başlayın"
   },
   "categories": {
     "eyebrow": "Keşfet",

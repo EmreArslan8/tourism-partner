@@ -13,7 +13,7 @@
   itemName: "text-ink",
   itemCode: "text-[11px] opacity-40 font-bold",
   inlineWrap: "flex items-center gap-1.5",
-  inlineItem: "flex-1 rounded-[10px] border border-line px-2 py-2 text-center text-[13px] font-bold uppercase tracking-wide text-muted transition-colors hover:bg-cream",
+  inlineItem: "h-11 flex-1 rounded-[10px] border border-line px-2 text-center text-[13px] font-bold uppercase tracking-wide text-muted transition-colors hover:bg-cream dark:text-white dark:hover:bg-white/10",
   inlineItemActive: "border-terra bg-terra !text-white shadow-[0_10px_20px_-14px_rgba(1,20,93,.9)]",
 } as const;
 
