@@ -10,6 +10,10 @@ const sectionBase =
 const styles = {
   // Hero yüksekliğini kendi içinde taşır (bkz. components/Hero/styles.ts → section).
   section: sectionBase,
+  // Masaüstünde DOM akışını değiştirmez; mobilde Kategoriler, Vitrin'in önüne geçer.
+  discoverySections: "contents max-[640px]:flex max-[640px]:w-full max-[640px]:flex-col",
+  showcaseSection: "max-[640px]:order-2",
+  categoriesSection: "max-[640px]:order-1",
   // İçerik container-px kutusunu doldurur — Hero/Footer ile aynı sol/sağ hizada kalır.
   inner: "w-full",
   // SSS bölümü: üstte FAQ, altta güven rozetleri (rozetler kendi aralarında yan yana).

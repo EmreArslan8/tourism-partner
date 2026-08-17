@@ -89,21 +89,24 @@ const HomeView = () => {
       {/* 1 — Hero (ilk ekranı doldurur; yüksekliği kendi kökünde) */}
       <Hero />
 
-      {/* 2 — Vitrin + CTA */}
-      <section className={styles.section}>
-        <Suspense fallback={<PanelFallback />}>
-          <ShowcaseContent />
-        </Suspense>
-      </section>
-
-      {/* 3 — Tedarikçi türleri */}
-      <section className={styles.section}>
-        <div className={styles.inner}>
+      {/* Masaüstü: Vitrin → Kategoriler · Mobil: Kategoriler → Vitrin */}
+      <div className={styles.discoverySections}>
+        {/* 2 — Vitrin + CTA */}
+        <section className={`${styles.section} ${styles.showcaseSection}`}>
           <Suspense fallback={<PanelFallback />}>
-            <CategoriesContent />
+            <ShowcaseContent />
           </Suspense>
-        </div>
-      </section>
+        </section>
+
+        {/* 3 — Tedarikçi türleri */}
+        <section className={`${styles.section} ${styles.categoriesSection}`}>
+          <div className={styles.inner}>
+            <Suspense fallback={<PanelFallback />}>
+              <CategoriesContent />
+            </Suspense>
+          </div>
+        </section>
+      </div>
 
       {/* 4 — Üç adımda iş birliği */}
       <section className={styles.section}>
