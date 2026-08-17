@@ -1,4 +1,5 @@
 import { escapeHtml } from "@/lib/email";
+import { brandPalette } from "@/theme/palette";
 
 /* E-posta doğrulandığı anda gönderilen hoş geldin maili. Onay maili
    (business-approved) "yayındasın" der; bu mail onay öncesi boşluğu doldurur ve
@@ -179,6 +180,7 @@ export function welcomeEmail({
   const safePrimaryUrl = escapeHtml(primaryUrl);
   const safeSecondaryUrl = escapeHtml(secondaryUrl);
   const subject = `${v.subject} — ${displayName}`;
+  const fontFamily = "'Poppins',Arial,'Helvetica Neue',sans-serif";
 
   return {
     subject,
@@ -188,78 +190,90 @@ export function welcomeEmail({
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
     <title>${escapeHtml(subject)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body, table, td, a, p, h1, div { font-family: ${fontFamily}; }
+      @media only screen and (max-width: 600px) {
+        .email-shell { padding: 20px 10px !important; }
+        .email-header { padding: 0 4px 14px !important; }
+        .email-hero { padding: 28px 24px !important; }
+        .email-content { padding-left: 24px !important; padding-right: 24px !important; }
+        .email-action-cell { display: block !important; width: 100% !important; padding: 0 0 10px !important; }
+        .email-action { display: block !important; text-align: center !important; }
+      }
+    </style>
   </head>
-  <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;" dir="${dir}">
+  <body style="margin:0;padding:0;background-color:${brandPalette.ultraLightPurple};color:${brandPalette.charcoal};font-family:${fontFamily};-webkit-font-smoothing:antialiased;" dir="${dir}">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(copy.preheader)}</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background-color:${brandPalette.ultraLightPurple};">
       <tr>
-        <td align="center" style="padding:32px 14px;">
+        <td class="email-shell" align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;margin:0 auto;">
             <tr>
-              <td style="padding:0 6px 18px;">
+              <td class="email-header" style="padding:0 6px 18px;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td width="54" style="width:54px;padding-${rtl ? "left" : "right"}:12px;vertical-align:middle;">
-                      <img src="${safeLogoUrl}" width="48" height="48" alt="Tourism Partner" style="display:block;width:48px;height:48px;border:0;border-radius:11px;object-fit:cover;">
+                    <td style="vertical-align:middle;">
+                      <img src="${safeLogoUrl}" width="150" height="60" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">
                     </td>
-                    <td style="color:#01145d;font-size:17px;font-weight:900;letter-spacing:-0.3px;vertical-align:middle;">TOURISM <span style="color:#004fe6;">PARTNER</span></td>
-                    <td align="${oppositeAlign}" style="color:#7b8498;font-size:11px;font-weight:700;letter-spacing:1px;">${escapeHtml(copy.brandTag)}</td>
+                    <td align="${oppositeAlign}" style="color:${brandPalette.slateGray};font-family:${fontFamily};font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">${escapeHtml(copy.brandTag)}</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="overflow:hidden;border:1px solid ${brandPalette.borderPurple};border-radius:18px;background-color:${brandPalette.white};box-shadow:0 18px 45px rgba(76,29,149,0.10);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:34px 38px;text-align:${align};">
-                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">${escapeHtml(v.badge)}</div>
-                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">${escapeHtml(v.title)}</h1>
-                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${safeName}</strong> — ${escapeHtml(v.lead)}</p>
+                    <td class="email-hero" bgcolor="${brandPalette.deepPurple}" style="background-color:${brandPalette.deepPurple};padding:34px 38px;text-align:${align};">
+                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background-color:${brandPalette.royalPurple};padding:7px 12px;color:${brandPalette.white};font-family:${fontFamily};font-size:11px;font-weight:800;letter-spacing:0.7px;">${escapeHtml(v.badge)}</div>
+                      <h1 style="margin:0 0 10px;color:${brandPalette.white};font-family:${fontFamily};font-size:28px;font-weight:700;line-height:34px;letter-spacing:-0.7px;">${escapeHtml(v.title)}</h1>
+                      <p style="margin:0;color:${brandPalette.softLavender};font-family:${fontFamily};font-size:15px;line-height:24px;"><strong style="color:${brandPalette.white};">${safeName}</strong> — ${escapeHtml(v.lead)}</p>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:30px 38px 0;text-align:${align};">
-                      <p style="margin:0;color:#334155;font-size:15px;line-height:25px;">${escapeHtml(v.body)}</p>
+                    <td class="email-content" style="padding:30px 38px 0;text-align:${align};">
+                      <p style="margin:0;color:${brandPalette.charcoal};font-family:${fontFamily};font-size:15px;line-height:25px;">${escapeHtml(v.body)}</p>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:24px 38px 0;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-radius:12px;background:#f4f7ff;">
+                    <td class="email-content" style="padding:24px 38px 0;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid ${brandPalette.borderPurple};border-radius:12px;background-color:${brandPalette.ultraLightPurple};">
                         <tr>
                           <td style="padding:18px 20px;text-align:${align};">
-                            <div style="color:#01145d;font-size:12px;font-weight:900;letter-spacing:0.7px;">${escapeHtml(v.tipTitle)}</div>
-                            <div style="margin-top:7px;color:#334155;font-size:14px;line-height:23px;">${escapeHtml(v.tip)}</div>
+                            <div style="color:${brandPalette.deepPurple};font-family:${fontFamily};font-size:12px;font-weight:800;letter-spacing:0.7px;">${escapeHtml(v.tipTitle)}</div>
+                            <div style="margin-top:7px;color:${brandPalette.slateGray};font-family:${fontFamily};font-size:14px;line-height:23px;">${escapeHtml(v.tip)}</div>
                           </td>
                         </tr>
                       </table>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:30px 38px 0;">
+                    <td class="email-content" style="padding:30px 38px 0;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="${rtl ? "margin-left:auto;margin-right:0;" : "margin-right:auto;margin-left:0;"}">
                         <tr>
-                          <td style="border-radius:11px;background:#01145d;">
-                            <a href="${safePrimaryUrl}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">${escapeHtml(v.primaryLabel)}</a>
+                          <td class="email-action-cell" bgcolor="${brandPalette.deepPurple}" style="border-radius:11px;background-color:${brandPalette.deepPurple};">
+                            <a class="email-action" href="${safePrimaryUrl}" style="display:inline-block;padding:14px 20px;background-color:${brandPalette.deepPurple};border:1px solid ${brandPalette.deepPurple};border-radius:11px;color:${brandPalette.white} !important;font-family:${fontFamily};font-size:14px;font-weight:800;text-align:center;text-decoration:none !important;">${escapeHtml(v.primaryLabel)}</a>
                           </td>
-                          <td style="padding-${rtl ? "right" : "left"}:10px;">
-                            <a href="${safeSecondaryUrl}" style="display:inline-block;padding:13px 17px;border:1px solid #cbd5e1;border-radius:11px;color:#01145d;font-size:14px;font-weight:800;text-decoration:none;">${escapeHtml(v.secondaryLabel)}</a>
+                          <td class="email-action-cell" style="padding-${rtl ? "right" : "left"}:10px;">
+                            <a class="email-action" href="${safeSecondaryUrl}" style="display:inline-block;padding:13px 17px;border:1px solid ${brandPalette.borderPurple};border-radius:11px;color:${brandPalette.deepPurple} !important;font-family:${fontFamily};font-size:14px;font-weight:800;text-align:center;text-decoration:none !important;">${escapeHtml(v.secondaryLabel)}</a>
                           </td>
                         </tr>
                       </table>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:18px 38px 36px;text-align:${align};">
-                      <p style="margin:0;color:#7b8498;font-size:12px;line-height:19px;">${escapeHtml(copy.footerNote)}</p>
+                    <td class="email-content" style="padding:18px 38px 36px;text-align:${align};">
+                      <p style="margin:0;color:${brandPalette.slateGray};font-family:${fontFamily};font-size:12px;line-height:19px;">${escapeHtml(copy.footerNote)}</p>
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
-              <td align="center" style="padding:20px 24px 0;color:#8992a5;font-size:11px;line-height:18px;">
+              <td align="center" style="padding:20px 24px 0;color:${brandPalette.slateGray};font-family:${fontFamily};font-size:11px;line-height:18px;">
                 ${escapeHtml(copy.footerLine)}
               </td>
             </tr>
