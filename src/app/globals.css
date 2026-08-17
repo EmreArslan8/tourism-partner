@@ -6,74 +6,50 @@
    Yalnızca shadcn bileşenlerinin kullandığı renkler. Public sitenin
    gövde/temel stillerini DEĞİŞTİRMEZ (body override eklenmedi). */
 :root {
+  color-scheme: light dark;
   /* Başlık fontu gövdeyle aynı aileden türer — tek next/font instance'ı
      (layout.tsx). AR'de Noto'nun --font-body'si otomatik buraya da yansır. */
   --font-display: var(--font-body);
   /* Gerçek renk değerleri theme/palette.ts'ten root layout'a yazılır. */
-  --tp-pine: var(--tp-light-pine);
-  --tp-pine-soft: var(--tp-light-pine-soft);
-  --tp-cream: var(--tp-light-cream);
-  --tp-cream-deep: var(--tp-light-cream-deep);
-  --tp-panel-bg: var(--tp-light-panel-bg);
-  --tp-paper: var(--tp-light-paper);
-  --tp-ink: var(--tp-light-ink);
-  --tp-muted: var(--tp-light-muted);
-  --tp-line: var(--tp-light-line);
-  --tp-interactive: var(--tp-light-interactive);
-  --tp-hero-title: var(--tp-light-hero-title);
-  --tp-hero-highlight: var(--tp-light-hero-highlight);
-  --tp-hero-eyebrow: var(--tp-light-hero-eyebrow);
-  --background: var(--tp-light-background);
-  --foreground: var(--tp-light-foreground);
-  --card: var(--tp-light-card);
-  --card-foreground: var(--tp-light-card-foreground);
-  --popover: var(--tp-light-popover);
-  --popover-foreground: var(--tp-light-popover-foreground);
-  --primary: var(--tp-light-primary);
-  --primary-foreground: var(--tp-light-primary-foreground);
-  --secondary: var(--tp-light-secondary);
-  --secondary-foreground: var(--tp-light-secondary-foreground);
-  --muted: var(--tp-light-muted-surface);
-  --muted-foreground: var(--tp-light-muted-foreground);
-  --accent: var(--tp-light-accent);
-  --accent-foreground: var(--tp-light-accent-foreground);
-  --border: var(--tp-light-border);
-  --input: var(--tp-light-input);
-  --ring: var(--tp-light-ring);
+  --tp-pine: light-dark(var(--tp-light-pine), var(--tp-dark-pine));
+  --tp-pine-soft: light-dark(var(--tp-light-pine-soft), var(--tp-dark-pine-soft));
+  --tp-cream: light-dark(var(--tp-light-cream), var(--tp-dark-cream));
+  --tp-cream-deep: light-dark(var(--tp-light-cream-deep), var(--tp-dark-cream-deep));
+  --tp-panel-bg: light-dark(var(--tp-light-panel-bg), var(--tp-dark-panel-bg));
+  --tp-paper: light-dark(var(--tp-light-paper), var(--tp-dark-paper));
+  --tp-ink: light-dark(var(--tp-light-ink), var(--tp-dark-ink));
+  --tp-muted: light-dark(var(--tp-light-muted), var(--tp-dark-muted));
+  --tp-line: light-dark(var(--tp-light-line), var(--tp-dark-line));
+  --tp-interactive: light-dark(var(--tp-light-interactive), var(--tp-dark-interactive));
+  --tp-hero-title: light-dark(var(--tp-light-hero-title), var(--tp-dark-hero-title));
+  --tp-hero-highlight: light-dark(var(--tp-light-hero-highlight), var(--tp-dark-hero-highlight));
+  --tp-hero-eyebrow: light-dark(var(--tp-light-hero-eyebrow), var(--tp-dark-hero-eyebrow));
+  --background: light-dark(var(--tp-light-background), var(--tp-dark-background));
+  --foreground: light-dark(var(--tp-light-foreground), var(--tp-dark-foreground));
+  --card: light-dark(var(--tp-light-card), var(--tp-dark-card));
+  --card-foreground: light-dark(var(--tp-light-card-foreground), var(--tp-dark-card-foreground));
+  --popover: light-dark(var(--tp-light-popover), var(--tp-dark-popover));
+  --popover-foreground: light-dark(var(--tp-light-popover-foreground), var(--tp-dark-popover-foreground));
+  --primary: light-dark(var(--tp-light-primary), var(--tp-dark-primary));
+  --primary-foreground: light-dark(var(--tp-light-primary-foreground), var(--tp-dark-primary-foreground));
+  --secondary: light-dark(var(--tp-light-secondary), var(--tp-dark-secondary));
+  --secondary-foreground: light-dark(var(--tp-light-secondary-foreground), var(--tp-dark-secondary-foreground));
+  --muted: light-dark(var(--tp-light-muted-surface), var(--tp-dark-muted-surface));
+  --muted-foreground: light-dark(var(--tp-light-muted-foreground), var(--tp-dark-muted-foreground));
+  --accent: light-dark(var(--tp-light-accent), var(--tp-dark-accent));
+  --accent-foreground: light-dark(var(--tp-light-accent-foreground), var(--tp-dark-accent-foreground));
+  --border: light-dark(var(--tp-light-border), var(--tp-dark-border));
+  --input: light-dark(var(--tp-light-input), var(--tp-dark-input));
+  --ring: light-dark(var(--tp-light-ring), var(--tp-dark-ring));
 }
 
-html.dark {
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+html.dark,
+html[data-theme="dark"] {
   color-scheme: dark;
-  --tp-pine: var(--tp-dark-pine);
-  --tp-pine-soft: var(--tp-dark-pine-soft);
-  --tp-cream: var(--tp-dark-cream);
-  --tp-cream-deep: var(--tp-dark-cream-deep);
-  --tp-panel-bg: var(--tp-dark-panel-bg);
-  --tp-paper: var(--tp-dark-paper);
-  --tp-ink: var(--tp-dark-ink);
-  --tp-muted: var(--tp-dark-muted);
-  --tp-line: var(--tp-dark-line);
-  --tp-interactive: var(--tp-dark-interactive);
-  --tp-hero-title: var(--tp-dark-hero-title);
-  --tp-hero-highlight: var(--tp-dark-hero-highlight);
-  --tp-hero-eyebrow: var(--tp-dark-hero-eyebrow);
-  --background: var(--tp-dark-background);
-  --foreground: var(--tp-dark-foreground);
-  --card: var(--tp-dark-card);
-  --card-foreground: var(--tp-dark-card-foreground);
-  --popover: var(--tp-dark-popover);
-  --popover-foreground: var(--tp-dark-popover-foreground);
-  --primary: var(--tp-dark-primary);
-  --primary-foreground: var(--tp-dark-primary-foreground);
-  --secondary: var(--tp-dark-secondary);
-  --secondary-foreground: var(--tp-dark-secondary-foreground);
-  --muted: var(--tp-dark-muted-surface);
-  --muted-foreground: var(--tp-dark-muted-foreground);
-  --accent: var(--tp-dark-accent);
-  --accent-foreground: var(--tp-dark-accent-foreground);
-  --border: var(--tp-dark-border);
-  --input: var(--tp-dark-input);
-  --ring: var(--tp-dark-ring);
 }
 
 /* ---------- temel katman ---------- */

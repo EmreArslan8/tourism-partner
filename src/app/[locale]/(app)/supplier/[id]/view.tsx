@@ -220,14 +220,16 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
             <h3 className={cn(styles.cardTitle, "mb-3")}>{t("quickInfo")}</h3>
             <Row k={t("category")} v={`${tc(b.group)} · ${businessType}`} />
             <Row k={t("location")} v={`${b.city}, ${b.country}`} />
-            <Row
-              k={t("rating")}
-              v={
-                <>
-                  <span className="text-star">★</span> {b.rating.toFixed(1)} ({b.reviews})
-                </>
-              }
-            />
+            {b.rating > 0 && b.reviews > 0 && (
+              <Row
+                k={t("rating")}
+                v={
+                  <>
+                    <span className="text-star">★</span> {b.rating.toFixed(1)} ({b.reviews})
+                  </>
+                }
+              />
+            )}
           </div>
         </aside>
       </div>

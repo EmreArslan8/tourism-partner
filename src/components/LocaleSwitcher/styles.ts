@@ -1,7 +1,7 @@
  const styles = {
   wrapper: "relative inline-block text-start",
-  button: "flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-[15px] font-semibold text-muted transition-colors hover:bg-cream hover:text-ink",
-  buttonLight: "flex items-center gap-1.5 rounded-lg border border-hero-title/40 bg-hero-title/10 px-2.5 py-2 text-[15px] font-semibold text-hero-title transition-colors hover:border-hero-title/70 hover:bg-hero-title/15",
+  button: "flex h-11 min-w-[72px] items-center justify-center gap-1.5 rounded-[12px] border border-brand/[.18] bg-paper/70 px-3 text-[15px] font-semibold text-brand shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_8px_22px_-18px_rgba(36,17,63,.5)] backdrop-blur-md transition-all hover:border-brand/35 hover:bg-paper/90 dark:border-white/20 dark:bg-white/[.08] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,.12)] dark:hover:border-white/35 dark:hover:bg-white/[.13]",
+  buttonLight: "flex h-11 min-w-[72px] items-center justify-center gap-1.5 rounded-[12px] border border-brand/[.18] bg-paper/70 px-3 text-[15px] font-semibold text-brand shadow-[inset_0_1px_0_rgba(255,255,255,.65),0_8px_22px_-18px_rgba(36,17,63,.5)] backdrop-blur-xl transition-all hover:border-brand/35 hover:bg-paper/90 dark:border-white/20 dark:bg-white/[.08] dark:text-white dark:shadow-[inset_0_1px_0_rgba(255,255,255,.12)] dark:hover:border-white/35 dark:hover:bg-white/[.13]",
   flag: "grid h-[22px] w-[22px] place-items-center rounded-full bg-white text-[15px] leading-none shadow-[0_1px_4px_rgba(7,9,42,.12)]",
   label: "uppercase tracking-wide text-current",
   itemFlag: "grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-slate-100 text-[15px] leading-none",

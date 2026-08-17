@@ -78,6 +78,7 @@ const Slide = ({ business }: { business: Business }) => {
   ];
   const placeholder = tShowcase("imagePending");
   const imageLabel = tShowcase("image");
+  const hasRating = business.rating > 0 && business.reviews > 0;
 
   return (
     <div className={styles.slide} data-tour="supplier-showcase">
@@ -128,12 +129,16 @@ const Slide = ({ business }: { business: Business }) => {
               <svg className={styles.metaIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10Z" /><circle cx="12" cy="11" r="2.5" /></svg>
               {business.district}, {business.city}
             </span>
-            <span className={styles.metaDot} />
-            <span className={styles.metaItem}>
-              <span className={styles.stars}>★</span>
-              <strong className={styles.ratingNum}>{business.rating.toFixed(1)}</strong>
-              <span className={styles.reviews}>({business.reviews})</span>
-            </span>
+            {hasRating && (
+              <>
+                <span className={styles.metaDot} />
+                <span className={styles.metaItem}>
+                  <span className={styles.stars}>★</span>
+                  <strong className={styles.ratingNum}>{business.rating.toFixed(1)}</strong>
+                  <span className={styles.reviews}>({business.reviews})</span>
+                </span>
+              </>
+            )}
           </div>
 
           <p className={styles.desc}>{businessDescription(business, locale)}</p>

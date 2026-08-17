@@ -7,7 +7,7 @@ import { setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getMessages, type Locale } from "@/i18n/messages";
 import { SITE_URL } from "@/lib/site";
-import { themeCssVariables } from "@/theme";
+import { themeBootstrapScript, themeCssVariables } from "@/theme";
 import { AnalyticsScripts, GoogleTagManagerNoScript } from "@/components/Analytics";
 import "../globals.css";
 
@@ -89,6 +89,7 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={isAr ? "rtl" : "ltr"}
+      data-theme="system"
       data-scroll-behavior="smooth"
       className={fontVars}
       suppressHydrationWarning
@@ -96,11 +97,7 @@ export default async function LocaleLayout({
     >
       <head>
         <meta name="color-scheme" content="light dark" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('tp-theme');var d=t?t==='dark':matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.classList.toggle('dark',d);document.documentElement.dataset.theme=d?'dark':'light'}catch(e){}})()`,
-          }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body>
         <script
