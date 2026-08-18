@@ -322,7 +322,7 @@ const ListingView = ({
   }
 
   const hasNoDatabaseResults = !isGuest && index.length === 0;
-  const resultsColumn = (gridClass: string, fillGuestRow = false) => (
+  const resultsColumn = (gridClass: string, fillGuestRow = false, horizontal = false) => (
     <div
       aria-busy={isPending}
       className={cn("transition-opacity duration-200", isPending && "pointer-events-none opacity-55")}
@@ -346,6 +346,7 @@ const ListingView = ({
               impressionId={b.id}
               href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }}
               flag={dopingRank(b) === 2 ? tCommon("ad") : dopingRank(b) === 1 ? tCommon("featured") : null}
+              horizontal={horizontal}
               showStars
             >
               <Link
@@ -366,7 +367,7 @@ const ListingView = ({
             <article className={cn(styles.guestUnlockShell, fillGuestRow ? guestUnlockWideSpan(visibleItems.length) : "col-span-full")}>
               <div className={styles.guestUnlockPreview} aria-hidden>
                 {lockedPreviewItems.map((business) => (
-                  <SupplierCard key={business.id} business={business} showStars>{null}</SupplierCard>
+                  <SupplierCard key={business.id} business={business} horizontal={horizontal} showStars>{null}</SupplierCard>
                 ))}
               </div>
               <div className={styles.guestUnlockOverlay}>
@@ -556,13 +557,13 @@ const ListingView = ({
 
           {view === "map" ? (
             <div className={styles.shell}>
-              {resultsColumn(styles.grid)}
+              {resultsColumn(styles.grid, false, true)}
               <aside className={cn(styles.mapAside, "max-[1120px]:order-first max-[1120px]:mb-4")}>
                 <MapPanel items={mapItems} />
               </aside>
             </div>
           ) : (
-            resultsColumn(styles.gridWide, true)
+            resultsColumn(styles.gridWide, true, true)
           )}
         </div>
       </div>

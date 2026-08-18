@@ -191,14 +191,11 @@ const styles= {
   shell: "grid grid-cols-[minmax(0,1fr)_minmax(360px,.9fr)] items-start gap-5 min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(430px,.82fr)] min-[1440px]:gap-7 min-[1800px]:grid-cols-[minmax(0,1fr)_minmax(500px,.78fr)] min-[1800px]:gap-8 max-[1120px]:grid-cols-1",
   mapAside: "sticky top-[84px] max-[1120px]:static",
   grid:
-    "grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-x-4 gap-y-6 " +
-    "min-[1440px]:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] min-[1440px]:gap-x-6 min-[1440px]:gap-y-8 " +
-    "min-[1800px]:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] min-[1800px]:gap-x-7 " +
+    "grid grid-cols-1 gap-y-6 min-[1440px]:gap-y-8 " +
     "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
   gridWide:
-    "grid grid-cols-3 gap-x-5 gap-y-6 max-[1180px]:grid-cols-2 max-[640px]:grid-cols-1 " +
-    "min-[1600px]:grid-cols-4 min-[1600px]:gap-x-6 min-[1800px]:gap-x-7 min-[1800px]:gap-y-8 " +
-    "[&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
+    "grid grid-cols-1 gap-y-6 min-[1800px]:gap-y-8 " +
+    "[&>article]:w-full [&>article]:!shadow-[0_10px_26px_-20px_rgba(0,0,0,.5)]",
   guestUnlockShell: "relative h-[480px] overflow-hidden rounded-[10px] border border-line bg-panel-bg shadow-[0_22px_54px_-44px_rgba(7,9,42,.75)] min-[1440px]:h-[540px] min-[1800px]:h-[580px] max-[640px]:h-[460px]",
   guestUnlockPreview: "pointer-events-none grid h-full grid-cols-[repeat(auto-fit,minmax(230px,1fr))] gap-5 p-5 blur-[5px] saturate-[.76] max-[640px]:grid-cols-1",
   guestUnlockOverlay: "absolute inset-0 flex items-end bg-[linear-gradient(180deg,rgba(9,22,58,.04)_0%,rgba(9,22,58,.12)_34%,rgba(9,22,58,.78)_100%)] px-5 pb-9 pt-5",

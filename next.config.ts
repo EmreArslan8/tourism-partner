@@ -23,6 +23,8 @@ const securityHeaders = [
       "base-uri 'self'",
       "form-action 'self'",
       "frame-ancestors 'none'",
+      // İşletme detayındaki konum haritası (Google Maps keyless embed).
+      "frame-src https://www.google.com https://maps.google.com",
       "object-src 'none'",
       scriptSrc,
       "style-src 'self' 'unsafe-inline'",

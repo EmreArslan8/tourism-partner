@@ -152,9 +152,28 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
 
   // Görünür işletmelere çoklu hizmetleri ekle (CRM listesinde rozet için).
   const serviceMap = await getServiceSlugsByBusiness(supabase, visibleIds);
+
+  // Gerçek iletişim e-postaları (ilk business_contacts kaydı) — listede uydurma
+  // info@ yerine gerçek adres göstermek için. Yoksa "—" gösterilir.
+  const emailMap = new Map<number, string>();
+  if (visibleIds.length > 0) {
+    const contactEmailsRes = await supabase
+      .from("business_contacts")
+      .select("business_id,email")
+      .in("business_id", visibleIds)
+      .not("email", "is", null)
+      .order("id", { ascending: true });
+    if (contactEmailsRes.error) throw new Error(contactEmailsRes.error.message);
+    for (const row of contactEmailsRes.data ?? []) {
+      const businessId = Number(row.business_id);
+      if (!emailMap.has(businessId) && row.email) emailMap.set(businessId, String(row.email));
+    }
+  }
+
   const businessesWithServices = businesses.map((business) => ({
     ...business,
     serviceTypes: serviceMap.get(business.id) ?? [],
+    contactEmail: emailMap.get(business.id) ?? null,
   }));
 
   return {

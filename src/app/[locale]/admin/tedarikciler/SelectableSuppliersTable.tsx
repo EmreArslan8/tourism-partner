@@ -7,7 +7,6 @@ import { ConfirmAction, DataTable, type Column } from "@/components/common";
 import ExportMenu from "./ExportMenu";
 import { updateBusinessStatus } from "@/lib/actions/admin";
 import {
-  businessEmail,
   EXPORT_COLUMNS,
   type CrmFilters,
 } from "@/lib/admin-crm";
@@ -119,7 +118,7 @@ const SelectableSuppliersTable = ({
                 >
                   {business.name}
                 </Link>
-                <p className="truncate text-[13px] font-normal leading-5 text-muted">{businessEmail(business)}</p>
+                <p className="truncate text-[13px] font-normal leading-5 text-muted">{business.contactEmail || "—"}</p>
               </div>
             ),
           },

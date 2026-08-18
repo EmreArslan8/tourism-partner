@@ -26,6 +26,7 @@ const SupplierCard = ({
   showStars = false,
   impressionId,
   href,
+  horizontal = false,
   children,
 }: {
   business: Business;
@@ -33,6 +34,8 @@ const SupplierCard = ({
   showStars?: boolean;
   impressionId?: number;
   href?: Href;
+  /** Yatay düzen (görsel solda) — explore tam genişlik listesi için. */
+  horizontal?: boolean;
   children: ReactNode;
 }) => {
   const locale = useLocale();
@@ -47,12 +50,15 @@ const SupplierCard = ({
   const hasRating = showStars && business.rating > 0 && business.reviews > 0;
 
   return (
-    <article className={`${styles.card} relative`}>
+    <article className={`${horizontal ? styles.cardH : styles.card} relative`}>
       {impressionId != null && <ImpressionTracker id={impressionId} />}
       {href && (
         <Link href={href} aria-label={business.name} className="absolute inset-0 z-[1] rounded-card" />
       )}
-      <div className={styles.cover} style={{ backgroundColor: GROUP_COLORS[business.group] }}>
+      <div className={styles.favorite}>
+        <FavoriteButton businessId={business.id} variant="icon" />
+      </div>
+      <div className={horizontal ? styles.coverH : styles.cover} style={{ backgroundColor: GROUP_COLORS[business.group] }}>
         {hasCover && cover ? (
           <Image
             src={cover}
@@ -69,9 +75,6 @@ const SupplierCard = ({
           </div>
         )}
         <span className={styles.coverGrad} aria-hidden />
-        <div className={styles.favorite}>
-          <FavoriteButton businessId={business.id} variant="icon" />
-        </div>
         {business.sponsored ? (
           <PremiumPartnerBadge label={tCommon("ad")} className={styles.flag} />
         ) : (

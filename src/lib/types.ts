@@ -132,6 +132,9 @@ export type BusinessLifecycleStatus =
 export type AdminBusiness = Business & {
   status: BusinessLifecycleStatus;
   createdAt?: string;
+  /** İşletmenin gerçek iletişim e-postası (ilk business_contacts kaydından).
+      Yoksa listede uydurma info@ değil "—" gösterilir. */
+  contactEmail?: string | null;
   /** Onay incelemesi için: panelde yüklenen evraklar + dinamik alanlar. */
   documents?: BusinessDocument[];
   details?: Record<string, string>;

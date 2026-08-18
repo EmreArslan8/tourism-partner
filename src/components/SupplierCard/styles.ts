@@ -5,10 +5,18 @@
     "min-[1440px]:h-[540px] min-[1800px]:h-[580px] " +
     "max-[640px]:h-[460px] " +
     "transition-all duration-300 ease-brand hover:-translate-y-[2px] hover:border-terra/35 hover:shadow-[0_18px_44px_-36px_rgba(7,9,42,.8)]",
+  // Yatay varyant — explore tam genişlik listesi: görsel solda sabit sütun, içerik sağda.
+  cardH:
+    "group flex h-[224px] animate-card-in flex-row overflow-hidden rounded-[10px] border border-line bg-paper shadow-card " +
+    "min-[1440px]:h-[240px] " +
+    "max-[640px]:h-[172px] " +
+    "transition-all duration-300 ease-brand hover:-translate-y-[2px] hover:border-terra/35 hover:shadow-[0_18px_44px_-36px_rgba(7,9,42,.8)]",
   flag:
     "absolute start-3 top-3 z-[3]",
   favorite: "absolute end-3 top-3 z-[5] pointer-events-auto",
   cover: "relative flex h-[240px] shrink-0 items-center justify-center overflow-hidden min-[1440px]:h-[280px] min-[1800px]:h-[305px] max-[640px]:h-[230px]",
+  // Yatay varyant görseli — solda sabit genişlikte, kartın tam yüksekliğinde.
+  coverH: "relative flex h-full w-[200px] shrink-0 items-center justify-center overflow-hidden min-[1440px]:w-[236px] max-[640px]:w-[118px]",
   coverImg: "object-cover transition-transform duration-500 ease-brand group-hover:scale-[1.045]",
   placeholder:
     "relative z-[1] flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_50%_38%,rgba(255,255,255,.18),transparent_34%),linear-gradient(145deg,rgba(9,23,71,.18),rgba(9,23,71,.52))] text-white/90",

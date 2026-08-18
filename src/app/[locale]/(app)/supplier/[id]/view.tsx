@@ -47,6 +47,11 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
   const socialEntries = Object.entries(b.socials ?? {}).filter(
     (entry): entry is [SocialPlatform, string] => Boolean(entry[1]) && entry[0] in SOCIAL_ICONS
   );
+  // Harita yalnızca gerçek koordinat varsa; lat/lng boşsa coords [0,0] olur (Gine
+  // Körfezi) — yanlış pin göstermek yerine haritayı gizleyip sadece adresi bırakırız.
+  const [lat, lng] = b.coords;
+  const hasCoords =
+    Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
   return (
     <main className={styles.main}>
       {!preview && <RecordView type="business" id={b.id} />}
@@ -215,6 +220,20 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
               )}
             </div>
           )}
+
+          <div className={styles.card}>
+            <h3 className={cn(styles.cardTitle, "mb-3")}>{t("location")}</h3>
+            <p className={cn("text-[13.5px] text-muted", hasCoords && "mb-3")}>{`${b.district}, ${b.city} · ${b.country}`}</p>
+            {hasCoords && (
+              <iframe
+                title={`${b.name} — ${t("location")}`}
+                src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&hl=${locale}&output=embed`}
+                className="h-[240px] w-full overflow-hidden rounded-card-lg border border-line"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            )}
+          </div>
 
           <div className={styles.card}>
             <h3 className={cn(styles.cardTitle, "mb-3")}>{t("quickInfo")}</h3>
