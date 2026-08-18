@@ -65,7 +65,7 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
     .map(([label, value], index) => `
       <tr>
         <td style="padding:${index === 0 ? "0" : "15px"} 16px 15px 0;border-bottom:1px solid #e8edf5;color:#64748b;font-size:13px;line-height:20px;vertical-align:top;width:38%;">${escapeHtml(label)}</td>
-        <td style="padding:${index === 0 ? "0" : "15px"} 0 15px;border-bottom:1px solid #e8edf5;color:#0b102f;font-size:14px;font-weight:700;line-height:20px;vertical-align:top;">${escapeHtml(value)}</td>
+        <td style="padding:${index === 0 ? "0" : "15px"} 0 15px;border-bottom:1px solid #e8edf5;color:#17151c;font-size:14px;font-weight:700;line-height:20px;vertical-align:top;">${escapeHtml(value)}</td>
       </tr>`)
     .join("");
 
@@ -77,29 +77,32 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
     <meta name="color-scheme" content="light">
     <title>${escapeHtml(subject)}</title>
   </head>
-  <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
+  <body style="margin:0;padding:0;background:#f7f5ff;color:#17151c;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">You received a new quote request for ${escapeHtml(input.businessName)}.</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f7f5ff;">
       <tr>
         <td align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;">
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="padding:0 6px 18px;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:34px 38px;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                        <tr>
-                          <td width="74" style="width:74px;padding-right:18px;vertical-align:middle;">
-                            <img src="${escapeHtml(input.logoUrl)}" width="64" height="64" alt="Tourism Partner" style="display:block;width:64px;height:64px;border:0;border-radius:14px;object-fit:cover;">
-                          </td>
-                          <td style="vertical-align:middle;">
-                            <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">QUOTE REQUEST</div>
-                            <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Quote request received</h1>
-                            <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> received a new quote request.</p>
-                          </td>
-                        </tr>
-                      </table>
+                    <td style="vertical-align:middle;">
+                      <img src="${escapeHtml(input.logoUrl)}" width="150" height="60" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">
+                    </td>
+                    <td align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">B2B TOURISM NETWORK</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="overflow:hidden;border:1px solid #ddd6fe;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(76,29,149,0.10);">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="background:#4c1d95;padding:34px 38px;">
+                      <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#6d28d9;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">QUOTE REQUEST</div>
+                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Quote request received</h1>
+                      <p style="margin:0;color:#ede9fe;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> received a new quote request.</p>
                     </td>
                   </tr>
                   <tr>
@@ -116,25 +119,25 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
                   </tr>
                   <tr>
                     <td style="padding:22px 38px 0;">
-                      <h2 style="margin:0 0 16px;color:#0b102f;font-size:17px;line-height:24px;">Request details</h2>
+                      <h2 style="margin:0 0 16px;color:#17151c;font-size:17px;line-height:24px;">Request details</h2>
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${detailRows}</table>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding:26px 38px 0;">
                       <div style="margin-bottom:10px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:0.7px;">REQUEST NOTE</div>
-                      <div style="border-left:4px solid #004fe6;border-radius:0 12px 12px 0;background:#f4f7ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
+                      <div style="border-left:4px solid #6d28d9;border-radius:0 12px 12px 0;background:#f7f5ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
                     </td>
                   </tr>
                   <tr>
                     <td style="padding:30px 38px 36px;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td style="border-radius:11px;background:#01145d;">
+                          <td style="border-radius:11px;background:#4c1d95;">
                             <a href="${escapeHtml(input.dashboardUrl)}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">View request in dashboard</a>
                           </td>
                           <td style="padding-left:10px;">
-                            <a href="${escapeHtml(replyUrl)}" style="display:inline-block;padding:13px 17px;border:1px solid #cbd5e1;border-radius:11px;color:#01145d;font-size:14px;font-weight:800;text-decoration:none;">Reply by email</a>
+                            <a href="${escapeHtml(replyUrl)}" style="display:inline-block;padding:13px 17px;border:1px solid #ddd6fe;border-radius:11px;color:#4c1d95;font-size:14px;font-weight:800;text-decoration:none;">Reply by email</a>
                           </td>
                         </tr>
                       </table>

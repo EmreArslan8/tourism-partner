@@ -44,9 +44,9 @@ export function businessRejectedEmail({
     <meta name="color-scheme" content="light">
     <title>${escapeHtml(subject)}</title>
   </head>
-  <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
+  <body style="margin:0;padding:0;background:#f7f5ff;color:#17151c;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${safeBusinessName} başvurusu şu an yayına alınamadı.</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f7f5ff;">
       <tr>
         <td align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;">
@@ -54,23 +54,22 @@ export function businessRejectedEmail({
               <td style="padding:0 6px 18px;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td width="54" style="width:54px;padding-right:12px;vertical-align:middle;">
-                      <img src="${safeLogoUrl}" width="48" height="48" alt="Tourism Partner" style="display:block;width:48px;height:48px;border:0;border-radius:11px;object-fit:cover;">
+                    <td style="vertical-align:middle;">
+                      <img src="${safeLogoUrl}" width="150" height="60" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">
                     </td>
-                    <td style="color:#01145d;font-size:17px;font-weight:900;letter-spacing:-0.3px;vertical-align:middle;">TOURISM <span style="color:#004fe6;">PARTNER</span></td>
-                    <td align="right" style="color:#7b8498;font-size:11px;font-weight:700;letter-spacing:1px;">B2B TURİZM AĞI</td>
+                    <td align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">B2B TURİZM AĞI</td>
                   </tr>
                 </table>
               </td>
             </tr>
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="overflow:hidden;border:1px solid #ddd6fe;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(76,29,149,0.10);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:34px 38px;">
-                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">BAŞVURU SONUCU</div>
+                    <td style="background:#4c1d95;padding:34px 38px;">
+                      <div style="display:inline-block;margin-bottom:16px;border-radius:999px;background:#6d28d9;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">BAŞVURU SONUCU</div>
                       <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Başvurunuz şu an onaylanmadı</h1>
-                      <p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${safeBusinessName}</strong> profili incelendi ve bu haliyle yayına alınamadı.</p>
+                      <p style="margin:0;color:#ede9fe;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${safeBusinessName}</strong> profili incelendi ve bu haliyle yayına alınamadı.</p>
                     </td>
                   </tr>
                   <tr>
@@ -82,7 +81,7 @@ export function businessRejectedEmail({
                     <td style="padding:30px 38px 36px;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td style="border-radius:11px;background:#01145d;">
+                          <td style="border-radius:11px;background:#4c1d95;">
                             <a href="${safeDashboardUrl}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">Profili düzenle ve tekrar gönder</a>
                           </td>
                         </tr>

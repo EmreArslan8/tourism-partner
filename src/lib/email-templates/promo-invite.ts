@@ -84,7 +84,7 @@ export function promoInviteEmail({
     /^#[0-9a-fA-F]{6}$/.test(value ?? "") ? value! : fallback;
   const surface = safeColor(backgroundColor, "#ffffff");
   const foreground = safeColor(textColor, "#334155");
-  const accent = safeColor(accentColor, "#004fe6");
+  const accent = safeColor(accentColor, "#6d28d9");
   const safeImageUrl = /^https?:\/\/[^\s]+$/i.test(imageUrl ?? "") ? imageUrl! : "";
 
   const paragraphs = intro
@@ -158,17 +158,17 @@ export function promoInviteEmail({
     <meta name="color-scheme" content="light">
     <title>${escapeHtml(headline)}</title>
   </head>
-  <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;" dir="${dir}">
+  <body style="margin:0;padding:0;background:#f7f5ff;color:#17151c;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;" dir="${dir}">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(preheader)}</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f7f5ff;">
       <tr>
         <td align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;margin:0 auto;">
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:${surface};box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="overflow:hidden;border:1px solid #ddd6fe;border-radius:18px;background:${surface};box-shadow:0 18px 45px rgba(76,29,149,0.10);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:32px 38px 28px;text-align:${align};">
+                    <td style="background:#4c1d95;padding:32px 38px 28px;text-align:${align};">
                       <img src="${escapeHtml(logoUrl)}" width="164" height="100" alt="Tourism Partner" style="display:block;${rtl ? "margin-left:auto;margin-right:0;" : ""}width:164px;height:100px;max-width:100%;border:0;">
                       <h1 style="margin:22px 0 0;color:#ffffff;font-size:34px;line-height:40px;letter-spacing:-0.9px;">${escapeHtml(headline)}</h1>
                     </td>

@@ -74,7 +74,7 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
     .map(([label, value], index) => `
       <tr>
         <td style="padding:${index === 0 ? "0" : "12px"} 16px 12px 0;border-bottom:1px solid #e8edf5;color:#64748b;font-size:12.5px;line-height:19px;vertical-align:top;width:40%;">${escapeHtml(label)}</td>
-        <td style="padding:${index === 0 ? "0" : "12px"} 0 12px;border-bottom:1px solid #e8edf5;color:#0b102f;font-size:13.5px;font-weight:700;line-height:19px;vertical-align:top;">${escapeHtml(value)}</td>
+        <td style="padding:${index === 0 ? "0" : "12px"} 0 12px;border-bottom:1px solid #e8edf5;color:#17151c;font-size:13.5px;font-weight:700;line-height:19px;vertical-align:top;">${escapeHtml(value)}</td>
       </tr>`)
     .join("");
   const requestNoteHtml = req?.message ? escapeHtml(req.message).replace(/\r?\n/g, "<br>") : null;
@@ -91,7 +91,7 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
     ? `mailto:${encodeURIComponent(input.businessEmail)}?subject=${encodeURIComponent(`Re: Your quote from ${input.businessName}`)}`
     : null;
   const serviceLine = input.service
-    ? `<p style="margin:0;color:#dbe5ff;font-size:15px;line-height:24px;">Regarding your request for <strong style="color:#ffffff;">${escapeHtml(input.service)}</strong>.</p>`
+    ? `<p style="margin:0;color:#ede9fe;font-size:15px;line-height:24px;">Regarding your request for <strong style="color:#ffffff;">${escapeHtml(input.service)}</strong>.</p>`
     : "";
 
   const html = `<!doctype html>
@@ -102,37 +102,40 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
     <meta name="color-scheme" content="light">
     <title>${escapeHtml(subject)}</title>
   </head>
-  <body style="margin:0;padding:0;background:#f2f5fa;color:#0b102f;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
+  <body style="margin:0;padding:0;background:#f7f5ff;color:#17151c;font-family:Arial,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;">
     <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${escapeHtml(input.businessName)} sent you a quote.</div>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f2f5fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;background:#f7f5ff;">
       <tr>
         <td align="center" style="padding:32px 14px;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:620px;">
             <tr>
-              <td style="overflow:hidden;border:1px solid #dfe5ef;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(1,20,93,0.08);">
+              <td style="padding:0 6px 18px;">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
-                    <td style="background:#01145d;padding:34px 38px;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                        <tr>
-                          <td style="padding-right:20px;vertical-align:middle;">
-                            <img src="${escapeHtml(input.logoUrl)}" height="72" alt="Tourism Partner" style="display:block;height:72px;width:auto;border:0;">
-                          </td>
-                          <td style="vertical-align:middle;">
-                            <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#ffffff1f;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">YOUR QUOTE</div>
-                            <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">You have a quote</h1>
-                            <p style="margin:0 0 6px;color:#dbe5ff;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> replied to your request.</p>
-                            ${serviceLine}
-                          </td>
-                        </tr>
-                      </table>
+                    <td style="vertical-align:middle;">
+                      <img src="${escapeHtml(input.logoUrl)}" width="150" height="60" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">
+                    </td>
+                    <td align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">B2B TOURISM NETWORK</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="overflow:hidden;border:1px solid #ddd6fe;border-radius:18px;background:#ffffff;box-shadow:0 18px 45px rgba(76,29,149,0.10);">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="background:#4c1d95;padding:34px 38px;">
+                      <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#6d28d9;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">YOUR QUOTE</div>
+                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">You have a quote</h1>
+                      <p style="margin:0 0 6px;color:#ede9fe;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> replied to your request.</p>
+                      ${serviceLine}
                     </td>
                   </tr>
                   <tr>
                     <td style="padding:30px 38px 0;">
-                      <p style="margin:0 0 16px;color:#0b102f;font-size:15px;line-height:24px;">Hi ${escapeHtml(input.recipientName)},</p>
+                      <p style="margin:0 0 16px;color:#17151c;font-size:15px;line-height:24px;">Hi ${escapeHtml(input.recipientName)},</p>
                       <div style="margin-bottom:10px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:0.7px;">QUOTE FROM ${escapeHtml(input.businessName.toUpperCase())}</div>
-                      <div style="border-left:4px solid #004fe6;border-radius:0 12px 12px 0;background:#f4f7ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
+                      <div style="border-left:4px solid #6d28d9;border-radius:0 12px 12px 0;background:#f7f5ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
                     </td>
                   </tr>
                   ${requestBlock}
@@ -140,7 +143,7 @@ export function quoteOfferEmail(input: QuoteOfferInput): QuoteOffer {
                     <td style="padding:26px 38px 36px;">
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
-                          <td style="border-radius:11px;background:#01145d;">
+                          <td style="border-radius:11px;background:#4c1d95;">
                             <a href="${escapeHtml(replyUrl)}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">Reply to ${escapeHtml(input.businessName)}</a>
                           </td>
                         </tr>

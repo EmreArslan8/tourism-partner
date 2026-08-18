@@ -12,7 +12,7 @@ import {
 import { businessOwnerInviteEmail } from "@/lib/email-templates/business-owner-invite";
 import { sendEmail } from "@/lib/email";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { SITE_URL } from "@/lib/site";
+import { EMAIL_LOGO_URL, SITE_URL } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isEmail } from "./validate";
@@ -124,6 +124,7 @@ export async function sendBusinessOwnerInvite(
     inviteUrl: url,
     expiresAt,
     locale,
+    logoUrl: EMAIL_LOGO_URL,
   });
   const delivery = await sendEmail({ to: email, ...message });
   await admin
