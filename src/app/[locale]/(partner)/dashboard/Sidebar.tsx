@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Building2, FileText, Heart, Inbox, LayoutDashboard, LifeBuoy, LogOut, Rocket, Search, Star, X } from "lucide-react";
+import { Building2, FileText, Headset, Heart, Inbox, LayoutDashboard, LogOut, Rocket, Search, Star, X } from "lucide-react";
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
@@ -38,14 +38,14 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
     { href: "/dashboard/reviews", icon: Star, label: t("reviewsNav"), match: "/dashboard/reviews" },
     { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping" },
-    { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
+    { href: "/dashboard/support", icon: Headset, label: t("supportNav"), match: "/dashboard/support" },
   ];
   const buyerItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsMineNav"), match: "/dashboard/requests" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
-    { href: "/dashboard/support", icon: LifeBuoy, label: t("supportNav"), match: "/dashboard/support" },
+    { href: "/dashboard/support", icon: Headset, label: t("supportNav"), match: "/dashboard/support" },
   ];
   const items = accountType === "buyer" ? buyerItems : supplierItems;
 

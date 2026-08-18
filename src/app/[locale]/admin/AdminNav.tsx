@@ -16,7 +16,7 @@ import {
   BookOpenText,
   ClipboardList,
   FolderTree,
-  HelpCircle,
+  Headset,
   Handshake,
   LayoutDashboard,
   Mail,
@@ -28,14 +28,24 @@ import {
 
 type Item = { href: Href; label: string; icon: React.ReactNode };
 
-function AdminNavItem({ icon, label, collapsed }: { icon: React.ReactNode; label: string; collapsed: boolean }) {
+function AdminNavItem({ icon, label, collapsed, badge = 0 }: { icon: React.ReactNode; label: string; collapsed: boolean; badge?: number }) {
   const { pending } = useLinkStatus();
 
   return (
     <>
       <TopProgressBar active={pending} />
-      <span className={cn("shrink-0 transition-opacity", pending && "opacity-55")}>{icon}</span>
+      <span className={cn("relative shrink-0 transition-opacity", pending && "opacity-55")}>
+        {icon}
+        {collapsed && badge > 0 && (
+          <span className="absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full border border-paper bg-[#BA1A1A]" aria-hidden />
+        )}
+      </span>
       {!collapsed && <span className={cn("min-w-0 flex-1 truncate transition-opacity", pending && "opacity-55")}>{label}</span>}
+      {!collapsed && badge > 0 && (
+        <span className="grid h-[18px] min-w-[18px] shrink-0 place-items-center rounded-full bg-[#BA1A1A] px-1 text-[10px] font-bold leading-none text-white">
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
       <span
         aria-hidden
         className={cn(
@@ -62,12 +72,12 @@ const ITEMS: Item[] = [
   { href: "/admin/raporlar", label: "Raporlar", icon: <BarChart3 size={17} aria-hidden /> },
   { href: "/admin/reklam", label: "Reklam", icon: <Megaphone size={17} aria-hidden /> },
   { href: "/admin/tanitim", label: "Tanıtım Maili", icon: <Mail size={17} aria-hidden /> },
-  { href: "/admin/destek", label: "Destek", icon: <HelpCircle size={17} aria-hidden /> },
+  { href: "/admin/destek", label: "Destek", icon: <Headset size={17} aria-hidden /> },
   { href: "/admin/icerik", label: "İçerik", icon: <BookOpenText size={17} aria-hidden /> },
   { href: "/admin/guvenlik", label: "Güvenlik & Ayarlar", icon: <ShieldCheck size={17} aria-hidden /> },
 ];
 
-const AdminNav = ({ collapsed = false }: { collapsed?: boolean }) => {
+const AdminNav = ({ collapsed = false, newTicketCount = 0 }: { collapsed?: boolean; newTicketCount?: number }) => {
   const pathname = usePathname();
   const [tooltip, setTooltip] = useState<AdminSidebarTooltipState>(null);
 
@@ -99,7 +109,12 @@ const AdminNav = ({ collapsed = false }: { collapsed?: boolean }) => {
                   : "text-muted hover:bg-cream/70 hover:text-brand",
               )}
             >
-              <AdminNavItem icon={item.icon} label={item.label} collapsed={collapsed} />
+              <AdminNavItem
+                icon={item.icon}
+                label={item.label}
+                collapsed={collapsed}
+                badge={item.href === "/admin/destek" ? newTicketCount : 0}
+              />
             </Link>
           );
         })}

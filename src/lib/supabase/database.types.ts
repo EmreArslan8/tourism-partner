@@ -864,3 +864,4 @@ export type AdBannerRow = Database["public"]["Tables"]["ad_banners"]["Row"];
 export type BlogPostRow = Database["public"]["Tables"]["blog_posts"]["Row"];
 export type AdminPopupRow = Database["public"]["Tables"]["admin_popups"]["Row"];
 export type SupportTicketRow = Database["public"]["Tables"]["support_tickets"]["Row"];
+export type SupportTicketMessageRow = Database["public"]["Tables"]["support_ticket_messages"]["Row"];

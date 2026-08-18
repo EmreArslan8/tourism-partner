@@ -135,6 +135,12 @@ export const routing = defineRouting({
       ru: "/dashboard/support",
       ar: "/dashboard/support",
     },
+    "/dashboard/support/[id]": {
+      tr: "/panel/destek/[id]",
+      en: "/dashboard/support/[id]",
+      ru: "/dashboard/support/[id]",
+      ar: "/dashboard/support/[id]",
+    },
     "/dashboard/doping": {
       tr: "/panel/doping",
       en: "/dashboard/doping",

@@ -11,6 +11,7 @@ import type {
   BlogPostRow,
   CategoryRow,
   SupportTicketRow,
+  SupportTicketMessageRow,
 } from "@/lib/supabase/database.types";
 
 export type AdminB2bRequest = {
@@ -213,6 +214,37 @@ export async function getAdminSupportTickets(): Promise<AdminSupportTicket[]> {
 
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+/* Birden çok talebin mesajlarını tek sorguda çekip ticket_id'ye göre gruplar —
+   admin destek listesinde her satırın yazışmasını N+1 olmadan yüklemek için. */
+export async function getSupportMessagesByTickets(
+  ticketIds: number[],
+): Promise<Record<number, SupportTicketMessageRow[]>> {
+  if (!hasEnv() || ticketIds.length === 0) return {};
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("support_ticket_messages")
+    .select("id,ticket_id,author_id,author_name,body,created_at")
+    .in("ticket_id", ticketIds)
+    .order("created_at", { ascending: true });
+  if (error) return {};
+  const grouped: Record<number, SupportTicketMessageRow[]> = {};
+  for (const m of data ?? []) (grouped[m.ticket_id] ??= []).push(m);
+  return grouped;
+}
+
+/* İşleme alınmamış ("new") destek talebi sayısı — admin panelde rozet/badge için.
+   Layout zaten admin erişimini doğruladığı için burada tekrar kontrol edilmez. */
+export async function getNewSupportTicketCount(): Promise<number> {
+  if (!hasEnv()) return 0;
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("support_tickets")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "new");
+  if (error) return 0;
+  return count ?? 0;
 }
 
 export async function getAdminContentExtras(): Promise<AdminContentExtras> {

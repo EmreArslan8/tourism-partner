@@ -1,22 +1,46 @@
-import { MessageSquareText } from "lucide-react";
+import { MessageSquareText, Trash2 } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
-import { getAdminSupportTickets } from "@/lib/platform-data";
-import { updateTicketStatus } from "@/lib/actions/platform";
+import { getAdminSupportTickets, getSupportMessagesByTickets } from "@/lib/platform-data";
+import { updateTicketStatus, deleteTicket } from "@/lib/actions/platform";
+import { Link } from "@/i18n/navigation";
 import { PageHeader, Card, CardHeader, Metric } from "../_components";
-import { DataTable, StatusBadge, EmptyState, type Column } from "@/components/common";
+import { DataTable, StatusBadge, EmptyState, ConfirmAction, type Column } from "@/components/common";
 import type { SupportTicketRow } from "@/lib/supabase/database.types";
+import TicketDetail from "./TicketDetail";
 
 const TONE = { new: "amber", in_progress: "blue", resolved: "green", archived: "neutral" } as const;
 const LABEL = { new: "Yeni", in_progress: "İşlemde", resolved: "Çözüldü", archived: "Arşiv" } as const;
 type TicketStatus = keyof typeof TONE;
 
+const TABS: { key: TicketStatus | "all"; label: string }[] = [
+  { key: "all", label: "Tümü" },
+  { key: "new", label: "Yeni" },
+  { key: "in_progress", label: "İşlemde" },
+  { key: "resolved", label: "Çözüldü" },
+  { key: "archived", label: "Arşiv" },
+];
+
 const fmt = (v: string) => new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(v));
 
-export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ status?: string }>;
+}) {
   const { locale } = await params;
+  const { status: statusParam } = await searchParams;
   setRequestLocale(locale);
-  const tickets = await getAdminSupportTickets();
-  const count = (s: TicketStatus) => tickets.filter((t) => t.status === s).length;
+  const allTickets = await getAdminSupportTickets();
+  const activeTab = TABS.some((tb) => tb.key === statusParam) ? (statusParam as TicketStatus | "all") : "all";
+  const tickets = activeTab === "all" ? allTickets : allTickets.filter((t) => t.status === activeTab);
+  const messagesByTicket = await getSupportMessagesByTickets(tickets.map((t) => t.id));
+  const count = (s: TicketStatus) => allTickets.filter((t) => t.status === s).length;
+
+  const tabCls = (active: boolean) =>
+    "rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors " +
+    (active ? "bg-sapphire text-white" : "border border-line text-muted hover:bg-cream");
 
   return (
     <>
@@ -32,6 +56,21 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <Metric title="Çözülen" value={count("resolved")} hint="tamamlandı" />
       </section>
 
+      <div className="mb-4 flex flex-wrap items-center gap-1.5">
+        {TABS.map((tb) => {
+          const n = tb.key === "all" ? allTickets.length : count(tb.key);
+          return (
+            <Link
+              key={tb.key}
+              href={tb.key === "all" ? { pathname: "/admin/destek" } : { pathname: "/admin/destek", query: { status: tb.key } }}
+              className={tabCls(activeTab === tb.key)}
+            >
+              {tb.label} ({n})
+            </Link>
+          );
+        })}
+      </div>
+
       <Card className="overflow-hidden hover:translate-y-0">
         <CardHeader
           title="Gelen Talepler"
@@ -42,14 +81,14 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         {tickets.length === 0 ? (
           <EmptyState
             className="border-0"
-            title="Henüz destek talebi yok"
+            title="Bu görünümde talep yok"
             description="Kullanıcılar destek formundan mesaj gönderdiğinde burada listelenir."
           />
         ) : (
           <DataTable
             data={tickets}
             getRowKey={(t) => t.id}
-            minWidth={760}
+            minWidth={820}
             columns={[
               {
                 key: "sender",
@@ -65,10 +104,13 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 key: "subject",
                 header: "Konu",
                 cell: (t) => (
-                  <div className="max-w-[320px]">
-                    <p className="text-[13px] font-semibold text-ink">{t.subject}</p>
-                    <p className="mt-1 line-clamp-1 text-[12px] text-muted">{t.message}</p>
-                  </div>
+                  <TicketDetail
+                    ticket={t}
+                    messages={messagesByTicket[t.id] ?? []}
+                    tone={TONE[t.status as TicketStatus] ?? "neutral"}
+                    label={LABEL[t.status as TicketStatus] ?? t.status}
+                    locale={locale}
+                  />
                 ),
               },
               {
@@ -88,6 +130,23 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                       <TicketBtn id={t.id} locale={locale} status="resolved" label="Çözüldü" tone="green" />
                     )}
                     {t.status !== "archived" && <TicketBtn id={t.id} locale={locale} status="archived" label="Arşivle" />}
+                    <ConfirmAction
+                      action={deleteTicket}
+                      fields={{ id: String(t.id), locale }}
+                      title="Talebi sil"
+                      description="Bu destek talebi ve tüm yazışması kalıcı olarak silinecek. Bu işlem geri alınamaz."
+                      confirmLabel="Sil"
+                      danger
+                      trigger={
+                        <button
+                          type="button"
+                          aria-label="Talebi sil"
+                          className="grid h-[30px] w-[30px] place-items-center rounded-lg border border-red-200 text-red-600 transition-colors hover:bg-red-50"
+                        >
+                          <Trash2 size={14} aria-hidden />
+                        </button>
+                      }
+                    />
                   </div>
                 ),
               },

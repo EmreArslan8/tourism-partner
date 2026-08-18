@@ -347,3 +347,50 @@ export async function updateTicketStatus(formData: FormData): Promise<void> {
 
   revalidatePath(`/${loc(formData)}/admin/destek`);
 }
+
+/* Admin, bir destek talebine cevap yazar. Mesaj support_ticket_messages'a düşer,
+   işletme kendi panelinde görür. Cevap yazılınca talep "işleme alındı" sayılır. */
+export async function replyToTicket(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase, userId } = context;
+  const id = Number(formData.get("id"));
+  const body = clean(formData.get("body"), 4000);
+  if (!id || !body) return;
+
+  const { error: msgError } = await supabase.from("support_ticket_messages").insert({
+    ticket_id: id,
+    author_id: userId,
+    author_name: "Destek Ekibi",
+    body,
+  });
+  if (msgError) throw new Error(msgError.message);
+
+  // Yeni/çözülmüş talebe cevap verildiğinde tekrar "işleme alındı" durumuna çek.
+  const { data: current } = await supabase.from("support_tickets").select("status").eq("id", id).maybeSingle();
+  if (current && current.status !== "archived" && current.status !== "in_progress") {
+    await supabase.from("support_tickets").update({ status: "in_progress" }).eq("id", id);
+  }
+
+  await writeAdminAudit(context, "support_ticket.reply", "support_ticket", id, { body });
+  revalidatePath(`/${loc(formData)}/admin/destek`);
+}
+
+/* Admin, destek talebini kalıcı olarak siler. Mesajlar FK on delete cascade ile
+   birlikte silinir. Geri alınamaz — UI'da onay modalinden geçer. */
+export async function deleteTicket(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  if (!id) return;
+
+  const { data: oldValue } = await supabase
+    .from("support_tickets")
+    .select("id,subject,status,sender_name")
+    .eq("id", id)
+    .maybeSingle();
+  const { error } = await supabase.from("support_tickets").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  await writeAdminAudit(context, "support_ticket.delete", "support_ticket", id, undefined, oldValue ?? null);
+
+  revalidatePath(`/${loc(formData)}/admin/destek`);
+}

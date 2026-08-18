@@ -12,7 +12,7 @@ import AdminSidebarTooltip, {
   type AdminSidebarTooltipState,
 } from "./AdminSidebarTooltip";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ newTicketCount = 0 }: { newTicketCount?: number }) {
   const [collapsed, setCollapsed] = useState(false);
   const [tooltip, setTooltip] = useState<AdminSidebarTooltipState>(null);
 
@@ -46,7 +46,7 @@ export default function AdminSidebar() {
         </button>
       </div>
 
-      <AdminNav collapsed={collapsed} />
+      <AdminNav collapsed={collapsed} newTicketCount={newTicketCount} />
 
       <div className={cn("mt-auto border-t border-line/80 pb-6 pt-4", collapsed ? "px-3" : "px-5")}>
         <form action={signOut}>
