@@ -9,6 +9,19 @@ import { groupPalette } from "@/theme";
    Görünen metin daima slug üzerinden i18n'den gelir (bkz. service namespace). */
 export const CATEGORY_GROUPS: CategoryGroup[] = [
   {
+    key: "saglik",
+    label: "Sağlık",
+    children: [
+      { slug: "hair-transplant", label: "Saç Ekimi ve Estetik", section: "Klinikler" },
+      { slug: "dermatology", label: "Dermatoloji", section: "Klinikler" },
+      { slug: "plastic-surgery", label: "Plastik / Estetik Cerrahi", section: "Klinikler" },
+      { slug: "dental", label: "Diş Sağlığı", section: "Klinikler" },
+      { slug: "eye-health", label: "Göz Sağlığı", section: "Klinikler" },
+      { slug: "general-surgery", label: "Genel Cerrahi", section: "Klinikler" },
+      { slug: "hospital", label: "Hastane", section: "Hastane" },
+    ],
+  },
+  {
     key: "konaklama",
     label: "Konaklama",
     children: [
@@ -65,28 +78,6 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
     ],
   },
   {
-    key: "gastronomi",
-    label: "Gastronomi",
-    children: [
-      { slug: "restaurant", label: "Restoranlar" },
-      { slug: "gourmet-experience", label: "Gurme Deneyim Alanları" },
-      { slug: "local-food", label: "Yerel Lezzet Noktaları" },
-    ],
-  },
-  {
-    key: "saglik",
-    label: "Sağlık",
-    children: [
-      { slug: "hair-transplant", label: "Saç Ekimi ve Estetik", section: "Klinikler" },
-      { slug: "dermatology", label: "Dermatoloji", section: "Klinikler" },
-      { slug: "plastic-surgery", label: "Plastik / Estetik Cerrahi", section: "Klinikler" },
-      { slug: "dental", label: "Diş Sağlığı", section: "Klinikler" },
-      { slug: "eye-health", label: "Göz Sağlığı", section: "Klinikler" },
-      { slug: "general-surgery", label: "Genel Cerrahi", section: "Klinikler" },
-      { slug: "hospital", label: "Hastane", section: "Hastane" },
-    ],
-  },
-  {
     key: "aktivite",
     label: "Aktivite & Entertainment",
     children: [
@@ -94,6 +85,15 @@ export const CATEGORY_GROUPS: CategoryGroup[] = [
       { slug: "arts-culture-entertainment", label: "Kültür Sanat Eğlence" },
       { slug: "theme-parks", label: "Tematik Parklar" },
       { slug: "workshops-local-experiences", label: "Atölyeler ve Yerel Deneyimler" },
+    ],
+  },
+  {
+    key: "gastronomi",
+    label: "Gastronomi",
+    children: [
+      { slug: "restaurant", label: "Restoranlar" },
+      { slug: "gourmet-experience", label: "Gurme Deneyim Alanları" },
+      { slug: "local-food", label: "Yerel Lezzet Noktaları" },
     ],
   },
 ];
