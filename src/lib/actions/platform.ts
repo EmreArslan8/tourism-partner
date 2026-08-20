@@ -321,6 +321,7 @@ export async function moderateB2bRequest(formData: FormData): Promise<void> {
   await writeAdminAudit(context, "b2b_request.moderate", "b2b_request", id, payload, oldValue ?? null);
 
   revalidatePath(`/${loc(formData)}/admin/talepler`);
+  revalidatePath(`/${loc(formData)}/admin/talepler/${id}`);
 }
 
 /* ---------------- Destek talebi durum güncelle ---------------- */

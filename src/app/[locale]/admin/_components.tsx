@@ -79,10 +79,12 @@ export const AdminAccessDenied = () => {
 export const AdminShell = ({
   data,
   newTicketCount = 0,
+  newRequestCount = 0,
   children,
 }: {
   data: AdminAccess;
   newTicketCount?: number;
+  newRequestCount?: number;
   children: React.ReactNode;
 }) => {
   const who = data.mode === "demo" ? "Demo veri modu" : data.userEmail ?? "Admin";
@@ -90,7 +92,7 @@ export const AdminShell = ({
 
   return (
     <div className="flex min-h-screen w-full bg-panel-bg text-ink">
-      <AdminSidebar newTicketCount={newTicketCount} />
+      <AdminSidebar newTicketCount={newTicketCount} newRequestCount={newRequestCount} />
 
       <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye
@@ -111,7 +113,7 @@ export const AdminShell = ({
           </Link>
 
           {/* Bildirim zili — tıklayınca not açar, nottaki bağlantı destek kutusuna gider. */}
-          <AdminNotifyBell newTicketCount={newTicketCount} />
+          <AdminNotifyBell newTicketCount={newTicketCount} newRequestCount={newRequestCount} />
 
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-cream text-[13px] font-semibold text-brand" title={who}>
             {initial}

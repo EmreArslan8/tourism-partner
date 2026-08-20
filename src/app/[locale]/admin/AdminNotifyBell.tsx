@@ -7,7 +7,13 @@ import { cn } from "@/lib/utils";
 
 /* Header bildirim zili — tıklayınca sayfaya GİTMEZ, küçük bir not açar.
    Nottaki bağlantıya tıklanınca destek kutusuna gidilir. */
-export default function AdminNotifyBell({ newTicketCount = 0 }: { newTicketCount?: number }) {
+export default function AdminNotifyBell({
+  newTicketCount = 0,
+  newRequestCount = 0,
+}: {
+  newTicketCount?: number;
+  newRequestCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -25,7 +31,8 @@ export default function AdminNotifyBell({ newTicketCount = 0 }: { newTicketCount
     };
   }, [open]);
 
-  const has = newTicketCount > 0;
+  const total = newTicketCount + newRequestCount;
+  const has = total > 0;
 
   return (
     <div ref={ref} className="relative shrink-0">
@@ -33,7 +40,7 @@ export default function AdminNotifyBell({ newTicketCount = 0 }: { newTicketCount
         type="button"
         onClick={() => setOpen((v) => !v)}
         title="Bildirimler"
-        aria-label={has ? `${newTicketCount} yeni destek talebi` : "Bildirimler"}
+        aria-label={has ? `${total} yeni bildirim` : "Bildirimler"}
         aria-haspopup="menu"
         aria-expanded={open}
         className={cn(
@@ -44,7 +51,7 @@ export default function AdminNotifyBell({ newTicketCount = 0 }: { newTicketCount
         <Bell size={18} aria-hidden />
         {has && (
           <span className="absolute -right-0.5 -top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-[#BA1A1A] px-1 text-[10px] font-bold leading-none text-white">
-            {newTicketCount > 99 ? "99+" : newTicketCount}
+            {total > 99 ? "99+" : total}
           </span>
         )}
       </button>
@@ -58,27 +65,58 @@ export default function AdminNotifyBell({ newTicketCount = 0 }: { newTicketCount
             Bildirimler
           </div>
           {has ? (
-            <Link
-              href="/admin/destek"
-              onClick={() => setOpen(false)}
-              role="menuitem"
-              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-cream"
-            >
-              <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#DAE2FD] text-[#1E3A8A]">
-                <Bell size={15} aria-hidden />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-[13px] font-semibold text-ink">
-                  {newTicketCount} yeni destek talebi
-                </span>
-                <span className="block text-[12px] text-muted">İşleme alınmayı bekliyor — görüntülemek için tıkla</span>
-              </span>
-            </Link>
+            <div className="divide-y divide-line/70">
+              {newTicketCount > 0 && (
+                <NotifyRow
+                  href="/admin/destek"
+                  title={`${newTicketCount} yeni destek talebi`}
+                  hint="İşleme alınmayı bekliyor — görüntülemek için tıkla"
+                  onNavigate={() => setOpen(false)}
+                />
+              )}
+              {newRequestCount > 0 && (
+                <NotifyRow
+                  href="/admin/talepler"
+                  title={`${newRequestCount} yeni B2B talebi`}
+                  hint="Denetlenmeyi bekliyor — görüntülemek için tıkla"
+                  onNavigate={() => setOpen(false)}
+                />
+              )}
+            </div>
           ) : (
             <div className="px-4 py-6 text-center text-[13px] text-muted">Yeni bildirim yok</div>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+function NotifyRow({
+  href,
+  title,
+  hint,
+  onNavigate,
+}: {
+  href: "/admin/destek" | "/admin/talepler";
+  title: string;
+  hint: string;
+  onNavigate: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      role="menuitem"
+      className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-cream"
+    >
+      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#DAE2FD] text-[#1E3A8A]">
+        <Bell size={15} aria-hidden />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-[13px] font-semibold text-ink">{title}</span>
+        <span className="block text-[12px] text-muted">{hint}</span>
+      </span>
+    </Link>
   );
 }

@@ -77,7 +77,7 @@ const ITEMS: Item[] = [
   { href: "/admin/guvenlik", label: "Güvenlik & Ayarlar", icon: <ShieldCheck size={17} aria-hidden /> },
 ];
 
-const AdminNav = ({ collapsed = false, newTicketCount = 0 }: { collapsed?: boolean; newTicketCount?: number }) => {
+const AdminNav = ({ collapsed = false, newTicketCount = 0, newRequestCount = 0 }: { collapsed?: boolean; newTicketCount?: number; newRequestCount?: number }) => {
   const pathname = usePathname();
   const [tooltip, setTooltip] = useState<AdminSidebarTooltipState>(null);
 
@@ -113,7 +113,13 @@ const AdminNav = ({ collapsed = false, newTicketCount = 0 }: { collapsed?: boole
                 icon={item.icon}
                 label={item.label}
                 collapsed={collapsed}
-                badge={item.href === "/admin/destek" ? newTicketCount : 0}
+                badge={
+                  item.href === "/admin/destek"
+                    ? newTicketCount
+                    : item.href === "/admin/talepler"
+                      ? newRequestCount
+                      : 0
+                }
               />
             </Link>
           );

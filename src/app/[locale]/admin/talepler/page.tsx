@@ -1,5 +1,6 @@
 import { ClipboardList, Eye } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getAdminB2bRequests, type AdminB2bRequest } from "@/lib/platform-data";
 import { moderateB2bRequest } from "@/lib/actions/platform";
 import { PageHeader, Card, CardHeader, Metric } from "../_components";
@@ -59,14 +60,19 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
           <DataTable
             data={requests}
             getRowKey={(r) => r.id}
-            minWidth={860}
+            minWidth={940}
             columns={[
               {
                 key: "title",
                 header: "Talep",
                 cell: (r) => (
                   <div className="max-w-[340px]">
-                    <p className="text-[13px] font-extrabold text-ink">{r.title}</p>
+                    <Link
+                      href={{ pathname: "/admin/talepler/[id]", params: { id: String(r.id) } }}
+                      className="text-[13px] font-extrabold text-ink transition-colors hover:text-sapphire"
+                    >
+                      {r.title}
+                    </Link>
                     {r.businessName && <p className="truncate text-[12px] font-semibold text-muted">{r.businessName}</p>}
                     {r.description && <p className="mt-0.5 line-clamp-1 text-[12px] text-muted">{r.description}</p>}
                   </div>
@@ -91,6 +97,12 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
                 align: "right",
                 cell: (r) => (
                   <div className="flex justify-end gap-1.5">
+                    <Link
+                      href={{ pathname: "/admin/talepler/[id]", params: { id: String(r.id) } }}
+                      className="rounded-lg border border-sapphire/30 px-3 py-1.5 text-[12px] font-semibold text-sapphire transition-colors hover:bg-sapphire/5"
+                    >
+                      Detay
+                    </Link>
                     {r.status !== "published" && <ModBtn id={r.id} locale={locale} status="published" label="Yayınla" tone="green" />}
                     {r.status !== "archived" && <ModBtn id={r.id} locale={locale} status="archived" label="Arşivle" />}
                     {r.status !== "rejected" && <ModBtn id={r.id} locale={locale} status="rejected" label="Reddet" tone="red" />}

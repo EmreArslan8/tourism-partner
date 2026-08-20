@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { getAdminAccess } from "@/lib/admin-auth";
-import { getNewSupportTicketCount } from "@/lib/platform-data";
+import { getNewSupportTicketCount, getNewB2bRequestCount } from "@/lib/platform-data";
 import { AdminAccessDenied, AdminShell } from "./_components";
 
 export const metadata: Metadata = {
@@ -34,9 +34,12 @@ export default async function AdminLayout({
 async function AdminGate({ children }: { children: React.ReactNode }) {
   const data = await getAdminAccess();
   if (!data.isAdmin) return <AdminAccessDenied />;
-  const newTicketCount = await getNewSupportTicketCount();
+  const [newTicketCount, newRequestCount] = await Promise.all([
+    getNewSupportTicketCount(),
+    getNewB2bRequestCount(),
+  ]);
   return (
-    <AdminShell data={data} newTicketCount={newTicketCount}>
+    <AdminShell data={data} newTicketCount={newTicketCount} newRequestCount={newRequestCount}>
       {children}
     </AdminShell>
   );

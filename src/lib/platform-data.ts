@@ -8,6 +8,7 @@ import type {
   AdBannerRow,
   AdminPopupRow,
   B2BRequestStatus,
+  BusinessGroup,
   BlogPostRow,
   CategoryRow,
   SupportTicketRow,
@@ -25,6 +26,35 @@ export type AdminB2bRequest = {
   viewCount: number;
   moderationNote: string | null;
   createdAt: string;
+};
+
+export type AdminB2bRequestBusiness = {
+  id: number;
+  name: string;
+  group: BusinessGroup;
+  type: string;
+  country: string;
+  city: string;
+  district: string;
+  phone: string | null;
+  website: string | null;
+};
+
+export type AdminB2bOffer = {
+  id: number;
+  businessId: number;
+  business: Pick<AdminB2bRequestBusiness, "id" | "name" | "group" | "type" | "country" | "city"> | null;
+  message: string;
+  price: string | null;
+  createdAt: string;
+};
+
+export type AdminB2bRequestDetail = AdminB2bRequest & {
+  targetGroup: BusinessGroup | null;
+  targetTypes: string[];
+  updatedAt: string;
+  business: AdminB2bRequestBusiness | null;
+  offers: AdminB2bOffer[];
 };
 import type { CategoryGroup, GroupKey } from "@/lib/types";
 
@@ -198,6 +228,89 @@ export async function getAdminB2bRequests(): Promise<AdminB2bRequest[]> {
   }));
 }
 
+/* Tek B2B talebinin tam admin görünümü. Talep ve teklifleri iki sorguda yükler;
+   böylece teklif olmayan talepler de eksiksiz döner. */
+export async function getAdminB2bRequestDetail(id: number): Promise<AdminB2bRequestDetail | null> {
+  if (!hasEnv() || !Number.isInteger(id) || id < 1) return null;
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return null;
+
+  const supabase = await createClient();
+  const [requestResult, offersResult] = await Promise.all([
+    supabase
+      .from("b2b_requests")
+      .select(
+        "id,business_id,title,description,region,target_group,target_types,status,view_count,moderation_note,created_at,updated_at,businesses(id,name,group,type,country,city,district,phone,website)",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("b2b_offers")
+      .select("id,business_id,message,price,created_at,businesses(id,name,group,type,country,city)")
+      .eq("request_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+
+  if (requestResult.error) throw new Error(requestResult.error.message);
+  if (offersResult.error) throw new Error(offersResult.error.message);
+  if (!requestResult.data) return null;
+
+  type BusinessRelation = AdminB2bRequestBusiness | AdminB2bRequestBusiness[] | null;
+  type OfferBusiness = Pick<AdminB2bRequestBusiness, "id" | "name" | "group" | "type" | "country" | "city">;
+  type OfferRow = {
+    id: number;
+    business_id: number;
+    message: string;
+    price: string | null;
+    created_at: string;
+    businesses: OfferBusiness | OfferBusiness[] | null;
+  };
+  type RequestRow = {
+    id: number;
+    business_id: number | null;
+    title: string;
+    description: string | null;
+    region: string | null;
+    target_group: BusinessGroup | null;
+    target_types: string[];
+    status: B2BRequestStatus;
+    view_count: number;
+    moderation_note: string | null;
+    created_at: string;
+    updated_at: string;
+    businesses: BusinessRelation;
+  };
+
+  const row = requestResult.data as unknown as RequestRow;
+  const business = Array.isArray(row.businesses) ? row.businesses[0] ?? null : row.businesses;
+  const offers = ((offersResult.data ?? []) as unknown as OfferRow[]).map((offer) => ({
+    id: offer.id,
+    businessId: offer.business_id,
+    business: Array.isArray(offer.businesses) ? offer.businesses[0] ?? null : offer.businesses,
+    message: offer.message,
+    price: offer.price,
+    createdAt: offer.created_at,
+  }));
+
+  return {
+    id: row.id,
+    businessId: row.business_id,
+    businessName: business?.name ?? null,
+    title: row.title,
+    description: row.description,
+    region: row.region,
+    targetGroup: row.target_group,
+    targetTypes: row.target_types ?? [],
+    status: row.status,
+    viewCount: row.view_count,
+    moderationNote: row.moderation_note,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    business,
+    offers,
+  };
+}
+
 export async function getAdminSupportTickets(): Promise<AdminSupportTicket[]> {
   if (!hasEnv()) return [];
   const access = await getAdminAccess();
@@ -243,6 +356,20 @@ export async function getNewSupportTicketCount(): Promise<number> {
     .from("support_tickets")
     .select("id", { count: "exact", head: true })
     .eq("status", "new");
+  if (error) return 0;
+  return count ?? 0;
+}
+
+/* Denetlenmemiş yeni B2B talebi sayısı: yayında olup henüz moderasyon notu
+   girilmemiş (admin dokunmamış) ilanlar. Bildirim zili bunu gösterir. */
+export async function getNewB2bRequestCount(): Promise<number> {
+  if (!hasEnv()) return 0;
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("b2b_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "published")
+    .is("moderation_note", null);
   if (error) return 0;
   return count ?? 0;
 }

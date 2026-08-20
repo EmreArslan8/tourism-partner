@@ -214,6 +214,12 @@ export const routing = defineRouting({
       ru: "/admin/requests",
       ar: "/admin/requests",
     },
+    "/admin/talepler/[id]": {
+      tr: "/admin/talepler/[id]",
+      en: "/admin/requests/[id]",
+      ru: "/admin/requests/[id]",
+      ar: "/admin/requests/[id]",
+    },
     "/admin/partnerlik": {
       tr: "/admin/partnerlik",
       en: "/admin/partnerships",
