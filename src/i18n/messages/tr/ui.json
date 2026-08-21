@@ -431,6 +431,29 @@
     "bizContactEmailErr": "Geçerli bir e-posta gir"
   },
   "panel": {
+    "hub": {
+      "categories": "Kategorilere Göz Atın",
+      "featured": "Öne Çıkan İşletmeler",
+      "all": "Tümünü Gör",
+      "how": "Nasıl Çalışır?",
+      "heroText": "Turizm sektöründeki işletmelerle bağlantı kurun, fırsatları keşfedin, işinizi büyütün.",
+      "start": "Keşfetmeye Başla",
+      "learn": "Nasıl Çalışır?",
+      "announcements": "Platform Duyuruları",
+      "premium": "Premium Üye",
+      "promoTitle": "Daha Fazla Görünürlük\nDaha Fazla Fırsat",
+      "promoText": "İşletmenizi öne çıkarın, daha fazla iş fırsatı yakalayın.",
+      "promoCta": "Premium’a Geç",
+      "country": "Ülke",
+      "category": "Kategori",
+      "empty": "Henüz gösterilecek veri bulunmuyor.",
+      "steps": [
+        { "title": "Ücretsiz Kaydolun", "desc": "İşletme hesabınızı oluşturun ve profilinizi tamamlayın." },
+        { "title": "Keşfedin & Bağlanın", "desc": "İhtiyacınıza uygun işletmeleri bulun ve bağlantı kurun." },
+        { "title": "Teklif Alın & Karşılaştırın", "desc": "Teklif talepleri oluşturun, karşılaştırın ve seçiminizi yapın." },
+        { "title": "İşinizi Büyütün", "desc": "Güçlü iş ortaklıklarıyla büyümeye devam edin." }
+      ]
+    },
     "title": "Firma Paneli",
     "agencyTitle": "Acente Paneli",
     "supplierTitle": "Hizmet Sağlayıcı Paneli",
@@ -789,7 +812,27 @@
     "quoteStatusWon": "Kazanıldı",
     "quoteStatusClosed": "Kapatıldı",
     "quoteStatusLost": "Kaybedildi",
-    "quoteStatusRejected": "Reddedildi"
+    "quoteStatusRejected": "Reddedildi",
+    "dashboardHeroTitle": "Dünya Çapında Güçlü İş Ortaklıkları Kurun",
+    "dashboardHeroBusiness": "{name} için yeni fırsatları keşfedin, talepleri yönetin ve görünürlüğünüzü artırın.",
+    "dashboardHeroEmpty": "İşletme profilinizi tamamlayın ve turizm profesyonelleriyle bağlantı kurmaya başlayın.",
+    "discoverPartners": "İş Ortaklarını Keşfet",
+    "quickAccessEyebrow": "İşletme araçları",
+    "quickAccessTitle": "Hızlı erişim",
+    "quickDiscoverDetail": "Yeni tedarikçi ve iş ortakları bulun",
+    "quickRequestDetail": "İhtiyacınızı yayınlayıp teklif toplayın",
+    "quickProfileDetail": "Bilgilerinizi ve görsellerinizi güncelleyin",
+    "quickVisibilityDetail": "Arama sonuçlarında daha öne çıkın",
+    "weeklySummary": "Haftalık özet",
+    "profileComplete": "Profiliniz tamamlandı",
+    "visibilityPromoTitle": "Daha fazla görünürlük, daha fazla fırsat",
+    "visibilityPromoText": "İşletmenizi öne çıkarın ve daha fazla iş fırsatı yakalayın.",
+    "dashboardSearchPlaceholder": "İşletme, kategori, şehir veya anahtar kelime ara…",
+    "notifications": "Bildirimler",
+    "notifEmpty": "Yeni bildirim yok",
+    "notifNewRequests": "{count} yeni partner isteği",
+    "notifRequestHint": "Yanıt bekliyor — görüntülemek için tıkla",
+    "welcome": "Merhaba"
   },
   "resetPw": {
     "requestEyebrow": "Şifre Sıfırlama",

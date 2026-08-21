@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 import { useParams } from "next/navigation";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { useState, useRef, useEffect } from "react";
+import { Globe2 } from "lucide-react";
 import styles from "./styles";
 
 type Locale = "tr" | "en" | "ru" | "ar";
@@ -12,7 +13,7 @@ type Locale = "tr" | "en" | "ru" | "ar";
  * Dropdown dil seçici bileşeni.
  * next-intl navigation yardımcılarını kullanarak locale değiştirir.
  */
-const LocaleSwitcher = ({ light = false, inline = false }: { light?: boolean; inline?: boolean } = {}) => {
+const LocaleSwitcher = ({ light = false, inline = false, sidebar = false }: { light?: boolean; inline?: boolean; sidebar?: boolean } = {}) => {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
@@ -69,14 +70,15 @@ const LocaleSwitcher = ({ light = false, inline = false }: { light?: boolean; in
   }
 
   return (
-    <div className={styles.wrapper} ref={dropdownRef}>
+    <div className={sidebar ? styles.sidebarWrapper : styles.wrapper} ref={dropdownRef}>
       <button
         type="button"
-        className={light ? styles.buttonLight : styles.button}
+        className={sidebar ? styles.buttonSidebar : light ? styles.buttonLight : styles.button}
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
+        {sidebar && <Globe2 size={17} aria-hidden />}
         <span className={styles.label}>{currentLocale.label}</span>
         <span className="sr-only">{currentLocale.name}</span>
         <svg
@@ -93,15 +95,15 @@ const LocaleSwitcher = ({ light = false, inline = false }: { light?: boolean; in
       </button>
 
       {isOpen && (
-        <div className={styles.dropdown}>
+        <div className={sidebar ? styles.dropdownSidebar : styles.dropdown}>
           {locales.map((l) => (
             <button
               key={l.code}
-              className={`${styles.item} ${l.code === locale ? styles.itemActive : ""}`}
+              className={`${sidebar ? styles.sidebarItem : styles.item} ${l.code === locale ? (sidebar ? styles.sidebarItemActive : styles.itemActive) : ""}`}
               onClick={() => handleLocaleChange(l.code as Locale)}
             >
               <span className={styles.itemLeft}>
-                <span className={styles.itemName}>{l.name}</span>
+                <span className={sidebar ? styles.sidebarItemName : styles.itemName}>{l.name}</span>
               </span>
               <span className={styles.itemCode}>{l.code.toUpperCase()}</span>
             </button>

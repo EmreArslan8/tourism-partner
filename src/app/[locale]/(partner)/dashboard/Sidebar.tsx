@@ -1,12 +1,13 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Building2, FileText, Headset, Heart, Inbox, LayoutDashboard, LogOut, Rocket, Search, Star, X } from "lucide-react";
+import { Building2, Diamond, FileText, Headset, Heart, Inbox, LayoutDashboard, LogOut, Rocket, Search, Star, X } from "lucide-react";
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
 import { signOut } from "@/lib/actions/auth";
 import TopProgressBar from "@/components/TopProgressBar";
+import LocaleSwitcher from "@/components/LocaleSwitcher";
 import styles from "./styles";
 
 /* Nav öğesi — link'in navigasyonu beklerken (useLinkStatus.pending) üstteki
@@ -34,7 +35,6 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
     { href: "/dashboard/businesses", icon: Building2, label: t("businessesNav"), match: "/dashboard/businesses" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
     { href: "/dashboard/teklifler", icon: Inbox, label: t("quotesInboxNav"), match: "/dashboard/teklifler" },
-    { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
     { href: "/dashboard/reviews", icon: Star, label: t("reviewsNav"), match: "/dashboard/reviews" },
     { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping" },
@@ -58,13 +58,13 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
           type="button"
           onClick={onClose}
           aria-label={t("closeMenu")}
-          className="absolute end-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-[10px] border border-line bg-cream/50 text-brand transition-colors hover:bg-cream active:scale-95 min-[900px]:hidden"
+          className="absolute end-3 top-3 z-10 grid h-9 w-9 place-items-center rounded-[10px] border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/15 active:scale-95 min-[900px]:hidden"
         >
           <X size={18} aria-hidden />
         </button>
         <Link href="/" className={styles.brandMark} aria-label="Tourism Partner" onClick={onClose}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/logo.svg" alt="Tourism Partner" className={styles.logoImg} />
+          <img src="/assets/logo-white.svg" alt="Tourism Partner" className={styles.logoImg} />
         </Link>
 
         <nav className={styles.sideNav} aria-label={t("partnerWorkspace")}>
@@ -74,6 +74,17 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
             </Link>
           ))}
         </nav>
+
+        <div className={styles.sidebarPromo}>
+          <Diamond size={22} aria-hidden />
+          <div>
+            <strong>{t("visibilityPromoTitle")}</strong>
+            <span>{t("visibilityPromoText")}</span>
+          </div>
+          <Link href="/dashboard/doping" onClick={onClose}>{t("dopingCta")}</Link>
+        </div>
+
+        <LocaleSwitcher sidebar />
 
         <div className={styles.sidebarFoot}>
           <span>{t("signedInAs")}</span>

@@ -431,6 +431,29 @@
     "bizContactEmailErr": "أدخل بريدًا صحيحًا"
   },
   "panel": {
+    "hub": {
+      "categories": "تصفح الفئات",
+      "featured": "شركات مميزة",
+      "all": "عرض الكل",
+      "how": "كيف يعمل؟",
+      "heroText": "تواصل مع شركات السياحة واكتشف الفرص ونمِّ أعمالك.",
+      "start": "ابدأ الاستكشاف",
+      "learn": "كيف يعمل؟",
+      "announcements": "إعلانات المنصة",
+      "premium": "عضو مميز",
+      "promoTitle": "ظهور أكبر\nفرص أكثر",
+      "promoText": "أبرز شركتك واكتشف المزيد من فرص الأعمال.",
+      "promoCta": "الترقية إلى Premium",
+      "country": "دولة",
+      "category": "فئة",
+      "empty": "لا توجد بيانات للعرض بعد.",
+      "steps": [
+        { "title": "سجّل مجانًا", "desc": "أنشئ حساب شركتك وأكمل ملفك." },
+        { "title": "اكتشف وتواصل", "desc": "اعثر على الشركات المناسبة." },
+        { "title": "قارن العروض", "desc": "أنشئ الطلبات وقارن العروض." },
+        { "title": "نمِّ أعمالك", "desc": "واصل النمو مع شركاء أقوياء." }
+      ]
+    },
     "title": "لوحة الشركة",
     "agencyTitle": "لوحة الوكالة",
     "supplierTitle": "لوحة مزود الخدمة",
@@ -789,7 +812,27 @@
     "quoteStatusWon": "تم الفوز",
     "quoteStatusClosed": "مغلق",
     "quoteStatusLost": "خاسر",
-    "quoteStatusRejected": "مرفوض"
+    "quoteStatusRejected": "مرفوض",
+    "dashboardHeroTitle": "ابنِ شراكات أعمال قوية حول العالم",
+    "dashboardHeroBusiness": "اكتشف فرصًا جديدة لـ {name} وأدر الطلبات وعزز ظهورك.",
+    "dashboardHeroEmpty": "أكمل ملف شركتك وابدأ التواصل مع محترفي السياحة.",
+    "discoverPartners": "اكتشف الشركاء",
+    "quickAccessEyebrow": "أدوات الأعمال",
+    "quickAccessTitle": "وصول سريع",
+    "quickDiscoverDetail": "اعثر على موردين وشركاء جدد",
+    "quickRequestDetail": "انشر احتياجاتك واجمع العروض",
+    "quickProfileDetail": "حدّث معلوماتك وصورك",
+    "quickVisibilityDetail": "تقدم في نتائج البحث",
+    "weeklySummary": "ملخص أسبوعي",
+    "profileComplete": "ملفك مكتمل",
+    "visibilityPromoTitle": "ظهور أكبر وفرص أكثر",
+    "visibilityPromoText": "روّج لشركتك واحصل على مزيد من الفرص.",
+    "dashboardSearchPlaceholder": "ابحث عن شركة أو فئة أو مدينة أو كلمة…",
+    "notifications": "الإشعارات",
+    "notifEmpty": "لا توجد إشعارات جديدة",
+    "notifNewRequests": "{count} طلبات شراكة جديدة",
+    "notifRequestHint": "بانتظار الرد — انقر للعرض",
+    "welcome": "مرحبًا"
   },
   "resetPw": {
     "requestEyebrow": "إعادة تعيين كلمة المرور",

@@ -431,6 +431,29 @@
     "bizContactEmailErr": "Enter a valid email"
   },
   "panel": {
+    "hub": {
+      "categories": "Browse Categories",
+      "featured": "Featured Businesses",
+      "all": "View All",
+      "how": "How It Works",
+      "heroText": "Connect with tourism businesses, discover opportunities and grow your business.",
+      "start": "Start Exploring",
+      "learn": "How It Works",
+      "announcements": "Platform News",
+      "premium": "Premium Member",
+      "promoTitle": "More Visibility\nMore Opportunity",
+      "promoText": "Put your business forward and reach more opportunities.",
+      "promoCta": "Go Premium",
+      "country": "Countries",
+      "category": "Categories",
+      "empty": "No data to display yet.",
+      "steps": [
+        { "title": "Join for Free", "desc": "Create your business account and complete your profile." },
+        { "title": "Discover & Connect", "desc": "Find businesses that match your needs." },
+        { "title": "Get & Compare Quotes", "desc": "Create requests, compare and choose." },
+        { "title": "Grow Your Business", "desc": "Keep growing through strong partnerships." }
+      ]
+    },
     "title": "Business Panel",
     "agencyTitle": "Agency Dashboard",
     "supplierTitle": "Service Provider Dashboard",
@@ -789,7 +812,27 @@
     "quoteStatusWon": "Won",
     "quoteStatusClosed": "Closed",
     "quoteStatusLost": "Lost",
-    "quoteStatusRejected": "Rejected"
+    "quoteStatusRejected": "Rejected",
+    "dashboardHeroTitle": "Build Strong Business Partnerships Worldwide",
+    "dashboardHeroBusiness": "Discover new opportunities for {name}, manage requests and increase your visibility.",
+    "dashboardHeroEmpty": "Complete your business profile and start connecting with tourism professionals.",
+    "discoverPartners": "Discover Partners",
+    "quickAccessEyebrow": "Business tools",
+    "quickAccessTitle": "Quick access",
+    "quickDiscoverDetail": "Find new suppliers and business partners",
+    "quickRequestDetail": "Publish your needs and collect offers",
+    "quickProfileDetail": "Update your information and visuals",
+    "quickVisibilityDetail": "Stand out higher in search results",
+    "weeklySummary": "Weekly summary",
+    "profileComplete": "Your profile is complete",
+    "visibilityPromoTitle": "More visibility, more opportunities",
+    "visibilityPromoText": "Promote your business and reach more opportunities.",
+    "dashboardSearchPlaceholder": "Search business, category, city or keyword…",
+    "notifications": "Notifications",
+    "notifEmpty": "No new notifications",
+    "notifNewRequests": "{count} new partner requests",
+    "notifRequestHint": "Awaiting response — click to view",
+    "welcome": "Hello"
   },
   "resetPw": {
     "requestEyebrow": "Password Reset",

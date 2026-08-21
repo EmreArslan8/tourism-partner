@@ -5,6 +5,9 @@ import { selectAll } from "@/lib/supabase/select-all";
 import { getPanelUser, getPanelSession } from "@/lib/panel-auth";
 import { withSignedDocumentUrls } from "@/lib/business-documents";
 import { getServiceSlugs } from "@/lib/business-services";
+import { businessSlug, getBusinesses } from "@/lib/businesses";
+import { realBusinessImages } from "@/lib/business-images";
+import { rankShowcaseCandidates } from "@/lib/showcase";
 import DashboardView, {
   PanelBusiness,
   PanelContact,
@@ -13,7 +16,7 @@ import DashboardView, {
   PanelPartnerRequest,
   PanelQuote,
 } from "./view";
-import type { PanelViewStats } from "./Overview";
+import type { PanelAnnouncement, PanelFeaturedBusiness, PanelOverviewStats, PanelViewStats } from "./Overview";
 
 export type DashboardMode = "overview" | "listings" | "edit";
 
@@ -255,6 +258,37 @@ export async function PanelData({
     ? await loadViewStats(Number(selectedBusinessRow.id))
     : { current: 0, previous: 0, days: [] };
 
+  let featuredBusinesses: PanelFeaturedBusiness[] = [];
+  let announcements: PanelAnnouncement[] = [];
+  let overviewStats: PanelOverviewStats = { businesses: 0, countries: 0, categories: 0, categoryCounts: {} };
+  if (mode === "overview") {
+    const [publicBusinesses, popupResult] = await Promise.all([
+      getBusinesses(),
+      supabase.from("admin_popups").select("id,title,created_at,starts_at,ends_at").eq("status", "active").in("target_role", ["all", "supplier"]).order("created_at", { ascending: false }).limit(20),
+    ]);
+    const categoryCounts = publicBusinesses.reduce<Record<string, number>>((counts, item) => {
+      counts[item.group] = (counts[item.group] ?? 0) + 1;
+      return counts;
+    }, {});
+    overviewStats = {
+      businesses: publicBusinesses.length,
+      countries: new Set(publicBusinesses.map((item) => item.country).filter(Boolean)).size,
+      categories: Object.keys(categoryCounts).length,
+      categoryCounts,
+    };
+    featuredBusinesses = rankShowcaseCandidates(publicBusinesses).slice(0, 4).flatMap((item) => {
+      const image = realBusinessImages(item.image, item.images)[0];
+      return image ? [{ id: item.id, slug: businessSlug(item), name: item.name, type: item.type, city: item.city, country: item.country, rating: item.rating, reviews: item.reviews, sponsored: item.sponsored, image }] : [];
+    });
+    // Server tarafında tek istek anındaki aktif duyuru penceresini sabitler.
+    // eslint-disable-next-line react-hooks/purity
+    const now = Date.now();
+    announcements = (popupResult.data ?? [])
+      .filter((item) => (!item.starts_at || new Date(item.starts_at).getTime() <= now) && (!item.ends_at || new Date(item.ends_at).getTime() >= now))
+      .slice(0, 3)
+      .map((item) => ({ id: item.id, title: item.title, createdAt: item.created_at }));
+  }
+
   return (
     <DashboardView
       mode={mode}
@@ -262,6 +296,9 @@ export async function PanelData({
       businesses={businesses as PanelBusiness[]}
       quotes={quotes}
       viewStats={viewStats}
+      featuredBusinesses={featuredBusinesses}
+      announcements={announcements}
+      overviewStats={overviewStats}
       email={user!.email ?? ""}
       userId={userId}
       group={group}

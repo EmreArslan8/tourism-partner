@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, ImagePlus, Images, LoaderCircle, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
+import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, Globe2, ImagePlus, Images, LoaderCircle, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
@@ -21,7 +21,8 @@ import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness, sendPartne
 import type { PartnerRequestActionState } from "@/lib/actions/panel";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/common/Dialog";
 import ServiceMultiSelect from "@/components/ServiceMultiSelect";
-import { OverviewDashboard, getProfileScore, type PanelViewStats } from "./Overview";
+import { OverviewDashboard, getProfileScore, type PanelAnnouncement, type PanelFeaturedBusiness, type PanelOverviewStats, type PanelViewStats } from "./Overview";
+import PanelNotifyBell from "./PanelNotifyBell";
 
 /* Sosyal medya platform etiketleri/örnekleri — özel isimler, çeviri gerekmez. */
 const SOCIAL_LABELS: Record<SocialPlatform, string> = {
@@ -283,6 +284,7 @@ const DashboardView = ({
   business,
   businesses,
   quotes,
+  email,
   userId,
   group,
   meta,
@@ -293,6 +295,9 @@ const DashboardView = ({
   incomingPartnerRequests,
   outgoingPartnerRequests,
   viewStats,
+  featuredBusinesses,
+  announcements,
+  overviewStats,
 }: {
   mode: "overview" | "listings" | "edit";
   business: PanelBusiness | null;
@@ -309,6 +314,9 @@ const DashboardView = ({
   incomingPartnerRequests: PanelPartnerRequest[];
   outgoingPartnerRequests: PanelPartnerRequest[];
   viewStats: PanelViewStats;
+  featuredBusinesses: PanelFeaturedBusiness[];
+  announcements: PanelAnnouncement[];
+  overviewStats: PanelOverviewStats;
 }) => {
   const t = useTranslations("panel");
   const tc = useTranslations("cat");
@@ -540,20 +548,44 @@ const DashboardView = ({
     <>
         <div className={styles.topbar}>
           <div className={styles.topbarInner}>
-            <div className={styles.topbarText}>
-              <h1 className={styles.title}>{isAgency ? t("agencyTitle") : t("supplierTitle")}</h1>
-              <p className={styles.email}>
-                {b?.name || meta.firm_name || (isAgency ? t("agencyMode") : isGuide ? t("guideMode") : t("supplierMode"))}
-              </p>
-            </div>
+            {isOverview ? (
+              <label className={styles.dashboardSearch}>
+                <Search size={17} aria-hidden />
+                <input type="search" placeholder={t("dashboardSearchPlaceholder")} aria-label={t("dashboardSearchPlaceholder")} />
+              </label>
+            ) : (
+              <div className={styles.topbarText}>
+                <h1 className={styles.title}>{isAgency ? t("agencyTitle") : t("supplierTitle")}</h1>
+                <p className={styles.email}>
+                  {b?.name || meta.firm_name || (isAgency ? t("agencyMode") : isGuide ? t("guideMode") : t("supplierMode"))}
+                </p>
+              </div>
+            )}
             <div className={styles.actions}>
-              {b && (
+              {isOverview && (
+                <>
+                  <PanelNotifyBell
+                    href={editListingHref}
+                    requests={incomingPartnerRequests.map((r) => ({
+                      id: r.id,
+                      name: r.business.name,
+                      meta: [tc(r.business.group), serviceName(r.business.type), r.business.city].filter(Boolean).join(" · "),
+                    }))}
+                  />
+                  <Link href="/explore" className={styles.dashboardTopIcon} aria-label={t("searchSuppliers")}><Globe2 size={18} aria-hidden /></Link>
+                  <div className={styles.dashboardAccount}>
+                    <span>{(b?.name || meta.firm_name || email || "T").slice(0, 1).toLocaleUpperCase("tr-TR")}</span>
+                    <div><small>{t("welcome")}</small><strong>{b?.name || meta.firm_name || email}</strong></div>
+                  </div>
+                </>
+              )}
+              {!isOverview && b && (
                 <Link href={previewHref!} target="_blank" className={styles.compactSecondaryButton}>
                   <Eye size={15} aria-hidden />
                   <span className="max-[680px]:hidden">{t("preview")}</span>
                 </Link>
               )}
-              {mode !== "edit" && (
+              {!isOverview && mode !== "edit" && (
                 <Link href={editListingHref} className={styles.compactPrimaryButton}>
                   <PencilLine size={15} aria-hidden />
                   <span className="max-[680px]:hidden">{b ? t("editListing") : t("newListing")}</span>
@@ -651,6 +683,9 @@ const DashboardView = ({
               viewStats={viewStats}
               quotes={quotes}
               isAgency={isAgency}
+              featuredBusinesses={featuredBusinesses}
+              announcements={announcements}
+              overviewStats={overviewStats}
             />
           ) : hasListingDashboard && !showProfileForm && b ? (
             <ListingsDashboard
