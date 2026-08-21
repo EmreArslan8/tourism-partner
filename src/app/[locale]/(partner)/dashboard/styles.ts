@@ -41,7 +41,7 @@ const styles = {
   dashboardSearch:
     "flex h-10 w-full max-w-[560px] items-center gap-2.5 rounded-[10px] border border-line/75 bg-paper px-3.5 text-muted shadow-[0_8px_24px_-24px_rgba(44,25,94,.7)] transition focus-within:border-[#a78bfa] focus-within:ring-2 focus-within:ring-[#7c3aed]/10 [&>input]:min-w-0 [&>input]:flex-1 [&>input]:bg-transparent [&>input]:text-[12px] [&>input]:text-ink [&>input]:outline-none [&>input]:placeholder:text-muted/65",
   dashboardTopIcon:
-    "relative grid h-10 w-10 place-items-center rounded-[9px] text-brand transition hover:bg-cream/60 [&>svg]:h-5 [&>svg]:w-5 [&>i]:absolute [&>i]:end-1.5 [&>i]:top-1.5 [&>i]:h-1.5 [&>i]:w-1.5 [&>i]:rounded-full [&>i]:bg-[#7c3aed] [&>i]:ring-2 [&>i]:ring-white",
+    "relative grid h-10 w-10 place-items-center rounded-[9px] text-violet-500 transition hover:bg-cream/60 [&>svg]:h-5 [&>svg]:w-5 [&>i]:absolute [&>i]:end-1.5 [&>i]:top-1.5 [&>i]:h-1.5 [&>i]:w-1.5 [&>i]:rounded-full [&>i]:bg-[#7c3aed] [&>i]:ring-2 [&>i]:ring-white",
   notifWrap: "relative shrink-0",
   notifMenu:
     "absolute end-0 top-[calc(100%+8px)] z-50 w-[280px] overflow-hidden rounded-xl border border-line bg-paper shadow-[0_16px_44px_-16px_rgba(15,23,42,.35)]",
@@ -126,11 +126,11 @@ const styles = {
   dashboardHeroEyebrow: "inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[.13em] text-violet-200",
   dashboardHeroActions: "mt-5 flex flex-wrap gap-2.5",
   dashboardHeroPrimary:
-    "inline-flex h-10 items-center justify-center gap-2 rounded-[8px] bg-[#7c3aed] px-4 text-[12.5px] font-semibold text-white shadow-[0_12px_24px_-12px_rgba(124,58,237,.9)] transition hover:-translate-y-0.5 hover:bg-[#8b5cf6]",
+    "inline-flex h-10 items-center justify-center gap-2 rounded-[8px] bg-white px-4 text-[12.5px] font-semibold text-[#7c3aed] shadow-[0_12px_24px_-12px_rgba(124,58,237,.9)] transition hover:-translate-y-0.5 hover:bg-white/90",
   dashboardHeroSecondary:
     "inline-flex h-10 items-center justify-center gap-2 rounded-[8px] border border-white/30 bg-white/8 px-4 text-[12.5px] font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/14",
   dashboardHeroStats:
-    "absolute bottom-0 end-0 z-10 grid w-full grid-cols-3 border-t border-white/15 bg-[#251650]/75 px-3 py-3 text-white backdrop-blur-md min-[680px]:bottom-auto min-[680px]:end-5 min-[680px]:top-[92px] min-[680px]:w-[360px] min-[680px]:rounded-[11px] min-[680px]:border [&>div]:flex [&>div]:min-w-0 [&>div]:items-center [&>div]:gap-2 [&>div]:px-3 [&>div+div]:border-s [&>div+div]:border-white/15 [&_svg]:h-[20px] [&_svg]:w-[20px] [&_svg]:shrink-0 [&_svg]:text-violet-200 [&_span]:min-w-0 [&_span]:truncate [&_span]:text-[9px] [&_span]:text-white/65 [&_strong]:block [&_strong]:text-[15px] [&_strong]:font-semibold [&_strong]:leading-5 [&_strong]:text-white",
+    "absolute bottom-0 end-0 z-10 grid w-full grid-cols-3 border-t border-white/15 bg-[#251650]/75 px-3 py-3 text-white backdrop-blur-md min-[680px]:bottom-auto min-[680px]:end-5 min-[680px]:top-[92px] min-[680px]:w-[360px] min-[680px]:rounded-[11px] min-[680px]:border [&>div]:flex [&>div]:min-w-0 [&>div]:items-center [&>div]:gap-2 [&>div]:px-3 [&>div+div]:border-s [&>div+div]:border-white/15 [&_svg]:h-[20px] [&_svg]:w-[20px] [&_svg]:shrink-0 [&_svg]:text-white [&_span]:min-w-0 [&_span]:truncate [&_span]:text-[9px] [&_span]:text-white/65 [&_strong]:block [&_strong]:text-[15px] [&_strong]:font-semibold [&_strong]:leading-5 [&_strong]:text-white",
   dashboardSectionHead: "mb-2.5 flex items-center justify-between [&_h3]:text-[16px] [&_h3]:font-semibold [&_h3]:text-ink [&_a]:inline-flex [&_a]:items-center [&_a]:gap-1 [&_a]:text-[10.5px] [&_a]:font-semibold [&_a]:text-brand [&_svg]:h-3 [&_svg]:w-3",
   dashboardCategoryGrid: "grid grid-cols-2 gap-2 min-[600px]:grid-cols-4 min-[1280px]:grid-cols-7",
   dashboardCategoryCard: "group grid min-h-[136px] place-items-center content-center rounded-[10px] border border-line/75 bg-paper px-2 py-3 text-center transition hover:-translate-y-0.5 hover:border-violet-300 hover:shadow-[0_12px_25px_-20px_rgba(76,29,149,.65)] [&>span]:grid [&>span]:h-[42px] [&>span]:w-[42px] [&>span]:place-items-center [&>span]:rounded-full [&>span]:bg-[#f3edff] [&>span]:text-[#7137df] [&_svg]:h-[22px] [&_svg]:w-[22px] [&>strong]:mt-2 [&>strong]:text-[10.5px] [&>strong]:font-semibold [&>strong]:leading-4 [&>small]:mt-0.5 [&>small]:text-[9.5px] [&>small]:text-muted",

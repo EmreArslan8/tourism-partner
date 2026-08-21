@@ -6,7 +6,7 @@ import {
   Heart, MapPin, Plane, Star, Users,
 } from "lucide-react";
 import { Link, type Href } from "@/i18n/navigation";
-import { serviceTranslationKey } from "@/lib/categories";
+import { serviceTranslationKey, groupUrlSlug } from "@/lib/categories";
 import styles from "./styles";
 import type { PanelBusiness, PanelQuote } from "./view";
 
@@ -91,7 +91,7 @@ export const OverviewDashboard = ({ business, newQuoteCount, quotes, isAgency, f
         <section>
           <SectionHead title={t("hub.categories")} label={t("hub.all")} href="/explore" />
           <div className={styles.dashboardCategoryGrid}>
-            {categories.map(({ key, Icon }) => <Link href={{ pathname: "/explore", query: { group: key } }} className={styles.dashboardCategoryCard} key={key}><span><Icon aria-hidden /></span><strong>{tc(key)}</strong><small>{overviewStats.categoryCounts[key]?.toLocaleString(locale) ?? "0"}</small></Link>)}
+            {categories.map(({ key, Icon }) => <Link href={{ pathname: "/explore", query: { cat: groupUrlSlug(key) } }} className={styles.dashboardCategoryCard} key={key}><span><Icon aria-hidden /></span><strong>{tc(key)}</strong><small>{overviewStats.categoryCounts[key]?.toLocaleString(locale) ?? "0"}</small></Link>)}
           </div>
         </section>
 
