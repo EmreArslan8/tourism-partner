@@ -10,16 +10,13 @@
   // marquee içeriğin hemen ardından sabit durur, altından VİTRİN bölümü akışta gelir.
   section:
     "relative isolate flex min-h-[100svh] w-full flex-col overflow-hidden " +
-    "bg-white dark:bg-panel-bg " +
+    "bg-panel-bg " +
     "max-[640px]:min-h-0",
   picture:
     "absolute inset-0 -z-10 overflow-hidden",
-  pictureLight: "block bg-white dark:hidden",
-  pictureDark: "hidden bg-panel-bg dark:block",
+  /* Site tek temada (koyu) — açık tema <picture>'ı kaldırıldı, tek sahne kaldı. */
+  pictureDark: "block bg-panel-bg",
   image: "h-full w-full object-cover transition-opacity duration-300",
-  imageLight:
-    "object-[66%_center] brightness-[.96] saturate-[.94] " +
-    "max-[1024px]:object-[62%_65%] max-[1024px]:opacity-48 max-[640px]:object-center max-[640px]:opacity-30",
   imageDark:
     "object-[66%_center] brightness-[1.16] saturate-[.94] " +
     "max-[1024px]:object-[62%_65%] max-[640px]:object-center",
@@ -28,17 +25,6 @@
   // Yalnız telefon kendi dikey görselini kullanır; tablet masaüstü sahnesini paylaşır.
   // Masaüstünde görsel çok doygun/parlak mor → hafif desatüre + koyulaştır ki
   // mor "aksan" olsun, tüm alanı kaplayan boğucu bir zemin olmasın.
-  // Etkileşimli küre (yalnız masaüstü ≥1025px; mobil/tablet statik fotoğrafla kalır).
-  // Sağ tarafa demirli; içerik (sol) DOM'da sonra geldiği için üstte kalır.
-  globeWrap:
-    "pointer-events-none absolute end-[-20vw] top-[88%] z-0 hidden aspect-square " +
-    "w-[min(72vw,720px)] -translate-y-1/2 min-[1025px]:block " +
-    "min-[1440px]:end-[-20vw] min-[1600px]:end-[-16vw]",
-  // Fotoğraftaki statik küreyi yumuşakça maskeler + kürenin arkasına gece-mavi halo verir.
-  globeHalo:
-    "absolute inset-[-10%] rounded-full " +
-    "bg-[radial-gradient(closest-side,#01082f_46%,rgba(1,8,47,.78)_64%,rgba(1,8,47,0)_100%)]",
-  globeCanvas: "pointer-events-auto relative h-full w-full",
   inner:
     "container-px flex min-h-[520px] flex-1 flex-col items-start justify-center  text-start " +
     // Header absolute olduğundan güvenli alan: ortalanan içerik kısa ekranda header altına giremesin.

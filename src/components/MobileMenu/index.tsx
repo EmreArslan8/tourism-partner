@@ -8,7 +8,6 @@ import type { Href } from "@/i18n/navigation";
 import SignOutForm from "@/components/auth/SignOutForm";
 import Logo from "@/components/Logo";
 import LangSwitcher from "@/components/LocaleSwitcher";
-import ThemeToggle from "@/components/ThemeToggle";
 import styles from "./styles";
 
 
@@ -66,7 +65,6 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }:
               <Logo href="/" height={34} variant="brand" />
             </span>
             <div className={styles.topActions}>
-              <ThemeToggle />
               <button type="button" className={styles.close} aria-label={common("close")} onClick={close}>
                 <X size={20} aria-hidden />
               </button>

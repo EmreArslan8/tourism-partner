@@ -43,10 +43,18 @@ başlığı üretir; nginx varsayılan buffer'ı (4k/8k) taşınca `upstream sen
 → 502 döner. Login, `/api/auth/callback` (mail doğrulama + şifre sıfırlama), kayıt ve
 token yenileme — auth çerezi yazan her yol etkilenir.
 
+Girişten sonraki istek yönü için de `client_header_buffer_size 16k` ve
+`large_client_header_buffers 8 32k` zorunludur. Bunlar yoksa uzun `user_metadata`
+içeren Supabase JWT/cookie, başarılı login yönlendirmesinden sonra nginx tarafından
+`400 Request Header Or Cookie Too Large` ile reddedilir; panelin RSC ve statik asset
+istekleri Next.js container'ına hiç ulaşmaz.
+
 Sunucu yeniden kurulursa veya nginx config'i sıfırlanırsa bu satırları tekrar ekle:
 ```bash
 # location / { proxy_pass http://127.0.0.1:3000; } bloğunun içine:
 proxy_buffer_size 16k; proxy_buffers 8 16k; proxy_busy_buffers_size 32k;
+# server { } bloğunda, location dışında:
+client_header_buffer_size 16k; large_client_header_buffers 8 32k;
 nginx -t && systemctl reload nginx
 ```
 

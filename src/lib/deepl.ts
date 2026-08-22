@@ -8,7 +8,7 @@ const TARGET_LANG = {
 export type DeepLLocale = keyof typeof TARGET_LANG;
 
 export type DeepLResult =
-  | { ok: true; text: string }
+  | { ok: true; text: string; detectedSourceLang?: string }
   | { ok: false; error: string };
 
 export async function translateWithDeepL(text: string, locale: DeepLLocale): Promise<DeepLResult> {
@@ -31,11 +31,17 @@ export async function translateWithDeepL(text: string, locale: DeepLLocale): Pro
       },
       body,
     });
-    const json = await res.json().catch(() => null) as { translations?: Array<{ text?: string }>; message?: string } | null;
+    const json = await res.json().catch(() => null) as {
+      translations?: Array<{ text?: string; detected_source_language?: string }>;
+      message?: string;
+    } | null;
     if (!res.ok) return { ok: false, error: json?.message || `DeepL ${res.status}` };
 
     const translated = json?.translations?.[0]?.text?.trim();
-    return translated ? { ok: true, text: translated } : { ok: false, error: "DeepL boş çeviri döndürdü" };
+    const detectedSourceLang = json?.translations?.[0]?.detected_source_language?.toLowerCase();
+    return translated
+      ? { ok: true, text: translated, detectedSourceLang }
+      : { ok: false, error: "DeepL boş çeviri döndürdü" };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "DeepL isteği başarısız" };
   }

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { hashBusinessInviteToken } from "@/lib/business-owner-invites";
+import { compactBusinessAuthMetadata } from "@/lib/auth-metadata";
 import { ensureBusinessForUser } from "@/lib/signup-intents";
 import { createClient } from "@/lib/supabase/server";
 import { sendWelcomeEmailOnce } from "@/lib/welcome-email";
@@ -74,8 +75,10 @@ export async function GET(request: NextRequest) {
   const dest = DEST[effectiveLocale];
 
   if (userData.user) {
+    let businessIsSafe = false;
     try {
       const ensured = await ensureBusinessForUser(userData.user.id);
+      businessIsSafe = ensured.ok;
       if (!ensured.ok && ensured.reason === "error") {
         console.error("[auth/callback] işletme tamamlanamadı", {
           userId: userData.user.id,
@@ -96,6 +99,29 @@ export async function GET(request: NextRequest) {
       });
     } catch (error) {
       console.error("[welcome-email] beklenmeyen hata", error instanceof Error ? error.message : error);
+    }
+
+    // Hoş geldin bayrağı yazıldıktan ve işletme kalıcı olarak garanti edildikten
+    // sonra eski işletme payload'ını Auth/JWT'den çıkarıp cookie'yi yenile.
+    if (businessIsSafe) {
+      const compacted = await compactBusinessAuthMetadata(
+        userData.user.id,
+        userData.user.user_metadata as Record<string, unknown>,
+      );
+      if (!compacted.ok) {
+        console.error("[auth/callback] auth metadata küçültülemedi", {
+          userId: userData.user.id,
+          error: compacted.error,
+        });
+      } else if (compacted.changed) {
+        const { error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshError) {
+          console.error("[auth/callback] oturum yenilenemedi", {
+            userId: userData.user.id,
+            error: refreshError.message,
+          });
+        }
+      }
     }
   }
 

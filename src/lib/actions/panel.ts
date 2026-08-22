@@ -289,19 +289,43 @@ export async function saveMyBusiness(
     documents = [];
   }
 
+  // Düzenlemede kategori/türün doğruluk kaynağı Auth metadata değil, sahip olunan
+  // işletme kaydıdır. JWT'deki legacy biz_* alanları temizlenmiş olabilir.
+  const idRaw = String(formData.get("id") ?? "").trim();
+  if (idRaw && !/^\d+$/.test(idRaw)) return { ok: false, error: "notFound" };
+  const editingBusinessId = idRaw ? Number(idRaw) : null;
+  let currentBusiness: {
+    group: string;
+    type: string;
+    documents: unknown;
+    status: string;
+  } | null = null;
+  if (editingBusinessId) {
+    const { data, error } = await supabase
+      .from("businesses")
+      .select("group,type,documents,status")
+      .eq("id", editingBusinessId)
+      .eq("owner_id", user.id)
+      .single();
+    if (error) return { ok: false, error: error.message };
+    if (!data) return { ok: false, error: "notFound" };
+    currentBusiness = data;
+  }
+
   // Çoklu hizmet seçimi (business_services). İlk seçilen birincil → type.
   const rawServices = formData.getAll("services").map((value) => String(value));
-  const meta = user.user_metadata ?? {};
-  const requestedGroup = groupFromMetadata(meta.biz_group);
-  const idRaw = String(formData.get("id") ?? "").trim();
-  const formGroup = groupFromForm(formData.get("group"), requestedGroup);
-  const inputGroup = idRaw ? requestedGroup : formGroup;
+  const formGroup = groupFromForm(formData.get("group"), "konaklama");
+  const inputGroup = currentBusiness ? groupFromMetadata(currentBusiness.group) : formGroup;
   const serviceSlugs = rawServices
     .map((value) => serviceSlug(value, inputGroup))
     .filter((value): value is string => Boolean(value));
-  const payloadType = serviceSlugs[0] ?? serviceSlug(clean(formData.get("type"), 80) ?? "", inputGroup) ?? "";
-  if (!payloadType || (!idRaw && !isServiceOfGroup(payloadType, formGroup))) return { ok: false, error: "missing" };
-  let savedGroup: GroupKey = idRaw ? requestedGroup : formGroup;
+  const payloadType =
+    serviceSlugs[0] ??
+    serviceSlug(clean(formData.get("type"), 80) ?? "", inputGroup) ??
+    (currentBusiness ? serviceSlug(currentBusiness.type, inputGroup) : null) ??
+    "";
+  if (!payloadType || !isServiceOfGroup(payloadType, inputGroup)) return { ok: false, error: "missing" };
+  let savedGroup: GroupKey = inputGroup;
 
   const payload = {
     name,
@@ -321,7 +345,7 @@ export async function saveMyBusiness(
     images,
     attributes,
     details,
-    documents: filterAllowedDocuments(documents, requestedGroup, payloadType || (meta.biz_type as string) || ""),
+    documents: filterAllowedDocuments(documents, inputGroup, payloadType),
   };
 
   const contacts = parseContacts(formData.get("contacts"));
@@ -332,17 +356,9 @@ export async function saveMyBusiness(
 
   try {
     let savedBusinessId: number | null = null;
-    if (idRaw && /^\d+$/.test(idRaw)) {
-      const businessId = Number(idRaw);
+    if (editingBusinessId && currentBusiness) {
+      const businessId = editingBusinessId;
       savedBusinessId = businessId;
-      const { data: currentBusiness, error: currentError } = await supabase
-        .from("businesses")
-        .select("group,type,documents,status")
-        .eq("id", businessId)
-        .eq("owner_id", user.id)
-        .single();
-      if (currentError) return { ok: false, error: currentError.message };
-      if (!currentBusiness) return { ok: false, error: "notFound" };
 
       // Reddedilen ilan düzeltilip kaydedilince onay kuyruğuna geri döner ve eski
       // gerekçe temizlenir. Blacklist/askı/süre bitimi bu yolla aşılamaz.
@@ -380,7 +396,7 @@ export async function saveMyBusiness(
     } else {
       const group = formGroup;
       savedGroup = group;
-      payload.documents = filterAllowedDocuments(payload.documents, group, payload.type || (meta.biz_type as string) || "");
+      payload.documents = filterAllowedDocuments(payload.documents, group, payload.type);
       const { data: ownedNames, error: duplicateReadError } = await supabase
         .from("businesses")
         .select("id,name")
@@ -394,7 +410,7 @@ export async function saveMyBusiness(
         group,
         status: "pending",
         ...payload,
-        type: payload.type || serviceSlug(String(meta.biz_type ?? ""), group) || "—",
+        type: payload.type,
       }).select("id").single();
       if (error?.code === "23505") return { ok: false, error: "duplicateBusiness" };
       if (error) return { ok: false, error: error.message };
@@ -404,7 +420,7 @@ export async function saveMyBusiness(
       await logOwnerBusinessCreate(user.id, data.id, {
         name,
         group,
-        type: payload.type || serviceSlug(String(meta.biz_type ?? ""), group) || "—",
+        type: payload.type,
       });
 
       const media = await finalizeBusinessMedia(

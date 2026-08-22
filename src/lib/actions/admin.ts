@@ -300,6 +300,10 @@ export async function translateBusinessProfile(formData: FormData): Promise<void
   const nextTranslations: Record<string, unknown> = { ...currentTranslations };
   const created: DeepLLocale[] = [];
   const failures: string[] = [];
+  /* Kaynak açıklamanın dili sabit değil: tedarikçilerin çoğu İngilizce, kimi
+     Arapça yazıyor. Bu yüzden Türkçe de kısayolla kopyalanmaz, o da DeepL'e
+     gider — kaynak dili DeepL kendisi algılar (source_lang göndermiyoruz). */
+  let detectedSourceLang: string | undefined;
 
   for (const target of ["tr", "en", "ru", "ar"] as DeepLLocale[]) {
     const existingEntry = nextTranslations[target];
@@ -308,11 +312,12 @@ export async function translateBusinessProfile(formData: FormData): Promise<void
       : "";
     if (existing) continue;
 
-    const translated = target === "tr" ? { ok: true as const, text: source } : await translateWithDeepL(source, target);
+    const translated = await translateWithDeepL(source, target);
     if (!translated.ok) {
       failures.push(`${target}: ${translated.error}`);
       continue;
     }
+    detectedSourceLang = translated.detectedSourceLang ?? detectedSourceLang;
     nextTranslations[target] = {
       ...(isObjectRecord(nextTranslations[target]) ? nextTranslations[target] : {}),
       description: translated.text,
@@ -330,6 +335,9 @@ export async function translateBusinessProfile(formData: FormData): Promise<void
   const payload = {
     details: {
       ...details,
+      /* Kaynağın hangi dilde yazıldığı veride kalsın; panelde bunu göstermek
+         "Türkçe alan aslında İngilizce" tipi sessiz hataları görünür kılıyor. */
+      ...(detectedSourceLang ? { description_lang: detectedSourceLang } : {}),
       translations: nextTranslations,
     } as unknown as Record<string, string>,
   };

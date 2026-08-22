@@ -5,6 +5,10 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
 import { ensureBusinessForUser, recordSignupIntent } from "@/lib/signup-intents";
+import {
+  compactBusinessAuthMetadata,
+  preserveLegacyBusinessAuthMetadata,
+} from "@/lib/auth-metadata";
 import { isContactEmailTaken } from "@/lib/business-contacts";
 import { getDistrictOptions } from "@/lib/geo-server";
 import { SITE_URL } from "@/lib/site";
@@ -32,6 +36,7 @@ function validPhone(value: string): string {
 async function redirectAfterLogin(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string | undefined,
+  userMetadata?: Record<string, unknown>,
 ): Promise<void> {
   let role = "partner";
   let accountType = "supplier";
@@ -51,6 +56,25 @@ async function redirectAfterLogin(
       const ensured = await ensureBusinessForUser(userId);
       if (!ensured.ok && ensured.reason === "error") {
         console.error("[auth-signin] işletme tamamlanamadı", { userId, error: ensured.error });
+      } else if (ensured.ok) {
+        // İşletme artık kalıcı tablolarda: eski kayıt payload'ını JWT'den çıkar.
+        const compacted = await compactBusinessAuthMetadata(userId, userMetadata);
+        if (!compacted.ok) {
+          console.error("[auth-signin] auth metadata küçültülemedi", {
+            userId,
+            error: compacted.error,
+          });
+        } else if (compacted.changed) {
+          // Admin API mevcut tarayıcı oturumunu güncellemez. Yeni, küçük JWT'yi
+          // SSR cookie'lerine yazdır ki sonraki /dashboard isteği şişmesin.
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error("[auth-signin] oturum yenilenemedi", {
+              userId,
+              error: refreshError.message,
+            });
+          }
+        }
       }
     }
   }
@@ -75,7 +99,11 @@ export async function signIn(
     const { error } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: mfaChallengeId, code });
     if (error) return { ok: false, error: "mfa_invalid", factorId: mfaFactorId, challengeId: mfaChallengeId };
     const { data: userData } = await supabase.auth.getUser();
-    await redirectAfterLogin(supabase, userData.user?.id);
+    await redirectAfterLogin(
+      supabase,
+      userData.user?.id,
+      userData.user?.user_metadata as Record<string, unknown> | undefined,
+    );
     return { ok: true };
   }
 
@@ -108,7 +136,11 @@ export async function signIn(
     }
   }
 
-  await redirectAfterLogin(supabase, data.user?.id);
+  await redirectAfterLogin(
+    supabase,
+    data.user?.id,
+    data.user?.user_metadata as Record<string, unknown> | undefined,
+  );
   return { ok: true };
 }
 
@@ -158,9 +190,8 @@ export async function signUp(
           .filter((slug) => slug && isServiceOfGroup(slug, cat.group))
       : [];
 
-  // Kayıt adımı 3'te (yalnızca tedarikçi) toplanan işletme profili — hepsi opsiyonel.
-  // Oturum henüz açılmadığı için (e-posta onayı) auth metadata'sına yazılır ve
-  // işletme kaydı ilk oluşturulurken uygulanır (callback / panel).
+  // Kayıt adımı 3'te (yalnızca tedarikçi) toplanan işletme profili. Kalıcı hedefi
+  // signup_intents'tir; Auth metadata yalnız niyet yazılamazsa legacy fallback'tir.
   // Kapak görseli kayıt adım 3'te oturumsuz draft olarak yüklendi (/api/signup/cover).
   // Yalnızca beklenen "signup-drafts/" önekli yolu kabul et.
   const coverDraftRaw = String(formData.get("bizCoverDraft") ?? "").trim();
@@ -221,24 +252,14 @@ export async function signUp(
 
   const locale = await getLocale();
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      // Doğrulama linki callback'e döner → oturumu kurup direkt panele atar.
-      emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}`,
-      data: {
-        // Supabase e-posta şablonları .Data.locale ile Türkçe/İngilizce metni seçer.
-        locale,
-        full_name: name,
-        firm_name: name,
-        account_type: accountType,
-        ...(sector ? { sector } : {}),
-        ...(referral ? { referral_code: referral } : {}),
-        ...(timezone ? { timezone } : {}),
-        ...(cat ? { biz_group: cat.group, biz_type: category, category_slug: category, service_slugs: serviceSlugs } : {}),
-        // Kayıt adımı 3 profili — işletme kaydı oluşurken uygulanır (bkz. callback/panel).
+  // Olağan akışta yalnız signup_intents'te kalır. Niyet yazımı başarısız olursa
+  // aşağıda Auth metadata'ya sunucu taraflı legacy fallback olarak yazılır.
+  const legacyBusinessMetadata: Record<string, unknown> = cat
+    ? {
+        biz_group: cat.group,
+        biz_type: category,
+        category_slug: category,
+        service_slugs: serviceSlugs,
         ...(hasBizProfile && bizProfile
           ? {
               biz_country: bizProfile.country,
@@ -256,6 +277,25 @@ export async function signUp(
               },
             }
           : {}),
+      }
+    : {};
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      // Doğrulama linki callback'e döner → oturumu kurup direkt panele atar.
+      emailRedirectTo: `${SITE_URL}/api/auth/callback?locale=${locale}`,
+      data: {
+        // Supabase e-posta şablonları .Data.locale ile Türkçe/İngilizce metni seçer.
+        locale,
+        full_name: name,
+        firm_name: name,
+        account_type: accountType,
+        ...(sector ? { sector } : {}),
+        ...(referral ? { referral_code: referral } : {}),
+        ...(timezone ? { timezone } : {}),
       },
     },
   });
@@ -275,7 +315,7 @@ export async function signUp(
   // oluşması artık doğrulama linkinden dönüşe bağlı değil; ensureBusinessForUser bunu
   // callback / giriş / panel girişi / cron'dan idempotent olarak tamamlar.
   if (data.user && cat) {
-    await recordSignupIntent(data.user.id, email, {
+    const intentId = await recordSignupIntent(data.user.id, email, {
       group: cat.group,
       type: category ?? "",
       name,
@@ -296,6 +336,21 @@ export async function signUp(
           }
         : undefined,
     });
+
+    // Olağan durumda JWT baştan küçük kalır. Niyet yazılamadıysa kayıt verisini
+    // kaybetmemek için yalnız bu hata yolunda eski metadata fallback'ini ekle.
+    if (!intentId) {
+      const preserved = await preserveLegacyBusinessAuthMetadata(
+        data.user.id,
+        legacyBusinessMetadata,
+      );
+      if (!preserved.ok) {
+        console.error("[auth-signup] ALARM: niyet ve legacy fallback yazılamadı", {
+          userId: data.user.id,
+          error: preserved.error,
+        });
+      }
+    }
   }
 
   // Oturum hemen açıldıysa (e-posta onayı kapalı): tedarikçi ise firma kaydını şimdi
@@ -304,12 +359,30 @@ export async function signUp(
     if (cat) {
       const ensured = await ensureBusinessForUser(data.user.id);
       if (!ensured.ok) {
-        // Kayıp değil: niyet 'pending' kaldı, cron ve sonraki panel girişi tekrar dener.
+        // Niyet varsa pending kalır; cron ve sonraki panel girişi tekrar dener.
         console.error("[auth-signup] işletme oluşturulamadı", {
           userId: data.user.id,
           reason: ensured.reason,
           error: ensured.error,
         });
+      } else {
+        // Hata yolunda legacy fallback yazıldıysa işletme artık kalıcı olduğundan
+        // onu da temizle. Olağan signup_intents yolunda bu ucuz bir no-op'tur.
+        const compacted = await compactBusinessAuthMetadata(data.user.id);
+        if (!compacted.ok) {
+          console.error("[auth-signup] auth metadata küçültülemedi", {
+            userId: data.user.id,
+            error: compacted.error,
+          });
+        } else if (compacted.changed) {
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error("[auth-signup] oturum yenilenemedi", {
+              userId: data.user.id,
+              error: refreshError.message,
+            });
+          }
+        }
       }
     }
     redirect({ href: "/dashboard", locale });

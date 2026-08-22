@@ -91,7 +91,9 @@ const tremorColors = {
 
 /* Tailwind teması projedeki theme/ klasöründen beslenir (tek kaynak). */
 const config: Config = {
-  darkMode: "class",
+  /* `.dark` altinda calisir, ancak `.theme-light` kapsaminda (admin + tedarikci
+     paneli) devre disi kalir — paneller acik temada sabit. */
+  darkMode: ["variant", "&:where(.dark, .dark *):not(:where(.theme-light, .theme-light *))"],
   content: [
     "./src/**/*.{ts,tsx,mdx}",
     "./node_modules/@tremor/**/*.{js,ts,jsx,tsx}",

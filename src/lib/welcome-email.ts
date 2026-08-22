@@ -51,7 +51,9 @@ export async function sendWelcomeEmailOnce(
   // Bayrağı gönderimden ÖNCE yaz: aynı anda iki callback isteği gelirse
   // kullanıcı iki mail almasın. Gönderim başarısız olursa bayrak temizlenir.
   const { error: flagError } = await admin.auth.admin.updateUserById(user.id, {
-    user_metadata: { ...meta, welcome_email_sent_at: new Date().toISOString() },
+    // GoTrue metadata patch'lerini birleştirir. Tüm (muhtemelen eski/şişmiş)
+    // metadata'yı geri yollamak yerine yalnızca değişen alanı gönder.
+    user_metadata: { welcome_email_sent_at: new Date().toISOString() },
   });
   if (flagError) {
     console.error("[welcome-email] bayrak yazılamadı, mail gönderilmedi", { userId: user.id, error: flagError.message });
@@ -66,7 +68,7 @@ export async function sendWelcomeEmailOnce(
 
   // Gönderilemedi — bayrağı geri al ki sonraki denemede tekrar şans olsun.
   await admin.auth.admin.updateUserById(user.id, {
-    user_metadata: { ...meta, welcome_email_sent_at: null },
+    user_metadata: { welcome_email_sent_at: null },
   });
   console.error("[welcome-email] gönderilemedi", {
     userId: user.id,

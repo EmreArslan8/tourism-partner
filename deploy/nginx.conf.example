@@ -19,6 +19,14 @@ server {
 
     client_max_body_size 20m;
 
+    # Supabase SSR auth JWT'si user_metadata büyüdükçe birden fazla cookie'ye
+    # bölünebilir. Tarayıcının sonraki isteklerde gönderdiği birleşik Cookie header'ı
+    # nginx varsayılan sınırını aşarsa login başarılı olsa bile panel asset/RSC
+    # istekleri 400 döner. Aşağıdakiler gelen request header'ı için gereklidir;
+    # proxy_buffer_* ise ayrı olarak upstream'den gelen Set-Cookie cevabını karşılar.
+    client_header_buffer_size 16k;
+    large_client_header_buffers 8 32k;
+
     location / {
         proxy_pass http://127.0.0.1:3000;
 

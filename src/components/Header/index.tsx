@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import MobileMenu from "@/components/MobileMenu";
 import LangSwitcher from "@/components/LocaleSwitcher";
-import ThemeToggle from "@/components/ThemeToggle";
 import AccountMenu from "./AccountMenu";
 import NavLinks from "./NavLinks";
 import styles from "./styles";
@@ -104,7 +103,6 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
               </>
             )}
             <div className={`${styles.separator} ${onLight ? styles.separatorOnHero : ""}`} />
-            <ThemeToggle />
             <LangSwitcher light={onLight} />
           </div>
           <div className={styles.mobileAccount}>

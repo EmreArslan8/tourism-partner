@@ -14,31 +14,6 @@ const commonImageProps = {
 };
 
 const {
-  props: { srcSet: lightDesktopSrcSet },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/hero-mobile-globe-light-v4.webp",
-  width: 1774,
-  height: 887,
-  quality: 88,
-});
-
-const {
-  props: { srcSet: lightMobileSrcSet, ...lightImageProps },
-} = getImageProps({
-  ...commonImageProps,
-  src: "/assets/hero-mobile-globe-light-v5.webp",
-  width: 941,
-  height: 1672,
-  quality: 84,
-  // LCP görseli — lazy OLMAMALI (Lighthouse: "LCP kaynaklarında loading=lazy
-  // kullanılmamalıdır"). getImageProps varsayılanı lazy; eager'a çekmezsek görsel
-  // ~1.6sn geç keşfediliyordu. Koyu tema hero'su lazy KALIR: display:none + lazy
-  // sayesinde açık tema kullanıcısında hiç inmez (çift indirme yok).
-  loading: "eager",
-});
-
-const {
   props: { srcSet: darkDesktopSrcSet },
 } = getImageProps({
   ...commonImageProps,
@@ -56,6 +31,10 @@ const {
   width: 1024,
   height: 1536,
   quality: 84,
+  // LCP görseli — lazy OLMAMALI (Lighthouse: "LCP kaynaklarında loading=lazy
+  // kullanılmamalıdır"). getImageProps varsayılanı lazy; eager'a çekmezsek
+  // görsel ~1.6sn geç keşfediliyor.
+  loading: "eager",
 });
 
 async function ApprovedBusinessMarquee() {
@@ -78,19 +57,14 @@ const Hero = () => {
   return (
     <section className={styles.section}>
       <Header variant="glass" />
-      <picture className={`${styles.picture} ${styles.pictureLight}`}>
-        <source media="(min-width: 641px)" srcSet={lightDesktopSrcSet} />
-        <source media="(max-width: 640px)" srcSet={lightMobileSrcSet} />
-        <img {...lightImageProps} alt="" className={`${styles.image} ${styles.imageLight}`} fetchPriority="high" decoding="async" />
-      </picture>
       <picture className={`${styles.picture} ${styles.pictureDark}`}>
         <source media="(min-width: 641px)" srcSet={darkDesktopSrcSet} />
         <source media="(max-width: 640px)" srcSet={darkMobileSrcSet} />
         <img {...darkImageProps} alt="" className={`${styles.image} ${styles.imageDark}`} fetchPriority="high" decoding="async" />
       </picture>
-      {/* NOT: Etkileşimli 3D küre (Hero/Globe.tsx, three-globe) şimdilik devre dışı —
-          görsel ayarı yapılamadan sayfayı bozuyordu. Geri açmak için: Globe import'u +
-          styles.globeWrap bloğunu buraya ekle (git geçmişinde hazır). */}
+      {/* NOT: Etkileşimli 3D küre (Hero/Globe.tsx + styles.globeWrap/globeHalo/globeCanvas)
+          kaldırıldı — görsel ayarı yapılamadan sayfayı bozuyordu ve uzun süredir
+          devre dışıydı. Geri istenirse git geçmişinde hazır duruyor. */}
 
       <div className={styles.inner}>
         <p className={styles.eyebrow}>{t("eyebrow")}</p>

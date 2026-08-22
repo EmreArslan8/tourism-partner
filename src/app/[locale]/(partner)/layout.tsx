@@ -10,5 +10,5 @@ export default async function PartnerLayout({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return children;
+  return <div className="theme-light contents">{children}</div>;
 }

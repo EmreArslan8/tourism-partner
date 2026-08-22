@@ -52,6 +52,57 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
+/* Panel (admin + tedarikçi) tek temada kalır: açık. Public site koyuya sabitken
+   `html.dark` tüm `light-dark()` token'larını koyu dala çeviriyor; paneller ise
+   `dark:` varyantı içermiyor ve 26 sabit `bg-white` yüzeyi var — token'lar koyuya
+   dönünce beyaz üstüne beyaz metin çıkıyordu. Bu kapsam token'ları açık dala geri
+   sabitler. Root'ta ilan edilen custom property'ler alt ağaçta yeniden hesaplanmaz,
+   bu yüzden `color-scheme` tek başına yetmez — her token açıkça yeniden yazılır. */
+.theme-light {
+  color-scheme: light;
+  /* Panel kabukları (`panelUi.shell`, AdminShell) rengi kendileri basıyor, ama
+     kabuğu render etmeyen sayfalar (ör. AdminAccessDenied) `body`den koyu rengi
+     miras alıyordu. Kapsamın kendisi rengi taşısın ki miras da açık kalsın. */
+  color: rgb(var(--tp-light-ink));
+  --tp-pine: var(--tp-light-pine);
+  --tp-pine-soft: var(--tp-light-pine-soft);
+  --tp-cream: var(--tp-light-cream);
+  --tp-cream-deep: var(--tp-light-cream-deep);
+  --tp-panel-bg: var(--tp-light-panel-bg);
+  --tp-paper: var(--tp-light-paper);
+  --tp-ink: var(--tp-light-ink);
+  --tp-muted: var(--tp-light-muted);
+  --tp-line: var(--tp-light-line);
+  --tp-interactive: var(--tp-light-interactive);
+  --tp-hero-title: var(--tp-light-hero-title);
+  --tp-hero-highlight: var(--tp-light-hero-highlight);
+  --tp-hero-eyebrow: var(--tp-light-hero-eyebrow);
+  --background: var(--tp-light-background);
+  --foreground: var(--tp-light-foreground);
+  --card: var(--tp-light-card);
+  --card-foreground: var(--tp-light-card-foreground);
+  --popover: var(--tp-light-popover);
+  --popover-foreground: var(--tp-light-popover-foreground);
+  --primary: var(--tp-light-primary);
+  --primary-foreground: var(--tp-light-primary-foreground);
+  --secondary: var(--tp-light-secondary);
+  --secondary-foreground: var(--tp-light-secondary-foreground);
+  --muted: var(--tp-light-muted-surface);
+  --muted-foreground: var(--tp-light-muted-foreground);
+  --accent: var(--tp-light-accent);
+  --accent-foreground: var(--tp-light-accent-foreground);
+  --border: var(--tp-light-border);
+  --input: var(--tp-light-input);
+  --ring: var(--tp-light-ring);
+}
+
+/* Panel rotalarında gövde zemini de açık kalsın — kabuğun kaplamadığı
+   şeritlerde koyu arka plan sızmasın. */
+body:has(.theme-light) {
+  background-color: rgb(var(--tp-light-panel-bg));
+  color: rgb(var(--tp-light-ink));
+}
+
 /* ---------- temel katman ---------- */
 @layer base {
   * {
