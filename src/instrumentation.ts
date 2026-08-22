@@ -21,17 +21,35 @@ export async function register() {
  * route'tan ve HANGİ bağlamdan (render / route handler / server action) geldiği
  * loglardan okunamıyor. Bu hook tam da o bağlamı ekler.
  *
- * Özellikle takip edilen: "Unexpected end of JSON input" (digest 1215693369) —
- * kaynağı henüz kesinleşmedi. Bu satır bir daha tetiklendiğinde routeType + path
- * ile birlikte düşecek; böylece gerçek bir route mu yoksa server-action katmanına
- * gelen bozuk/bot POST'u mu olduğu netleşecek.
+ * "Unexpected end of JSON input" (digest 1215693369) KAYNAĞI NETLEŞTİ: bot/crawler
+ * POST'ları — GET olması gereken sayfa linklerine (ör. /explore?page=2) POST
+ * geliyor, Next server action sanıp boş gövdeyi çözerken çöküyor. Gerçek bir hata
+ * değil; aşağıda isBotActionNoise ile telemetriden elenir (Sentry'ye gitmez).
  *
  * Not: Bu hook hatayı YALNIZCA raporlar; 500'ü engellemez, Next'in kendi `⨯`
- * logunu bastırmaz. Amaç teşhis. Kaynak netleşince ya ilgili route yamalanır ya
- * da (bozuk istek ise) bu dosya sadeleştirilir/kaldırılır.
+ * logunu bastırmaz. Amaç teşhis + bilinen gürültüyü susturma.
  */
 export const onRequestError: Instrumentation.onRequestError = (err, request, context) => {
   const e = err as { digest?: string; message?: string };
+
+  // BİLİNEN GÜRÜLTÜ — bot/crawler POST'ları. Bot'lar GET olması gereken sayfa
+  // linklerine (ör. /explore?page=2) POST atıyor; Next bunu server action sanıp
+  // boş gövdeyi çözerken "Unexpected end of JSON input" fırlatıyor (digest
+  // 1215693369). Kendi action'larımızdaki JSON.parse'ların HEPSİ try/catch ile
+  // korumalı (bkz. panel.ts), yani bu mesaj yalnız Next'in iç deserialize'ından
+  // gelir — gerçek bir hata değil. Sentry'yi ve logu kirletmesin: tek satır uyarı,
+  // Sentry'ye gönderme.
+  const isBotActionNoise =
+    context.routeType === "action" &&
+    request.method === "POST" &&
+    typeof e.message === "string" &&
+    (e.message.includes("Unexpected end of JSON input") ||
+      e.message.includes("Unexpected token"));
+  if (isBotActionNoise) {
+    console.warn("[req-error:bot-noise]", { path: request.path, message: e.message });
+    return;
+  }
+
   console.error("[req-error]", {
     digest: e.digest,
     message: e.message,

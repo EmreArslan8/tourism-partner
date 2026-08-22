@@ -35,6 +35,13 @@ export async function updateSession(request: NextRequest, response: NextResponse
   );
 
   // getUser() çağrısı token'ı doğrular ve gerekirse yeniler (çerezleri response'a yazar).
-  await supabase.auth.getUser();
+  // Süresi dolmuş/geçersiz refresh token'da supabase-js AuthApiError fırlatabilir
+  // ("Invalid Refresh Token: Refresh Token Not Found"). Bu, proxy'yi çökertmemeli;
+  // kullanıcı basitçe oturumsuz sayılır, downstream auth gate login'e yönlendirir.
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Geçersiz oturum — sessizce geç.
+  }
   return response;
 }
