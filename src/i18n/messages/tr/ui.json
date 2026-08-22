@@ -306,7 +306,8 @@
     "mfaTitle": "İki faktörlü doğrulama",
     "mfaDescription": "Authenticator uygulamanızdaki 6 haneli kodu girin.",
     "mfaInvalid": "Kod hatalı veya süresi doldu. Tekrar deneyin.",
-    "mfaSubmit": "Doğrula"
+    "mfaSubmit": "Doğrula",
+    "sessionExpired": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın."
   },
   "register": {
     "eyebrow": "Firma Ekle",
@@ -936,7 +937,8 @@
     "home": "Ana sayfaya dön",
     "genericTitle": "Bir şeyler ters gitti",
     "genericDescription": "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin; sorun sürerse biraz sonra yeniden ziyaret edin.",
-    "retry": "Tekrar dene"
+    "retry": "Tekrar dene",
+    "errorCode": "Hata kodu"
   },
   "businessInvite": {
     "eyebrow": "Güvenli işletme teslimi",

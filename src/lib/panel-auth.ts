@@ -1,4 +1,5 @@
 import { cache } from "react";
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
 
@@ -32,6 +33,12 @@ export const getPanelUser = cache(async () => {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  // Sunucu tarafı hata bağlamı: bu isteğin Sentry izolasyon kapsamına kullanıcıyı
+  // iliştir. Böylece bir panel/dashboard hatası Sentry'ye düştüğünde "hangi
+  // tedarikçi?" bilgisi (id + e-posta) olayla birlikte gelir. DSN yoksa no-op.
+  if (user) {
+    Sentry.setUser({ id: user.id, email: user.email ?? undefined });
+  }
   return user;
 });
 

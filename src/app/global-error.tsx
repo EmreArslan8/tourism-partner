@@ -15,7 +15,11 @@ export default function GlobalError({
     console.error("[global error]", error);
     // Kök çökmeyi Sentry'ye ilet. Dinamik import: ana bundle'a girmez, yalnız
     // bu hata sınırı render olduğunda yüklenir. DSN yoksa/init olmadıysa no-op.
-    void import("@sentry/nextjs").then((Sentry) => Sentry.captureException(error));
+    void import("@sentry/nextjs").then((Sentry) =>
+      Sentry.captureException(error, {
+        tags: { boundary: "global", digest: error.digest },
+      }),
+    );
   }, [error]);
 
   return (
@@ -55,6 +59,14 @@ export default function GlobalError({
         >
           Tekrar dene
         </button>
+        {error.digest ? (
+          <p style={{ marginTop: 8, fontSize: 12, color: "rgba(255,255,255,.5)" }}>
+            Hata kodu:{" "}
+            <span style={{ fontFamily: "ui-monospace, monospace" }}>
+              {error.digest}
+            </span>
+          </p>
+        ) : null}
       </body>
     </html>
   );

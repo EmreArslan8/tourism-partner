@@ -42,17 +42,26 @@ function scheduleInit() {
       .then((Sentry) => {
         Sentry.init({
           dsn: DSN,
-          // Session Replay bilinçli olarak YOK (en ağır bundle parçası).
           // Tracing kapalı: performans overhead'i olmadan sadece hata takibi.
           tracesSampleRate: 0,
-          integrations: (defaults) =>
-            // Ağır/gereksiz entegrasyonları ele: tracing + replay çıkar.
-            defaults.filter(
+          // Session Replay — SADECE hata anında. Normal oturumların HİÇBİRİ
+          // kaydedilmez (replaysSessionSampleRate: 0); bir hata oluştuğunda ise
+          // öncesindeki tampon %100 gönderilir (replaysOnErrorSampleRate: 1.0).
+          // Böylece "kullanıcının ekranını göremiyoruz" sorununa çözüm gelir ama
+          // her oturumu kaydetmenin performans/gizlilik maliyeti oluşmaz.
+          replaysSessionSampleRate: 0,
+          replaysOnErrorSampleRate: 1.0,
+          integrations: (defaults) => [
+            // Tracing ve canvas-replay (en ağır parça) çıkarılır; hata-replay eklenir.
+            ...defaults.filter(
               (i) =>
                 i.name !== "BrowserTracing" &&
                 i.name !== "Replay" &&
                 i.name !== "ReplayCanvas",
             ),
+            // Gizlilik: tüm metin ve medya maskeli — replay'de kişisel veri sızmaz.
+            Sentry.replayIntegration({ maskAllText: true, blockAllMedia: true }),
+          ],
         });
 
         // Tamponlanan erken hataları aktar, sonra geçici listener'ları kaldır.

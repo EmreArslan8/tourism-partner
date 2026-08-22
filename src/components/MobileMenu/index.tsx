@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { ChevronRight, X } from "lucide-react";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { Href } from "@/i18n/navigation";
-import { signOut } from "@/lib/actions/auth";
+import SignOutForm from "@/components/auth/SignOutForm";
 import Logo from "@/components/Logo";
 import LangSwitcher from "@/components/LocaleSwitcher";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -109,9 +109,9 @@ const MobileMenu = ({ signedIn = false, dashboardHref = null, onLight = false }:
                 {dashboardHref && (
                   <Link href={dashboardHref} className="btn btn-solid w-full" onClick={close}>{t("dashboard")}</Link>
                 )}
-                <form action={signOut} className="w-full">
+                <SignOutForm className="w-full">
                   <button type="submit" className="btn btn-outline w-full text-red-700" onClick={close}>{t("signOut")}</button>
-                </form>
+                </SignOutForm>
               </>
             ) : (
               <>

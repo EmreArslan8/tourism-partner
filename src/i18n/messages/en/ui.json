@@ -306,7 +306,8 @@
     "mfaTitle": "Two-factor authentication",
     "mfaDescription": "Enter the 6-digit code from your authenticator app.",
     "mfaInvalid": "The code is incorrect or has expired. Try again.",
-    "mfaSubmit": "Verify"
+    "mfaSubmit": "Verify",
+    "sessionExpired": "Your session has expired. Please sign in again."
   },
   "register": {
     "eyebrow": "List Business",
@@ -936,7 +937,8 @@
     "home": "Return home",
     "genericTitle": "Something went wrong",
     "genericDescription": "An unexpected error occurred. Please try again; if the problem continues, come back a little later.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "errorCode": "Error code"
   },
   "businessInvite": {
     "eyebrow": "Secure business handover",

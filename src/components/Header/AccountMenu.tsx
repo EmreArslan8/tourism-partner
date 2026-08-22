@@ -5,7 +5,7 @@ import { ChevronDown, LayoutDashboard, LogOut, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Href } from "@/i18n/navigation";
-import { signOut } from "@/lib/actions/auth";
+import SignOutForm from "@/components/auth/SignOutForm";
 import styles from "./accountStyles";
 
 export default function AccountMenu({ dashboardHref, onLight = false }: { dashboardHref: Href | null; onLight?: boolean }) {
@@ -65,7 +65,7 @@ export default function AccountMenu({ dashboardHref, onLight = false }: { dashbo
               {t("dashboard")}
             </Link>
           )}
-          <form action={signOut}>
+          <SignOutForm>
             <button
               type="submit"
               role="menuitem"
@@ -74,7 +74,7 @@ export default function AccountMenu({ dashboardHref, onLight = false }: { dashbo
               <LogOut size={16} aria-hidden />
               {t("signOut")}
             </button>
-          </form>
+          </SignOutForm>
         </div>
       )}
     </div>

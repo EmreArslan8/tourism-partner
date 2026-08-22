@@ -1,14 +1,20 @@
 # Çok aşamalı build — çıktı: yalnızca standalone sunucuyu içeren küçük runtime imajı.
 # NEXT_PUBLIC_* değişkenleri build sırasında bundle'a gömülür; bu yüzden build-arg olarak gelir
 # (CI'da GitHub secrets'tan beslenir, bkz. .github/workflows/deploy.yml).
+#
+# NODE SÜRÜMÜNÜ 22'YE YÜKSELTME. Node 22'nin web-streams katmanında bir regresyon var:
+# stream'li bir sayfa render'ı (PPR) tam akarken bağlantı yarıda kopunca
+# "controller[kState].transformAlgorithm is not a function" fırlıyor ve tüm render
+# çöküyor (kullanıcı boş sayfa + "Tekrar dene" görüyor). Node 20 LTS etkilenmiyor.
+# Ref: vercel/next.js#75994, nodejs/node#62036.
 
-FROM node:22-alpine AS deps
+FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 # Lock dosyası legacy-peer-deps=true ile üretildi (lokal ~/.npmrc); CI'da da aynı bayrak gerekir.
 RUN npm ci --legacy-peer-deps
 
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -27,7 +33,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
-FROM node:22-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
 

@@ -5,7 +5,7 @@ import { Building2, Diamond, FileText, Headset, Heart, Inbox, LayoutDashboard, L
 import { useLinkStatus } from "next/link";
 import { useTranslations } from "next-intl";
 import { Link, usePathname, type Href } from "@/i18n/navigation";
-import { signOut } from "@/lib/actions/auth";
+import SignOutForm from "@/components/auth/SignOutForm";
 import TopProgressBar from "@/components/TopProgressBar";
 import LocaleSwitcher from "@/components/LocaleSwitcher";
 import styles from "./styles";
@@ -89,12 +89,12 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
         <div className={styles.sidebarFoot}>
           <span>{t("signedInAs")}</span>
           <b>{email}</b>
-          <form action={signOut} className="mt-3">
+          <SignOutForm className="mt-3">
             <button type="submit" className="flex w-full items-center gap-2 rounded-[8px] px-2 py-2 text-start text-[12.5px] font-medium text-red-700 transition-colors hover:bg-red-50">
               <LogOut size={15} aria-hidden />
               {t("signOut")}
             </button>
-          </form>
+          </SignOutForm>
         </div>
     </aside>
   );
