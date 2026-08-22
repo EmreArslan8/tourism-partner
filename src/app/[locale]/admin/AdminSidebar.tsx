@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { FocusEvent, MouseEvent } from "react";
 import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { signOut } from "@/lib/actions/auth";
+import SignOutForm from "@/components/auth/SignOutForm";
 import Logo from "@/components/Logo";
 import AdminNav from "./AdminNav";
 import AdminSidebarTooltip, {
@@ -49,7 +49,7 @@ export default function AdminSidebar({ newTicketCount = 0, newRequestCount = 0 }
       <AdminNav collapsed={collapsed} newTicketCount={newTicketCount} newRequestCount={newRequestCount} />
 
       <div className={cn("mt-auto border-t border-line/80 pb-6 pt-4", collapsed ? "px-3" : "px-5")}>
-        <form action={signOut}>
+        <SignOutForm>
           <button
             type="submit"
             onMouseEnter={(event) => showTooltip("Çıkış Yap", event)}
@@ -61,7 +61,7 @@ export default function AdminSidebar({ newTicketCount = 0, newRequestCount = 0 }
             <LogOut size={17} aria-hidden />
             {!collapsed && "Çıkış Yap"}
           </button>
-        </form>
+        </SignOutForm>
       </div>
       <AdminSidebarTooltip tooltip={tooltip} />
     </aside>

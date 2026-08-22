@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "@/lib/actions/auth";
 import { Link } from "@/i18n/navigation";
@@ -14,6 +15,8 @@ const LoginForm = () => {
   const [state, action, pending] = useActionState(signIn, { ok: false });
   const [showPw, setShowPw] = useState(false);
   const t = useTranslations("login");
+  // Oturum süresi dolunca proxy / AuthWatcher buraya ?expired=1 ile yönlendirir.
+  const expired = useSearchParams().get("expired") === "1";
 
   // 2FA adımı — şifre doğrulandıktan sonra kod istenir.
   const mfaStep = (state.error === "mfa" || state.error === "mfa_invalid") && state.factorId && state.challengeId;
@@ -55,6 +58,11 @@ const LoginForm = () => {
       <div className={styles.panel}>
         <span className={styles.eyebrow}>{t("eyebrow")}</span>
         <h1 className={styles.title}>{t("title")}</h1>
+        {expired && (
+          <p className={styles.notice} role="status">
+            {t("sessionExpired")}
+          </p>
+        )}
         <p className={styles.intro}>
           {t("noAccount")}{" "}
           <Link

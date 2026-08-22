@@ -306,7 +306,8 @@
     "mfaTitle": "Two-factor authentication",
     "mfaDescription": "Enter the 6-digit code from your authenticator app.",
     "mfaInvalid": "The code is incorrect or has expired. Try again.",
-    "mfaSubmit": "Verify"
+    "mfaSubmit": "Verify",
+    "sessionExpired": "Your session has expired. Please sign in again."
   },
   "register": {
     "eyebrow": "List Business",

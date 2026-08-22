@@ -306,7 +306,8 @@
     "mfaTitle": "İki faktörlü doğrulama",
     "mfaDescription": "Authenticator uygulamanızdaki 6 haneli kodu girin.",
     "mfaInvalid": "Kod hatalı veya süresi doldu. Tekrar deneyin.",
-    "mfaSubmit": "Doğrula"
+    "mfaSubmit": "Doğrula",
+    "sessionExpired": "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın."
   },
   "register": {
     "eyebrow": "Firma Ekle",

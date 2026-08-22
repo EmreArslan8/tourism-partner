@@ -19,6 +19,8 @@ const styles = {
   visibilityButton: "absolute end-4 top-1/2 grid -translate-y-1/2 place-items-center text-ink/50 transition-colors hover:text-interactive",
   forgotRow: "-mt-1 text-end text-[13.5px] font-semibold",
   error: "text-[13px] font-medium text-red-600 dark:text-red-300",
+  notice:
+    "mb-6 rounded-xl border border-interactive/25 bg-interactive/10 px-4 py-3 text-[14px] font-semibold text-ink",
   submit: "mt-3 h-[58px] text-[16px]",
   mfaSubmit: "mt-1 h-[58px] text-[16px]",
 } as const;
