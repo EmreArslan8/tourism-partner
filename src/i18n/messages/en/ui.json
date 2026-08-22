@@ -936,7 +936,8 @@
     "home": "Return home",
     "genericTitle": "Something went wrong",
     "genericDescription": "An unexpected error occurred. Please try again; if the problem continues, come back a little later.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "errorCode": "Error code"
   },
   "businessInvite": {
     "eyebrow": "Secure business handover",

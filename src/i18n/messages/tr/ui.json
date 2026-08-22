@@ -936,7 +936,8 @@
     "home": "Ana sayfaya dön",
     "genericTitle": "Bir şeyler ters gitti",
     "genericDescription": "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin; sorun sürerse biraz sonra yeniden ziyaret edin.",
-    "retry": "Tekrar dene"
+    "retry": "Tekrar dene",
+    "errorCode": "Hata kodu"
   },
   "businessInvite": {
     "eyebrow": "Güvenli işletme teslimi",

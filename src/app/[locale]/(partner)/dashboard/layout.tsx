@@ -4,6 +4,7 @@ import { getPanelSession } from "@/lib/panel-auth";
 import { getSupplierOnboarding } from "@/lib/onboarding";
 import { ensureBusinessForUser } from "@/lib/signup-intents";
 import DashboardShell from "./DashboardShell";
+import SentryUser from "./SentryUser";
 import styles from "./styles";
 
 /* Tüm tedarikçi paneli alt sayfalarını saran ortak kabuk: sol sidebar + workspace.
@@ -38,6 +39,7 @@ export default async function DashboardLayout({
 
   return (
     <main className={styles.main}>
+      <SentryUser id={session.userId} email={session.email} />
       <DashboardShell email={session.email} accountType={session.accountType}>{children}</DashboardShell>
     </main>
   );

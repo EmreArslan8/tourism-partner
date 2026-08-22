@@ -19,6 +19,11 @@ services:
       RESEND_API_KEY: "DOLDUR"
       EMAIL_FROM: "DOLDUR"
       DEEPL_API_KEY: "DOLDUR"
+      # Sunucu tarafı (SSR / server action / route handler / onRequestError) Sentry.
+      # RUNTIME env'i — build-arg DEĞİL. Boş bırakılırsa sunucu hataları Sentry'ye
+      # GİTMEZ (sessizce no-op). İstemci DSN'i (NEXT_PUBLIC_SENTRY_DSN) build zamanında
+      # imaja gömülür, bkz. .github/workflows/deploy.yml.
+      SENTRY_DSN: "DOLDUR"
       NEXT_PUBLIC_SUPABASE_URL: "DOLDUR"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "DOLDUR"
       NEXT_PUBLIC_SITE_URL: "https://www.tourismpartner.com"
