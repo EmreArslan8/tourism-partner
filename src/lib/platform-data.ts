@@ -89,29 +89,30 @@ function isActiveWindow(
   return true;
 }
 
-export async function getActiveAdBanners(placement = "home"): Promise<PublicAdBanner[]> {
+async function getAdBannerCandidates(placement: string): Promise<PublicAdBanner[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("ad-banners");
 
   if (!hasEnv()) return [];
 
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("ad_banners")
+    .select("id,title,image_url,target_url,placement,starts_at,ends_at")
+    .eq("status", "active")
+    .eq("placement", placement)
+    .order("updated_at", { ascending: false })
+    .limit(20);
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getActiveAdBanners(placement = "home"): Promise<PublicAdBanner[]> {
   try {
-    const supabase = createPublicClient();
-    const { data, error } = await supabase
-      .from("ad_banners")
-      .select("id,title,image_url,target_url,placement,starts_at,ends_at")
-      .eq("status", "active")
-      .eq("placement", placement)
-      .order("updated_at", { ascending: false })
-      .limit(20);
-
-    if (error || !data) {
-      console.error("[platform-data] ad_banners okunamadı:", error?.message ?? "veri yok");
-      return [];
-    }
-
-    return data.filter((row) => isActiveWindow(row));
+    const candidates = await getAdBannerCandidates(placement);
+    return candidates.filter((row) => isActiveWindow(row));
   } catch (error) {
     console.error("[platform-data] ad_banners okunamadı:", error);
     return [];
@@ -123,32 +124,35 @@ export type PublicPopup = Pick<
   "id" | "title" | "body" | "image_url" | "cta_label" | "cta_url" | "frequency" | "target_role"
 >;
 
+type PublicPopupCandidate = PublicPopup & Pick<AdminPopupRow, "starts_at" | "ends_at">;
+
 /* Aktif pop-up (çerezsiz public client + 'use cache'). Hedef role: 'all' veya kullanıcının
    account_type'ı. Zaman penceresi (starts_at/ends_at) burada süzülür; ilk uygun kayıt döner. */
-export async function getActivePopup(accountType?: string): Promise<PublicPopup | null> {
+async function getPopupCandidates(accountType?: string): Promise<PublicPopupCandidate[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("popups");
 
-  if (!hasEnv()) return null;
+  if (!hasEnv()) return [];
 
   const roles = accountType ? ["all", accountType] : ["all"];
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("admin_popups")
+    .select("id,title,body,image_url,cta_label,cta_url,frequency,target_role,starts_at,ends_at")
+    .eq("status", "active")
+    .in("target_role", roles)
+    .order("updated_at", { ascending: false })
+    .limit(20);
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getActivePopup(accountType?: string): Promise<PublicPopup | null> {
   try {
-    const supabase = createPublicClient();
-    const { data, error } = await supabase
-      .from("admin_popups")
-      .select("id,title,body,image_url,cta_label,cta_url,frequency,target_role,starts_at,ends_at")
-      .eq("status", "active")
-      .in("target_role", roles)
-      .order("updated_at", { ascending: false })
-      .limit(20);
-
-    if (error || !data) {
-      if (error) console.error("[platform-data] admin_popups okunamadı:", error.message);
-      return null;
-    }
-
-    const active = data.find((row) => isActiveWindow(row));
+    const candidates = await getPopupCandidates(accountType);
+    const active = candidates.find((row) => isActiveWindow(row));
     if (!active) return null;
     return {
       id: active.id,
@@ -406,7 +410,7 @@ export async function getAdminContentExtras(): Promise<AdminContentExtras> {
   };
 }
 
-export async function getCategoryTree(): Promise<CategoryGroup[]> {
+async function getCategoryTreeCached(): Promise<CategoryGroup[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("categories");
@@ -422,12 +426,20 @@ export async function getCategoryTree(): Promise<CategoryGroup[]> {
     .order("label", { ascending: true });
 
   if (error) {
-    console.error("[platform-data] categories okunamadı, fallback kullanılıyor:", error.message);
-    return CATEGORY_GROUPS;
+    throw new Error(error.message);
   }
   if (!data || data.length === 0) return CATEGORY_GROUPS;
 
   return rowsToCategoryGroups(data);
+}
+
+export async function getCategoryTree(): Promise<CategoryGroup[]> {
+  try {
+    return await getCategoryTreeCached();
+  } catch (error) {
+    console.error("[platform-data] categories okunamadı, fallback kullanılıyor:", error);
+    return CATEGORY_GROUPS;
+  }
 }
 
 export type AdminCategoryChild = { id: number; label: string; slug: string };

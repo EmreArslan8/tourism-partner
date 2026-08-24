@@ -11,9 +11,15 @@ services:
   app:
     image: ghcr.io/emrearslan8/tourism-partner:latest
     restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 512m
     ports:
       - "127.0.0.1:3000:3000"
     environment:
+      # Node heap container sınırından önce kontrollü biçimde hata versin; Docker
+      # restart politikası yalnız frontend'i yeniden başlatır, VPS kilitlenmez.
+      NODE_OPTIONS: "--max-old-space-size=1536"
+      SUPABASE_FETCH_TIMEOUT_MS: "10000"
       SUPABASE_SERVICE_ROLE_KEY: "DOLDUR"
       CRON_SECRET: "DOLDUR"
       RESEND_API_KEY: "DOLDUR"
@@ -27,6 +33,16 @@ services:
       NEXT_PUBLIC_SUPABASE_URL: "DOLDUR"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "DOLDUR"
       NEXT_PUBLIC_SITE_URL: "https://www.tourismpartner.com"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 # Otomatik güncelleme yok: yeni sürüm için sunucuda `docker compose pull app && docker compose up -d app`.
 # (watchtower Docker daemon API uyumsuzluğu yüzünden kaldırıldı; sonsuz restart'ta güncelleme çekemiyordu.)

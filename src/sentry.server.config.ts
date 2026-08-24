@@ -10,8 +10,20 @@ import * as Sentry from "@sentry/nextjs";
  */
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
-  // Trace örnekleme: sunucuda görece ucuz; prod'da %10, dışında kapalı.
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 0,
+  // Next 16 Cache Components kendi response/render span'larını kuruyor. Sentry'nin
+  // OTel + HTTP span/session katmanı aynı ServerResponse'a ek listener bağlayınca
+  // MaxListenersExceededWarning ve uzun yaşayan render'larda bellek baskısı oluşuyor.
+  // Hata yakalama + request scope korunur; yalnız performans span/session'ları kapanır.
+  skipOpenTelemetrySetup: true,
+  integrations(defaults) {
+    return [
+      ...defaults.filter((integration) => integration.name !== "Http"),
+      Sentry.httpIntegration({
+        spans: false,
+        trackIncomingRequestsAsSessions: false,
+      }),
+    ];
+  },
   // Prod'da gürültüyü azaltmak için debug kapalı.
   enabled: Boolean(process.env.SENTRY_DSN),
 });

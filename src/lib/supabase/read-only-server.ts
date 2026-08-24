@@ -3,6 +3,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { headers } from "next/headers";
 import type { Database } from "./database.types";
+import { fetchWithSupabaseTimeout } from "./fetch-with-timeout";
 
 type CookiePair = { name: string; value: string };
 
@@ -43,6 +44,7 @@ export async function createReadOnlyClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      global: { fetch: fetchWithSupabaseTimeout },
       cookies: {
         getAll() {
           return requestCookies;

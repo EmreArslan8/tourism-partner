@@ -17,7 +17,12 @@ export type PublicBusinessPartner = {
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function getBusinessPartners(businessId: number): Promise<PublicBusinessPartner[]> {
+function isMissingPartnerRequestsTable(error: { code?: string }) {
+  // PostgreSQL undefined_table veya PostgREST schema-cache table lookup hatası.
+  return error.code === "42P01" || error.code === "PGRST205";
+}
+
+async function getBusinessPartnersCached(businessId: number): Promise<PublicBusinessPartner[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("businesses");
@@ -34,9 +39,8 @@ export async function getBusinessPartners(businessId: number): Promise<PublicBus
     .order("created_at", { ascending: false });
 
   if (linkError) {
-    if (linkError.message.includes("business_partner_requests")) return [];
-    console.error(`[business-partners] link query failed: ${linkError.message}`);
-    return [];
+    if (isMissingPartnerRequestsTable(linkError)) return [];
+    throw new Error(linkError.message);
   }
 
   const ids = [
@@ -59,8 +63,7 @@ export async function getBusinessPartners(businessId: number): Promise<PublicBus
     .in("status", [...PUBLIC_BUSINESS_STATUSES]);
 
   if (businessError) {
-    console.error(`[business-partners] business query failed: ${businessError.message}`);
-    return [];
+    throw new Error(businessError.message);
   }
 
   const byId = new Map((businesses ?? []).map((business) => [Number(business.id), business]));
@@ -76,4 +79,13 @@ export async function getBusinessPartners(businessId: number): Promise<PublicBus
       country: business.country,
       slug: businessSlug({ name: business.name }),
     }));
+}
+
+export async function getBusinessPartners(businessId: number): Promise<PublicBusinessPartner[]> {
+  try {
+    return await getBusinessPartnersCached(businessId);
+  } catch (error) {
+    console.error("[business-partners] sorgu başarısız:", error);
+    return [];
+  }
 }

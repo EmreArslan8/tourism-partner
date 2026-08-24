@@ -18,7 +18,7 @@ const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /** Yayınlanmış content_pages kaydından SEO override'ı; yoksa null. */
-export async function getPageSeo(locale: string, slug: string): Promise<PageSeo | null> {
+async function getPageSeoCached(locale: string, slug: string): Promise<PageSeo | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("content_pages");
@@ -32,7 +32,8 @@ export async function getPageSeo(locale: string, slug: string): Promise<PageSeo 
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error || !data || data.status !== "published") return null;
+  if (error) throw new Error(error.message);
+  if (!data || data.status !== "published") return null;
   return {
     seoTitle: data.seo_title,
     seoDescription: data.seo_description,
@@ -40,4 +41,13 @@ export async function getPageSeo(locale: string, slug: string): Promise<PageSeo 
     canonicalPath: data.canonical_path,
     ogImage: data.og_image,
   };
+}
+
+export async function getPageSeo(locale: string, slug: string): Promise<PageSeo | null> {
+  try {
+    return await getPageSeoCached(locale, slug);
+  } catch (error) {
+    console.error("[pages] content_pages okunamadı:", error);
+    return null;
+  }
 }

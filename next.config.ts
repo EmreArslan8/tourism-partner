@@ -39,6 +39,8 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Docker/VPS deploy'u için minimal çıktı (.next/standalone + server.js); bkz. Dockerfile.
   output: "standalone",
+  // Self-hosted runtime cache'in VPS belleğini kontrolsüz büyütmesini engelle.
+  cacheMaxMemorySize: 32 * 1024 * 1024,
   // Cache Components: 'use cache' direktifi + PPR (statik kabuk + dynamic stream).
   // Veri varsayılan olarak dynamic; neyin cache'leneceğini 'use cache' ile seçiyoruz.
   cacheComponents: true,

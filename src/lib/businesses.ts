@@ -1,6 +1,6 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { SOCIAL_PLATFORMS, type Business, type BusinessSocials, type GroupKey } from "./types";
-import { createAdminClient } from "./supabase/admin";
+import { createAdminReadClient } from "./supabase/admin";
 import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
 import { businessSlug } from "./business-slug";
@@ -63,7 +63,7 @@ async function getPublicProfileCounts(ids: number[]) {
   const partnerCounts = new Map<number, number>();
   if (ids.length === 0) return { contactCounts, partnerCounts };
 
-  const admin = createAdminClient();
+  const admin = createAdminReadClient();
   if (!admin) return { contactCounts, partnerCounts };
 
   const { data: contacts, error: contactError } = await admin
@@ -71,12 +71,11 @@ async function getPublicProfileCounts(ids: number[]) {
     .select("business_id")
     .in("business_id", ids);
   if (contactError) {
-    console.error(`[businesses] business_contacts count failed: ${contactError.message}`);
-  } else {
-    for (const contact of contacts ?? []) {
-      const id = Number(contact.business_id);
-      contactCounts.set(id, (contactCounts.get(id) ?? 0) + 1);
-    }
+    throw new Error(`business_contacts count failed: ${contactError.message}`);
+  }
+  for (const contact of contacts ?? []) {
+    const id = Number(contact.business_id);
+    contactCounts.set(id, (contactCounts.get(id) ?? 0) + 1);
   }
 
   const { data: links, error: linkError } = await admin
@@ -85,15 +84,14 @@ async function getPublicProfileCounts(ids: number[]) {
     .in("status", ["pending", "accepted"])
     .or(`requester_business_id.in.(${ids.join(",")}),receiver_business_id.in.(${ids.join(",")})`);
   if (linkError) {
-    console.error(`[businesses] business_partner_requests count failed: ${linkError.message}`);
-  } else {
-    const idSet = new Set(ids);
-    for (const link of links ?? []) {
-      const requesterId = Number(link.requester_business_id);
-      const receiverId = Number(link.receiver_business_id);
-      if (idSet.has(requesterId)) partnerCounts.set(requesterId, (partnerCounts.get(requesterId) ?? 0) + 1);
-      if (idSet.has(receiverId)) partnerCounts.set(receiverId, (partnerCounts.get(receiverId) ?? 0) + 1);
-    }
+    throw new Error(`business_partner_requests count failed: ${linkError.message}`);
+  }
+  const idSet = new Set(ids);
+  for (const link of links ?? []) {
+    const requesterId = Number(link.requester_business_id);
+    const receiverId = Number(link.receiver_business_id);
+    if (idSet.has(requesterId)) partnerCounts.set(requesterId, (partnerCounts.get(requesterId) ?? 0) + 1);
+    if (idSet.has(receiverId)) partnerCounts.set(receiverId, (partnerCounts.get(receiverId) ?? 0) + 1);
   }
 
   return { contactCounts, partnerCounts };
@@ -162,7 +160,7 @@ function isMissingFounderColumn(error: { message?: string } | null) {
 /* Çerezsiz public client + 'use cache': oturumdan bağımsız, herkese açık liste.
    Veri Next Data Cache'e yazılır; 'businesses' tag'i admin mutasyonlarında
    revalidateTag ile tazelenir. Böylece her geçişte DB vurulmaz. */
-export async function getBusinesses(): Promise<Business[]> {
+async function getBusinessesCached(): Promise<Business[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("businesses");
@@ -188,8 +186,7 @@ export async function getBusinesses(): Promise<Business[]> {
     error = legacy.error;
   }
   if (error) {
-    console.error(`[businesses] getBusinesses DB hatası; seed fallback kapalı, boş sonuç dönülüyor: ${error.message}`);
-    return [];
+    throw new Error(error.message);
   }
   const rows = (data ?? []) as Row[];
   const { contactCounts, partnerCounts } = await getPublicProfileCounts(rows.map((row) => Number(row.id)));
@@ -204,7 +201,16 @@ export async function getBusinesses(): Promise<Business[]> {
   return businesses.map((b) => ({ ...b, serviceTypes: serviceMap.get(b.id) ?? [] }));
 }
 
-export async function getBusinessById(id: number | string): Promise<Business | null> {
+export async function getBusinesses(): Promise<Business[]> {
+  try {
+    return await getBusinessesCached();
+  } catch (error) {
+    console.error("[businesses] getBusinesses DB hatası; seed fallback kapalı, boş sonuç dönülüyor:", error);
+    return [];
+  }
+}
+
+async function getBusinessByIdCached(id: number | string): Promise<Business | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("businesses");
@@ -232,8 +238,7 @@ export async function getBusinessById(id: number | string): Promise<Business | n
     error = legacy.error;
   }
   if (error) {
-    console.error(`[businesses] getBusinessById DB hatası; seed fallback kapalı, null dönülüyor: ${error.message}`);
-    return null;
+    throw new Error(error.message);
   }
   if (!data) return null;
   const idNumber = Number(data.id);
@@ -242,6 +247,15 @@ export async function getBusinessById(id: number | string): Promise<Business | n
     contactCount: contactCounts.get(idNumber) ?? 0,
     partnerCount: partnerCounts.get(idNumber) ?? 0,
   });
+}
+
+export async function getBusinessById(id: number | string): Promise<Business | null> {
+  try {
+    return await getBusinessByIdCached(id);
+  } catch (error) {
+    console.error("[businesses] getBusinessById DB hatası; seed fallback kapalı, null dönülüyor:", error);
+    return null;
+  }
 }
 
 export async function getBusinessBySlug(slug: string): Promise<Business | null> {

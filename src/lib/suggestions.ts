@@ -1,7 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { getBusinesses, toListingBusiness } from "@/lib/businesses";
 import { canAppearInExplore } from "@/lib/business-visibility";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminReadClient } from "@/lib/supabase/admin";
 import type { Business } from "@/lib/types";
 import type { ExploreInitialFilters } from "@/lib/explore-filters";
 
@@ -52,7 +52,11 @@ export async function getCrossCategorySuggestions(
   const sampled =
     candidates.length > SAMPLE_SIZE ? shuffle(candidates).slice(0, SAMPLE_SIZE) : candidates;
 
-  const counts = await getImpressionCounts(sampled.map((b) => b.id).sort((a, b) => a - b));
+  const counts = Object.fromEntries(
+    await Promise.all(
+      sampled.map(async (business) => [String(business.id), await getImpressionCount(business.id)] as const),
+    ),
+  );
 
   // En az gösterilmiş önce; eşitlikte rastgele → dengeli rotasyon.
   const ranked = sampled
@@ -66,34 +70,32 @@ export async function getCrossCategorySuggestions(
 /* İşletme başına toplam görüntülenme (impression + detay ziyareti) sayısı.
    Satır çekmek yerine DB-tarafı exact HEAD count kullanılır — böylece PostgREST'in
    satır limiti (varsayılan 1000) sayımları sessizce kesemez ve balancing bozulmaz.
-   Sonuç dakikalık cache'lenir (id listesi cache anahtarına girer; sıralı gönderilir).
+   Cache anahtarı yalnız tek işletme ID'sidir. Rastgele örneklem dizisini anahtar
+   yapmak kombinasyon sayısını ve self-hosted Next.js bellek cache'ini büyütüyordu.
    page_views yalnızca admin/service-role tarafından okunabildiğinden service-role
    client kullanılır. Anahtar yoksa boş döner → seçim tamamen rastgele olur. */
-async function getImpressionCounts(ids: number[]): Promise<Record<string, number>> {
+async function getImpressionCountCached(id: number): Promise<number> {
   "use cache";
   cacheLife("minutes");
   cacheTag("impression-counts");
 
-  const result: Record<string, number> = {};
-  if (ids.length === 0) return result;
+  const admin = createAdminReadClient();
+  if (!admin) throw new Error("Supabase admin read client yapılandırılmamış");
 
-  const admin = createAdminClient();
-  if (!admin) return result;
+  const { count, error } = await admin
+    .from("page_views")
+    .select("id", { count: "exact", head: true })
+    .in("entity_type", ["impression", "business"])
+    .eq("entity_id", id);
+  if (error) throw new Error(`page_views sayımı başarısız: ${error.message}`);
+  return count ?? 0;
+}
 
+async function getImpressionCount(id: number): Promise<number> {
   try {
-    const entries = await Promise.all(
-      ids.map(async (id) => {
-        const { count, error } = await admin
-          .from("page_views")
-          .select("id", { count: "exact", head: true })
-          .in("entity_type", ["impression", "business"])
-          .eq("entity_id", id);
-        return [String(id), error ? 0 : (count ?? 0)] as const;
-      }),
-    );
-    for (const [key, value] of entries) result[key] = value;
+    return await getImpressionCountCached(id);
   } catch {
-    // sayım alınamazsa rastgele seçime düş
+    // Geçici hata sonucunu cache'lemeden rastgele seçime düş.
+    return 0;
   }
-  return result;
 }

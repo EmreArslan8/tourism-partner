@@ -15,12 +15,15 @@ export async function getServiceSlugsByBusiness(
 ): Promise<Map<number, string[]>> {
   const map = new Map<number, string[]>();
   if (businessIds.length === 0) return map;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("business_services")
     .select("business_id,group_key,service_slug,is_primary")
     .in("business_id", businessIds)
     .order("is_primary", { ascending: false })
     .order("id", { ascending: true });
+  if (error) {
+    throw new Error(`business_services sorgusu başarısız: ${error.message}`);
+  }
   for (const row of data ?? []) {
     const list = map.get(row.business_id) ?? [];
     const slug = serviceSlug(row.service_slug, row.group_key);

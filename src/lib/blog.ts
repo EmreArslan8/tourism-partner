@@ -53,7 +53,7 @@ function toPost(r: Row): BlogPost {
   };
 }
 
-export async function getPublishedPosts(locale: string): Promise<BlogPost[]> {
+async function getPublishedPostsCached(locale: string): Promise<BlogPost[]> {
   "use cache";
   cacheLife("minutes");
   cacheTag("blog");
@@ -66,11 +66,20 @@ export async function getPublishedPosts(locale: string): Promise<BlogPost[]> {
     .eq("locale", locale)
     .order("published_at", { ascending: false, nullsFirst: false })
     .limit(100);
-  if (error || !data) return [];
-  return (data as Row[]).map(toPost);
+  if (error) throw new Error(error.message);
+  return ((data ?? []) as Row[]).map(toPost);
 }
 
-export async function getPostBySlug(locale: string, slug: string): Promise<BlogPost | null> {
+export async function getPublishedPosts(locale: string): Promise<BlogPost[]> {
+  try {
+    return await getPublishedPostsCached(locale);
+  } catch (error) {
+    console.error("[blog] yayınlar okunamadı:", error);
+    return [];
+  }
+}
+
+async function getPostBySlugCached(locale: string, slug: string): Promise<BlogPost | null> {
   "use cache";
   cacheLife("minutes");
   cacheTag("blog");
@@ -83,6 +92,16 @@ export async function getPostBySlug(locale: string, slug: string): Promise<BlogP
     .eq("locale", locale)
     .eq("slug", slug)
     .maybeSingle();
-  if (error || !data) return null;
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return toPost(data as Row);
+}
+
+export async function getPostBySlug(locale: string, slug: string): Promise<BlogPost | null> {
+  try {
+    return await getPostBySlugCached(locale, slug);
+  } catch (error) {
+    console.error("[blog] yayın okunamadı:", error);
+    return null;
+  }
 }

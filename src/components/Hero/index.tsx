@@ -122,11 +122,11 @@ const Hero = () => {
 
         <dl className={styles.mobileStats} aria-label={t("statsLabel")}>
           <div className={styles.mobileStat}>
-            <dt className={styles.mobileStatValue}>50+</dt>
+            <dt className={styles.mobileStatValue}>100+</dt>
             <dd className={styles.mobileStatLabel}>{t("statBusinesses")}</dd>
           </div>
           <div className={styles.mobileStat}>
-            <dt className={styles.mobileStatValue}>200+</dt>
+            <dt className={styles.mobileStatValue}>10+</dt>
             <dd className={styles.mobileStatLabel}>{t("statCountries")}</dd>
           </div>
           <div className={styles.mobileStat}>
