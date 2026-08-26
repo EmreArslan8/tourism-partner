@@ -13,6 +13,7 @@ import { isContactEmailTaken } from "@/lib/business-contacts";
 import { getDistrictOptions } from "@/lib/geo-server";
 import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { logSessionEvent } from "@/lib/session-log";
 import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean } from "./validate";
 
@@ -97,8 +98,18 @@ export async function signIn(
   if (mfaFactorId && mfaChallengeId) {
     if (!/^\d{6}$/.test(code)) return { ok: false, error: "mfa", factorId: mfaFactorId, challengeId: mfaChallengeId };
     const { error } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: mfaChallengeId, code });
-    if (error) return { ok: false, error: "mfa_invalid", factorId: mfaFactorId, challengeId: mfaChallengeId };
+    if (error) {
+      const { data: pending } = await supabase.auth.getUser();
+      await logSessionEvent({ userId: pending.user?.id, email: pending.user?.email, event: "mfa_failed" });
+      return { ok: false, error: "mfa_invalid", factorId: mfaFactorId, challengeId: mfaChallengeId };
+    }
     const { data: userData } = await supabase.auth.getUser();
+    await logSessionEvent({
+      userId: userData.user?.id,
+      email: userData.user?.email,
+      event: "login",
+      reason: "mfa",
+    });
     await redirectAfterLogin(
       supabase,
       userData.user?.id,
@@ -121,7 +132,10 @@ export async function signIn(
   if (!allowed) return { ok: false, error: "rate" };
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    await logSessionEvent({ email, event: "login_failed", reason: error.message });
+    return { ok: false, error: error.message };
+  }
 
   // 2FA aktifse (doğrulanmış faktör var → nextLevel aal2) kod iste.
   const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -136,6 +150,7 @@ export async function signIn(
     }
   }
 
+  await logSessionEvent({ userId: data.user?.id, email: data.user?.email ?? email, event: "login" });
   await redirectAfterLogin(
     supabase,
     data.user?.id,
@@ -489,6 +504,11 @@ export async function updatePassword(
 /* Çıkış yap. */
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
+  // Çıkış olayı signOut'tan ÖNCE yazılmalı — sonrasında kullanıcı kimliği okunamaz.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  await logSessionEvent({ userId: user?.id, email: user?.email, event: "logout", reason: "manual" });
   await supabase.auth.signOut();
   const locale = await getLocale();
   redirect({ href: "/", locale });
