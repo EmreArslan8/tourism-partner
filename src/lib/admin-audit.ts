@@ -1,5 +1,5 @@
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getRequestMeta } from "@/lib/request-meta";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -28,15 +28,6 @@ export async function requireAdminContext(): Promise<AdminAuditContext> {
   return { supabase, userId: user.id };
 }
 
-async function requestAuditMeta() {
-  const headerList = await headers();
-  const forwardedFor = headerList.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return {
-    ip_address: forwardedFor || headerList.get("x-real-ip"),
-    user_agent: headerList.get("user-agent"),
-  };
-}
-
 export async function writeAdminAudit(
   context: AdminAuditContext,
   action: string,
@@ -45,7 +36,7 @@ export async function writeAdminAudit(
   newValue?: Record<string, unknown>,
   oldValue?: Record<string, unknown> | null,
 ) {
-  const meta = await requestAuditMeta();
+  const meta = await getRequestMeta();
   const { error } = await context.supabase.from("audit_logs").insert({
     admin_id: context.userId,
     action,

@@ -15,6 +15,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { EMAIL_LOGO_URL, SITE_URL } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { logSessionEvent } from "@/lib/session-log";
 import { isEmail } from "./validate";
 
 export type BusinessInviteActionState = {
@@ -296,6 +297,10 @@ export async function switchBusinessInviteAccount(formData: FormData): Promise<v
   const token = String(formData.get("token") ?? "");
   const locale = localeValue(formData.get("locale"));
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  await logSessionEvent({ userId: user?.id, email: user?.email, event: "logout", reason: "invite-switch" });
   await supabase.auth.signOut();
   redirect({ href: { pathname: "/business-invite", query: { token } }, locale });
 }

@@ -11,6 +11,7 @@ import AdminSidebarTooltip, {
   type AdminSidebarTooltipState,
 } from "./AdminSidebarTooltip";
 import {
+  Activity,
   BarChart3,
   BellDot,
   BookOpenText,
@@ -70,6 +71,8 @@ const ITEMS: Item[] = [
   { href: "/admin/teklifler", label: "Teklifler", icon: <BellDot size={17} aria-hidden /> },
   { href: "/admin/kategoriler", label: "Kategoriler", icon: <FolderTree size={17} aria-hidden /> },
   { href: "/admin/raporlar", label: "Raporlar", icon: <BarChart3 size={17} aria-hidden /> },
+  // İşletme tarafının izi: giriş/çıkış + veri değişiklikleri (admin işlemleri Güvenlik'te).
+  { href: "/admin/hareketler", label: "Hareketler", icon: <Activity size={17} aria-hidden /> },
   { href: "/admin/reklam", label: "Reklam", icon: <Megaphone size={17} aria-hidden /> },
   { href: "/admin/tanitim", label: "Tanıtım Maili", icon: <Mail size={17} aria-hidden /> },
   { href: "/admin/destek", label: "Destek", icon: <Headset size={17} aria-hidden /> },

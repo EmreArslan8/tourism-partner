@@ -21,6 +21,8 @@ export type PopupFrequency = "always" | "daily" | "session";
 export type SupportTicketStatus = "new" | "in_progress" | "resolved" | "archived";
 export type BusinessPartnerRequestStatus = "pending" | "accepted" | "rejected";
 export type SignupIntentStatus = "pending" | "applied" | "failed" | "skipped";
+export type SessionEventType = "login" | "logout" | "login_failed" | "mfa_failed";
+export type RecordChangeOp = "INSERT" | "UPDATE" | "DELETE";
 
 /* Kayıt adım 3'te toplanan işletme profili — signup_intents.payload'ın şekli.
    İşletmeye dönüştürme mantığı için bkz. lib/signup-intents.ts. */
@@ -829,6 +831,49 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["audit_logs"]["Insert"]>;
         Relationships: [];
       };
+      session_events: {
+        Row: {
+          id: number;
+          user_id: string | null;
+          email: string | null;
+          event: SessionEventType;
+          reason: string | null;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          user_id?: string | null;
+          email?: string | null;
+          event: SessionEventType;
+          reason?: string | null;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["session_events"]["Insert"]>;
+        Relationships: [];
+      };
+      record_changes: {
+        Row: {
+          id: number;
+          table_name: string;
+          record_id: string;
+          business_id: number | null;
+          op: RecordChangeOp;
+          actor_id: string | null;
+          actor_role: string | null;
+          changed_fields: string[];
+          old_value: Record<string, unknown> | null;
+          new_value: Record<string, unknown> | null;
+          created_at: Timestamp;
+        };
+        /* Yalnızca DB trigger'ı yazar (public.log_row_change); uygulamadan insert edilmez. */
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -865,3 +910,5 @@ export type BlogPostRow = Database["public"]["Tables"]["blog_posts"]["Row"];
 export type AdminPopupRow = Database["public"]["Tables"]["admin_popups"]["Row"];
 export type SupportTicketRow = Database["public"]["Tables"]["support_tickets"]["Row"];
 export type SupportTicketMessageRow = Database["public"]["Tables"]["support_ticket_messages"]["Row"];
+export type SessionEventRow = Database["public"]["Tables"]["session_events"]["Row"];
+export type RecordChangeRow = Database["public"]["Tables"]["record_changes"]["Row"];
