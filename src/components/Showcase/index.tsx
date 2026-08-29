@@ -100,7 +100,7 @@ const Slide = ({ business }: { business: Business }) => {
             verified={business.verified}
             founderPartner={business.founderPartner}
             sponsored={business.sponsored}
-            labels={{ verified: tv("verified"), founder: tv("founderPartnerTooltip"), premium: tv("ad") }}
+            labels={{ verified: tv("verified"), founder: tv("founderPartner"), premium: tv("ad") }}
             mode="premium"
             premiumVariant="onImage"
             className={styles.premium}
@@ -135,7 +135,7 @@ const Slide = ({ business }: { business: Business }) => {
               verified={business.verified}
               founderPartner={business.founderPartner}
               sponsored={business.sponsored}
-              labels={{ verified: tv("verified"), founder: tv("founderPartnerTooltip"), premium: tv("ad") }}
+              labels={{ verified: tv("verified"), founder: tv("founderPartner"), premium: tv("ad") }}
               mode="identity"
               size="md"
             />

@@ -55,7 +55,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
   const hasCoords =
     Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0);
   return (
-    <main className={styles.main}>
+    <main className={cn(styles.main, b.sponsored && styles.premiumProfile)}>
       {!preview && <RecordView type="business" id={b.id} />}
       {preview && (
         <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-950/40">
@@ -89,7 +89,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
               sponsored={b.sponsored}
               labels={{
                 verified: tCommon("verified"),
-                founder: tCommon("founderPartnerTooltip"),
+                founder: tCommon("founderPartner"),
                 premium: tCommon("ad"),
               }}
               mode="all"

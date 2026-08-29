@@ -38,7 +38,7 @@
   nameWrap: "flex min-w-0 shrink-0 items-start gap-2 py-0.5",
   name: "line-clamp-2 min-w-0 font-display text-[22px] font-medium leading-[1.18] tracking-[-.022em] text-ink min-[1440px]:text-[25px] min-[1800px]:text-[27px] max-[640px]:text-[20px]",
   verifiedBadge: "mt-0.5",
-  partnerMedal: "mt-0.5 !h-6 !w-[22px]",
+  partnerMedal: "mt-0.5",
   // Konum — ikincil meta: okunur ama başlıktan sessiz (orta ağırlık, koyu-mat renk).
   loc: "flex shrink-0 items-center justify-between gap-3 text-[12.5px] font-semibold text-muted min-[1440px]:text-[13.5px] min-[1800px]:text-[14px] [&>span:first-child]:min-w-0 [&>span:first-child]:truncate",
   rating: "ms-2 shrink-0 rounded-full bg-cream px-2 py-0.5 text-[12px] font-bold text-terra-deep",

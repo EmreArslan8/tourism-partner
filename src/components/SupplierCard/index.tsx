@@ -89,7 +89,7 @@ const SupplierCard = ({
             sponsored={business.sponsored}
             labels={{
               verified: tCommon("verified"),
-              founder: tCommon("founderPartnerTooltip"),
+              founder: tCommon("founderPartner"),
               premium: tCommon("ad"),
             }}
             mode="premium"
@@ -116,7 +116,7 @@ const SupplierCard = ({
             sponsored={business.sponsored}
             labels={{
               verified: tCommon("verified"),
-              founder: tCommon("founderPartnerTooltip"),
+              founder: tCommon("founderPartner"),
               premium: tCommon("ad"),
             }}
             mode="identity"

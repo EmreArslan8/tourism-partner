@@ -7,9 +7,9 @@ type BadgeSize = "sm" | "md" | "lg";
 type BadgeMode = "identity" | "premium" | "all";
 
 const founderSizes: Record<BadgeSize, string> = {
-  sm: "!h-6 !w-[22px]",
-  md: "!h-7 !w-[25px]",
-  lg: "!h-9 !w-[33px]",
+  sm: "!h-5 !w-[19px]",
+  md: "!h-6 !w-[22px]",
+  lg: "!h-8 !w-[29px]",
 };
 
 const BusinessBadges = ({
