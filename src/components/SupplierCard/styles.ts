@@ -11,8 +11,14 @@
     "min-[1440px]:h-[240px] " +
     "max-[640px]:h-[172px] " +
     "transition-all duration-300 ease-brand hover:-translate-y-[2px] hover:border-terra/35 hover:shadow-[0_18px_44px_-36px_rgba(7,9,42,.8)]",
+  premiumCard:
+    "premium-card-attention border-[#d8aa45] ring-1 ring-[#f2cb6b]/50 " +
+    "shadow-[0_18px_46px_-28px_rgba(164,108,0,.62),inset_0_0_0_1px_rgba(255,221,126,.08)] " +
+    "hover:border-[#efc75e] hover:ring-[#e4b444]/75 hover:shadow-[0_24px_52px_-28px_rgba(164,108,0,.78)]",
   flag:
     "absolute start-3 top-3 z-[3]",
+  premiumFlag:
+    "px-3.5 py-1.5",
   favorite: "absolute end-3 top-3 z-[5] pointer-events-auto",
   cover: "relative flex h-[240px] shrink-0 items-center justify-center overflow-hidden min-[1440px]:h-[280px] min-[1800px]:h-[305px] max-[640px]:h-[230px]",
   // Yatay varyant görseli — solda sabit genişlikte, kartın tam yüksekliğinde.
@@ -31,8 +37,8 @@
   // Başlık — en baskın: kalın, büyük, koyu (hiyerarşinin tepesi).
   nameWrap: "flex min-w-0 shrink-0 items-start gap-2 py-0.5",
   name: "line-clamp-2 min-w-0 font-display text-[22px] font-medium leading-[1.18] tracking-[-.022em] text-ink min-[1440px]:text-[25px] min-[1800px]:text-[27px] max-[640px]:text-[20px]",
-  partnerMedal: "group relative z-[2] mt-0.5 inline-flex h-6 w-[22px] shrink-0 cursor-help items-center justify-center drop-shadow-[0_3px_5px_rgba(128,77,8,.16)] outline-none [&_svg]:h-full [&_svg]:w-full",
-  partnerTooltip: "pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-48 -translate-x-1/2 rounded-[8px] bg-brand-deep px-2.5 py-2 text-center text-[11px] font-medium leading-4 text-white opacity-0 shadow-[0_12px_28px_-12px_rgba(7,9,42,.65)] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100",
+  verifiedBadge: "mt-0.5",
+  partnerMedal: "mt-0.5 !h-6 !w-[22px]",
   // Konum — ikincil meta: okunur ama başlıktan sessiz (orta ağırlık, koyu-mat renk).
   loc: "flex shrink-0 items-center justify-between gap-3 text-[12.5px] font-semibold text-muted min-[1440px]:text-[13.5px] min-[1800px]:text-[14px] [&>span:first-child]:min-w-0 [&>span:first-child]:truncate",
   rating: "ms-2 shrink-0 rounded-full bg-cream px-2 py-0.5 text-[12px] font-bold text-terra-deep",

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { BadgeCheck, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
@@ -15,8 +15,10 @@ import RecordView from "@/components/RecordView";
 import FavoriteButton from "@/components/FavoriteButton";
 import ShareButton from "@/components/ShareButton";
 import ReviewsSection from "@/components/ReviewsSection";
+import BusinessBadges from "@/components/BusinessBadges";
 import type { Business, SocialPlatform } from "@/lib/types";
 import type { PublicBusinessPartner } from "@/lib/business-partners";
+import { cn } from "@/lib/utils";
 import styles from "./styles";
 
 type TranslationFn = (key: string) => string;
@@ -81,15 +83,22 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
               </span>
             )}
             <h1 className={styles.title}>{b.name}</h1>
-            {b.founderPartner && (
-              <span
-                className={styles.founderBadge}
-                title={tCommon("founderPartner")}
-                aria-label={tCommon("founderPartner")}
-              >
-                <BadgeCheck size={28} strokeWidth={2.35} aria-hidden />
-              </span>
-            )}
+            <BusinessBadges
+              verified={b.verified}
+              founderPartner={b.founderPartner}
+              sponsored={b.sponsored}
+              labels={{
+                verified: tCommon("verified"),
+                founder: tCommon("founderPartnerTooltip"),
+                premium: tCommon("ad"),
+              }}
+              mode="all"
+              size="lg"
+              className={styles.identityBadges}
+              verifiedClassName={styles.verifiedBadge}
+              founderClassName={styles.founderBadge}
+              premiumClassName={styles.premiumBadge}
+            />
           </div>
           <p className={styles.meta}>
             {[businessType, b.district, b.city].filter(Boolean).join(" · ")}
@@ -273,7 +282,5 @@ const Row = ({ k, v, href }: { k: string; v: ReactNode; href?: string }) => (
     )}
   </div>
 );
-
-import { cn } from "@/lib/utils";
 
 export default SupplierDetailView;

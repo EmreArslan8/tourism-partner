@@ -417,6 +417,47 @@ body:has(.theme-light) {
   }
 }
 
+/* Premium kart: zemine dokunmadan yalnızca altın çerçevede seyrek bir nefes efekti. */
+@keyframes tp-premium-border-breathe {
+  0%,
+  64%,
+  100% {
+    opacity: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 220, 118, 0);
+  }
+  78% {
+    opacity: 1;
+    box-shadow:
+      inset 0 0 0 2px rgba(255, 222, 125, 0.72),
+      inset 0 0 18px rgba(229, 171, 40, 0.12);
+  }
+  88% {
+    opacity: 0.28;
+    box-shadow: inset 0 0 0 1px rgba(255, 220, 118, 0.32);
+  }
+}
+
+.premium-card-attention::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  border-radius: inherit;
+  animation: tp-premium-border-breathe 5.4s ease-in-out infinite;
+}
+
+.premium-card-attention:hover::after {
+  animation-play-state: paused;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .premium-card-attention::after {
+    animation: none;
+  }
+}
+
 /* ============================================================
    Home product tour (Driver.js) — minimal themed runtime styles.
    Driver JS is lazy-loaded; only these tiny class rules live globally.

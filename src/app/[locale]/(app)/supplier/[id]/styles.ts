@@ -9,8 +9,14 @@
   grid: "mt-6 grid grid-cols-[minmax(0,1fr)_360px] items-start gap-7 max-[900px]:grid-cols-1",
   titleWrap: "flex flex-wrap items-center gap-3",
   title: "heading-page text-ink",
+  identityBadges: "inline-flex shrink-0 items-center gap-2",
+  verifiedBadge:
+    "max-[640px]:!h-7 max-[640px]:!w-7 max-[640px]:[&_svg]:!h-[27px] max-[640px]:[&_svg]:!w-[27px]",
   founderBadge:
-    "inline-grid h-9 w-9 shrink-0 place-items-center text-terra-deep dark:text-border-purple max-[640px]:h-8 max-[640px]:w-8",
+    "!h-9 !w-[33px] max-[640px]:!h-8 max-[640px]:!w-[29px]",
+  premiumBadge:
+    "!border-[#d7a63a] !bg-[#fff5d6] !text-[#8a5b00] !shadow-[0_8px_22px_-14px_rgba(138,91,0,.75)] " +
+    "dark:!bg-[#3b2d0b] dark:!text-[#ffd778]",
   verified: "text-[12px] font-bold text-group-acente dark:text-border-purple",
   meta: "mt-2 text-[14.5px] font-medium text-muted",
   rating: "text-gold",
