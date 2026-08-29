@@ -16,6 +16,7 @@ import { isValidTCKN, isValidVKN } from "@/lib/validators";
 import { businessSlug } from "@/lib/business-slug";
 import { SOCIAL_PLATFORMS, type GroupKey, type ActionState, type BusinessDocument, type BusinessSocials } from "@/lib/types";
 import { clean, cleanHttpUrl, isEmail } from "./validate";
+import { hasPartnerRequestAccess } from "@/lib/partner-request-access";
 
 type ContactInput = { full_name: string; title: string | null; phone: string | null; email: string | null };
 
@@ -511,6 +512,8 @@ export type PartnerRequestActionState = {
   reason?: "invalid" | "notAllowed" | "exists" | "failed";
 };
 
+/* Ücretli üyelik özelliği için akış korunur. Özellik bayrağı kapalıyken veya
+   işletmenin aktif üyeliği yokken kayıt oluşturmadan notAllowed döner. */
 export async function sendPartnerRequest(
   _previousState: PartnerRequestActionState,
   formData: FormData,
@@ -526,6 +529,7 @@ export async function sendPartnerRequest(
   const { supabase, business, error } = await currentOwnedBusiness();
   if (error || !business || receiverBusinessId === Number(business.id)) return failure("notAllowed");
   if (business.status !== "approved" && business.status !== "active") return failure("notAllowed");
+  if (!(await hasPartnerRequestAccess(supabase, Number(business.id)))) return failure("notAllowed");
 
   const myBusinessId = Number(business.id);
   const { data: existing, error: existingError } = await supabase

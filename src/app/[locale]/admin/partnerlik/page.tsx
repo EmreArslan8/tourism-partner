@@ -1,13 +1,15 @@
-import { ArrowRight, Handshake, Network, ShieldAlert } from "lucide-react";
+import { ArrowRight, Handshake, Network, Power, ShieldAlert } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
-import { moderatePartnerRequest } from "@/lib/actions/admin";
+import { moderatePartnerRequest, setPartnerRequestFeature } from "@/lib/actions/admin";
 import { getAdminPartnerRequests, type AdminPartnerRequest } from "@/lib/admin-partner-requests";
 import { ConfirmAction, DataTable, EmptyState, StatusBadge, type Column } from "@/components/common";
 import type { BadgeTone } from "@/components/common/StatusBadge";
 import { Card, CardHeader, PageHeader } from "../_components";
 import { AdminMetric, adminUi } from "../_ui";
 import { serviceLabel } from "@/lib/categories";
+import { createReadOnlyClient } from "@/lib/supabase/read-only-server";
+import { isPartnerRequestFeatureEnabled } from "@/lib/partner-request-access";
 
 const STATUS_LABEL: Record<AdminPartnerRequest["status"], string> = {
   pending: "Bekliyor",
@@ -34,7 +36,10 @@ export default async function Page({
   const [{ locale }, query] = await Promise.all([params, searchParams]);
   setRequestLocale(locale);
 
-  const requests = await getAdminPartnerRequests();
+  const [requests, featureEnabled] = await Promise.all([
+    getAdminPartnerRequests(),
+    createReadOnlyClient().then(isPartnerRequestFeatureEnabled),
+  ]);
   const status = query.status === "pending" || query.status === "accepted" || query.status === "rejected"
     ? query.status
     : "";
@@ -61,6 +66,31 @@ export default async function Page({
         title="Partnerlik Ağı"
         description="İşletmeler arasındaki bağlantı isteklerini izleyin. Müdahale işlemleri onay ister ve güvenlik kaydına yazılır."
       />
+
+      <Card className={`mb-6 overflow-hidden hover:translate-y-0 ${featureEnabled ? "border-emerald-300" : "border-amber-300"}`}>
+        <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-[10px] ${featureEnabled ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+              <Power size={19} aria-hidden />
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-[15px] font-bold text-ink">Partnerlik sistemi</h2>
+                <StatusBadge tone={featureEnabled ? "green" : "amber"}>{featureEnabled ? "Açık" : "Kapalı"}</StatusBadge>
+              </div>
+              <p className="mt-1 max-w-[720px] text-[12.5px] leading-5 text-muted">
+                Kapalıyken partnerlik alanları kullanıcılardan tamamen gizlenir. Açıldığında yalnızca aktif ve süresi dolmamış üyeliği bulunan işletmeler yeni talep gönderebilir.
+              </p>
+            </div>
+          </div>
+          <form action={setPartnerRequestFeature}>
+            <input type="hidden" name="enabled" value={featureEnabled ? "false" : "true"} />
+            <button type="submit" className={featureEnabled ? "inline-flex min-h-10 items-center justify-center rounded-[8px] border border-red-300 px-4 text-[12.5px] font-semibold text-red-700 transition-colors hover:bg-red-50" : adminUi.sapphireButton}>
+              Sistemi {featureEnabled ? "Kapat" : "Aç"}
+            </button>
+          </form>
+        </div>
+      </Card>
 
       <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <AdminMetric icon={<Network size={19} aria-hidden />} label="Toplam Kayıt" value={requests.length} hint="tüm partnerlik hareketleri" />

@@ -6,7 +6,7 @@ import { businessSlug, getBusinessBySlug, getOwnedBusiness } from "@/lib/busines
 import { INDEXING_ENABLED, type SiteLocale } from "@/lib/site";
 import { localeAlternates } from "@/lib/seo";
 import { realBusinessGalleryImages } from "@/lib/business-images";
-import { getBusinessPartners } from "@/lib/business-partners";
+import { getBusinessPartnerSection } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import { businessDescription, businessSeoDescription, businessSeoTitle } from "@/lib/business-localization";
 import SupplierDetailView from "./view";
@@ -85,8 +85,8 @@ export default async function DetailPage({
 
   if (!b) notFound();
 
-  const [partners] = await Promise.all([
-    getBusinessPartners(b.id),
+  const [partnerSection] = await Promise.all([
+    getBusinessPartnerSection(b.id),
   ]);
   const services = featuredFacetTags(b, 40);
   const gallery = realBusinessGalleryImages(b.image, b.images);
@@ -94,7 +94,8 @@ export default async function DetailPage({
   return (
     <SupplierDetailView
       b={b}
-      partners={partners}
+      partners={partnerSection.partners}
+      partnerFeatureEnabled={partnerSection.enabled}
       contactSection={
         <Suspense fallback={<MemberContactSkeleton label={t("memberContactsLoading")} />}>
           <MemberContactSection businessId={b.id} />

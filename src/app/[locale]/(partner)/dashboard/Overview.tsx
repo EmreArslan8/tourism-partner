@@ -27,7 +27,6 @@ export function getProfileChecklist(b: PanelBusiness | null, cover: string) {
     { key: "cover", done: Boolean(cover) },
     { key: "attributes", done: Boolean(b?.attributes?.length) },
     { key: "contacts", done: Boolean((b?.contactCount ?? 0) > 0) },
-    { key: "partners", done: Boolean((b?.partnerActionCount ?? 0) > 0) },
   ] as const;
 }
 

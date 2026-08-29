@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl"
-import { AlertCircle, ArrowLeft, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, Globe2, ImagePlus, Images, LoaderCircle, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
+import { AlertCircle, BriefcaseBusiness, Building2, CheckCircle2, Eye, FileCheck2, Globe2, ImagePlus, Images, PencilLine, Plus, Search, SlidersHorizontal, Sparkles, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { visibleFacets } from "@/lib/facets";
 import { businessSlug } from "@/lib/business-slug";
@@ -17,12 +17,11 @@ import { businessImageUrl, BUSINESS_IMAGES_BUCKET } from "@/lib/business-images"
 import { upsertPanelDraftMedia } from "@/lib/business-drafts";
 import styles from "./styles";
 import { Link, type Href } from "@/i18n/navigation";
-import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness, sendPartnerRequest } from "@/lib/actions/panel";
-import type { PartnerRequestActionState } from "@/lib/actions/panel";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/common/Dialog";
+import { cancelPartnerRequest, respondPartnerRequest, saveMyBusiness } from "@/lib/actions/panel";
 import ServiceMultiSelect from "@/components/ServiceMultiSelect";
 import { OverviewDashboard, getProfileScore, type PanelAnnouncement, type PanelFeaturedBusiness, type PanelOverviewStats, type PanelViewStats } from "./Overview";
 import PanelNotifyBell from "./PanelNotifyBell";
+import PartnerPickerDialog from "./PartnerPickerDialog";
 
 /* Sosyal medya platform etiketleri/örnekleri — özel isimler, çeviri gerekmez. */
 const SOCIAL_LABELS: Record<SocialPlatform, string> = {
@@ -66,7 +65,6 @@ export type PanelBusiness = {
   sponsored: boolean;
   founderPartner?: boolean;
   contactCount?: number;
-  partnerActionCount?: number;
   created_at: string;
 };
 
@@ -118,136 +116,6 @@ export type PanelQuote = {
   created_at: string;
 };
 
-function PartnerPickerDialog({ partnerOptions }: { partnerOptions: PanelPartnerOption[] }) {
-  const t = useTranslations("panel");
-  const tc = useTranslations("cat");
-  const ts = useTranslations("service");
-  const serviceName = (value: string) => {
-    const key = serviceTranslationKey(value);
-    return key ? ts(key) : value;
-  };
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [group, setGroup] = useState("");
-  const [city, setCity] = useState("");
-  const [selectedPartner, setSelectedPartner] = useState<PanelPartnerOption | null>(null);
-  const [requestState, requestAction, requestPending] = useActionState(sendPartnerRequest, {
-    status: "idle",
-    partnerBusinessId: null,
-  } satisfies PartnerRequestActionState);
-
-  const groups = Array.from(new Set(partnerOptions.map((partner) => partner.group))).sort();
-  const cities = Array.from(new Set(partnerOptions.map((partner) => partner.city).filter(Boolean))).sort((a, b) => a.localeCompare(b, "tr"));
-  const normalizedQuery = query.trim().toLocaleLowerCase("tr-TR");
-  const filteredPartners = partnerOptions.filter((partner) => {
-    const matchesQuery = !normalizedQuery || [partner.name, partner.type, serviceName(partner.type), partner.city]
-      .filter(Boolean)
-      .some((value) => value.toLocaleLowerCase("tr-TR").includes(normalizedQuery));
-    return matchesQuery && (!group || partner.group === group) && (!city || partner.city === city);
-  });
-
-  function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
-    if (!nextOpen) {
-      setSelectedPartner(null);
-      setQuery("");
-      setGroup("");
-      setCity("");
-    }
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <button type="button" disabled={partnerOptions.length === 0} className={styles.partnerAddButton}>
-          <Plus size={16} aria-hidden />
-          {t("partnerAdd")}
-        </button>
-      </DialogTrigger>
-      <DialogContent
-        title={selectedPartner ? t("partnerConfirmTitle") : t("partnerPickerTitle")}
-        description={selectedPartner ? t("partnerConfirmSub", { name: selectedPartner.name }) : t("partnerPickerSub")}
-        className={styles.partnerDialog}
-      >
-        {selectedPartner && requestState.status === "success" && requestState.partnerBusinessId === selectedPartner.id ? (
-          <div className={styles.partnerResultState} role="status" aria-live="polite">
-            <span className={styles.partnerSuccessIcon}><CheckCircle2 size={24} aria-hidden /></span>
-            <div>
-              <h3>{t("partnerSendSuccessTitle")}</h3>
-              <p>{t("partnerSendSuccessSub", { name: selectedPartner.name })}</p>
-            </div>
-            <button type="button" onClick={() => handleOpenChange(false)} className={styles.compactPrimaryButton}>
-              {t("partnerDone")}
-            </button>
-          </div>
-        ) : selectedPartner ? (
-          <div className={styles.partnerConfirm}>
-            <div className={styles.partnerConfirmCard}>
-              <span className={styles.partnerPickName}>{selectedPartner.name}</span>
-              <span className={styles.partnerPickMeta}>
-                {[tc(selectedPartner.group), serviceName(selectedPartner.type), selectedPartner.city].filter(Boolean).join(" · ")}
-              </span>
-            </div>
-            <p>{t("partnerConfirmHint")}</p>
-            <div className={styles.partnerDialogActions}>
-              <button type="button" onClick={() => setSelectedPartner(null)} className={styles.compactSecondaryButton}>
-                <ArrowLeft size={15} className="rtl:rotate-180" aria-hidden />
-                {t("partnerBack")}
-              </button>
-              <form action={requestAction}>
-                <input type="hidden" name="partnerBusinessId" value={selectedPartner.id} />
-                <button type="submit" disabled={requestPending} className={styles.compactPrimaryButton}>
-                  {requestPending && <LoaderCircle size={15} className="animate-spin" aria-hidden />}
-                  {requestPending ? t("partnerSending") : t("partnerConfirmSend")}
-                </button>
-              </form>
-            </div>
-            {requestState.status === "error" && requestState.partnerBusinessId === selectedPartner.id && (
-              <p className={styles.partnerSendError} role="alert">
-                <AlertCircle size={16} aria-hidden />
-                {requestState.reason === "exists" ? t("partnerAlreadyExists") : t("partnerSendError")}
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className={styles.partnerPicker}>
-            <label className={styles.partnerSearch}>
-              <Search size={17} aria-hidden />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("partnerSearchPlaceholder")}
-                autoFocus
-              />
-            </label>
-            <div className={styles.partnerFilters}>
-              <select value={group} onChange={(event) => setGroup(event.target.value)} aria-label={t("partnerGroupFilter")}>
-                <option value="">{t("partnerAllGroups")}</option>
-                {groups.map((item) => <option key={item} value={item}>{tc(item)}</option>)}
-              </select>
-              <select value={city} onChange={(event) => setCity(event.target.value)} aria-label={t("partnerCityFilter")}>
-                <option value="">{t("partnerAllCities")}</option>
-                {cities.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
-            </div>
-            <p className={styles.partnerResultCount}>{t("partnerResultCount", { count: filteredPartners.length })}</p>
-            <div className={styles.partnerResultList}>
-              {filteredPartners.map((partner) => (
-                <button key={partner.id} type="button" onClick={() => setSelectedPartner(partner)} className={styles.partnerResultItem}>
-                  <span className={styles.partnerPickName}>{partner.name}</span>
-                  <span className={styles.partnerPickMeta}>{[tc(partner.group), serviceName(partner.type), partner.city].filter(Boolean).join(" · ")}</span>
-                  <span className={styles.partnerResultAction}>{t("partnerSelect")}</span>
-                </button>
-              ))}
-              {filteredPartners.length === 0 && <p className={styles.partnerNoResult}>{t("partnerNoResults")}</p>}
-            </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<Blob> {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return file;
   const bitmap = await createImageBitmap(file).catch(() => null);
@@ -290,6 +158,8 @@ const DashboardView = ({
   meta,
   draft,
   contacts,
+  partnerFeatureEnabled,
+  canSendPartnerRequests,
   partnerOptions,
   acceptedPartners,
   incomingPartnerRequests,
@@ -309,6 +179,8 @@ const DashboardView = ({
   meta: { firm_name: string; biz_type: string };
   draft: PanelDraft | null;
   contacts: PanelContact[];
+  partnerFeatureEnabled: boolean;
+  canSendPartnerRequests: boolean;
   partnerOptions: PanelPartnerOption[];
   acceptedPartners: PanelPartnerOption[];
   incomingPartnerRequests: PanelPartnerRequest[];
@@ -381,13 +253,10 @@ const DashboardView = ({
   const facets = visibleFacets([effectiveGroup]);
   const selectedAttrs = new Set(b?.attributes ?? []);
   const hasContactPerson = contactRows.some((contact) => contact.full_name.trim().length > 0);
-  const hasPartnerAction =
-    acceptedPartners.length > 0 || incomingPartnerRequests.length > 0 || outgoingPartnerRequests.length > 0;
   const scoredBusiness = b
     ? {
         ...b,
         contactCount: hasContactPerson ? 1 : 0,
-        partnerActionCount: hasPartnerAction ? 1 : 0,
       }
     : null;
   const profileScore = getProfileScore(scoredBusiness, cover);
@@ -410,12 +279,13 @@ const DashboardView = ({
     { key: "basic" as const, label: t("editTabBasic"), Icon: Building2, complete: Boolean((b?.name || meta.firm_name) && selectedCountry && selectedCity && selectedDistrict) },
     { key: "media" as const, label: t("editTabMedia"), Icon: Images, complete: Boolean(cover) },
     { key: "services" as const, label: t("editTabServices"), Icon: SlidersHorizontal, complete: selectedAttrs.size > 0 },
-    { key: "partners" as const, label: t("editTabPartners"), Icon: Users, complete: hasPartnerAction },
+    ...(partnerFeatureEnabled ? [{ key: "partners" as const, label: t("editTabPartners"), Icon: Users, complete: null }] : []),
     ...(dynFields.length > 0 ? [{ key: "company" as const, label: isGuide ? t("guideFieldsTitle") : t("editTabCompany"), Icon: BriefcaseBusiness, complete: dynFields.every((field) => Boolean(detailValues[field.key])) }] : []),
     ...(docFields.length > 0 ? [{ key: "documents" as const, label: t("editTabDocuments"), Icon: FileCheck2, complete: docFields.filter((field) => field.required).every((field) => documents.some((doc) => doc.kind === field.kind)) }] : []),
     { key: "contacts" as const, label: t("editTabContacts"), Icon: Users, complete: hasContactPerson },
   ];
-  const completedEditSections = editSections.filter((section) => section.complete).length;
+  const completionSections = editSections.filter((section) => section.complete !== null);
+  const completedEditSections = completionSections.filter((section) => section.complete).length;
 
   useEffect(() => {
     if (!state.ok || typeof window === "undefined") return;
@@ -732,7 +602,7 @@ const DashboardView = ({
               <div className={styles.editProgressTrack} aria-hidden>
                 <i style={{ width: `${profileScore}%` }} />
               </div>
-              <p>{t("sectionsComplete", { completed: completedEditSections, total: editSections.length })}</p>
+              <p>{t("sectionsComplete", { completed: completedEditSections, total: completionSections.length })}</p>
             </div>
 
             <div className={styles.editTabs} role="tablist" aria-label={t("listingSections")}>
@@ -995,7 +865,7 @@ const DashboardView = ({
             </div>
             </div>
 
-            <div id="listing-panel-partners" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "partners" && styles.hiddenSection)}>
+            {partnerFeatureEnabled && <div id="listing-panel-partners" role="tabpanel" className={cn(styles.formSection, activeEditSection !== "partners" && styles.hiddenSection)}>
               <h3 className={styles.formSectionTitle}>{t("partnersTitle")}</h3>
               <div className={styles.dynBox}>
                 <span className={styles.labelCls}>{t("partnersTitle")}</span>
@@ -1069,13 +939,19 @@ const DashboardView = ({
                   </div>
                 )}
 
-                <div className={styles.partnerAddRow}>
-                  <PartnerPickerDialog partnerOptions={partnerOptions} />
-                  <span>{t("partnerAddHint")}</span>
-                </div>
-                {partnerOptions.length === 0 && <p className="mt-3 text-[13px] text-muted">{t("partnersEmpty")}</p>}
+                {canSendPartnerRequests ? (
+                  <>
+                    <div className={styles.partnerAddRow}>
+                      <PartnerPickerDialog partnerOptions={partnerOptions} />
+                      <span>{t("partnerAddHint")}</span>
+                    </div>
+                    {partnerOptions.length === 0 && <p className="mt-3 text-[13px] text-muted">{t("partnersEmpty")}</p>}
+                  </>
+                ) : (
+                  <p className="mt-3 text-[13px] text-muted">{t("partnerMembershipRequired")}</p>
+                )}
               </div>
-            </div>
+            </div>}
 
             {/* Kategori-bazlı dinamik alanlar (vergi no, ünvan, kapasite, rehber TCKN/sicil…) */}
             {dynFields.length > 0 && (
@@ -1262,12 +1138,12 @@ const DashboardView = ({
               <aside className={styles.publishChecklist} aria-label={t("publishChecklist")}>
                 <div className={styles.publishChecklistHead}>
                   <span>{t("publishChecklist")}</span>
-                  <strong>{completedEditSections}/{editSections.length}</strong>
+                  <strong>{completedEditSections}/{completionSections.length}</strong>
                 </div>
                 <p>{t("formProgressHint")}</p>
                 <p>{t("founderBadgeRequirement")}</p>
                 <div className={styles.publishChecklistItems}>
-                  {editSections.map(({ key, label, complete }) => (
+                  {completionSections.map(({ key, label, complete }) => (
                     <button key={key} type="button" onClick={() => setActiveEditSection(key)}>
                       {complete ? <CheckCircle2 size={16} aria-hidden /> : <AlertCircle size={16} aria-hidden />}
                       <span>{label}</span>

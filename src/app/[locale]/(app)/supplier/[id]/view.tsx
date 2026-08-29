@@ -26,6 +26,7 @@ type TranslationFn = (key: string) => string;
 interface Props {
   b: Business;
   partners: PublicBusinessPartner[];
+  partnerFeatureEnabled: boolean;
   contactSection: ReactNode;
   t: TranslationFn;
   tc: TranslationFn;
@@ -38,7 +39,7 @@ interface Props {
   preview?: boolean;
 }
 
-const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tService, services, gallery, locale, preview = false }: Props) => {
+const SupplierDetailView = ({ b, partners, partnerFeatureEnabled, contactSection, t, tc, tCommon, tService, services, gallery, locale, preview = false }: Props) => {
   const translateService = (value: string) => {
     const key = serviceTranslationKey(value);
     return key ? tService(key) : value;
@@ -150,7 +151,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
 
           {contactSection}
 
-          <section className={styles.partners} aria-labelledby="profile-partners">
+          {partnerFeatureEnabled && <section className={styles.partners} aria-labelledby="profile-partners">
             <div className={styles.partnersHead}>
               <span className={styles.partnersEyebrow}>{t("partnersEyebrow")}</span>
               <h2 id="profile-partners" className={styles.partnersTitle}>{t("partnersTitle")}</h2>
@@ -175,7 +176,7 @@ const SupplierDetailView = ({ b, partners, contactSection, t, tc, tCommon, tServ
             ) : (
               <p className={styles.partnersEmpty}>{t("partnersEmpty")}</p>
             )}
-          </section>
+          </section>}
 
           <ReviewsSection businessId={b.id} />
         </article>

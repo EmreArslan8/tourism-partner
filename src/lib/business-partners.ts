@@ -3,6 +3,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { businessSlug } from "@/lib/business-slug";
 import { PUBLIC_BUSINESS_STATUSES } from "@/lib/business-visibility";
 import type { BusinessGroup } from "@/lib/supabase/database.types";
+import { isPartnerRequestFeatureEnabled } from "@/lib/partner-request-access";
 
 export type PublicBusinessPartner = {
   id: number;
@@ -31,6 +32,7 @@ async function getBusinessPartnersCached(businessId: number): Promise<PublicBusi
   if (!hasEnv()) return [];
 
   const supabase = createPublicClient();
+  if (!(await isPartnerRequestFeatureEnabled(supabase))) return [];
   const { data: links, error: linkError } = await supabase
     .from("business_partner_requests")
     .select("requester_business_id,receiver_business_id")
@@ -81,11 +83,32 @@ async function getBusinessPartnersCached(businessId: number): Promise<PublicBusi
     }));
 }
 
+async function getBusinessPartnerSectionCached(businessId: number) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("business-partners");
+
+  if (!hasEnv()) return { enabled: false, partners: [] as PublicBusinessPartner[] };
+  const supabase = createPublicClient();
+  const enabled = await isPartnerRequestFeatureEnabled(supabase);
+  if (!enabled) return { enabled: false, partners: [] as PublicBusinessPartner[] };
+  return { enabled: true, partners: await getBusinessPartnersCached(businessId) };
+}
+
 export async function getBusinessPartners(businessId: number): Promise<PublicBusinessPartner[]> {
   try {
     return await getBusinessPartnersCached(businessId);
   } catch (error) {
     console.error("[business-partners] sorgu başarısız:", error);
     return [];
+  }
+}
+
+export async function getBusinessPartnerSection(businessId: number) {
+  try {
+    return await getBusinessPartnerSectionCached(businessId);
+  } catch (error) {
+    console.error("[business-partners] bölüm sorgusu başarısız:", error);
+    return { enabled: false, partners: [] as PublicBusinessPartner[] };
   }
 }

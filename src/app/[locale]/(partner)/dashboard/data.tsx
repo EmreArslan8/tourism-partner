@@ -8,6 +8,7 @@ import { getServiceSlugs } from "@/lib/business-services";
 import { businessSlug, getBusinesses } from "@/lib/businesses";
 import { realBusinessImages } from "@/lib/business-images";
 import { rankShowcaseCandidates } from "@/lib/showcase";
+import { hasPartnerRequestAccess, isPartnerRequestFeatureEnabled } from "@/lib/partner-request-access";
 import DashboardView, {
   PanelBusiness,
   PanelContact,
@@ -90,6 +91,7 @@ export async function PanelData({
   if (session?.accountType === "buyer") redirect({ href: "/dashboard", locale });
 
   const supabase = await createClient();
+  const partnerFeatureEnabled = await isPartnerRequestFeatureEnabled(supabase);
   const { data: businessRows } = await supabase
     .from("businesses")
     .select(
@@ -124,12 +126,13 @@ export async function PanelData({
 
   let quotes: PanelQuote[] = [];
   let contacts: PanelContact[] = [];
+  let canSendPartnerRequests = false;
   let partnerOptions: PanelPartnerOption[] = [];
   let acceptedPartners: PanelPartnerOption[] = [];
   let incomingPartnerRequests: PanelPartnerRequest[] = [];
   let outgoingPartnerRequests: PanelPartnerRequest[] = [];
   if (selectedBusinessRow) {
-    const [{ data: q }, { data: c }, { data: partnerRequests }, { data: options }] = await Promise.all([
+    const [{ data: q }, { data: c }, { data: partnerRequests }] = await Promise.all([
       supabase
         .from("quotes")
         .select("id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,created_at")
@@ -145,16 +148,10 @@ export async function PanelData({
         .select("id,requester_business_id,receiver_business_id,status,created_at")
         .or(`requester_business_id.eq.${selectedBusinessRow.id},receiver_business_id.eq.${selectedBusinessRow.id}`)
         .order("created_at", { ascending: false }),
-      supabase
-        .from("businesses")
-        .select("id,name,group,type,city")
-        .eq("status", "approved")
-        .neq("id", selectedBusinessRow.id)
-        .order("name", { ascending: true }),
     ]);
     quotes = (q as PanelQuote[]) ?? [];
     contacts = (c as PanelContact[]) ?? [];
-    const requests = ((partnerRequests ?? []) as {
+    const requests = ((partnerFeatureEnabled ? partnerRequests ?? [] : []) as {
       id: number;
       requester_business_id: number;
       receiver_business_id: number;
@@ -169,7 +166,25 @@ export async function PanelData({
       );
     });
 
-    const optionRows = ((options ?? []) as PanelPartnerOption[]).slice(0, 200);
+    canSendPartnerRequests = partnerFeatureEnabled
+      ? await hasPartnerRequestAccess(supabase, Number(selectedBusinessRow.id))
+      : false;
+    const relatedBusinessIds = Array.from(partnerBusinessIds);
+    const { data: relatedBusinesses } = canSendPartnerRequests
+      ? await supabase
+          .from("businesses")
+          .select("id,name,group,type,city")
+          .in("status", ["approved", "active"])
+          .neq("id", selectedBusinessRow.id)
+          .order("name", { ascending: true })
+          .limit(200)
+      : relatedBusinessIds.length > 0
+        ? await supabase
+          .from("businesses")
+          .select("id,name,group,type,city")
+          .in("id", relatedBusinessIds)
+        : { data: [] };
+    const optionRows = (relatedBusinesses ?? []) as PanelPartnerOption[];
     const optionById = new Map(optionRows.map((option) => [Number(option.id), option]));
     const toRequest = (request: (typeof requests)[number]): PanelPartnerRequest | null => {
       const businessId = Number(request.requester_business_id) === Number(selectedBusinessRow.id)
@@ -303,6 +318,8 @@ export async function PanelData({
       userId={userId}
       group={group}
       contacts={contacts}
+      partnerFeatureEnabled={partnerFeatureEnabled}
+      canSendPartnerRequests={canSendPartnerRequests}
       partnerOptions={partnerOptions}
       acceptedPartners={acceptedPartners}
       incomingPartnerRequests={incomingPartnerRequests}

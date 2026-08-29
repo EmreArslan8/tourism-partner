@@ -22,10 +22,14 @@ const styles = {
   sideNav:
     "mt-1 grid shrink-0 gap-1.5 px-5 font-body text-[13px] font-medium tracking-normal [&>a]:flex [&>a]:min-h-[43px] [&>a]:items-center [&>a]:gap-3.5 [&>a]:rounded-[9px] [&>a]:px-3.5 [&>a]:py-2.5 [&>a]:text-white/72 [&>a]:transition-all hover:[&>a]:translate-x-0.5 hover:[&>a]:bg-white/8 hover:[&>a]:text-white [&_svg]:h-[19px] [&_svg]:w-[19px] [&_svg]:shrink-0",
   sideNavActive: "!bg-gradient-to-r !from-[#7c3aed] !to-[#5b21b6] !text-white shadow-[0_10px_24px_-12px_rgba(124,58,237,.9)]",
+  sideNavBoost:
+    "tp-sidebar-doping-nav !border !border-[#ffe49a]/85 !bg-[linear-gradient(100deg,#fff8dc_0%,#f7d982_52%,#fff1bd_100%)] !text-[#563700] shadow-[0_12px_28px_-17px_rgba(255,210,91,.95),inset_0_1px_0_rgba(255,255,255,.72)] hover:!border-[#fff0bd] hover:!text-[#3f2700] hover:brightness-105",
+  sideNavBoostActive:
+    "!border-[#fff0bd] !bg-[linear-gradient(100deg,#fffbed_0%,#f4cc66_52%,#ffeaa7_100%)] !text-[#432900] ring-1 ring-[#ffe29a]/55 shadow-[0_14px_32px_-15px_rgba(255,211,91,.98)]",
   sidebarPromo:
-    "mx-5 mb-0 mt-auto grid shrink-0 justify-items-center gap-2.5 rounded-[13px] border border-violet-400/40 bg-gradient-to-br from-[#632bd0]/65 to-[#261052]/80 px-4 py-4 text-center text-white [@media(max-height:820px)]:hidden [&>svg]:h-[27px] [&>svg]:w-[27px] [&>svg]:text-violet-200 [&_strong]:block [&_strong]:text-[13px] [&_strong]:font-semibold [&_span]:mt-1.5 [&_span]:line-clamp-2 [&_span]:block [&_span]:text-[10.5px] [&_span]:leading-[1.55] [&_span]:text-white/68 [&>a]:mt-1 [&>a]:min-w-[132px] [&>a]:rounded-[8px] [&>a]:bg-white [&>a]:px-3.5 [&>a]:py-2 [&>a]:text-[10.5px] [&>a]:font-semibold [&>a]:text-[#4c1d95] [&>a]:transition-transform hover:[&>a]:-translate-y-0.5",
+    "mx-5 mb-0 mt-3 grid shrink-0 justify-items-center gap-2.5 rounded-[13px] border border-[#f4d47c]/55 bg-[linear-gradient(145deg,#5b3a08_0%,#9a6814_48%,#4b2f06_100%)] px-4 py-4 text-center text-[#fff9e8] shadow-[0_16px_38px_-22px_rgba(245,190,55,.9),inset_0_1px_0_rgba(255,244,199,.28)] [@media(max-height:820px)]:hidden [&>svg]:h-[27px] [&>svg]:w-[27px] [&>svg]:text-[#ffe7a0] [&_strong]:block [&_strong]:text-[13px] [&_strong]:font-semibold [&_span]:mt-1.5 [&_span]:line-clamp-2 [&_span]:block [&_span]:text-[10.5px] [&_span]:leading-[1.55] [&_span]:text-[#fff4cf]/72 [&>a]:mt-1 [&>a]:min-w-[132px] [&>a]:rounded-[8px] [&>a]:border [&>a]:border-[#ffe5a0]/70 [&>a]:bg-[linear-gradient(180deg,#fff4c7_0%,#e8b84c_100%)] [&>a]:px-3.5 [&>a]:py-2 [&>a]:text-[10.5px] [&>a]:font-semibold [&>a]:text-[#4b2d00] [&>a]:shadow-[0_7px_18px_-10px_rgba(20,10,0,.85)] [&>a]:transition-[transform,filter] hover:[&>a]:-translate-y-0.5 hover:[&>a]:brightness-110",
   sidebarFoot:
-    "mx-5 mb-4 mt-3 shrink-0 rounded-[11px] border border-white/15 bg-white/6 p-3.5 text-[11.5px] text-white/58 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-white",
+    "mx-5 mb-4 mt-auto shrink-0 rounded-[11px] border border-white/15 bg-white/6 p-3.5 text-[11.5px] text-white/58 [&>b]:mt-1 [&>b]:block [&>b]:truncate [&>b]:text-[12.5px] [&>b]:font-medium [&>b]:text-white",
   workspace: "min-w-0",
   content: `${panelUi.page} px-4 pb-8 pt-4 min-[760px]:px-5 min-[900px]:px-6`,
   topbar:

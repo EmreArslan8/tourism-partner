@@ -458,6 +458,178 @@ body:has(.theme-light) {
   }
 }
 
+/* Dashboard Boost: sakin altın parıltı, tek bir ışık geçişi ve yüzen elmas. */
+@keyframes tp-sidebar-boost-shine {
+  0%,
+  58% {
+    transform: translateX(-155%) skewX(-18deg);
+  }
+  82%,
+  100% {
+    transform: translateX(190%) skewX(-18deg);
+  }
+}
+
+@keyframes tp-sidebar-boost-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 4px rgba(255, 226, 139, 0.25));
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+    filter: drop-shadow(0 0 9px rgba(255, 226, 139, 0.75));
+  }
+}
+
+.tp-sidebar-boost {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.tp-sidebar-boost::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -35% auto -35% -45%;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgba(255, 244, 202, 0.34), transparent);
+  animation: tp-sidebar-boost-shine 5.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.tp-sidebar-boost-icon {
+  animation: tp-sidebar-boost-float 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-sidebar-boost::before,
+  .tp-sidebar-boost-icon {
+    animation: none;
+  }
+}
+
+@keyframes tp-sidebar-doping-rocket {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 2px rgba(127, 80, 0, 0.18));
+  }
+  50% {
+    transform: translateY(-1px) rotate(-2deg);
+    filter: drop-shadow(0 0 3px rgba(154, 100, 11, 0.24));
+  }
+}
+
+.tp-sidebar-doping-nav {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.tp-sidebar-doping-nav::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: -45% auto -45% -35%;
+  width: 18%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+  animation: tp-sidebar-boost-shine 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.tp-sidebar-doping-nav > svg,
+.tp-sidebar-doping-nav > span {
+  position: relative;
+  z-index: 1;
+}
+
+.tp-sidebar-doping-nav > svg {
+  color: #9a640b;
+  animation: tp-sidebar-doping-rocket 5.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-sidebar-doping-nav::before,
+  .tp-sidebar-doping-nav > svg {
+    animation: none;
+  }
+}
+
+@keyframes tp-membership-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tp-membership-card-shine {
+  0%,
+  58% {
+    transform: translateX(-170%) skewX(-18deg);
+  }
+  82%,
+  100% {
+    transform: translateX(250%) skewX(-18deg);
+  }
+}
+
+.tp-membership-card {
+  animation: tp-membership-card-enter 0.55s ease-out both;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.tp-membership-card:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.tp-membership-card:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.tp-membership-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px -34px rgba(61, 39, 5, 0.72);
+}
+
+.tp-membership-card-featured::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: -30% auto -30% -38%;
+  width: 22%;
+  background: linear-gradient(90deg, transparent, rgba(255, 230, 159, 0.1), transparent);
+  animation: tp-membership-card-shine 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.tp-membership-card-featured::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(218, 181, 83, 0.14), transparent 28%),
+    linear-gradient(120deg, transparent 0 68%, rgba(218, 181, 83, 0.045) 68% 69%, transparent 69%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-membership-card,
+  .tp-membership-card-featured::before {
+    animation: none;
+  }
+
+  .tp-membership-card:hover {
+    transform: none;
+  }
+}
+
 /* ============================================================
    Home product tour (Driver.js) — minimal themed runtime styles.
    Driver JS is lazy-loaded; only these tiny class rules live globally.

@@ -24,13 +24,20 @@ export default async function SupportPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; topic?: string }>;
 }) {
   const { locale } = await params;
-  const { tab } = await searchParams;
+  const { tab, topic } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations("panel");
   const archivedView = tab === "archived";
+  const inquiryTopic = topic === "verified" || topic === "premium" || topic === "founder" ? topic : null;
+  const inquiry = inquiryTopic
+    ? {
+        subject: t(`membershipInquirySubject_${inquiryTopic}`),
+        message: t(`membershipInquiryMessage_${inquiryTopic}`),
+      }
+    : { subject: "", message: "" };
   const fmt = (v: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(v));
   const statusLabel = (status: string) => {
     const key = `supportStatus_${status}` as "supportStatus_new" | "supportStatus_in_progress" | "supportStatus_resolved" | "supportStatus_archived";
@@ -79,8 +86,8 @@ export default async function SupportPage({
           <PartnerPanelCard bodyClassName="p-5">
             <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Headset size={17} className="text-[#1557C2]" aria-hidden /> {t("supportNew")}</h2>
             <form action={createSupportTicket} className="grid gap-2.5">
-              <PartnerPanelField name="subject" required maxLength={200} placeholder={t("supportSubjectPlaceholder")} />
-              <PartnerPanelTextarea name="message" required rows={4} maxLength={4000} placeholder={t("supportMessagePlaceholder")} />
+              <PartnerPanelField name="subject" required maxLength={200} defaultValue={inquiry.subject} placeholder={t("supportSubjectPlaceholder")} />
+              <PartnerPanelTextarea name="message" required rows={4} maxLength={4000} defaultValue={inquiry.message} placeholder={t("supportMessagePlaceholder")} />
               <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5"><Send size={15} aria-hidden /> {t("supportSubmit")}</PartnerPanelButton>
             </form>
           </PartnerPanelCard>
@@ -90,7 +97,7 @@ export default async function SupportPage({
           <section>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-[15px] font-medium text-[#172033]">{t("supportMine", { count: activeCount })}</h2>
-              <NewTicketModal />
+              <NewTicketModal initialSubject={inquiry.subject} initialMessage={inquiry.message} autoOpen={Boolean(inquiryTopic)} />
             </div>
 
             <div className="mb-4 flex items-center gap-1.5">

@@ -9,9 +9,17 @@ import { PartnerPanelButton, PartnerPanelField, PartnerPanelTextarea } from "../
 
 /* "Yeni destek talebi" — zaten talep varken sayfayı formla doldurmamak için
    buton→modal olarak açılır. Gönderince liste revalidate olur, modal kapanır. */
-export default function NewTicketModal() {
+export default function NewTicketModal({
+  initialSubject = "",
+  initialMessage = "",
+  autoOpen = false,
+}: {
+  initialSubject?: string;
+  initialMessage?: string;
+  autoOpen?: boolean;
+}) {
   const t = useTranslations("panel");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoOpen);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -25,8 +33,8 @@ export default function NewTicketModal() {
 
       <DialogContent title={t("supportNew")} className="max-w-[520px]">
         <form action={createSupportTicket} onSubmit={() => setOpen(false)} className="mt-4 grid gap-2.5">
-          <PartnerPanelField name="subject" required maxLength={200} placeholder={t("supportSubjectPlaceholder")} />
-          <PartnerPanelTextarea name="message" required rows={4} maxLength={4000} placeholder={t("supportMessagePlaceholder")} />
+          <PartnerPanelField name="subject" required maxLength={200} defaultValue={initialSubject} placeholder={t("supportSubjectPlaceholder")} />
+          <PartnerPanelTextarea name="message" required rows={4} maxLength={4000} defaultValue={initialMessage} placeholder={t("supportMessagePlaceholder")} />
           <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5">
             <Send size={15} aria-hidden /> {t("supportSubmit")}
           </PartnerPanelButton>
