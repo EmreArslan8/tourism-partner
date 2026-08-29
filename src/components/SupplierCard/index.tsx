@@ -13,7 +13,8 @@ import Badge from "@/components/common/Badge";
 import ImpressionTracker from "@/components/ImpressionTracker";
 import FavoriteButton from "@/components/FavoriteButton";
 import Logo from "@/components/Logo";
-import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
+import BusinessBadges from "@/components/BusinessBadges";
+import { cn } from "@/lib/utils";
 
 /* Ortak tedarikçi kartı. `flag` rozeti, `showStars` puan yıldızları,
    `children` ise alt aksiyon alanını verir. Server ve client'ta çalışır.
@@ -50,7 +51,13 @@ const SupplierCard = ({
   const hasRating = showStars && business.rating > 0 && business.reviews > 0;
 
   return (
-    <article className={`${horizontal ? styles.cardH : styles.card} relative`}>
+    <article
+      className={cn(
+        horizontal ? styles.cardH : styles.card,
+        business.sponsored && styles.premiumCard,
+        "relative",
+      )}
+    >
       {impressionId != null && <ImpressionTracker id={impressionId} />}
       {href && (
         <Link href={href} aria-label={business.name} className="absolute inset-0 z-[1] rounded-card" />
@@ -76,7 +83,20 @@ const SupplierCard = ({
         )}
         <span className={styles.coverGrad} aria-hidden />
         {business.sponsored ? (
-          <PremiumPartnerBadge label={tCommon("ad")} className={styles.flag} />
+          <BusinessBadges
+            verified={business.verified}
+            founderPartner={business.founderPartner}
+            sponsored={business.sponsored}
+            labels={{
+              verified: tCommon("verified"),
+              founder: tCommon("founderPartnerTooltip"),
+              premium: tCommon("ad"),
+            }}
+            mode="premium"
+            premiumVariant="onImage"
+            className={styles.flag}
+            premiumClassName={styles.premiumFlag}
+          />
         ) : (
           flagLabel && <Badge className={styles.flag}>{flagLabel}</Badge>
         )}
@@ -90,22 +110,20 @@ const SupplierCard = ({
         </div>
         <div className={styles.nameWrap}>
           <h3 className={styles.name}>{business.name}</h3>
-          {business.founderPartner && (
-            <span
-              className={styles.partnerMedal}
-              title={tCommon("founderPartner")}
-              aria-label={tCommon("founderPartner")}
-              tabIndex={0}
-            >
-              <svg viewBox="0 0 48 54" aria-hidden>
-                <path d="M13 30v18l11-5 11 5V30Z" fill="#ffb957" />
-                <path d="M17.5 32.5v8.7l6.5-3 6.5 3v-8.7Z" fill="#0e2745" />
-                <circle cx="24" cy="20" r="16" fill="#0e2745" stroke="#ffb957" strokeWidth="5" />
-                <path d="m24 9 3.2 6.5 7.2 1-5.2 5 1.2 7.1-6.4-3.4-6.4 3.4 1.2-7.1-5.2-5 7.2-1Z" fill="#ffb957" />
-              </svg>
-              <span className={styles.partnerTooltip} role="tooltip">{tCommon("founderPartnerTooltip")}</span>
-            </span>
-          )}
+          <BusinessBadges
+            verified={business.verified}
+            founderPartner={business.founderPartner}
+            sponsored={business.sponsored}
+            labels={{
+              verified: tCommon("verified"),
+              founder: tCommon("founderPartnerTooltip"),
+              premium: tCommon("ad"),
+            }}
+            mode="identity"
+            size="sm"
+            verifiedClassName={styles.verifiedBadge}
+            founderClassName={styles.partnerMedal}
+          />
         </div>
         <p className={styles.loc}>
           <span>{business.district}, {business.city} · {business.country}</span>

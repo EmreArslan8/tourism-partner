@@ -54,6 +54,7 @@ const styles = {
     "flex flex-col gap-3 rounded-card-lg border border-white/30 bg-white/[.94] p-6 shadow-[0_26px_70px_-38px_rgba(0,0,0,.78)] backdrop-blur-xl dark:border-white/20 dark:bg-white/[.08] dark:shadow-[inset_0_1px_0_rgba(255,255,255,.1),0_26px_70px_-38px_rgba(0,0,0,.88)] " +
     "min-[1440px]:gap-4 min-[1440px]:p-8 min-[1800px]:gap-5 min-[1800px]:p-9 " +
     "max-[860px]:rounded-none max-[860px]:border-0 max-[860px]:shadow-none max-[560px]:gap-1.5 max-[560px]:p-3.5",
+  nameRow: "flex min-w-0 items-center gap-2.5",
   name:
     "font-display text-[28px] font-semibold leading-[1.12] tracking-[0] text-ink dark:text-white " +
     "min-[1440px]:text-[34px] min-[1800px]:text-[38px] " +

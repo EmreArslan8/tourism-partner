@@ -14,8 +14,8 @@ import { premiumVisibilityRank } from "@/lib/business-visibility";
 import { rankShowcaseCandidates } from "@/lib/showcase";
 import type { Business } from "@/lib/types";
 import Button from "@/components/common/Button";
-import PremiumPartnerBadge from "@/components/PremiumPartnerBadge";
 import ImpressionTracker from "@/components/ImpressionTracker";
+import BusinessBadges from "@/components/BusinessBadges";
 import styles from "./styles";
 
 const galleryFor = (b: Business): string[] => realBusinessImages(b.image, b.images).slice(0, 4);
@@ -96,7 +96,15 @@ const Slide = ({ business }: { business: Business }) => {
           ) : (
             <div className={styles.placeholder}>{placeholder}</div>
           )}
-          {business.sponsored && <PremiumPartnerBadge label={tv("ad")} className={styles.premium} />}
+          <BusinessBadges
+            verified={business.verified}
+            founderPartner={business.founderPartner}
+            sponsored={business.sponsored}
+            labels={{ verified: tv("verified"), founder: tv("founderPartnerTooltip"), premium: tv("ad") }}
+            mode="premium"
+            premiumVariant="onImage"
+            className={styles.premium}
+          />
           {/* Masaüstü/tablet: tıklanabilir thumbnail'ler */}
           <div className={styles.thumbs}>
             {imgs.map((src, i) => (
@@ -121,7 +129,17 @@ const Slide = ({ business }: { business: Business }) => {
 
         {/* SAĞ — bilgiler */}
         <div className={styles.info}>
-          <h3 className={styles.name}>{business.name}</h3>
+          <div className={styles.nameRow}>
+            <h3 className={styles.name}>{business.name}</h3>
+            <BusinessBadges
+              verified={business.verified}
+              founderPartner={business.founderPartner}
+              sponsored={business.sponsored}
+              labels={{ verified: tv("verified"), founder: tv("founderPartnerTooltip"), premium: tv("ad") }}
+              mode="identity"
+              size="md"
+            />
+          </div>
           <p className={styles.categoryText}>{tc(business.group)} · {businessType}</p>
 
           <div className={styles.meta}>
