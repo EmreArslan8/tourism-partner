@@ -435,6 +435,26 @@ export async function moderatePartnerRequest(formData: FormData): Promise<void> 
   revalidateTag("business-partners", "max");
 }
 
+export async function setPartnerRequestFeature(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const enabled = String(formData.get("enabled")) === "true";
+  const payload = {
+    key: "partner_requests",
+    enabled,
+    updated_at: new Date().toISOString(),
+    updated_by: context.userId,
+  };
+  const { error } = await context.supabase
+    .from("platform_feature_flags")
+    .upsert(payload, { onConflict: "key" });
+  if (error) throw new Error(error.message);
+
+  await logAdminAction(context, "feature.partner_requests.update", "platform_feature_flag", "partner_requests", { enabled });
+  revalidatePath("/[locale]/admin/partnerlik", "page");
+  revalidatePath("/[locale]/dashboard", "layout");
+  revalidateTag("business-partners", "max");
+}
+
 export async function updateBusinessStatus(formData: FormData): Promise<void> {
   const context = await requireAdmin();
   const { supabase } = context;

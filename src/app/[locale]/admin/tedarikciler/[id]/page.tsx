@@ -242,7 +242,7 @@ const PerformancePanel = ({ data }: { data: CrmBusinessDetailData }) => {
 };
 
 /* Profil doluluk paneli — partner panelindeki checklist (Overview.tsx) ve public sıralamadaki
-   profileScore (lib/listing.ts) ile birebir aynı 10 koşul; farklılaşırsa skorlar tutarsızlaşır. */
+   profileScore (lib/listing.ts) ile aynı koşullar; farklılaşırsa skorlar tutarsızlaşır. */
 const ProfileCompletenessPanel = ({ business }: { business: AdminBusiness }) => {
   const checks: { label: string; done: boolean }[] = [
     { label: "İşletme adı", done: Boolean(business.name) },
@@ -254,7 +254,6 @@ const ProfileCompletenessPanel = ({ business }: { business: AdminBusiness }) => 
     { label: "Kapak görseli", done: Boolean(business.image) },
     { label: "Özellikler (facet)", done: Boolean(business.attributes?.length) },
     { label: "Yetkili kişi", done: (business.contactCount ?? 0) > 0 },
-    { label: "Partner bağlantısı", done: (business.partnerCount ?? 0) > 0 },
   ];
   const score = Math.round((checks.filter((c) => c.done).length / checks.length) * 100);
   const scoreTone = score >= 80 ? "text-emerald-700" : score >= 50 ? "text-amber-700" : "text-red-600";

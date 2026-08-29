@@ -152,7 +152,6 @@ export function profileScore(b: Business): number {
     Boolean(b.image),
     Boolean(b.attributes && b.attributes.length > 0),
     Boolean((b.contactCount ?? 0) > 0),
-    Boolean((b.partnerCount ?? 0) > 0),
   ];
   return Math.round((checks.filter(Boolean).length / checks.length) * 100);
 }

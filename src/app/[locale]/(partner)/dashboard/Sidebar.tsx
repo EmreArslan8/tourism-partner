@@ -30,17 +30,17 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
   const t = useTranslations("panel");
   const pathname = usePathname();
 
-  const supplierItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
+  const supplierItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean; featured?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/dashboard/businesses", icon: Building2, label: t("businessesNav"), match: "/dashboard/businesses" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsNav"), match: "/dashboard/requests" },
     { href: "/dashboard/teklifler", icon: Inbox, label: t("quotesInboxNav"), match: "/dashboard/teklifler" },
     { href: "/dashboard/favorites", icon: Heart, label: t("favoritesNav"), match: "/dashboard/favorites" },
     { href: "/dashboard/reviews", icon: Star, label: t("reviewsNav"), match: "/dashboard/reviews" },
-    { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping" },
+    { href: "/dashboard/doping", icon: Rocket, label: t("dopingNav"), match: "/dashboard/doping", featured: true },
     { href: "/dashboard/support", icon: Headset, label: t("supportNav"), match: "/dashboard/support" },
   ];
-  const buyerItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean }[] = [
+  const buyerItems: { href: Href; icon: LucideIcon; label: string; match: string; exact?: boolean; featured?: boolean }[] = [
     { href: "/dashboard", icon: LayoutDashboard, label: t("overview"), match: "/dashboard", exact: true },
     { href: "/explore", icon: Search, label: t("searchSuppliers"), match: "/explore" },
     { href: "/dashboard/requests", icon: FileText, label: t("requestsMineNav"), match: "/dashboard/requests" },
@@ -68,15 +68,22 @@ export default function DashboardSidebar({ email, accountType, open, onClose }: 
         </Link>
 
         <nav className={styles.sideNav} aria-label={t("partnerWorkspace")}>
-          {items.map(({ href, icon, label, match, exact }) => (
-            <Link key={match} href={href} className={isActive(match, exact) ? styles.sideNavActive : undefined} onClick={onClose}>
+          {items.map(({ href, icon, label, match, exact, featured }) => (
+            <Link
+              key={match}
+              href={href}
+              className={featured
+                ? `${styles.sideNavBoost} ${isActive(match, exact) ? styles.sideNavBoostActive : ""}`
+                : isActive(match, exact) ? styles.sideNavActive : undefined}
+              onClick={onClose}
+            >
               <NavItemInner Icon={icon} label={label} />
             </Link>
           ))}
         </nav>
 
-        <div className={styles.sidebarPromo}>
-          <Diamond size={22} aria-hidden />
+        <div className={`${styles.sidebarPromo} tp-sidebar-boost`}>
+          <Diamond className="tp-sidebar-boost-icon" size={22} aria-hidden />
           <div>
             <strong>{t("visibilityPromoTitle")}</strong>
             <span>{t("visibilityPromoText")}</span>

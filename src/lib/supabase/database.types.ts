@@ -763,6 +763,22 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["business_memberships"]["Insert"]>;
         Relationships: [];
       };
+      platform_feature_flags: {
+        Row: {
+          key: string;
+          enabled: boolean;
+          updated_at: Timestamp;
+          updated_by: string | null;
+        };
+        Insert: {
+          key: string;
+          enabled?: boolean;
+          updated_at?: Timestamp;
+          updated_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["platform_feature_flags"]["Insert"]>;
+        Relationships: [];
+      };
       page_views: {
         Row: {
           id: number;
