@@ -1,5 +1,8 @@
  const styles = {
   main: "mx-auto w-full max-w-[1440px] px-20 pb-8 pt-6 max-[1000px]:px-8 max-[560px]:px-4",
+  premiumProfile:
+    "[&_.profile-detail-card]:!border-[#d8aa45] " +
+    "[&_.profile-detail-card]:!shadow-[0_1px_2px_rgba(2,6,23,.38),0_14px_34px_-28px_rgba(216,170,69,.5)]",
   nav: "mb-4 flex flex-wrap items-center gap-2 text-[13px] font-medium text-muted",
   navLink: "hover:text-brand",
   navStrong: "text-ink",
@@ -13,7 +16,7 @@
   verifiedBadge:
     "max-[640px]:!h-7 max-[640px]:!w-7 max-[640px]:[&_svg]:!h-[27px] max-[640px]:[&_svg]:!w-[27px]",
   founderBadge:
-    "!h-9 !w-[33px] max-[640px]:!h-8 max-[640px]:!w-[29px]",
+    "max-[640px]:!h-7 max-[640px]:!w-[25px]",
   premiumBadge:
     "!border-[#d7a63a] !bg-[#fff5d6] !text-[#8a5b00] !shadow-[0_8px_22px_-14px_rgba(138,91,0,.75)] " +
     "dark:!bg-[#3b2d0b] dark:!text-[#ffd778]",
@@ -22,21 +25,21 @@
   rating: "text-gold",
   h2: "heading-subsection mt-7 text-ink",
   desc: "mt-2 text-[15px] font-medium leading-7 text-ink/80",
-  svcCard: "mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4",
+  svcCard: "profile-detail-card mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4",
   svcTitle: "heading-subsection mb-4 border-b border-line pb-3 text-[19px] text-ink",
   svcWrap: "mt-3 flex flex-wrap gap-2.5",
   svcTag:
     "inline-flex items-center rounded-pill border border-line bg-cream/50 px-3 py-1.5 text-[12.5px] font-semibold text-ink",
   /* Üyelere özel teaser — kilit ikonlu, ortalanmış, kompakt kart. */
   gated:
-    "mt-7 flex flex-col items-center rounded-[14px] border border-dashed border-terra/25 bg-cream/60 px-6 py-6 text-center",
+    "profile-detail-card mt-7 flex flex-col items-center rounded-[14px] border border-dashed border-terra/25 bg-cream/60 px-6 py-6 text-center",
   gatedIcon: "grid h-10 w-10 place-items-center rounded-[10px] bg-paper/80 text-muted",
   gatedTitle: "mt-2.5 text-[16px] font-extrabold text-ink",
   gatedText: "mt-1 max-w-[440px] text-[13.5px] font-medium leading-6 text-muted",
   gatedButton:
     "mt-4 inline-flex items-center rounded-[8px] bg-terra px-5 py-2.5 text-[13.5px] font-bold text-white transition-colors hover:bg-terra-deep",
   gatedLink: "font-semibold text-terra",
-  memberContacts: "mt-7 overflow-hidden rounded-[12px] border border-line bg-paper shadow-[0_1px_2px_rgba(2,6,23,.45)]",
+  memberContacts: "profile-detail-card mt-7 overflow-hidden rounded-[12px] border border-line bg-paper shadow-[0_1px_2px_rgba(2,6,23,.45)]",
   memberContactsHead: "border-b border-line bg-cream/40 px-5 py-4 [&>span]:text-[10.5px] [&>span]:font-extrabold [&>span]:uppercase [&>span]:tracking-[.09em] [&>span]:text-emerald-700 dark:[&>span]:text-emerald-300 [&>h2]:mt-1 [&>h2]:text-[19px] [&>h2]:font-semibold [&>h2]:text-ink [&>p]:mt-1 [&>p]:text-[13px] [&>p]:leading-5 [&>p]:text-muted",
   memberContactGrid: "grid gap-3 p-4 min-[640px]:grid-cols-2",
   memberContactCard: "flex min-w-0 items-start gap-3 rounded-[10px] border border-line bg-cream/35 p-3.5",
@@ -45,7 +48,7 @@
   memberContactLinks: "mt-2 grid gap-1 [&>a]:w-fit [&>a]:max-w-full [&>a]:truncate [&>a]:text-[12.5px] [&>a]:font-semibold [&>a]:text-terra dark:[&>a]:text-border-purple [&>a]:hover:underline",
   memberContactsEmpty: "m-4 rounded-[9px] border border-dashed border-line bg-cream/35 px-4 py-3 text-[13px] font-medium text-muted",
   memberContactsLoading: "mt-7 overflow-hidden rounded-[12px] border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(2,6,23,.45)] [&>div]:h-5 [&>div]:w-40 [&>div]:animate-pulse [&>div]:rounded-md [&>div]:bg-line/70 [&>span]:mt-3 [&>span]:block [&>span]:h-14 [&>span]:animate-pulse [&>span]:rounded-[9px] [&>span]:bg-cream",
-  partners: "mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4",
+  partners: "profile-detail-card mt-7 rounded-[12px] border border-line bg-paper p-6 shadow-[0_1px_2px_rgba(2,6,23,.45)] max-[560px]:p-4",
   partnersHead: "mb-4 border-b border-line pb-3",
   partnersEyebrow: "hidden",
   partnersTitle: "heading-subsection text-[19px] text-ink",
@@ -59,7 +62,7 @@
     "grid h-10 w-10 shrink-0 place-items-center rounded-[9px] bg-cream-deep/55 text-[12px] font-extrabold text-terra-deep dark:text-ink",
   partnerBody: "min-w-0 [&>strong]:block [&>strong]:truncate [&>strong]:text-[14px] [&>strong]:text-ink [&>small]:mt-0.5 [&>small]:block [&>small]:truncate [&>small]:text-[12.5px] [&>small]:font-medium [&>small]:text-muted",
   aside: "sticky top-[104px] flex flex-col gap-4 max-[900px]:static",
-  card: "rounded-card-lg border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(2,6,23,.45)]",
+  card: "profile-detail-card rounded-card-lg border border-line bg-paper p-5 shadow-[0_1px_2px_rgba(2,6,23,.45)]",
   cardTitle: "heading-subsection text-[18px] text-ink",
   cardSub: "mt-1 text-[13.5px] font-medium text-muted",
   socialRow: "mt-3 flex flex-wrap gap-2 border-t border-line pt-3",

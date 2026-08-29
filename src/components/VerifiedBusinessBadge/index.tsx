@@ -1,5 +1,6 @@
 import { BadgeCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import InteractiveBusinessBadge from "@/components/InteractiveBusinessBadge";
 
 const sizeClasses = {
   sm: "h-5 w-5 [&_svg]:h-5 [&_svg]:w-5",
@@ -16,17 +17,16 @@ const VerifiedBusinessBadge = ({
   size?: keyof typeof sizeClasses;
   className?: string;
 }) => (
-  <span
+  <InteractiveBusinessBadge
+    label={label}
     className={cn(
       "inline-grid shrink-0 place-items-center text-white drop-shadow-[0_2px_3px_rgba(120,78,8,.18)]",
       sizeClasses[size],
       className,
     )}
-    title={label}
-    aria-label={label}
   >
     <BadgeCheck fill="#c89422" strokeWidth={2.25} aria-hidden />
-  </span>
+  </InteractiveBusinessBadge>
 );
 
 export default VerifiedBusinessBadge;

@@ -16,6 +16,11 @@ const styles = {
     "transition-colors duration-200 hover:text-brand dark:hover:text-white " +
     "before:mx-9 before:text-[9px] before:text-border-purple/55 before:content-['●'] dark:before:text-white/45 " +
     "max-[640px]:text-[15px] max-[640px]:before:mx-6",
+  itemPremium:
+    "inline-flex items-center whitespace-nowrap text-[20px] leading-[1.5] font-semibold tracking-tight text-[#d8aa45] " +
+    "transition-colors duration-200 hover:text-[#efc75e] " +
+    "before:mx-9 before:text-[9px] before:text-[#d8aa45]/45 before:content-['●'] " +
+    "max-[640px]:text-[15px] max-[640px]:before:mx-6",
 } as const;
 
 export default styles;

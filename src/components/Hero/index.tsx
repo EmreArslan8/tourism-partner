@@ -39,7 +39,7 @@ const {
 
 async function ApprovedBusinessMarquee() {
   const businesses = await getBusinesses();
-  return <Partners brands={businesses.map((business) => business.name)} />;
+  return <Partners brands={businesses.map((business) => ({ name: business.name, premium: business.sponsored }))} />;
 }
 
 const Hero = () => {
