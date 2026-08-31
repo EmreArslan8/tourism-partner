@@ -22,13 +22,13 @@ export default async function ExpoPage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: "expo" });
 
   return (
-    <main className="relative isolate grid min-h-[calc(100svh-88px)] place-items-center overflow-hidden bg-[#080511] px-4 py-20 text-white">
-      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_50%_38%,rgba(125,64,190,.3),transparent_38%),radial-gradient(circle_at_70%_78%,rgba(210,140,55,.12),transparent_30%),linear-gradient(145deg,#130923,#080511_55%,#10091a)]" />
+    <main className="relative isolate grid min-h-[calc(100svh-88px)] place-items-center overflow-hidden bg-brand-deep px-4 py-20 text-white">
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_50%_38%,rgba(109,40,217,.28),transparent_60%)]" />
       <div className="absolute inset-0 -z-10 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(circle_at_center,black,transparent_75%)]" />
 
       <section className="w-full max-w-[1040px] text-center" aria-labelledby="expo-title">
         <h1 id="expo-title" className="text-balance font-display text-[clamp(3.2rem,8vw,7.5rem)] font-semibold leading-none tracking-[-.065em]">
-          Tourism Partner <span className="bg-[linear-gradient(110deg,#e4c5ff,#aa70ff_55%,#f2b968)] bg-clip-text text-transparent">Expo</span>
+          Tourism Partner <span className="bg-[linear-gradient(110deg,#ede9fe,#a78bfa_55%,#6d28d9)] bg-clip-text text-transparent">Expo</span>
         </h1>
 
         <dl className="mt-12 grid grid-cols-4 gap-3 max-[640px]:mt-9 max-[640px]:gap-2" aria-label={t("countdownLabel")}>
