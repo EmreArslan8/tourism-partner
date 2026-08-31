@@ -85,7 +85,7 @@ export default async function SupportPage({
         {allTickets.length === 0 && (
           <PartnerPanelCard bodyClassName="p-5">
             <h2 className="mb-3 inline-flex items-center gap-2 text-[15px] font-medium text-[#172033]"><Headset size={17} className="text-[#1557C2]" aria-hidden /> {t("supportNew")}</h2>
-            <form action={createSupportTicket} className="grid gap-2.5">
+            <form key={inquiryTopic ?? "general"} action={createSupportTicket} className="grid gap-2.5">
               <PartnerPanelField name="subject" required maxLength={200} defaultValue={inquiry.subject} placeholder={t("supportSubjectPlaceholder")} />
               <PartnerPanelTextarea name="message" required rows={4} maxLength={4000} defaultValue={inquiry.message} placeholder={t("supportMessagePlaceholder")} />
               <PartnerPanelButton type="submit" className="h-9 w-fit px-3.5"><Send size={15} aria-hidden /> {t("supportSubmit")}</PartnerPanelButton>
@@ -97,7 +97,12 @@ export default async function SupportPage({
           <section>
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-[15px] font-medium text-[#172033]">{t("supportMine", { count: activeCount })}</h2>
-              <NewTicketModal initialSubject={inquiry.subject} initialMessage={inquiry.message} autoOpen={Boolean(inquiryTopic)} />
+              <NewTicketModal
+                key={inquiryTopic ?? "general"}
+                initialSubject={inquiry.subject}
+                initialMessage={inquiry.message}
+                autoOpen={Boolean(inquiryTopic)}
+              />
             </div>
 
             <div className="mb-4 flex items-center gap-1.5">
