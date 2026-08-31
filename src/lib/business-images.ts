@@ -49,3 +49,11 @@ export function realBusinessGalleryImages(cover?: string | null, images: string[
     )
   );
 }
+
+/* Mail gibi site dışı bağlamlar için her zaman mutlak URL — businessImageUrl()
+   yerel dosyalarda "/assets/..." döndürdüğü için orada olduğu gibi kullanılamaz. */
+export function absoluteBusinessImageUrl(value: string | null | undefined, baseUrl: string): string | undefined {
+  const url = businessImageUrl(value);
+  if (!url) return undefined;
+  return url.startsWith("/") ? `${baseUrl}${url}` : url;
+}

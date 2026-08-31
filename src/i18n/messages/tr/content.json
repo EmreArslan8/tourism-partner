@@ -332,6 +332,31 @@
       }
     }
   },
+  "expo": {
+    "metaTitle": "Expo · Tourism Partner",
+    "metaDescription": "Turizm profesyonellerinin markalarını sergileyip küresel iş ortaklarıyla buluşacağı Tourism Partner dijital B2B fuar alanını keşfedin.",
+    "eyebrow": "Dijital B2B fuar alanı",
+    "title": "Turizmin yeni buluşma alanı",
+    "titleAccent": "yakında.",
+    "lead": "Markaların kendini anlattığı, alıcıların doğru tedarikçiyi keşfettiği ve yeni iş birliklerinin sınırları aşarak başladığı sürekli açık bir dijital expo deneyimi hazırlıyoruz.",
+    "primaryCta": "Ağa ücretsiz katıl",
+    "secondaryCta": "Partnerleri keşfet",
+    "countdownEyebrow": "Geri sayım",
+    "countdownTitle": "Expo için geri sayım başladı.",
+    "countdownLabel": "Expo geri sayımı",
+    "countdown": { "days": "Gün", "hours": "Saat", "minutes": "Dakika", "seconds": "Saniye" },
+    "sectionEyebrow": "Expo'da neler olacak?",
+    "sectionTitle": "Fuar enerjisi, dijital ağın hızıyla.",
+    "features": {
+      "0": { "title": "Küresel görünürlük", "text": "Markanızı ve hizmetlerinizi yeni pazarlardaki turizm profesyonellerine tek bir dijital vitrinde sunun." },
+      "1": { "title": "Dijital stantlar", "text": "Hizmetlerinizi, uzmanlığınızı ve iş birliği fırsatlarınızı ziyaretçilerin kolayca keşfedebileceği bir alanda anlatın." },
+      "2": { "title": "Doğrudan bağlantı", "text": "İlgilendiğiniz işletmeleri bulun; aracı ve komisyon olmadan doğru kişilerle iletişime geçin." }
+    },
+    "closingEyebrow": "İlk haberi siz alın",
+    "closingTitle": "Expo açıldığında ön sırada olun.",
+    "closingText": "Katılım, dijital stant veya iş birliği hakkında bilgi almak için ekibimize ulaşın.",
+    "contactCta": "Expo hakkında bilgi al"
+  },
   "footer": {
     "tagline": "B2B turizm tedarikçi ağı. Oteller, acenteler, rehberler, tur firmaları, eğlence ve sağlık turizmi için ortak vitrin.",
     "categories": "Kategoriler",
@@ -346,6 +371,7 @@
     "note": "© 2026 Tourism Partner",
     "note2": "Ülke · Şehir · İlçe bazlı B2B listeleme",
     "helpLink": "Yardım Al",
+    "blogLink": "Blog",
     "termsLink": "Kullanım Koşulları",
     "privacyLink": "Gizlilik Politikası",
     "kvkkLink": "KVKK"

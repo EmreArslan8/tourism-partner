@@ -332,6 +332,31 @@
       }
     }
   },
+  "expo": {
+    "metaTitle": "Expo · Tourism Partner",
+    "metaDescription": "Discover the Tourism Partner digital B2B expo where tourism professionals will showcase their brands and meet global business partners.",
+    "eyebrow": "Digital B2B expo",
+    "title": "Tourism's new meeting place is",
+    "titleAccent": "coming soon.",
+    "lead": "We are creating an always-on digital expo where brands tell their story, buyers discover the right suppliers, and new partnerships begin across borders.",
+    "primaryCta": "Join the network free",
+    "secondaryCta": "Explore partners",
+    "countdownEyebrow": "Countdown",
+    "countdownTitle": "The countdown to Expo has begun.",
+    "countdownLabel": "Expo countdown",
+    "countdown": { "days": "Days", "hours": "Hours", "minutes": "Minutes", "seconds": "Seconds" },
+    "sectionEyebrow": "What to expect",
+    "sectionTitle": "The energy of a trade show, at the speed of a digital network.",
+    "features": {
+      "0": { "title": "Global visibility", "text": "Present your brand and services to tourism professionals in new markets through one digital showcase." },
+      "1": { "title": "Digital stands", "text": "Showcase your services, expertise and partnership opportunities in a space built for easy discovery." },
+      "2": { "title": "Direct connections", "text": "Find relevant businesses and connect with the right people without intermediaries or commissions." }
+    },
+    "closingEyebrow": "Be the first to know",
+    "closingTitle": "Be at the front when Expo opens.",
+    "closingText": "Contact our team to learn about participation, digital stands or partnership opportunities.",
+    "contactCta": "Ask about Expo"
+  },
   "footer": {
     "tagline": "B2B travel supplier network. A shared showcase for hotels, agencies, guides, tour companies, activities and health tourism.",
     "categories": "Categories",
@@ -346,6 +371,7 @@
     "note": "© 2026 Tourism Partner",
     "note2": "Country · City · District based B2B listing",
     "helpLink": "Get Help",
+    "blogLink": "Blog",
     "termsLink": "Terms of Use",
     "privacyLink": "Privacy Policy",
     "kvkkLink": "KVKK Notice"

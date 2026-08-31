@@ -80,6 +80,7 @@ export const routing = defineRouting({
       ar: "/quote",
     },
     "/blog": "/blog",
+    "/expo": "/expo",
     "/blog/[slug]": "/blog/[slug]",
     "/onboarding": {
       tr: "/kurulum",

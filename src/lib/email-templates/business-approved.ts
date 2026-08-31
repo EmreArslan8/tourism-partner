@@ -1,15 +1,28 @@
 import { escapeHtml } from "@/lib/email";
+import { membershipShowcaseSection, membershipShowcaseText } from "@/lib/email-templates/membership-showcase";
 
 type BusinessApprovedEmailArgs = {
   businessName: string;
   dashboardUrl: string;
   profileUrl: string;
   logoUrl: string;
+  /** Panel üyelik sayfası; verilirse maile Kurucu/Doğrulanmış üyelik tanıtımı eklenir. */
+  membershipUrl?: string;
+  /** Tanıtım bloğundaki görsellerin kök adresi (SITE_URL). */
+  assetBaseUrl?: string;
+  /** Önizleme kartında gösterilecek konum satırı — ör. "Antalya, Türkiye". */
+  location?: string;
+  /** İşletmenin kapak görseli (mutlak URL); yoksa placeholder kullanılır. */
+  imageUrl?: string;
 };
 
 export function businessApprovedEmail({
   businessName,
   logoUrl,
+  membershipUrl,
+  assetBaseUrl,
+  location,
+  imageUrl,
 }: BusinessApprovedEmailArgs) {
   const safeBusinessName = escapeHtml(businessName);
   const safeLogoUrl = escapeHtml(logoUrl);
@@ -27,6 +40,16 @@ export function businessApprovedEmail({
   const htmlParagraphs = paragraphs
     .map((p) => `<p style="margin:0 0 16px;color:#334155;font-size:15px;line-height:25px;">${escapeHtml(p)}</p>`)
     .join("\n                      ");
+
+  const showcaseHtml =
+    membershipUrl && assetBaseUrl
+      ? membershipShowcaseSection({
+          membershipUrl,
+          assetBaseUrl,
+          business: { name: businessName, location, imageUrl },
+        })
+      : "";
+  const showcaseText = membershipUrl ? `\n\n${membershipShowcaseText({ membershipUrl })}` : "";
 
   return {
     subject,
@@ -69,6 +92,7 @@ export function businessApprovedEmail({
                   <tr>
                     <td style="padding:30px 38px 8px;">
                       ${htmlParagraphs}
+                      ${showcaseHtml}
                     </td>
                   </tr>
                   <tr>
@@ -98,7 +122,7 @@ export function businessApprovedEmail({
 
 ${businessName} has been approved.
 
-${paragraphs.join("\n\n")}
+${paragraphs.join("\n\n")}${showcaseText}
 
 Warm regards,
 

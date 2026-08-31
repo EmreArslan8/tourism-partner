@@ -38,3 +38,8 @@ export type SiteLocale = (typeof LOCALES)[number];
 export function supplierPath(locale: SiteLocale, slug: string): string {
   return getPathname({ locale, href: { pathname: "/supplier/[id]", params: { id: slug } } });
 }
+
+/** Panel üyelik (doping) sayfasının locale'e göre yolu. */
+export function membershipPath(locale: SiteLocale): string {
+  return getPathname({ locale, href: "/dashboard/doping" });
+}

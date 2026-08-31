@@ -13,7 +13,8 @@ import { businessSlug } from "@/lib/business-slug";
 import { sendEmail } from "@/lib/email";
 import { businessApprovedEmail } from "@/lib/email-templates/business-approved";
 import { businessRejectedEmail } from "@/lib/email-templates/business-rejected";
-import { EMAIL_LOGO_URL, SITE_URL, supplierPath } from "@/lib/site";
+import { absoluteBusinessImageUrl } from "@/lib/business-images";
+import { EMAIL_LOGO_URL, SITE_URL, membershipPath, supplierPath } from "@/lib/site";
 import type { BusinessLifecycleStatus, GroupKey } from "@/lib/types";
 import { clean, cleanHttpUrl, cleanImageUrl, isEmail } from "./validate";
 
@@ -463,7 +464,7 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
   const status = lifecycleStatusValue(formData);
   const { data: current, error: currentError } = await supabase
     .from("businesses")
-    .select("id,status,doping_until,name,group,type,city,country,district")
+    .select("id,status,doping_until,name,group,type,city,country,district,image")
     .eq("id", id)
     .maybeSingle();
   if (currentError) throw new Error(currentError.message);
@@ -510,6 +511,10 @@ export async function updateBusinessStatus(formData: FormData): Promise<void> {
             businessName: current.name,
             dashboardUrl,
             profileUrl: `${SITE_URL}${supplierPath((locale || "tr") as "tr" | "en" | "ru" | "ar", businessSlug({ name: current.name }))}`,
+            membershipUrl: `${SITE_URL}${membershipPath((locale || "tr") as "tr" | "en" | "ru" | "ar")}`,
+            assetBaseUrl: SITE_URL,
+            location: [current.city, current.country].filter(Boolean).join(", ") || undefined,
+            imageUrl: absoluteBusinessImageUrl(current.image, SITE_URL),
             logoUrl,
           })
         : businessRejectedEmail({
