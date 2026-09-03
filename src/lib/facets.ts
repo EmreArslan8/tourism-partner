@@ -53,6 +53,7 @@ export const FACETS: Facet[] = [
   {
     key: "dil", label: "Diller", scope: ["rehber", "acente", "saglik"],
     options: [
+      { slug: "dil-tr", label: "Türkçe" },
       { slug: "dil-en", label: "İngilizce" },
       { slug: "dil-de", label: "Almanca" },
       { slug: "dil-fr", label: "Fransızca" },
