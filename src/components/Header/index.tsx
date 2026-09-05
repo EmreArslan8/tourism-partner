@@ -59,7 +59,6 @@ const Header = async ({ variant = "solid", transparent = false }: HeaderProps) =
     { href: { pathname: "/explore" }, label: t("explore") },
     { href: { pathname: "/", hash: "nasil" }, label: t("how") },
     { href: { pathname: "/about" }, label: t("about") },
-    { href: { pathname: "/blog" }, label: t("blog") },
     { href: { pathname: "/expo" }, label: t("expo") },
     { href: { pathname: "/", hash: "sss" }, label: t("faq") },
   ];
