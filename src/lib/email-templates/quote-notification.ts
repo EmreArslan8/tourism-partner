@@ -1,18 +1,16 @@
 import { escapeHtml } from "@/lib/email";
 
+/* BİLDİRİM maili — talebin kendisi değil, varlığı duyurulur.
+   Talep sahibinin adı/firması/e-postası/telefonu ve serbest metni BİLİNÇLİ
+   olarak yoktur: bunlar mailde paylaşıldığında taraflar platform dışında
+   anlaşabiliyordu (admin'deki "harici iletişim riski" kontrolü tam bu yüzden
+   var). Tedarikçi detayı görmek ve yanıtlamak için panele gelir. */
 type QuoteNotificationInput = {
   businessName: string;
-  senderName: string;
-  senderEmail: string;
-  senderPhone: string;
-  company: string | null;
   service: string | null;
   category: string | null;
   location: string | null;
-  dateRange: string | null;
   validUntil: string;
-  people: number | null;
-  message: string | null;
   dashboardUrl: string;
   logoUrl: string;
 };
@@ -33,42 +31,14 @@ export function formatDate(value: string, locale: string = "en-US"): string {
   }).format(new Date(`${value}T12:00:00+03:00`));
 }
 
-function formatDateRange(value: string | null): string | null {
-  if (!value) return null;
-  return value
-    .split(" - ")
-    .map((part) => formatDate(part))
-    .join(" – ");
-}
-
 export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNotification {
   // Keep this transactional; promotional language can increase the chance of
   // Gmail classifying the email as marketing.
-  const subject = `Quote request received — ${input.businessName}`;
-  const details = [
-    ["Requester", input.senderName],
-    ["Company", input.company],
-    ["Email", input.senderEmail],
-    ["Phone", input.senderPhone],
-    ["Service", input.service],
-    ["Category", input.category],
-    ["Region", input.location],
-    ["Service date", formatDateRange(input.dateRange)],
-    ["Number of guests", input.people != null ? `${input.people.toLocaleString("en-US")} guests` : null],
-  ].filter((row): row is [string, string] => Boolean(row[1]));
+  const area = input.location ?? input.category ?? input.service;
+  const subject = area
+    ? `New request in ${area} — ${input.businessName}`
+    : `New request for ${input.businessName}`;
   const deadline = formatDate(input.validUntil);
-  const replyUrl = `mailto:${encodeURIComponent(input.senderEmail)}?subject=${encodeURIComponent(`About your quote request — ${input.businessName}`)}`;
-  const messageHtml = input.message
-    ? escapeHtml(input.message).replace(/\r?\n/g, "<br>")
-    : "The requester did not share an additional note.";
-  const detailRows = details
-    .map(([label, value], index) => `
-      <tr>
-        <td style="padding:${index === 0 ? "0" : "15px"} 16px 15px 0;border-bottom:1px solid #e8edf5;color:#64748b;font-size:13px;line-height:20px;vertical-align:top;width:38%;">${escapeHtml(label)}</td>
-        <td style="padding:${index === 0 ? "0" : "15px"} 0 15px;border-bottom:1px solid #e8edf5;color:#17151c;font-size:14px;font-weight:700;line-height:20px;vertical-align:top;">${escapeHtml(value)}</td>
-      </tr>`)
-    .join("");
-
   const html = `<!doctype html>
 <html lang="en">
   <head>
@@ -100,33 +70,15 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td style="background:#4c1d95;padding:34px 38px;">
-                      <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#6d28d9;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">QUOTE REQUEST</div>
-                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">Quote request received</h1>
-                      <p style="margin:0;color:#ede9fe;font-size:15px;line-height:24px;"><strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong> received a new quote request.</p>
+                      <div style="display:inline-block;margin-bottom:12px;border-radius:999px;background:#6d28d9;padding:7px 12px;color:#ffffff;font-size:11px;font-weight:800;letter-spacing:0.7px;">NEW REQUEST</div>
+                      <h1 style="margin:0 0 10px;color:#ffffff;font-size:28px;line-height:34px;letter-spacing:-0.7px;">${escapeHtml(area ? `A new request in ${area}` : "A new request for you")}</h1>
+                      <p style="margin:0;color:#ede9fe;font-size:15px;line-height:24px;">A traveller is looking for a supplier that matches <strong style="color:#ffffff;">${escapeHtml(input.businessName)}</strong>. Open your dashboard to see the full request and send your quote.</p>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:30px 38px 8px;">
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-radius:12px;background:#fff7e8;">
-                        <tr>
-                          <td style="padding:17px 18px;">
-                            <div style="color:#8a5700;font-size:11px;font-weight:800;letter-spacing:0.7px;">QUOTE DEADLINE</div>
-                            <div style="margin-top:5px;color:#5b3900;font-size:18px;font-weight:800;line-height:24px;">${escapeHtml(deadline)}</div>
-                          </td>
-                        </tr>
-                      </table>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:22px 38px 0;">
-                      <h2 style="margin:0 0 16px;color:#17151c;font-size:17px;line-height:24px;">Request details</h2>
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${detailRows}</table>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding:26px 38px 0;">
-                      <div style="margin-bottom:10px;color:#64748b;font-size:11px;font-weight:800;letter-spacing:0.7px;">REQUEST NOTE</div>
-                      <div style="border-left:4px solid #6d28d9;border-radius:0 12px 12px 0;background:#f7f5ff;padding:18px 20px;color:#334155;font-size:14px;line-height:23px;">${messageHtml}</div>
+                    <td style="padding:30px 38px 0;">
+                      <p style="margin:0;color:#334155;font-size:15px;line-height:24px;">The full brief is waiting in your dashboard. Suppliers who reply first are usually the ones who win the booking.</p>
+                      <p style="margin:12px 0 0;color:#8a5700;font-size:13px;font-weight:700;line-height:20px;">Replies close on ${escapeHtml(deadline)}.</p>
                     </td>
                   </tr>
                   <tr>
@@ -134,14 +86,11 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
                           <td style="border-radius:11px;background:#4c1d95;">
-                            <a href="${escapeHtml(input.dashboardUrl)}" style="display:inline-block;padding:14px 20px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">View request in dashboard</a>
-                          </td>
-                          <td style="padding-left:10px;">
-                            <a href="${escapeHtml(replyUrl)}" style="display:inline-block;padding:13px 17px;border:1px solid #ddd6fe;border-radius:11px;color:#4c1d95;font-size:14px;font-weight:800;text-decoration:none;">Reply by email</a>
+                            <a href="${escapeHtml(input.dashboardUrl)}" style="display:inline-block;padding:14px 22px;color:#ffffff;font-size:14px;font-weight:800;text-decoration:none;">See the request and reply</a>
                           </td>
                         </tr>
                       </table>
-                      <p style="margin:18px 0 0;color:#7b8498;font-size:12px;line-height:19px;">When you reply directly to this notification, your message will be sent to ${escapeHtml(input.senderEmail)}.</p>
+                      <p style="margin:18px 0 0;color:#7b8498;font-size:12px;line-height:19px;">Replies to this notification are not delivered to the requester. Send your quote from the dashboard so it reaches them.</p>
                     </td>
                   </tr>
                 </table>
@@ -150,7 +99,7 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
             <tr>
               <td align="center" style="padding:20px 24px 0;color:#8992a5;font-size:11px;line-height:18px;">
                 Tourism Partner · The trusted business network for tourism professionals<br>
-                This email was sent because a quote request was submitted to your business.
+                You are receiving this because a request matching your business was submitted.
               </td>
             </tr>
           </table>
@@ -160,19 +109,14 @@ export function quoteNotificationEmail(input: QuoteNotificationInput): QuoteNoti
   </body>
 </html>`;
 
-  const detailText = details.map(([label, value]) => `${label}: ${value}`).join("\n");
-  const text = `Quote request received — ${input.businessName}
+  const text = `${subject}
 
-${input.businessName} received a new quote request.
-Quote deadline: ${deadline}
+A traveller is looking for a supplier that matches ${input.businessName}.
+The full brief is waiting in your dashboard. Replies close on ${deadline}.
 
-${detailText}
+See the request and reply: ${input.dashboardUrl}
 
-Request note:
-${input.message || "The requester did not share an additional note."}
-
-View request in dashboard: ${input.dashboardUrl}
-Reply by email: ${input.senderEmail}
+Replies to this notification are not delivered to the requester.
 
 Tourism Partner`;
 

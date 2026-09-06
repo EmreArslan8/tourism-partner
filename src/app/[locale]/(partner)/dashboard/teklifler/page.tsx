@@ -1,6 +1,6 @@
 import { Inbox } from "lucide-react";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Link, redirect } from "@/i18n/navigation";
+import { getPathname, Link, redirect } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPanelSession, getPanelBusiness } from "@/lib/panel-auth";
 import { serviceTranslationKey } from "@/lib/categories";
@@ -35,12 +35,33 @@ type QuoteResponse = {
   created_at: string;
 };
 
-export default async function IncomingQuotesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function IncomingQuotesPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ focus?: string }>;
+}) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  /* Bildirim maili tek bir talep için gelir; ?focus=<id> o talebi listede
+     işaretler ve #quote-<id> ile oraya kaydırır. */
+  const { focus } = await searchParams;
+  const focusId = Number(focus);
+  const focusedQuoteId = Number.isInteger(focusId) && focusId > 0 ? focusId : null;
+
   const session = await getPanelSession();
-  if (!session) return redirect({ href: "/login", locale });
+  if (!session) {
+    // Giriş sonrası kullanıcı bu sayfaya (odaklı talebiyle birlikte) dönsün.
+    const back = getPathname({
+      href: focusedQuoteId
+        ? { pathname: "/dashboard/teklifler", query: { focus: String(focusedQuoteId) } }
+        : { pathname: "/dashboard/teklifler" },
+      locale,
+    });
+    return redirect({ href: { pathname: "/login", query: { next: back } }, locale });
+  }
   if (session.accountType === "buyer") return redirect({ href: "/dashboard", locale });
 
   const [t, ts] = await Promise.all([
@@ -111,7 +132,16 @@ export default async function IncomingQuotesPage({ params }: { params: Promise<{
               {quotes.map((q) => {
                 const responses = responsesByQuote.get(q.id) ?? [];
                 return (
-                  <li key={q.id} className="px-5 py-4">
+                  <li
+                    key={q.id}
+                    id={`quote-${q.id}`}
+                    className={
+                      "scroll-mt-24 px-5 py-4 " +
+                      (q.id === focusedQuoteId
+                        ? "bg-[#EAF2FF]/60 ring-2 ring-inset ring-[#1557C2]/35"
+                        : "")
+                    }
+                  >
                     <div className="flex items-baseline justify-between gap-3">
                       <div className="flex min-w-0 items-baseline gap-2">
                         <span className="truncate text-[14px] font-bold text-ink">{q.name}</span>

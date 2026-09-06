@@ -93,16 +93,16 @@ const AdminView = ({ data }: Props) => {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Son teklifler */}
         <AdminPanel
-          title="Son Teklifler / Talepler"
+          title="Son Talepler"
           tone="blue"
           icon={<Svg size={18}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z" /><path d="M14 2v6h6M9 13h6M9 17h4" /></Svg>}
-          action={<Link href="/admin/teklifler" className="shrink-0 text-[12px] font-medium text-brand hover:underline">Tümünü Gör</Link>}
+          action={<Link href="/admin/talepler" className="shrink-0 text-[12px] font-medium text-brand hover:underline">Tümünü Gör</Link>}
         >
           <div className="overflow-x-auto">
           <DataTable
             data={recentQuotes}
             getRowKey={(q) => q.id}
-            empty="Henüz talep yok."
+            empty="Henüz teklif isteği yok."
             minWidth={420}
             columns={[
               { key: "title", header: "Başlık", cell: (q) => <span className="font-medium text-ink">{q.service || q.name}</span> },

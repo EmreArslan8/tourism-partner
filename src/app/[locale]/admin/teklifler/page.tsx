@@ -1,15 +1,15 @@
 import { setRequestLocale } from "next-intl/server";
-import { getAdminData } from "@/lib/admin";
-import AdminQuotesView from "./view";
+import { getAdminOffers } from "@/lib/platform-data";
+import AdminOffersView from "./view";
 
-export default async function AdminQuotesPage({
+export default async function AdminOffersPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const data = await getAdminData();
+  const offers = await getAdminOffers();
 
-  return <AdminQuotesView data={data} locale={locale} />;
+  return <AdminOffersView offers={offers} />;
 }

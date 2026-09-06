@@ -31,13 +31,16 @@ export default function Error({
   }, [error]);
 
   return (
-    <main
-      className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-20"
-      style={{
-        background:
-          "linear-gradient(160deg, #01145d 0%, #0a2472 55%, #071a52 100%)",
-      }}
-    >
+    <main className="relative isolate flex min-h-[60vh] flex-col items-center justify-center px-6 py-20">
+      {/* Zemin viewport'a sabit: kart 60vh olduğundan, eskiden altta kalan boşlukta
+          sayfanın kendi arka planı görünüp ekran iki tonlu çıkıyordu. */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10"
+        style={{
+          background: "linear-gradient(160deg, #01145d 0%, #0a2472 55%, #071a52 100%)",
+        }}
+      />
       <div className="flex max-w-[480px] flex-col items-center gap-4 text-center">
         <h1 className="heading-section text-white">{t("genericTitle")}</h1>
         <p className="text-body-base text-white/80">{t("genericDescription")}</p>

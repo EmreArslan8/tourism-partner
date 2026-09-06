@@ -66,7 +66,7 @@ const ITEMS: Item[] = [
   // İşletmeler CRM'inde görünmezler.
   { href: "/admin/uyeler", label: "Üyeler", icon: <Users size={17} aria-hidden /> },
   { href: "/admin/onay", label: "Başvurular", icon: <ShieldCheck size={17} aria-hidden /> },
-  { href: "/admin/talepler", label: "Talepler (B2B ilan)", icon: <ClipboardList size={17} aria-hidden /> },
+  { href: "/admin/talepler", label: "Talepler", icon: <ClipboardList size={17} aria-hidden /> },
   { href: "/admin/partnerlik", label: "Partnerlik Ağı", icon: <Handshake size={17} aria-hidden /> },
   { href: "/admin/teklifler", label: "Teklifler", icon: <BellDot size={17} aria-hidden /> },
   { href: "/admin/kategoriler", label: "Kategoriler", icon: <FolderTree size={17} aria-hidden /> },

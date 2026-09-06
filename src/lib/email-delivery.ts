@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getPathname } from "@/i18n/navigation";
 import { quoteNotificationEmail } from "@/lib/email-templates/quote-notification";
 import { sendEmail } from "@/lib/email";
 import { EMAIL_LOGO_URL, SITE_URL } from "@/lib/site";
@@ -42,6 +43,17 @@ function retryAt(attempt: number) {
   return new Date(Date.now() + (RETRIES[Math.min(attempt, RETRIES.length - 1)] ?? 7200) * 1000).toISOString();
 }
 
+/* Bildirim maili İngilizce; linki de varsayılan locale ile üretiyoruz.
+   ESKİDEN "/tr/panel/talepler" sabitti — orası B2B ilan sayfası, gelen teklif
+   talepleri "/dashboard/teklifler" rotasında. Yani buton yanlış sayfaya
+   götürüyordu. Artık rota pathnames'ten çözülüyor ve talep işaretleniyor. */
+const EMAIL_LOCALE = "en";
+const quoteInboxUrl = (quoteId: number) =>
+  `${SITE_URL}${getPathname({
+    href: { pathname: "/dashboard/teklifler", query: { focus: String(quoteId) } },
+    locale: EMAIL_LOCALE,
+  })}#quote-${quoteId}`;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function renderDelivery(admin: any, delivery: Delivery) {
   const [{ data: quote }, { data: business }] = await Promise.all([
@@ -53,22 +65,17 @@ async function renderDelivery(admin: any, delivery: Delivery) {
   if (!quote || !business) throw new Error("quote_or_business_not_found");
   return {
     notification: quoteNotificationEmail({
-    businessName: business.name,
-    senderName: quote.name,
-    senderEmail: quote.email,
-    senderPhone: quote.phone,
-    company: quote.company,
-    service: quote.service,
-    category: quote.category_type,
-    location: [quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || null,
-    dateRange: quote.date_range,
-    validUntil: quote.valid_until,
-    people: quote.people,
-    message: quote.message,
-    dashboardUrl: `${SITE_URL}/tr/panel/talepler`,
-    logoUrl: EMAIL_LOGO_URL,
+      businessName: business.name,
+      service: quote.service,
+      category: quote.category_type,
+      location: [quote.country, quote.city, quote.district].filter(Boolean).join(" · ") || null,
+      validUntil: quote.valid_until,
+      dashboardUrl: quoteInboxUrl(delivery.quote_id),
+      logoUrl: EMAIL_LOGO_URL,
     }),
-    replyTo: quote.email,
+    /* replyTo YOK: eskiden talep sahibinin adresiydi, "yanıtla" demek platform
+       dışına çıkmak oluyordu. Yanıt panelden gönderilir. */
+    replyTo: undefined,
   };
 }
 
