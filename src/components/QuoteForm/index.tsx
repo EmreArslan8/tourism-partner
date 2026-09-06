@@ -1,14 +1,18 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import type { Business, GroupKey } from "@/lib/types";
 import { CATEGORY_GROUPS, GROUP_COLORS, serviceTranslationKey } from "@/lib/categories";
 import { useRegions } from "@/lib/geo";
+import { businessImageUrl } from "@/lib/business-images";
 import { initials } from "@/lib/utils";
 import { submitQuote } from "@/lib/actions/quote";
 import { DateRangePicker, SingleDatePicker } from "@/components/FormDatePickers";
+import PhoneCodeInput from "@/components/PhoneCodeInput";
+import { DEFAULT_PHONE_CODE } from "@/lib/phone-codes";
 import { Dialog, DialogClose, DialogContent } from "@/components/common/Dialog";
 import { Link } from "@/i18n/navigation";
 import styles from "./styles";
@@ -36,6 +40,9 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
   const initialType = initialFilters?.types?.[0] ?? "";
   const [group, setGroup] = useState<GroupKey | "">(initialGroup);
   const [categoryType, setCategoryType] = useState(initialType);
+  const [phoneCode, setPhoneCode] = useState(DEFAULT_PHONE_CODE);
+  // Kapak görseli yüklenemezse baş harf monogramına düşülür (SupplierCard ile aynı davranış).
+  const [coverFailed, setCoverFailed] = useState(false);
   const [phone, setPhone] = useState("");
   const [dismissedError, setDismissedError] = useState<string | null>(null);
   const selectedGroup = CATEGORY_GROUPS.find((item) => item.key === group);
@@ -44,6 +51,7 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
   const [district, setDistrict] = useState(initialFilters?.district ?? "");
   const { countries, cities, districts } = useRegions(country, city, district);
 
+  const cover = businessImageUrl(business?.image);
   const businessTypeKey = business ? serviceTranslationKey(business.type) : null;
   const serviceOptions = business
     ? [
@@ -87,9 +95,22 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
 
       {business && (
         <div className={`${styles.supplier} mt-5`}>
-          <span className={styles.supplierMono} style={{ background: GROUP_COLORS[business.group] }}>
-            {initials(business.name)}
-          </span>
+          {cover && !coverFailed ? (
+            <span className={styles.supplierImage}>
+              <Image
+                src={cover}
+                alt={business.name}
+                fill
+                sizes="48px"
+                className={styles.supplierImageInner}
+                onError={() => setCoverFailed(true)}
+              />
+            </span>
+          ) : (
+            <span className={styles.supplierMono} style={{ background: GROUP_COLORS[business.group] }}>
+              {initials(business.name)}
+            </span>
+          )}
           <div>
             <p className={styles.supplierName}>{business.name}</p>
             <p className={styles.supplierMeta}>{tc(business.group)} · {businessTypeKey ? ts(businessTypeKey) : business.type} — {business.city}</p>
@@ -118,20 +139,25 @@ const QuoteForm = ({ business, initialFilters }: { business: Business | null; in
         <label className={styles.label}>
           {t("phone")}
           <span className={styles.phoneField}>
-            <span className={styles.phonePrefix}>+90</span>
-            <input type="hidden" name="phone" value={phone ? `+90 ${phone}` : ""} />
+            <PhoneCodeInput
+              value={phoneCode}
+              onChange={setPhoneCode}
+              label={t("phoneCode")}
+              className="w-[86px]"
+              heightClass={styles.phoneHeight}
+            />
+            <input type="hidden" name="phone" value={phone ? `${phoneCode} ${phone}` : ""} />
             <input
               type="tel"
               required
               className={styles.phoneInput}
-              placeholder="5xx xxx xx xx"
+              placeholder={t("phonePh")}
               value={phone}
               inputMode="tel"
               autoComplete="tel-national"
-              maxLength={13}
-              pattern="^5[0-9]{2} [0-9]{3} [0-9]{2} [0-9]{2}$"
+              maxLength={20}
               title={t("phoneFormatHint")}
-              onChange={(event) => setPhone(formatTrPhone(event.target.value))}
+              onChange={(event) => setPhone(formatPhoneNumber(event.target.value))}
             />
           </span>
         </label>
@@ -296,20 +322,11 @@ const SelectShell = ({ children }: { children: React.ReactNode }) => (
   </span>
 );
 
-const formatTrPhone = (value: string) => {
-  let digits = value.replace(/\D/g, "");
-  if (digits.startsWith("90")) digits = digits.slice(2);
-  if (digits.startsWith("0")) digits = digits.slice(1);
-  digits = digits.slice(0, 10);
-
-  const parts = [
-    digits.slice(0, 3),
-    digits.slice(3, 6),
-    digits.slice(6, 8),
-    digits.slice(8, 10),
-  ].filter(Boolean);
-
-  return parts.join(" ");
+/* Ülkeden bağımsız sayı biçimlendirme: rakam dışını at, 3'erli okunur gruplara böl.
+   Ülkeye özgü maske yok — E.164 doğrulaması sunucuda (bkz. lib/actions/quote). */
+const formatPhoneNumber = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 15);
+  return digits.replace(/(\d{3})(?=\d)/g, "$1 ").trim();
 };
 
 export default QuoteForm;

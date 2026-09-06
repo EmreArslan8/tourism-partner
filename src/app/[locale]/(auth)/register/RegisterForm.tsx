@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import {
   Building2,
   Search,
@@ -35,6 +35,8 @@ import styles from "./styles";
 import { Link } from "@/i18n/navigation";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import PhoneCodeInput from "@/components/PhoneCodeInput";
+import { DEFAULT_PHONE_CODE, normalizePhoneCode } from "@/lib/phone-codes";
 import VerifyEmail from "./VerifyEmail";
 
 type Intent = "service" | "buyer";
@@ -112,215 +114,6 @@ const SECTOR_ICON: Record<(typeof SECTORS)[number], LucideIcon> = {
   diger: Sparkles,
 };
 
-const PHONE_CODES = [
-  { value: "+1", label: "🇺🇸 ABD / Kanada" },
-  { value: "+7", label: "🇷🇺 Rusya / Kazakistan" },
-  { value: "+20", label: "🇪🇬 Mısır" },
-  { value: "+27", label: "🇿🇦 Güney Afrika" },
-  { value: "+30", label: "🇬🇷 Yunanistan" },
-  { value: "+31", label: "🇳🇱 Hollanda" },
-  { value: "+32", label: "🇧🇪 Belçika" },
-  { value: "+33", label: "🇫🇷 Fransa" },
-  { value: "+34", label: "🇪🇸 İspanya" },
-  { value: "+36", label: "🇭🇺 Macaristan" },
-  { value: "+39", label: "🇮🇹 İtalya" },
-  { value: "+40", label: "🇷🇴 Romanya" },
-  { value: "+41", label: "🇨🇭 İsviçre" },
-  { value: "+43", label: "🇦🇹 Avusturya" },
-  { value: "+44", label: "🇬🇧 Birleşik Krallık" },
-  { value: "+45", label: "🇩🇰 Danimarka" },
-  { value: "+46", label: "🇸🇪 İsveç" },
-  { value: "+47", label: "🇳🇴 Norveç" },
-  { value: "+48", label: "🇵🇱 Polonya" },
-  { value: "+49", label: "🇩🇪 Almanya" },
-  { value: "+51", label: "🇵🇪 Peru" },
-  { value: "+52", label: "🇲🇽 Meksika" },
-  { value: "+54", label: "🇦🇷 Arjantin" },
-  { value: "+55", label: "🇧🇷 Brezilya" },
-  { value: "+56", label: "🇨🇱 Şili" },
-  { value: "+57", label: "🇨🇴 Kolombiya" },
-  { value: "+58", label: "🇻🇪 Venezuela" },
-  { value: "+60", label: "🇲🇾 Malezya" },
-  { value: "+61", label: "🇦🇺 Avustralya" },
-  { value: "+62", label: "🇮🇩 Endonezya" },
-  { value: "+63", label: "🇵🇭 Filipinler" },
-  { value: "+64", label: "🇳🇿 Yeni Zelanda" },
-  { value: "+65", label: "🇸🇬 Singapur" },
-  { value: "+66", label: "🇹🇭 Tayland" },
-  { value: "+81", label: "🇯🇵 Japonya" },
-  { value: "+82", label: "🇰🇷 Güney Kore" },
-  { value: "+84", label: "🇻🇳 Vietnam" },
-  { value: "+86", label: "🇨🇳 Çin" },
-  { value: "+90", label: "🇹🇷 Türkiye" },
-  { value: "+91", label: "🇮🇳 Hindistan" },
-  { value: "+92", label: "🇵🇰 Pakistan" },
-  { value: "+93", label: "🇦🇫 Afganistan" },
-  { value: "+94", label: "🇱🇰 Sri Lanka" },
-  { value: "+95", label: "🇲🇲 Myanmar" },
-  { value: "+98", label: "🇮🇷 İran" },
-  { value: "+212", label: "🇲🇦 Fas" },
-  { value: "+213", label: "🇩🇿 Cezayir" },
-  { value: "+216", label: "🇹🇳 Tunus" },
-  { value: "+218", label: "🇱🇾 Libya" },
-  { value: "+220", label: "🇬🇲 Gambiya" },
-  { value: "+221", label: "🇸🇳 Senegal" },
-  { value: "+225", label: "🇨🇮 Fildişi Sahili" },
-  { value: "+233", label: "🇬🇭 Gana" },
-  { value: "+234", label: "🇳🇬 Nijerya" },
-  { value: "+251", label: "🇪🇹 Etiyopya" },
-  { value: "+254", label: "🇰🇪 Kenya" },
-  { value: "+255", label: "🇹🇿 Tanzanya" },
-  { value: "+256", label: "🇺🇬 Uganda" },
-  { value: "+351", label: "🇵🇹 Portekiz" },
-  { value: "+352", label: "🇱🇺 Lüksemburg" },
-  { value: "+353", label: "🇮🇪 İrlanda" },
-  { value: "+354", label: "🇮🇸 İzlanda" },
-  { value: "+356", label: "🇲🇹 Malta" },
-  { value: "+357", label: "🇨🇾 Kıbrıs" },
-  { value: "+358", label: "🇫🇮 Finlandiya" },
-  { value: "+359", label: "🇧🇬 Bulgaristan" },
-  { value: "+370", label: "🇱🇹 Litvanya" },
-  { value: "+371", label: "🇱🇻 Letonya" },
-  { value: "+372", label: "🇪🇪 Estonya" },
-  { value: "+373", label: "🇲🇩 Moldova" },
-  { value: "+374", label: "🇦🇲 Ermenistan" },
-  { value: "+375", label: "🇧🇾 Belarus" },
-  { value: "+380", label: "🇺🇦 Ukrayna" },
-  { value: "+381", label: "🇷🇸 Sırbistan" },
-  { value: "+382", label: "🇲🇪 Karadağ" },
-  { value: "+383", label: "🇽🇰 Kosova" },
-  { value: "+385", label: "🇭🇷 Hırvatistan" },
-  { value: "+386", label: "🇸🇮 Slovenya" },
-  { value: "+387", label: "🇧🇦 Bosna Hersek" },
-  { value: "+389", label: "🇲🇰 Kuzey Makedonya" },
-  { value: "+420", label: "🇨🇿 Çekya" },
-  { value: "+421", label: "🇸🇰 Slovakya" },
-  { value: "+423", label: "🇱🇮 Lihtenştayn" },
-  { value: "+852", label: "🇭🇰 Hong Kong" },
-  { value: "+853", label: "🇲🇴 Makao" },
-  { value: "+855", label: "🇰🇭 Kamboçya" },
-  { value: "+856", label: "🇱🇦 Laos" },
-  { value: "+880", label: "🇧🇩 Bangladeş" },
-  { value: "+886", label: "🇹🇼 Tayvan" },
-  { value: "+960", label: "🇲🇻 Maldivler" },
-  { value: "+961", label: "🇱🇧 Lübnan" },
-  { value: "+962", label: "🇯🇴 Ürdün" },
-  { value: "+963", label: "🇸🇾 Suriye" },
-  { value: "+964", label: "🇮🇶 Irak" },
-  { value: "+965", label: "🇰🇼 Kuveyt" },
-  { value: "+966", label: "🇸🇦 Suudi Arabistan" },
-  { value: "+967", label: "🇾🇪 Yemen" },
-  { value: "+968", label: "🇴🇲 Umman" },
-  { value: "+970", label: "🇵🇸 Filistin" },
-  { value: "+971", label: "🇦🇪 Birleşik Arap Emirlikleri" },
-  { value: "+972", label: "🇮🇱 İsrail" },
-  { value: "+973", label: "🇧🇭 Bahreyn" },
-  { value: "+974", label: "🇶🇦 Katar" },
-  { value: "+975", label: "🇧🇹 Bhutan" },
-  { value: "+976", label: "🇲🇳 Moğolistan" },
-  { value: "+977", label: "🇳🇵 Nepal" },
-  { value: "+994", label: "🇦🇿 Azerbaycan" },
-  { value: "+995", label: "🇬🇪 Gürcistan" },
-  { value: "+996", label: "🇰🇬 Kırgızistan" },
-  { value: "+998", label: "🇺🇿 Özbekistan" },
-] as const;
-
-function normalizePhoneCode(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 4);
-  return digits ? `+${digits}` : "";
-}
-
-function localizedPhoneCodeLabel(label: string, value: string, locale: string): string {
-  const flagParts = Array.from(label).slice(0, 2);
-  const region = flagParts
-    .map((part) => String.fromCharCode((part.codePointAt(0) ?? 127397) - 127397))
-    .join("");
-  const names = new Intl.DisplayNames([locale], { type: "region" });
-  const regions = value === "+1" ? [region, "CA"] : value === "+7" ? [region, "KZ"] : [region];
-  return `${flagParts.join("")} ${regions.map((code) => names.of(code) ?? code).join(" / ")}`;
-}
-
-function PhoneCodeInput({
-  value,
-  onChange,
-  label,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  label: string;
-}) {
-  const locale = useLocale();
-  const [open, setOpen] = useState(false);
-  // draft: kullanıcının yazdığı metin; null = henüz yazılmadı. Eski davranışta
-  // mevcut değer (+1) filtre sorgusu oluyordu → ilk tıklamada "1" içeren birkaç kod
-  // görünüyor, +90 Türkiye gibi kodlar ancak aramayla çıkıyordu. Şimdi açılışta tam
-  // liste (Türkiye üstte) gösterilir, yazınca filtre devreye girer.
-  const [draft, setDraft] = useState<string | null>(null);
-  const shown = draft ?? value;
-  const filtered = draft === null
-    ? PHONE_CODES.slice().sort((a, b) => (a.value === "+90" ? -1 : b.value === "+90" ? 1 : 0))
-    : PHONE_CODES.filter((code) => {
-        const digits = code.value.replace("+", "");
-        const text = `${localizedPhoneCodeLabel(code.label, code.value, locale)} ${code.value}`.toLocaleLowerCase(locale);
-        const q = shown.trim().toLocaleLowerCase(locale).replace(/^\+/, "");
-        return !q || digits.startsWith(q) || text.includes(q);
-      });
-
-  return (
-    <div className="relative w-[72px] shrink-0">
-      <input
-        value={shown}
-        onChange={(event) => {
-          setDraft(event.target.value);
-          setOpen(true);
-        }}
-        onFocus={() => setOpen(true)}
-        onBlur={() => {
-          onChange(normalizePhoneCode(draft ?? value) || "+1");
-          setDraft(null);
-          window.setTimeout(() => setOpen(false), 120);
-        }}
-        inputMode="tel"
-        maxLength={5}
-        className="field h-[46px] w-full rounded-e-none border-e-0 px-2 pe-5 text-[13px]"
-        aria-label={label}
-        autoComplete="off"
-      />
-      <button
-        type="button"
-        onMouseDown={(event) => {
-          event.preventDefault();
-          setOpen((current) => !current);
-        }}
-        className="absolute end-1 top-1/2 grid h-7 w-5 -translate-y-1/2 place-items-center text-ink/55 transition-colors hover:text-terra"
-        aria-label={label}
-      >
-        <span className="text-[10px] leading-none" aria-hidden>▾</span>
-      </button>
-      {open && filtered.length > 0 && (
-        <div className="absolute bottom-[calc(100%+6px)] start-0 z-20 max-h-[280px] w-[260px] overflow-y-auto rounded-[8px] border border-line bg-paper py-1 shadow-card">
-          {filtered.map((code) => (
-            <button
-              key={code.value}
-              type="button"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                onChange(code.value);
-                setDraft(null);
-                setOpen(false);
-              }}
-              className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-[13px] font-semibold text-ink transition-colors hover:bg-terra/8"
-            >
-              <span className="min-w-0 truncate">{localizedPhoneCodeLabel(code.label, code.value, locale)}</span>
-              <span className="shrink-0 text-terra">{code.value}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) => {
   const [state, action, pending] = useActionState(signUp, { ok: false });
   const [step, setStep] = useState<StepNo>(1);
@@ -340,9 +133,9 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
   const [bizDesc, setBizDesc] = useState("");
   const [bizWhatsapp, setBizWhatsapp] = useState("");
   const [contactName, setContactName] = useState("");
-  const [contactPhoneCode, setContactPhoneCode] = useState("+1");
+  const [contactPhoneCode, setContactPhoneCode] = useState(DEFAULT_PHONE_CODE);
   const [contactPhone, setContactPhone] = useState("");
-  const [bizWhatsappCode, setBizWhatsappCode] = useState("+1");
+  const [bizWhatsappCode, setBizWhatsappCode] = useState(DEFAULT_PHONE_CODE);
   const [contactEmail, setContactEmail] = useState("");
   // Kapak görseli — oturumsuz draft yükleme (bkz. /api/signup/cover). Zorunlu.
   const [coverPath, setCoverPath] = useState("");
@@ -890,7 +683,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
             <div className="grid grid-cols-2 gap-2 max-[640px]:grid-cols-1">
               <div className="min-w-0 flex flex-col gap-1">
                 <div className="flex w-full min-w-0">
-                  <PhoneCodeInput value={contactPhoneCode} onChange={setContactPhoneCode} label={t("phoneCode")} />
+                  <PhoneCodeInput value={contactPhoneCode} onChange={setContactPhoneCode} label={t("phoneCode")} placement="top" />
                   <input
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
@@ -907,7 +700,7 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
               </div>
               <div className="min-w-0 flex flex-col gap-1">
                 <div className="group relative flex w-full min-w-0">
-                  <PhoneCodeInput value={bizWhatsappCode} onChange={setBizWhatsappCode} label={t("phoneCode")} />
+                  <PhoneCodeInput value={bizWhatsappCode} onChange={setBizWhatsappCode} label={t("phoneCode")} placement="top" />
                   <input
                     value={bizWhatsapp}
                     onChange={(e) => setBizWhatsapp(e.target.value)}

@@ -212,9 +212,9 @@ const dayPickerClassNames = {
   caption_label: "text-[14px] font-semibold text-ink",
   nav: "pointer-events-none absolute start-4 end-4 top-4 flex items-center justify-between",
   button_previous:
-    "pointer-events-auto grid h-7 w-7 place-items-center rounded-full border border-line bg-white text-ink transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-30",
+    "pointer-events-auto grid h-7 w-7 place-items-center rounded-full border border-line bg-paper text-ink transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-30",
   button_next:
-    "pointer-events-auto grid h-7 w-7 place-items-center rounded-full border border-line bg-white text-ink transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-30",
+    "pointer-events-auto grid h-7 w-7 place-items-center rounded-full border border-line bg-paper text-ink transition hover:border-primary hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-30",
   chevron: "h-3.5 w-3.5",
   month_grid: "w-full border-collapse",
   weekdays: "grid grid-cols-7",

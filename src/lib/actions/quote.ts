@@ -70,12 +70,13 @@ function todayInIstanbul() {
   return `${value.year}-${value.month}-${value.day}`;
 }
 
-function normalizeTrPhone(value: FormDataEntryValue | null) {
-  let digits = String(value ?? "").replace(/\D/g, "");
-  if (digits.startsWith("90")) digits = digits.slice(2);
-  if (digits.startsWith("0")) digits = digits.slice(1);
-  if (!/^5\d{9}$/.test(digits)) return null;
-  return `+90 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
+/* Ülke bağımsız telefon normalizasyonu → "+<ülke kodu><numara>" (E.164).
+   Form "+90 532 123 45 67" gibi gönderir; ülke kodu artık seçilebildiği için TR
+   maskesi kaldırıldı. Kabul: baştaki + zorunlu değil, 8–15 hane. */
+function normalizePhone(value: FormDataEntryValue | null) {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  if (!/^\d{8,15}$/.test(digits)) return null;
+  return `+${digits}`;
 }
 
 /* Teklif (RFQ) gönderimi — teklif formundan quotes tablosuna yazar. */
@@ -87,7 +88,7 @@ export async function submitQuote(
 
   const name = clean(formData.get("name"), 120);
   const email = clean(formData.get("email"), 200);
-  const phone = normalizeTrPhone(formData.get("phone"));
+  const phone = normalizePhone(formData.get("phone"));
   if (!name || !email || !phone) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
   const allowed = await checkRateLimit({
