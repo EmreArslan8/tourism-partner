@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect as rawRedirect } from "next/navigation";
 import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
@@ -33,11 +34,22 @@ function validPhone(value: string): string {
 
 /* E-posta + şifre ile giriş (tek kimlik = Supabase Auth).
    Rol bazlı yönlendirme: admin → /admin, diğerleri → /dashboard. */
+/* Giriş sonrası dönülecek adres. Yalnız kendi sitemizdeki mutlak yollara izin
+   verilir: "//host" (protocol-relative) ve ters bölü ile açık yönlendirme
+   (open redirect) engellenir. Yol zaten locale önekli üretilir (bkz. maildeki
+   panel linki), o yüzden ham redirect ile kullanılır. */
+function safeNextPath(value: FormDataEntryValue | null): string | null {
+  const raw = String(value ?? "").trim();
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return null;
+  return raw.slice(0, 512);
+}
+
 /* Giriş sonrası rol/üye tipine göre yönlendirme yapar (redirect throw eder). */
 async function redirectAfterLogin(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string | undefined,
   userMetadata?: Record<string, unknown>,
+  next?: string | null,
 ): Promise<void> {
   let role = "partner";
   let accountType = "supplier";
@@ -80,6 +92,9 @@ async function redirectAfterLogin(
     }
   }
   const locale = await getLocale();
+  // Mailden gelen tedarikçi talebin durduğu sayfaya dönsün; admin/alıcı için
+  // rol bazlı varsayılan hedef korunur.
+  if (next && role !== "admin" && accountType !== "buyer") rawRedirect(next);
   const href = role === "admin" ? "/admin" : accountType === "buyer" ? "/explore" : "/dashboard";
   redirect({ href, locale });
 }
@@ -114,6 +129,7 @@ export async function signIn(
       supabase,
       userData.user?.id,
       userData.user?.user_metadata as Record<string, unknown> | undefined,
+      safeNextPath(formData.get("next")),
     );
     return { ok: true };
   }
@@ -155,6 +171,7 @@ export async function signIn(
     supabase,
     data.user?.id,
     data.user?.user_metadata as Record<string, unknown> | undefined,
+    safeNextPath(formData.get("next")),
   );
   return { ok: true };
 }

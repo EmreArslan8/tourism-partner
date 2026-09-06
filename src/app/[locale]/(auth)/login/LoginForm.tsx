@@ -15,8 +15,12 @@ const LoginForm = () => {
   const [state, action, pending] = useActionState(signIn, { ok: false });
   const [showPw, setShowPw] = useState(false);
   const t = useTranslations("login");
+  const searchParams = useSearchParams();
   // Oturum süresi dolunca proxy / AuthWatcher buraya ?expired=1 ile yönlendirir.
-  const expired = useSearchParams().get("expired") === "1";
+  const expired = searchParams.get("expired") === "1";
+  // Korumalı sayfadan gelindiyse giriş sonrası oraya dönülür (mailden gelen
+  // tedarikçi talebi kaybetmesin); sunucu tarafında ayrıca doğrulanır.
+  const next = searchParams.get("next") ?? "";
 
   // 2FA adımı — şifre doğrulandıktan sonra kod istenir.
   const mfaStep = (state.error === "mfa" || state.error === "mfa_invalid") && state.factorId && state.challengeId;
@@ -33,6 +37,7 @@ const LoginForm = () => {
           <form className={styles.form} action={action}>
             <input type="hidden" name="mfaFactorId" value={state.factorId} />
             <input type="hidden" name="mfaChallengeId" value={state.challengeId} />
+            {next && <input type="hidden" name="next" value={next} />}
             <input
               name="code"
               inputMode="numeric"
@@ -74,6 +79,7 @@ const LoginForm = () => {
         </p>
 
         <form className={styles.form} action={action}>
+          {next && <input type="hidden" name="next" value={next} />}
           <Input
             name="email"
             label={t("email")}

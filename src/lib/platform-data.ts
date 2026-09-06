@@ -1,3 +1,4 @@
+import { countQuoteResponses, quoteRequestKey, type RequestStatus } from "@/lib/quote-workflow";
 import { cacheLife, cacheTag } from "next/cache";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { getAdminAccess } from "@/lib/admin-auth";
@@ -56,7 +57,68 @@ export type AdminB2bRequestDetail = AdminB2bRequest & {
   business: AdminB2bRequestBusiness | null;
   offers: AdminB2bOffer[];
 };
-import type { CategoryGroup, GroupKey } from "@/lib/types";
+
+export type AdminQuoteResponse = {
+  id: number;
+  businessId: number;
+  business: Pick<AdminB2bRequestBusiness, "id" | "name" | "group" | "type" | "country" | "city"> | null;
+  message: string;
+  emailStatus: string;
+  emailSentAt: string | null;
+  lastError: string | null;
+  createdAt: string;
+};
+
+export type AdminQuoteDetail = AdminQuote & {
+  reviewStatus: RequestStatus;
+  reviewNote: string | null;
+  reviewUpdatedAt: string | null;
+  targets: { quoteId: number; business: AdminB2bRequestBusiness | null; status: string; internalNote: string | null; responseCount: number }[];
+  business: AdminB2bRequestBusiness | null;
+  responses: AdminQuoteResponse[];
+};
+
+/* Form talebinin admin listesi kaydı: fan-out satırları tek talepte toplanmış hâli. */
+export type AdminQuoteRequest = {
+  key: string;
+  /** Detay linki için kullanılan satır (gruptaki en küçük id). */
+  primaryId: number;
+  /** Bu gönderimin yazdığı tüm quotes satırları. */
+  ids: number[];
+  reviewStatus: RequestStatus;
+  targets: { id: number; name: string }[];
+  responseCount: number;
+  name: string;
+  company: string | null;
+  email: string;
+  phone: string | null;
+  service: string | null;
+  categoryGroup: string | null;
+  categoryType: string | null;
+  country: string | null;
+  city: string | null;
+  district: string | null;
+  dateRange: string | null;
+  validUntil: string | null;
+  people: number | null;
+  message: string | null;
+  createdAt: string;
+};
+
+/* Tedarikçinin verdiği teklif — kaynağı ne olursa olsun aynı şekil. */
+export type AdminOffer = {
+  source: "quote" | "b2b";
+  id: number;
+  requestId: number;
+  requestLabel: string;
+  businessId: number;
+  business: { id: number; name: string } | null;
+  message: string;
+  price: string | null;
+  emailStatus: string | null;
+  createdAt: string;
+};
+import type { AdminQuote, CategoryGroup, GroupKey } from "@/lib/types";
 
 const hasEnv = () =>
   !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -491,4 +553,297 @@ function rowsToCategoryGroups(rows: CategoryRow[]): CategoryGroup[] {
     label: groupLabels.get(fallback.key) ?? fallback.label,
     children: databaseRoots.has(fallback.key) ? (children.get(fallback.key) ?? []) : fallback.children,
   }));
+}
+
+/* Tek teklif talebinin (quotes) tam admin görünümü. Talep, hedef işletme ve
+   tedarikçi yanıtları (quote_responses) tek ekranda incelenebilsin diye iki
+   sorguda yüklenir; yanıtı olmayan talepler de eksiksiz döner. */
+export async function getAdminQuoteDetail(id: number): Promise<AdminQuoteDetail | null> {
+  if (!hasEnv() || !Number.isInteger(id) || id < 1) return null;
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return null;
+
+  const supabase = await createClient();
+  const { data: seed, error: seedError } = await supabase.from("quotes")
+    .select("email,created_at").eq("id", id).maybeSingle();
+  if (seedError) throw new Error(seedError.message);
+  if (!seed) return null;
+  const [groupResult, reviewResult] = await Promise.all([
+    supabase.from("quotes").select(
+      "id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,internal_note,created_at,businesses(id,name,group,type,country,city,district,phone,website)",
+    ).eq("email", seed.email).eq("created_at", seed.created_at).order("id"),
+    supabase.from("quote_request_reviews").select("status,internal_note,updated_at")
+      .eq("email", seed.email).eq("submitted_at", seed.created_at).maybeSingle(),
+  ]);
+  if (groupResult.error) throw new Error(groupResult.error.message);
+  if (reviewResult.error) throw new Error(reviewResult.error.message);
+  if (!groupResult.data?.length) return null;
+  const responsesResult = await supabase.from("quote_responses")
+    .select("id,quote_id,business_id,message,email_status,email_sent_at,last_error,created_at,businesses(id,name,group,type,country,city)")
+    .in("quote_id", groupResult.data.map((target) => target.id))
+    .order("created_at", { ascending: false });
+  if (responsesResult.error) throw new Error(responsesResult.error.message);
+
+  type QuoteBusiness = AdminB2bRequestBusiness;
+  type ResponderBusiness = Pick<AdminB2bRequestBusiness, "id" | "name" | "group" | "type" | "country" | "city">;
+  type ResponseRow = {
+    id: number;
+    business_id: number;
+    message: string;
+    email_status: string;
+    email_sent_at: string | null;
+    last_error: string | null;
+    created_at: string;
+    businesses: ResponderBusiness | ResponderBusiness[] | null;
+  };
+  type QuoteRow = {
+    id: number;
+    business_id: number | null;
+    name: string;
+    company: string | null;
+    email: string;
+    phone: string | null;
+    service: string | null;
+    category_group: string | null;
+    category_type: string | null;
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    date_range: string | null;
+    valid_until: string | null;
+    people: number | null;
+    message: string | null;
+    status: string;
+    internal_note: string | null;
+    created_at: string;
+    businesses: QuoteBusiness | QuoteBusiness[] | null;
+  };
+
+  const group = groupResult.data as unknown as QuoteRow[];
+  const row = group[0];
+  const responseCounts = countQuoteResponses(responsesResult.data ?? []);
+  const business = Array.isArray(row.businesses) ? row.businesses[0] ?? null : row.businesses;
+  const responses = ((responsesResult.data ?? []) as unknown as ResponseRow[]).map((response) => ({
+    id: response.id,
+    businessId: response.business_id,
+    business: Array.isArray(response.businesses) ? response.businesses[0] ?? null : response.businesses,
+    message: response.message,
+    emailStatus: response.email_status,
+    emailSentAt: response.email_sent_at,
+    lastError: response.last_error,
+    createdAt: response.created_at,
+  }));
+
+  return {
+    id: row.id,
+    businessId: row.business_id,
+    name: row.name,
+    company: row.company,
+    email: row.email,
+    phone: row.phone,
+    service: row.service,
+    categoryGroup: row.category_group,
+    categoryType: row.category_type,
+    country: row.country,
+    city: row.city,
+    district: row.district,
+    dateRange: row.date_range,
+    validUntil: row.valid_until,
+    people: row.people,
+    message: row.message,
+    status: row.status ?? "new",
+    internalNote: row.internal_note,
+    createdAt: row.created_at,
+    business,
+    responses,
+    reviewStatus: reviewResult.data?.status ?? "new",
+    reviewNote: reviewResult.data?.internal_note ?? null,
+    reviewUpdatedAt: reviewResult.data?.updated_at ?? null,
+    targets: group.map((target) => ({
+      quoteId: target.id,
+      business: Array.isArray(target.businesses) ? target.businesses[0] ?? null : target.businesses,
+      status: target.status ?? "new",
+      internalNote: target.internal_note,
+      responseCount: responseCounts.get(target.id) ?? 0,
+    })),
+  };
+}
+
+/* Form talebi (quotes) admin listesi. Tek bir form gönderimi hedeflenen her
+   tedarikçi için ayrı satır yazar (bkz. actions/quote.ts fan-out); admin'de bu
+   N satır TEK talep olarak görünmeli. Aynı gönderim e-posta + created_at ile
+   gruplanır, hedef işletmeler ve satır durumları tek kayıtta toplanır. */
+export async function getAdminQuoteRequests(): Promise<AdminQuoteRequest[]> {
+  if (!hasEnv()) return [];
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return [];
+
+  const supabase = await createClient();
+  const [quotesResult, responsesResult] = await Promise.all([
+    supabase
+      .from("quotes")
+      .select(
+        "id,business_id,name,company,email,phone,service,category_group,category_type,country,city,district,date_range,valid_until,people,message,status,created_at,businesses(id,name)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500),
+    supabase.from("quote_responses").select("quote_id"),
+  ]);
+
+  if (quotesResult.error) throw new Error(quotesResult.error.message);
+  if (responsesResult.error) throw new Error(responsesResult.error.message);
+
+  type Target = { id: number; name: string };
+  type Row = {
+    id: number;
+    business_id: number | null;
+    name: string;
+    company: string | null;
+    email: string;
+    phone: string | null;
+    service: string | null;
+    category_group: string | null;
+    category_type: string | null;
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    date_range: string | null;
+    valid_until: string | null;
+    people: number | null;
+    message: string | null;
+    status: string | null;
+    created_at: string;
+    businesses: Target | Target[] | null;
+  };
+
+  const responseCounts = countQuoteResponses(responsesResult.data ?? []);
+  const emails = [...new Set((quotesResult.data ?? []).map((row) => row.email))];
+  const reviewsResult = emails.length
+    ? await supabase.from("quote_request_reviews").select("email,submitted_at,status").in("email", emails)
+    : { data: [], error: null };
+  if (reviewsResult.error) throw new Error(reviewsResult.error.message);
+  const reviews = new Map((reviewsResult.data ?? []).map((review) => [quoteRequestKey(review.email, review.submitted_at), review.status]));
+
+  const groups = new Map<string, AdminQuoteRequest>();
+  for (const row of (quotesResult.data ?? []) as unknown as Row[]) {
+    const key = quoteRequestKey(row.email, row.created_at);
+    const target = Array.isArray(row.businesses) ? row.businesses[0] ?? null : row.businesses;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.ids.push(row.id);
+      if (target) existing.targets.push(target);
+      existing.responseCount += responseCounts.get(row.id) ?? 0;
+      continue;
+    }
+    groups.set(key, {
+      key,
+      primaryId: row.id,
+      ids: [row.id],
+      reviewStatus: reviews.get(key) ?? "new",
+      targets: target ? [target] : [],
+      responseCount: responseCounts.get(row.id) ?? 0,
+      name: row.name,
+      company: row.company,
+      email: row.email,
+      phone: row.phone,
+      service: row.service,
+      categoryGroup: row.category_group,
+      categoryType: row.category_type,
+      country: row.country,
+      city: row.city,
+      district: row.district,
+      dateRange: row.date_range,
+      validUntil: row.valid_until,
+      people: row.people,
+      message: row.message,
+      createdAt: row.created_at,
+    });
+  }
+
+  /* Gruptaki en küçük id detay linki olsun — fan-out satırları arasında sabit kalır. */
+  return [...groups.values()].map((group) => ({
+    ...group,
+    primaryId: Math.min(...group.ids),
+  }));
+}
+
+/* Tedarikçilerin verdiği GERÇEK teklifler: hem form talebine yanıtlar
+   (quote_responses) hem de B2B ilana verilen teklifler (b2b_offers) tek listede. */
+export async function getAdminOffers(): Promise<AdminOffer[]> {
+  if (!hasEnv()) return [];
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return [];
+
+  const supabase = await createClient();
+  const [responsesResult, offersResult] = await Promise.all([
+    supabase
+      .from("quote_responses")
+      .select("id,quote_id,business_id,message,email_status,created_at,businesses(id,name),quotes(id,name,company,service)")
+      .order("created_at", { ascending: false })
+      .limit(300),
+    supabase
+      .from("b2b_offers")
+      .select("id,request_id,business_id,message,price,created_at,businesses(id,name),b2b_requests(id,title)")
+      .order("created_at", { ascending: false })
+      .limit(300),
+  ]);
+
+  if (responsesResult.error) throw new Error(responsesResult.error.message);
+  if (offersResult.error) throw new Error(offersResult.error.message);
+
+  type Named = { id: number; name: string };
+  const one = <T,>(value: T | T[] | null): T | null =>
+    Array.isArray(value) ? value[0] ?? null : value;
+
+  type ResponseRow = {
+    id: number;
+    quote_id: number;
+    business_id: number;
+    message: string;
+    email_status: string;
+    created_at: string;
+    businesses: Named | Named[] | null;
+    quotes: { id: number; name: string; company: string | null; service: string | null } | { id: number; name: string; company: string | null; service: string | null }[] | null;
+  };
+  type OfferRow = {
+    id: number;
+    request_id: number;
+    business_id: number;
+    message: string;
+    price: string | null;
+    created_at: string;
+    businesses: Named | Named[] | null;
+    b2b_requests: { id: number; title: string } | { id: number; title: string }[] | null;
+  };
+
+  const fromResponses = ((responsesResult.data ?? []) as unknown as ResponseRow[]).map((row) => {
+    const quote = one(row.quotes);
+    return {
+      source: "quote" as const,
+      id: row.id,
+      requestId: row.quote_id,
+      requestLabel: quote?.service || quote?.company || quote?.name || `Talep #${row.quote_id}`,
+      business: one(row.businesses),
+      businessId: row.business_id,
+      message: row.message,
+      price: null,
+      emailStatus: row.email_status,
+      createdAt: row.created_at,
+    };
+  });
+
+  const fromOffers = ((offersResult.data ?? []) as unknown as OfferRow[]).map((row) => ({
+    source: "b2b" as const,
+    id: row.id,
+    requestId: row.request_id,
+    requestLabel: one(row.b2b_requests)?.title ?? `İlan #${row.request_id}`,
+    business: one(row.businesses),
+    businessId: row.business_id,
+    message: row.message,
+    price: row.price,
+    emailStatus: null,
+    createdAt: row.created_at,
+  }));
+
+  return [...fromResponses, ...fromOffers].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }

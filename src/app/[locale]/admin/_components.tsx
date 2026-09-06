@@ -1,3 +1,4 @@
+import { SUPPLIER_STATUS, supplierStatusLabel } from "@/lib/quote-workflow";
 import { Link } from "@/i18n/navigation";
 import { saveBusiness, saveContentPage, updateApplicationStatus, updateQuoteStatus } from "@/lib/actions/admin";
 import type { AdminAccess } from "@/lib/admin-auth";
@@ -377,14 +378,11 @@ export const QuoteList = ({ quotes, locale }: { quotes: AdminQuote[]; locale: st
               {quote.validUntil && <p className="mt-1 text-[12px] font-semibold text-amber-700">Teklif son tarihi: {formatDate(quote.validUntil)}</p>}
               {quote.message && <p className="mt-2 text-[13px] text-muted">{quote.message}</p>}
             </div>
-            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-muted">{quote.status}</span>
+            <span className="rounded-pill bg-paper px-3 py-1 text-[12px] font-bold text-muted">{supplierStatusLabel(quote.status)}</span>
           </div>
           <div className="mt-3 grid grid-cols-[160px_minmax(0,1fr)_auto] gap-2 max-[640px]:grid-cols-1">
-            <select name="status" defaultValue={quote.status} className={input}>
-              <option value="new">Yeni</option>
-              <option value="contacted">İletişime geçildi</option>
-              <option value="won">Kazanıldı</option>
-              <option value="lost">Kaybedildi</option>
+            <select aria-label="Tedarikçi süreci" name="status" defaultValue={quote.status} className={input}>
+              {Object.entries(SUPPLIER_STATUS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
             <input name="internalNote" defaultValue={quote.internalNote ?? ""} placeholder="İç not" className={input} />
             <button className={adminUi.sapphireButton} type="submit">Kaydet</button>

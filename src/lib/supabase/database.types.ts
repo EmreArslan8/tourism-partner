@@ -345,6 +345,26 @@ export interface Database {
         Update: Partial<Database["public"]["Tables"]["reviews"]["Insert"]>;
         Relationships: [];
       };
+      quote_request_reviews: {
+        Row: {
+          email: string;
+          submitted_at: Timestamp;
+          status: "new" | "reviewed" | "closed" | "archived";
+          internal_note: string | null;
+          updated_at: Timestamp;
+          updated_by: string | null;
+        };
+        Insert: {
+          email: string;
+          submitted_at: Timestamp;
+          status?: "new" | "reviewed" | "closed" | "archived";
+          internal_note?: string | null;
+          updated_at?: Timestamp;
+          updated_by?: string | null;
+        };
+        Update: Partial<Database["public"]["Tables"]["quote_request_reviews"]["Insert"]>;
+        Relationships: [];
+      };
       quotes: {
         Row: {
           id: number;

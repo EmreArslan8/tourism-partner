@@ -1,5 +1,7 @@
 "use server";
 
+import { isRequestStatus, isSupplierStatus } from "@/lib/quote-workflow";
+
 import { revalidatePath, revalidateTag } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "@/i18n/navigation";
@@ -369,13 +371,44 @@ export async function updateApplicationStatus(formData: FormData): Promise<void>
   revalidateAdmin(locale);
 }
 
+// Form kimliği istemciden alınır; gönderimin anahtarı güvenilir DB kaydından çözülür.
+export async function updateQuoteRequestReview(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  const status = String(formData.get("status") ?? "");
+  if (!Number.isSafeInteger(id) || id <= 0 || !isRequestStatus(status)) {
+    throw new Error("Geçersiz talep veya inceleme durumu.");
+  }
+  const { data: quote, error: quoteError } = await supabase.from("quotes")
+    .select("email,created_at").eq("id", id).maybeSingle();
+  if (quoteError) throw new Error(quoteError.message);
+  if (!quote) throw new Error("Talep bulunamadı.");
+  const payload = {
+    email: quote.email,
+    submitted_at: quote.created_at,
+    status,
+    internal_note: clean(formData.get("internalNote"), 1000),
+    updated_at: new Date().toISOString(),
+    updated_by: context.userId,
+  };
+  const { error } = await supabase.from("quote_request_reviews").upsert(payload, { onConflict: "email,submitted_at" });
+  if (error) throw new Error(error.message);
+  await logAdminAction(context, "quote.request.review", "quote", id, payload);
+  revalidateAdmin(clean(formData.get("locale"), 8));
+}
+
 export async function updateQuoteStatus(formData: FormData): Promise<void> {
   const context = await requireAdmin();
   const { supabase } = context;
   const id = Number(formData.get("id"));
   const locale = clean(formData.get("locale"), 8);
+  const status = String(formData.get("status") ?? "");
+  if (!Number.isSafeInteger(id) || id <= 0 || !isSupplierStatus(status)) {
+    throw new Error("Geçersiz tedarikçi süreci durumu.");
+  }
   const payload = {
-    status: clean(formData.get("status"), 40) ?? "new",
+    status,
     internal_note: clean(formData.get("internalNote"), 1000),
   };
   const { error } = await supabase
