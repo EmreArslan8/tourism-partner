@@ -58,6 +58,9 @@ function composeRequestDescription(formData: FormData, targetTypes: string[]) {
    talep/ilan açar; ilgili tedarikçiler bu ilana teklif sunar; talep sahibine
    teklif geldiğinde otomatik e-posta gider. */
 
+const one = <T,>(value: T | T[] | null | undefined): T | null =>
+  Array.isArray(value) ? value[0] ?? null : value ?? null;
+
 async function myBusiness(supabase: Awaited<ReturnType<typeof createClient>>) {
   const {
     data: { user },
@@ -214,6 +217,96 @@ export async function submitB2bOffer(formData: FormData): Promise<void> {
   if (error) return;
 
   await notifyRequestOwner(requestId, biz.name, message, price);
+  revalidatePath("/[locale]/dashboard/requests", "page");
+}
+
+/* Teklifi kabul eden talep sahibinin iletişim bilgileri tedarikçiye gider.
+   Kabul anına kadar iki taraf da birbirinin iletişimini göremez (RLS + view). */
+async function notifyOfferAccepted(offerId: number): Promise<void> {
+  try {
+    const admin = createAdminClient();
+    if (!admin) return;
+
+    const { data: offer } = await admin
+      .from("b2b_offers")
+      .select("id,request_id,business_id,b2b_requests(title,business_id)")
+      .eq("id", offerId)
+      .maybeSingle();
+    if (!offer) return;
+
+    const request = one((offer as { b2b_requests: unknown }).b2b_requests) as
+      | { title: string; business_id: number | null }
+      | null;
+    if (!request?.business_id) return;
+
+    const [{ data: supplier }, { data: buyer }, { data: contacts }] = await Promise.all([
+      admin.from("businesses").select("name,owner_id").eq("id", offer.business_id).maybeSingle(),
+      admin.from("businesses").select("name,phone,website,city,country").eq("id", request.business_id).maybeSingle(),
+      admin.from("business_contacts").select("full_name,title,phone,email").eq("business_id", request.business_id).order("id").limit(3),
+    ]);
+    if (!supplier?.owner_id) return;
+
+    const { data: userRes } = await admin.auth.admin.getUserById(supplier.owner_id);
+    const to = userRes?.user?.email;
+    if (!to) return;
+
+    const contactRows = (contacts ?? [])
+      .map((c) =>
+        `<li style="color:#475569">${escapeHtml(c.full_name)}${c.title ? ` — ${escapeHtml(c.title)}` : ""}` +
+        `${c.phone ? ` · ${escapeHtml(c.phone)}` : ""}${c.email ? ` · ${escapeHtml(c.email)}` : ""}</li>`,
+      )
+      .join("");
+
+    const html = `
+      <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
+        <h2 style="color:#0b1c30">Teklifiniz kabul edildi</h2>
+        <p style="color:#475569"><b>${escapeHtml(request.title)}</b> talebine verdiğiniz teklif kabul edildi.
+        Talep sahibinin iletişim bilgileri aşağıdadır.</p>
+        <div style="border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin:16px 0">
+          <p style="margin:0 0 6px;color:#0b1c30;font-weight:600">${escapeHtml(buyer?.name ?? "")}</p>
+          <p style="margin:0;color:#475569">${escapeHtml([buyer?.city, buyer?.country].filter(Boolean).join(" / "))}</p>
+          ${buyer?.phone ? `<p style="margin:6px 0 0;color:#475569">Telefon: ${escapeHtml(buyer.phone)}</p>` : ""}
+          ${buyer?.website ? `<p style="margin:6px 0 0;color:#475569">Web: ${escapeHtml(buyer.website)}</p>` : ""}
+          ${contactRows ? `<ul style="margin:10px 0 0;padding-left:18px">${contactRows}</ul>` : ""}
+        </div>
+        <p style="color:#94a3b8;font-size:13px">Bu bilgiler yalnızca bu iş birliği için paylaşılmıştır.</p>
+      </div>`;
+    await sendEmail({ to, subject: `Teklifiniz kabul edildi — ${request.title}`, html });
+  } catch {
+    // bildirim hatası akışı etkilemez
+  }
+}
+
+/* Talep sahibi gelen teklifi onaylar/reddeder. Onayda iletişim karşılıklı açılır
+   (b2b_offers.status = 'accepted' → business_contacts RLS + b2b_my_offers view). */
+export async function respondToB2bOffer(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const biz = await myBusiness(supabase);
+  if (!biz) return;
+
+  const offerId = Number(formData.get("offer_id"));
+  const decision = String(formData.get("decision") ?? "");
+  if (!Number.isInteger(offerId) || (decision !== "accept" && decision !== "decline")) return;
+
+  // Teklif gerçekten benim talebime mi verilmiş? (RLS de engeller; erken çıkış için)
+  const { data: offer } = await supabase
+    .from("b2b_offers")
+    .select("id,status,request_id,b2b_requests!inner(business_id)")
+    .eq("id", offerId)
+    .eq("b2b_requests.business_id", biz.id)
+    .maybeSingle();
+  if (!offer || offer.status === "accepted") return;
+
+  const { error } = await supabase
+    .from("b2b_offers")
+    .update({ status: decision === "accept" ? "accepted" : "declined" })
+    .eq("id", offerId);
+  if (error) {
+    console.error("[b2b-offer] durum güncellenemedi", { code: error.code, message: error.message, offerId });
+    return;
+  }
+
+  if (decision === "accept") await notifyOfferAccepted(offerId);
   revalidatePath("/[locale]/dashboard/requests", "page");
 }
 

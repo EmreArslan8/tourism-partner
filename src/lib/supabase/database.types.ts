@@ -16,6 +16,8 @@ export type BusinessStatus =
   | "suspended";
 export type ContentPageStatus = "draft" | "published" | "archived";
 export type B2BRequestStatus = "pending" | "published" | "archived" | "rejected";
+export type B2BOfferStatus = "pending" | "accepted" | "declined";
+export type B2BDealStatus = "pending" | "published" | "archived" | "rejected";
 export type AdBannerStatus = "draft" | "active" | "paused" | "archived";
 export type PopupFrequency = "always" | "daily" | "session";
 export type SupportTicketStatus = "new" | "in_progress" | "resolved" | "archived";
@@ -294,6 +296,9 @@ export interface Database {
           business_id: number;
           message: string;
           price: string | null;
+          status: B2BOfferStatus;
+          responded_at: Timestamp | null;
+          contact_unlocked_at: Timestamp | null;
           created_at: Timestamp;
         };
         Insert: {
@@ -302,6 +307,9 @@ export interface Database {
           business_id: number;
           message: string;
           price?: string | null;
+          status?: B2BOfferStatus;
+          responded_at?: Timestamp | null;
+          contact_unlocked_at?: Timestamp | null;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["b2b_offers"]["Insert"]>;
@@ -531,6 +539,71 @@ export interface Database {
           updated_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["b2b_requests"]["Insert"]>;
+        Relationships: [];
+      };
+      /* Fırsat ilanları — firma kendi tarifesini yayımlar; kimlik açıktır. */
+      b2b_deals: {
+        Row: {
+          id: number;
+          business_id: number;
+          title: string;
+          description: string | null;
+          group_key: BusinessGroup | null;
+          types: string[];
+          country: string | null;
+          city: string | null;
+          district: string | null;
+          price: string | null;
+          capacity: number | null;
+          valid_from: string | null;
+          valid_until: string | null;
+          status: B2BDealStatus;
+          view_count: number;
+          moderation_note: string | null;
+          source_request_id: number | null;
+          created_at: Timestamp;
+          updated_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          business_id: number;
+          title: string;
+          description?: string | null;
+          group_key?: BusinessGroup | null;
+          types?: string[];
+          country?: string | null;
+          city?: string | null;
+          district?: string | null;
+          price?: string | null;
+          capacity?: number | null;
+          valid_from?: string | null;
+          valid_until?: string | null;
+          status?: B2BDealStatus;
+          view_count?: number;
+          moderation_note?: string | null;
+          source_request_id?: number | null;
+          created_at?: Timestamp;
+          updated_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["b2b_deals"]["Insert"]>;
+        Relationships: [];
+      };
+      b2b_deal_interests: {
+        Row: {
+          id: number;
+          deal_id: number;
+          business_id: number;
+          message: string | null;
+          created_at: Timestamp;
+        };
+        Insert: {
+          id?: number;
+          deal_id: number;
+          business_id: number;
+          message?: string | null;
+          created_at?: Timestamp;
+        };
+        Update: Partial<Database["public"]["Tables"]["b2b_deal_interests"]["Insert"]>;
         Relationships: [];
       };
       content_pages: {
@@ -911,10 +984,74 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      /* Açık ilan listesi — talep sahibinin kimliği bilinçli olarak YOK
+         (bkz. 20260907_0001_b2b_offer_accept_flow.sql). */
+      b2b_open_requests: {
+        Row: {
+          id: number;
+          title: string;
+          description: string | null;
+          region: string | null;
+          target_group: BusinessGroup | null;
+          target_types: string[];
+          view_count: number;
+          created_at: Timestamp;
+          requester_city: string | null;
+          requester_country: string | null;
+          requester_verified: boolean;
+          is_mine: boolean;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /* Bir ilana teklif veren firmaların yalnızca adları — teklif metni/fiyatı yok. */
+      b2b_request_offer_authors: {
+        Row: {
+          request_id: number;
+          business_id: number;
+          business_name: string;
+          business_city: string | null;
+          business_verified: boolean;
+          created_at: Timestamp;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /* Tedarikçinin kendi teklifleri; talep sahibi bilgileri yalnız kabul edilince dolu gelir. */
+      b2b_my_offers: {
+        Row: {
+          id: number;
+          request_id: number;
+          business_id: number;
+          message: string;
+          price: string | null;
+          status: B2BOfferStatus;
+          created_at: Timestamp;
+          contact_unlocked_at: Timestamp | null;
+          request_title: string;
+          request_region: string | null;
+          request_status: B2BRequestStatus;
+          requester_business_id: number | null;
+          requester_name: string | null;
+          requester_phone: string | null;
+          requester_website: string | null;
+          requester_city: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+    };
     Functions: {
       increment_b2b_view: {
         Args: { rid: number };
+        Returns: undefined;
+      };
+      increment_b2b_deal_view: {
+        Args: { did: number };
         Returns: undefined;
       };
     };
@@ -939,6 +1076,11 @@ export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
 export type CategoryRow = Database["public"]["Tables"]["categories"]["Row"];
 export type B2BRequestRow = Database["public"]["Tables"]["b2b_requests"]["Row"];
 export type B2BOfferRow = Database["public"]["Tables"]["b2b_offers"]["Row"];
+export type B2BOpenRequestRow = Database["public"]["Views"]["b2b_open_requests"]["Row"];
+export type B2BOfferAuthorRow = Database["public"]["Views"]["b2b_request_offer_authors"]["Row"];
+export type B2BMyOfferRow = Database["public"]["Views"]["b2b_my_offers"]["Row"];
+export type B2BDealRow = Database["public"]["Tables"]["b2b_deals"]["Row"];
+export type B2BDealInterestRow = Database["public"]["Tables"]["b2b_deal_interests"]["Row"];
 export type FavoriteRow = Database["public"]["Tables"]["favorites"]["Row"];
 export type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
 export type AdBannerRow = Database["public"]["Tables"]["ad_banners"]["Row"];
