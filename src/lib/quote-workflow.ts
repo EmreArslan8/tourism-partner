@@ -1,7 +1,7 @@
 /* Admin incelemesi, tedarikçinin ticari sürecinden bağımsızdır. */
 export const REQUEST_STATUS = {
   new: { label: "İnceleme bekliyor", tone: "amber" },
-  reviewed: { label: "İncelendi", tone: "blue" },
+  reviewed: { label: "Yayında", tone: "green" },
   closed: { label: "Kapatıldı", tone: "neutral" },
   archived: { label: "Arşiv", tone: "neutral" },
 } as const;

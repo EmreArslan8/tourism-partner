@@ -253,7 +253,7 @@ export default async function AdminQuoteDetailPage({
             <form action={updateQuoteRequestReview} className="grid gap-3 p-5">
               <input type="hidden" name="id" value={quote.id} />
               <input type="hidden" name="locale" value={locale} />
-              <p className="text-[12px] leading-5 text-muted">Bu durum ve not tüm talebe aittir. Talebi açmak otomatik olarak incelendi işaretlemez. Kapatma ve arşivleme admin takibi içindir; tedarikçilerin teklif vermesini engellemez.</p>
+              <p className="text-[12px] leading-5 text-muted">Bu durum ve not tüm talebe aittir. “Yayına al” düğmesi talebi “Yayında” olarak işaretler; talebi açmak durumu değiştirmez. Bu işaretleme görünürlüğü veya teklif verme izinlerini değiştirmez. Kapatma ve arşivleme admin takibi içindir; tedarikçilerin teklif vermesini engellemez.</p>
               {quote.reviewUpdatedAt && <p className="text-[11px] text-muted">Son güncelleme: {fmt(quote.reviewUpdatedAt)}</p>}
               <label className="grid gap-1.5 text-[12px] font-semibold text-muted">
                 Genel inceleme notu
@@ -270,7 +270,7 @@ export default async function AdminQuoteDetailPage({
                 Notu kaydet
               </button>
               <div className="grid grid-cols-2 gap-2 border-t border-line pt-3">
-                <StatusButton status="reviewed" label="İncelendi işaretle" active={status === "reviewed"} />
+                <StatusButton status="reviewed" label="Yayına al" active={status === "reviewed"} />
                 <StatusButton status="new" label="Yeniden aç" active={status === "new"} />
                 <StatusButton status="closed" label="Kapat" active={status === "closed"} />
                 <StatusButton status="archived" label="Arşivle" active={status === "archived"} />
