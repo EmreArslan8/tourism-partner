@@ -112,6 +112,24 @@ export const routing = defineRouting({
       ru: "/dashboard/requests",
       ar: "/dashboard/requests",
     },
+    "/dashboard/firsatlar": {
+      tr: "/panel/firsatlar",
+      en: "/dashboard/deals",
+      ru: "/dashboard/deals",
+      ar: "/dashboard/deals",
+    },
+    "/dashboard/firsatlar/ilanlarim": {
+      tr: "/panel/firsatlar/ilanlarim",
+      en: "/dashboard/deals/my-deals",
+      ru: "/dashboard/deals/my-deals",
+      ar: "/dashboard/deals/my-deals",
+    },
+    "/dashboard/firsatlar/[id]": {
+      tr: "/panel/firsatlar/[id]",
+      en: "/dashboard/deals/[id]",
+      ru: "/dashboard/deals/[id]",
+      ar: "/dashboard/deals/[id]",
+    },
     "/dashboard/teklifler": {
       tr: "/panel/teklifler",
       en: "/dashboard/quotes",
@@ -226,6 +244,18 @@ export const routing = defineRouting({
       en: "/admin/requests/form/[id]",
       ru: "/admin/requests/form/[id]",
       ar: "/admin/requests/form/[id]",
+    },
+    "/admin/firsatlar": {
+      tr: "/admin/firsatlar",
+      en: "/admin/deals",
+      ru: "/admin/deals",
+      ar: "/admin/deals",
+    },
+    "/admin/firsatlar/[id]": {
+      tr: "/admin/firsatlar/[id]",
+      en: "/admin/deals/[id]",
+      ru: "/admin/deals/[id]",
+      ar: "/admin/deals/[id]",
     },
     "/admin/partnerlik": {
       tr: "/admin/partnerlik",

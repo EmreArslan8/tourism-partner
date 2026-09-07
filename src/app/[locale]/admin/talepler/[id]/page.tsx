@@ -12,7 +12,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { groupLabel, serviceLabel } from "@/lib/categories";
-import { moderateB2bRequest } from "@/lib/actions/platform";
+import { convertB2bRequestToDeal, moderateB2bRequest } from "@/lib/actions/platform";
 import { getAdminB2bRequestDetail, type AdminB2bRequestDetail } from "@/lib/platform-data";
 import { StatusBadge } from "@/components/common";
 import type { BadgeTone } from "@/components/common/StatusBadge";
@@ -202,6 +202,19 @@ export default async function AdminB2bRequestDetailPage({
                 <ModerationButton status="archived" label="Arşivle" active={request.status === "archived"} />
                 <ModerationButton status="rejected" label="Reddet" active={request.status === "rejected"} danger />
               </div>
+            </form>
+            {/* Talep panosuna yanlış düşen ("müşteri arıyorum") ilanlar için:
+                içerik kaybolmadan fırsat ilanına geçer, talep arşivlenir. */}
+            <form action={convertB2bRequestToDeal} className="grid gap-2 border-t border-line px-5 pb-5">
+              <input type="hidden" name="id" value={request.id} />
+              <input type="hidden" name="locale" value={locale} />
+              <p className="pt-4 text-[12px] leading-5 text-muted">
+                Bu talep aslında bir <b>fırsat ilanı</b> mı? (müşteri aranıyor, tarife yayınlanıyor)
+              </p>
+              <button type="submit" className={adminUi.secondaryButton}>
+                <Tag size={16} aria-hidden />
+                Fırsat ilanına taşı
+              </button>
             </form>
           </Card>
         </aside>
