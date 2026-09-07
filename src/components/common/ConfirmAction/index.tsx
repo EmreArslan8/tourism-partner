@@ -29,7 +29,8 @@ export default function ConfirmAction({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent title={title} description={description}>
+      <DialogContent
+        scope="theme-light" title={title} description={description}>
         <form action={action} onSubmit={() => setOpen(false)} className="mt-5 flex justify-end gap-2">
           {fields &&
             Object.entries(fields).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}

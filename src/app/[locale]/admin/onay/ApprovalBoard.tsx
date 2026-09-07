@@ -165,7 +165,8 @@ const RejectButton = ({ id, name, locale }: { id: number; name: string; locale: 
           <Svg size={16}><path d="M18 6 6 18M6 6l12 12" /></Svg> Reddet
         </button>
       </DialogTrigger>
-      <DialogContent title={`Reddet — ${name}`} description="Dilersen gerekçe ekle; işletmeye iletilmek üzere kaydedilir.">
+      <DialogContent
+        scope="theme-light" title={`Reddet — ${name}`} description="Dilersen gerekçe ekle; işletmeye iletilmek üzere kaydedilir.">
         <form action={updateBusinessStatus} onSubmit={() => setOpen(false)} className="mt-4 grid gap-3">
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="locale" value={locale} />

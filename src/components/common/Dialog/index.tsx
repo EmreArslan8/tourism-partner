@@ -16,11 +16,16 @@ export function DialogContent({
   title,
   description,
   className,
+  scope,
   children,
 }: {
   title?: string;
   description?: string;
   className?: string;
+  /* Radix Portal içeriği <body>'ye taşır; böylece paneli açık tutan `.theme-light`
+     kapsamının DIŞINA çıkar ve site koyu temadaysa modal koyu token'lara düşer.
+     Panel/admin modalları bu yüzden kapsamı burada yeniden bildirir. */
+  scope?: "theme-light";
   children?: ReactNode;
 }) {
   const t = useTranslations("common");
@@ -29,7 +34,8 @@ export function DialogContent({
       <D.Overlay className="fixed inset-0 z-[80] bg-ink/45 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
       <D.Content
         className={cn(
-          "fixed left-1/2 top-1/2 z-[81] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-white p-6 shadow-[0_24px_70px_-20px_rgba(15,23,42,.4)]",
+          scope,
+          "fixed left-1/2 top-1/2 z-[81] w-[92vw] max-w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-line bg-paper text-ink p-6 shadow-[0_24px_70px_-20px_rgba(15,23,42,.4)]",
           "focus:outline-none data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
           className,
         )}
