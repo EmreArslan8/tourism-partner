@@ -6,6 +6,7 @@ import { ensureBusinessForUser } from "@/lib/signup-intents";
 import DashboardShell from "./DashboardShell";
 import SentryUser from "./SentryUser";
 import AuthWatcher from "./AuthWatcher";
+import WhatsNewDialog from "./WhatsNewDialog";
 import styles from "./styles";
 
 /* Tüm tedarikçi paneli alt sayfalarını saran ortak kabuk: sol sidebar + workspace.
@@ -42,6 +43,8 @@ export default async function DashboardLayout({
     <main className={styles.main}>
       <SentryUser id={session.userId} email={session.email} />
       <AuthWatcher />
+      {/* Yeni özellik duyurusu — yalnız tedarikçi hesapları için, tek seferlik. */}
+      {session.accountType !== "buyer" && <WhatsNewDialog />}
       <DashboardShell email={session.email} accountType={session.accountType}>{children}</DashboardShell>
     </main>
   );
