@@ -9,6 +9,7 @@ import type {
   AdBannerRow,
   AdminPopupRow,
   B2BRequestStatus,
+  B2BDealStatus,
   BusinessGroup,
   BlogPostRow,
   CategoryRow,
@@ -292,6 +293,191 @@ export async function getAdminB2bRequests(): Promise<AdminB2bRequest[]> {
     moderationNote: r.moderation_note,
     createdAt: r.created_at,
   }));
+}
+
+/* Fırsat ilanları (b2b_deals) admin listesi. */
+export type AdminB2bDeal = {
+  id: number;
+  businessId: number;
+  businessName: string | null;
+  title: string;
+  description: string | null;
+  region: string | null;
+  price: string | null;
+  capacity: number | null;
+  validUntil: string | null;
+  status: B2BDealStatus;
+  viewCount: number;
+  interestCount: number;
+  sourceRequestId: number | null;
+  moderationNote: string | null;
+  createdAt: string;
+};
+
+export async function getAdminB2bDeals(): Promise<AdminB2bDeal[]> {
+  if (!hasEnv()) return [];
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return [];
+
+  const supabase = await createClient();
+  const [dealsResult, interestsResult] = await Promise.all([
+    supabase
+      .from("b2b_deals")
+      .select("id,business_id,title,description,country,city,district,price,capacity,valid_until,status,view_count,moderation_note,source_request_id,created_at,businesses(name)")
+      .order("created_at", { ascending: false })
+      .limit(500),
+    supabase.from("b2b_deal_interests").select("deal_id").limit(5000),
+  ]);
+  if (dealsResult.error) throw new Error(dealsResult.error.message);
+  if (interestsResult.error) throw new Error(interestsResult.error.message);
+
+  const interestCounts = new Map<number, number>();
+  for (const row of (interestsResult.data ?? []) as { deal_id: number }[]) {
+    interestCounts.set(row.deal_id, (interestCounts.get(row.deal_id) ?? 0) + 1);
+  }
+
+  type Row = {
+    id: number;
+    business_id: number;
+    title: string;
+    description: string | null;
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    price: string | null;
+    capacity: number | null;
+    valid_until: string | null;
+    status: B2BDealStatus;
+    view_count: number;
+    moderation_note: string | null;
+    source_request_id: number | null;
+    created_at: string;
+    businesses: { name: string } | { name: string }[] | null;
+  };
+  return ((dealsResult.data ?? []) as unknown as Row[]).map((d) => ({
+    id: d.id,
+    businessId: d.business_id,
+    businessName: Array.isArray(d.businesses) ? d.businesses[0]?.name ?? null : d.businesses?.name ?? null,
+    title: d.title,
+    description: d.description,
+    region: [d.country, d.city, d.district].filter(Boolean).join(" / ") || null,
+    price: d.price,
+    capacity: d.capacity,
+    validUntil: d.valid_until,
+    status: d.status,
+    viewCount: d.view_count,
+    interestCount: interestCounts.get(d.id) ?? 0,
+    sourceRequestId: d.source_request_id,
+    moderationNote: d.moderation_note,
+    createdAt: d.created_at,
+  }));
+}
+
+/* Tek fırsat ilanının admin görünümü — ilan + yayınlayan + ilgilenen firmalar. */
+export type AdminB2bDealBusiness = {
+  id: number;
+  name: string;
+  group: BusinessGroup;
+  type: string;
+  country: string | null;
+  city: string | null;
+  district: string | null;
+  phone: string | null;
+  website: string | null;
+};
+
+export type AdminB2bDealDetail = Omit<AdminB2bDeal, "businessName" | "interestCount"> & {
+  groupKey: BusinessGroup | null;
+  types: string[];
+  validFrom: string | null;
+  updatedAt: string;
+  business: AdminB2bDealBusiness | null;
+  interests: {
+    id: number;
+    message: string | null;
+    createdAt: string;
+    business: Pick<AdminB2bDealBusiness, "id" | "name" | "type" | "city" | "phone"> | null;
+  }[];
+};
+
+export async function getAdminB2bDealDetail(id: number): Promise<AdminB2bDealDetail | null> {
+  if (!hasEnv() || !Number.isInteger(id) || id < 1) return null;
+  const access = await getAdminAccess();
+  if (!access.isAdmin) return null;
+
+  const supabase = await createClient();
+  const [dealResult, interestsResult] = await Promise.all([
+    supabase
+      .from("b2b_deals")
+      .select("id,business_id,title,description,group_key,types,country,city,district,price,capacity,valid_from,valid_until,status,view_count,moderation_note,source_request_id,created_at,updated_at,businesses(id,name,group,type,country,city,district,phone,website)")
+      .eq("id", id)
+      .maybeSingle(),
+    supabase
+      .from("b2b_deal_interests")
+      .select("id,message,created_at,businesses(id,name,type,city,phone)")
+      .eq("deal_id", id)
+      .order("created_at", { ascending: false }),
+  ]);
+  if (dealResult.error) throw new Error(dealResult.error.message);
+  if (interestsResult.error) throw new Error(interestsResult.error.message);
+  if (!dealResult.data) return null;
+
+  const one = <T,>(value: T | T[] | null): T | null => (Array.isArray(value) ? value[0] ?? null : value);
+  const row = dealResult.data as unknown as {
+    id: number;
+    business_id: number;
+    title: string;
+    description: string | null;
+    group_key: BusinessGroup | null;
+    types: string[];
+    country: string | null;
+    city: string | null;
+    district: string | null;
+    price: string | null;
+    capacity: number | null;
+    valid_from: string | null;
+    valid_until: string | null;
+    status: B2BDealStatus;
+    view_count: number;
+    moderation_note: string | null;
+    source_request_id: number | null;
+    created_at: string;
+    updated_at: string;
+    businesses: AdminB2bDealBusiness | AdminB2bDealBusiness[] | null;
+  };
+  type InterestRow = {
+    id: number;
+    message: string | null;
+    created_at: string;
+    businesses: Pick<AdminB2bDealBusiness, "id" | "name" | "type" | "city" | "phone"> | Pick<AdminB2bDealBusiness, "id" | "name" | "type" | "city" | "phone">[] | null;
+  };
+
+  return {
+    id: row.id,
+    businessId: row.business_id,
+    title: row.title,
+    description: row.description,
+    groupKey: row.group_key,
+    types: row.types ?? [],
+    region: [row.country, row.city, row.district].filter(Boolean).join(" / ") || null,
+    price: row.price,
+    capacity: row.capacity,
+    validFrom: row.valid_from,
+    validUntil: row.valid_until,
+    status: row.status,
+    viewCount: row.view_count,
+    moderationNote: row.moderation_note,
+    sourceRequestId: row.source_request_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    business: one(row.businesses),
+    interests: ((interestsResult.data ?? []) as unknown as InterestRow[]).map((i) => ({
+      id: i.id,
+      message: i.message,
+      createdAt: i.created_at,
+      business: one(i.businesses),
+    })),
+  };
 }
 
 /* Tek B2B talebinin tam admin görünümü. Talep ve teklifleri iki sorguda yükler;

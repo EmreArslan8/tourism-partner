@@ -324,6 +324,81 @@ export async function moderateB2bRequest(formData: FormData): Promise<void> {
   revalidatePath(`/${loc(formData)}/admin/talepler/${id}`);
 }
 
+/* ---------------- Fırsat ilanı moderasyonu ---------------- */
+export async function moderateB2bDeal(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  const raw = String(formData.get("status") ?? "");
+  const allowed = ["pending", "published", "archived", "rejected"] as const;
+  const status = (allowed as readonly string[]).includes(raw) ? (raw as (typeof allowed)[number]) : "pending";
+  const note = clean(formData.get("note"), 500);
+
+  const payload = { status, ...(note ? { moderation_note: note } : {}), updated_at: new Date().toISOString() };
+  const { data: oldValue } = await supabase
+    .from("b2b_deals")
+    .select("id,status,moderation_note")
+    .eq("id", id)
+    .maybeSingle();
+  const { error } = await supabase.from("b2b_deals").update(payload).eq("id", id);
+  if (error) throw new Error(error.message);
+  await writeAdminAudit(context, "b2b_deal.moderate", "b2b_deal", id, payload, oldValue ?? null);
+
+  revalidatePath(`/${loc(formData)}/admin/firsatlar`);
+}
+
+/* Yanlış yere düşen talebi fırsat ilanına taşı: acente "müşteri arıyorum" diye
+   talep açtığında pano tıkanıyor; içerik kaybolmadan doğru rafa geçer. */
+export async function convertB2bRequestToDeal(formData: FormData): Promise<void> {
+  const context = await requireAdmin();
+  const { supabase } = context;
+  const id = Number(formData.get("id"));
+  if (!Number.isInteger(id)) throw new Error("Geçersiz talep.");
+
+  const { data: request, error: readError } = await supabase
+    .from("b2b_requests")
+    .select("id,business_id,title,description,region,target_group,target_types,status")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!request?.business_id) throw new Error("Talep bulunamadı veya işletmesi yok.");
+
+  const [country, city, district] = (request.region ?? "").split("/").map((part) => part.trim());
+  const { data: deal, error } = await supabase
+    .from("b2b_deals")
+    .insert({
+      business_id: request.business_id,
+      title: request.title,
+      description: request.description,
+      group_key: request.target_group,
+      types: request.target_types ?? [],
+      country: country || null,
+      city: city || null,
+      district: district || null,
+      status: "published" as const,
+      source_request_id: request.id,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  await supabase
+    .from("b2b_requests")
+    .update({
+      status: "archived" as const,
+      moderation_note: `Fırsat ilanına taşındı (#${deal.id}).`,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+
+  await writeAdminAudit(context, "b2b_request.convert_to_deal", "b2b_deal", deal.id, { source_request_id: id }, request);
+
+  revalidatePath(`/${loc(formData)}/admin/talepler`);
+  revalidatePath(`/${loc(formData)}/admin/talepler/${id}`);
+  revalidatePath(`/${loc(formData)}/admin/firsatlar`);
+  redirect(`/${loc(formData)}/admin/firsatlar`);
+}
+
 /* ---------------- Destek talebi durum güncelle ---------------- */
 export async function updateTicketStatus(formData: FormData): Promise<void> {
   const context = await requireAdmin();

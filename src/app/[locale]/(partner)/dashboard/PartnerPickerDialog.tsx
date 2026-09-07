@@ -58,6 +58,7 @@ export default function PartnerPickerDialog({ partnerOptions }: { partnerOptions
         </button>
       </DialogTrigger>
       <DialogContent
+        scope="theme-light"
         title={selectedPartner ? t("partnerConfirmTitle") : t("partnerPickerTitle")}
         description={selectedPartner ? t("partnerConfirmSub", { name: selectedPartner.name }) : t("partnerPickerSub")}
         className={styles.partnerDialog}

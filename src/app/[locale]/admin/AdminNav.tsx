@@ -17,13 +17,14 @@ import {
   BookOpenText,
   ClipboardList,
   FolderTree,
-  Headset,
   Handshake,
+  Headset,
   LayoutDashboard,
   Mail,
   Megaphone,
   ShieldCheck,
   Store,
+  Tag,
   Users,
 } from "lucide-react";
 
@@ -67,6 +68,7 @@ const ITEMS: Item[] = [
   { href: "/admin/uyeler", label: "Üyeler", icon: <Users size={17} aria-hidden /> },
   { href: "/admin/onay", label: "Başvurular", icon: <ShieldCheck size={17} aria-hidden /> },
   { href: "/admin/talepler", label: "Talepler", icon: <ClipboardList size={17} aria-hidden /> },
+  { href: "/admin/firsatlar", label: "Fırsat İlanları", icon: <Tag size={17} aria-hidden /> },
   { href: "/admin/partnerlik", label: "Partnerlik Ağı", icon: <Handshake size={17} aria-hidden /> },
   { href: "/admin/teklifler", label: "Teklifler", icon: <BellDot size={17} aria-hidden /> },
   { href: "/admin/kategoriler", label: "Kategoriler", icon: <FolderTree size={17} aria-hidden /> },
