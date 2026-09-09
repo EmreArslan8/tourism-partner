@@ -70,7 +70,7 @@ export function Tabs({
 
 export function TabList({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div role="tablist" className={cn("flex items-center gap-6 border-b border-line", className)}>
+    <div role="tablist" className={cn("flex flex-nowrap items-center gap-5 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>button]:shrink-0", className)}>
       {children}
     </div>
   );

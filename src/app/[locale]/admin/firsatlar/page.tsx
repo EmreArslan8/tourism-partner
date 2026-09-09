@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         description="Üyelerin yayımladığı tarife, kontenjan ve paketler. Talep panosuna yanlış düşen ilanlar buraya taşınır."
       />
 
-      <section className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(160px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <Metric title="Toplam İlan" value={deals.length} hint="tüm durumlar" />
         <Metric title="Yayında" value={live.length} hint="üyelere görünen" />
         <Metric title="İlgilenen" value={totalInterest} hint="ilgi bildirimi" />

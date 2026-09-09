@@ -58,8 +58,8 @@ export default function BusinessDetailTabs({ activeTab }: { activeTab: TabKey })
   };
 
   return (
-    <nav className="overflow-x-auto" aria-label="İşletme detay modülleri">
-      <div className="grid min-w-[760px] grid-cols-6">
+    <nav className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="İşletme detay modülleri">
+      <div className="grid min-w-[650px] grid-cols-6 sm:min-w-[760px]">
         {TABS.map((tab) => {
           const selected = activeTab === tab.key && !effectivePendingTab;
           const loading = effectivePendingTab === tab.key;

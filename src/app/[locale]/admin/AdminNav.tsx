@@ -82,7 +82,17 @@ const ITEMS: Item[] = [
   { href: "/admin/guvenlik", label: "Güvenlik & Ayarlar", icon: <ShieldCheck size={17} aria-hidden /> },
 ];
 
-const AdminNav = ({ collapsed = false, newTicketCount = 0, newRequestCount = 0 }: { collapsed?: boolean; newTicketCount?: number; newRequestCount?: number }) => {
+const AdminNav = ({
+  collapsed = false,
+  newTicketCount = 0,
+  newRequestCount = 0,
+  onNavigate,
+}: {
+  collapsed?: boolean;
+  newTicketCount?: number;
+  newRequestCount?: number;
+  onNavigate?: () => void;
+}) => {
   const pathname = usePathname();
   const [tooltip, setTooltip] = useState<AdminSidebarTooltipState>(null);
 
@@ -105,7 +115,10 @@ const AdminNav = ({ collapsed = false, newTicketCount = 0, newRequestCount = 0 }
               onMouseLeave={() => setTooltip(null)}
               onFocus={(event) => showTooltip(item.label, event)}
               onBlur={() => setTooltip(null)}
-              onClick={() => setTooltip(null)}
+              onClick={() => {
+                setTooltip(null);
+                onNavigate?.();
+              }}
               className={cn(
                 "group relative flex items-center gap-3 rounded-[8px] py-2.5 text-[13px] font-medium transition-colors",
                 collapsed ? "justify-center px-0" : "px-3",

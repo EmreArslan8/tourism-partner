@@ -90,7 +90,7 @@ export default async function AdminActivityPage({ params }: { params: Promise<{ 
         description="Üyelerin giriş/çıkışları ve panelde yaptıkları veri değişiklikleri. Kayıtlar silinemez."
       />
 
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(180px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-3 md:overflow-visible md:pb-0">
         <AdminMetric icon={<LogIn size={18} aria-hidden />} label="Bugün giriş yapan" value={data.activeToday} hint="son 24 saatte farklı üye" tone="emerald" />
         <AdminMetric icon={<ShieldAlert size={18} aria-hidden />} label="Başarısız giriş" value={data.failedWeek} hint="son 7 gün" tone={data.failedWeek > 0 ? "amber" : "neutral"} />
         <AdminMetric icon={<Activity size={18} aria-hidden />} label="Değişiklik" value={data.changes.length} hint="son kayıtlar listeleniyor" tone="blue" />

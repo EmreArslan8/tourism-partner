@@ -65,7 +65,7 @@ export default async function AdminMembersPage({
         description="Tedarikçi, alıcı hesaplarını tek listede görün. Alıcıların işletme kaydı olmaz; tedarikçide işletme eksikse kayıt yarım kalmış demektir."
       />
 
-      <section className="mb-6 grid gap-4 md:grid-cols-4">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <Metric title="Toplam Üye" value={data.counts.all} hint="tüm hesaplar" />
         <Metric title="Tedarikçi" value={data.counts.supplier} hint="listelenen firmalar" />
         <Metric title="Alıcı" value={data.counts.buyer} hint="yalnızca arayan firmalar" />

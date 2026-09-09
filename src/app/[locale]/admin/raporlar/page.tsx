@@ -244,7 +244,7 @@ export default async function Page({
       </AdminPanel>
 
       {/* KPI satırı — önceki eşdeğer döneme göre delta */}
-      <section className="mb-5 grid overflow-hidden rounded-[12px] border border-line bg-paper shadow-card sm:grid-cols-2 xl:grid-cols-4" aria-label="Temel performans göstergeleri">
+      <section className="mb-5 grid grid-flow-col auto-cols-[minmax(230px,1fr)] overflow-x-auto rounded-[12px] border border-line bg-paper shadow-card [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:grid-flow-row xl:grid-cols-4 xl:overflow-hidden" aria-label="Temel performans göstergeleri">
         <KpiCard className="border-b sm:border-r xl:border-b-0" icon={<TrendingUp size={18} aria-hidden />} label="Görüntülenme" value={cur.total.toLocaleString("tr-TR")} delta={deltaPct(cur.total, prev.total)} hint="Gösterim + profil ziyareti" trend={totalTrend} />
         <KpiCard className="border-b xl:border-b-0 xl:border-r" icon={<Users size={18} aria-hidden />} label="Tekil Ziyaretçi" value={cur.visitors.toLocaleString("tr-TR")} delta={deltaPct(cur.visitors, prev.visitors)} hint="Bot hariç tekil ziyaretçi" trend={visitorTrend} />
         <KpiCard className="border-b sm:border-b-0 sm:border-r" icon={<Percent size={18} aria-hidden />} label="CTR" value={cur.ctr === null ? "—" : `%${cur.ctr.toLocaleString("tr-TR", { maximumFractionDigits: 1 })}`} delta={deltaPct(cur.ctr, prev.ctr)} hint="Gösterimden profile geçiş" trend={ctrTrend} />
@@ -254,7 +254,7 @@ export default async function Page({
       {/* Üye kayıtları — üye düzeyinde veridir; bölge/kategori filtresinden etkilenmez */}
       <div className="mt-6 grid gap-6 xl:grid-cols-[2fr_1fr]">
         <AdminPanel title="Günlük Üye Kayıtları" icon={<UserPlus size={18} aria-hidden />} bodyClassName="p-5">
-          <div className="mb-5 grid gap-3 sm:grid-cols-3">
+          <div className="mb-5 grid grid-flow-col auto-cols-[minmax(175px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-3 md:overflow-visible md:pb-0">
             <SignupStat label="Toplam kayıt" value={currentSignups.length.toLocaleString("tr-TR")} delta={deltaPct(currentSignups.length, prevSignups.length)} hint="Önceki eşdeğer döneme göre" />
             <SignupStat label="Günlük ortalama" value={signupAvg.toLocaleString("tr-TR", { maximumFractionDigits: 1 })} hint={`Seçili dönemde ${signupRows.length} gün`} />
             <SignupStat label="En yoğun saat (UTC)" value={utcPeak === null ? "—" : `${String(utcPeak).padStart(2, "0")}:00`} hint={utcPeak === null ? "Henüz kayıt verisi yok" : `${utcPeakValue.toLocaleString("tr-TR")} kayıt bu saatte`} />
@@ -441,8 +441,8 @@ const RegionTable = ({ rows }: { rows: SignupRegionRow[] }) => (
 );
 
 const SignupTable = ({ rows }: { rows: SignupTableRow[] }) => (
-  <div className="max-h-[300px] overflow-y-auto rounded-[10px] border border-line/70">
-    <table className="w-full border-collapse text-[12.5px]">
+  <div className="max-h-[300px] overflow-auto rounded-[10px] border border-line/70">
+    <table className="w-full min-w-[520px] border-collapse text-[12.5px]">
       <thead className="sticky top-0 z-10 bg-cream/95 backdrop-blur">
         <tr className="text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
           <th className="px-3 py-2 text-left">Gün</th>

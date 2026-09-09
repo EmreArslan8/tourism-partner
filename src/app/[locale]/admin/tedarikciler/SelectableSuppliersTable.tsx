@@ -58,19 +58,101 @@ const SelectableSuppliersTable = ({
         </div>
       </header>
 
-      <DataTable
-        data={businesses}
-        getRowKey={(b) => b.id}
-        empty={
-          <div>
+      <div className="grid gap-3 p-3 sm:hidden">
+        {businesses.length === 0 ? (
+          <div className="px-2 py-8 text-center">
             <p className="font-semibold text-ink">DB verisi görünmüyor.</p>
             <p className="mt-1 text-[13px] text-muted">
-              Seed/demo fallback kapalı. Supabase bağlantısı yoksa veya businesses tablosunda kayıt yoksa bu tablo boş kalır.
+              Supabase bağlantısı yoksa veya businesses tablosunda kayıt yoksa bu liste boş kalır.
             </p>
           </div>
-        }
-        minWidth={760}
-        columns={[
+        ) : businesses.map((business) => (
+          <article key={business.id} className="rounded-[12px] border border-line/80 bg-paper p-4 shadow-[0_10px_24px_-22px_rgba(7,17,42,.55)]">
+            <div className="flex min-w-0 items-start gap-3">
+              {selectionMode && (
+                <input
+                  type="checkbox"
+                  checked={selectedSet.has(business.id)}
+                  onChange={(event) => {
+                    setSelectedIds((current) =>
+                      event.target.checked
+                        ? Array.from(new Set([...current, business.id]))
+                        : current.filter((id) => id !== business.id),
+                    );
+                  }}
+                  className="mt-1 h-5 w-5 shrink-0 accent-sapphire"
+                  aria-label={`${business.name} seç`}
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <Link
+                  href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(business.id) } }}
+                  className="block truncate text-[15px] font-semibold leading-6 text-ink"
+                >
+                  {business.name}
+                </Link>
+                <p className="truncate text-[12px] leading-5 text-muted">{business.contactEmail || "—"}</p>
+              </div>
+              <StatusPill status={business.status} />
+            </div>
+
+            <dl className="mt-3 grid grid-cols-2 gap-2 border-y border-line/60 py-3">
+              <div className="min-w-0">
+                <dt className="mb-1 text-[10px] font-semibold uppercase tracking-[.06em] text-muted">Kategori</dt>
+                <dd><CategoryPill group={business.group} label={serviceLabel(business.type)} extra={(business.serviceTypes?.length ?? 0) - 1} /></dd>
+              </div>
+              <div className="min-w-0">
+                <dt className="mb-1 text-[10px] font-semibold uppercase tracking-[.06em] text-muted">Şehir</dt>
+                <dd className="truncate text-[13px] font-medium text-ink">{business.city || "—"}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <Link
+                href={{ pathname: "/admin/tedarikciler/[id]", params: { id: String(business.id) } }}
+                className="inline-flex h-9 items-center rounded-[8px] border border-line px-3 text-[12px] font-semibold text-brand"
+              >
+                Profili Aç
+              </Link>
+              <div className="flex justify-end gap-1.5">
+                <BusinessStatusButton business={business} locale={locale} status={isActive(business.status) ? "suspended" : "approved"} />
+                <ConfirmAction
+                  action={updateBusinessStatus}
+                  fields={{ id: String(business.id), locale, status: "blacklisted" }}
+                  title="Kara listeye al"
+                  description={`${business.name} kara listeye alınacak; girişi engellenecek ve aramalardan gizlenecek. Bu işlemi sonradan geri alabilirsin.`}
+                  confirmLabel="Kara Listeye Al"
+                  danger
+                  trigger={
+                    <button
+                      type="button"
+                      className="grid h-9 w-9 place-items-center rounded-[8px] border border-red-200 text-red-600"
+                      aria-label={`${business.name} kara listeye al`}
+                    >
+                      <ShieldOff size={15} aria-hidden />
+                    </button>
+                  }
+                />
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden sm:block">
+        <DataTable
+          data={businesses}
+          getRowKey={(b) => b.id}
+          empty={
+            <div>
+              <p className="font-semibold text-ink">DB verisi görünmüyor.</p>
+              <p className="mt-1 text-[13px] text-muted">
+                Seed/demo fallback kapalı. Supabase bağlantısı yoksa veya businesses tablosunda kayıt yoksa bu tablo boş kalır.
+              </p>
+            </div>
+          }
+          minWidth={760}
+          columns={[
           ...(selectionMode ? [{
             key: "select",
             header: (
@@ -153,8 +235,9 @@ const SelectableSuppliersTable = ({
               </div>
             ),
           },
-        ] satisfies Column<AdminBusiness>[]}
-      />
+          ] satisfies Column<AdminBusiness>[]}
+        />
+      </div>
 
       <footer className="flex flex-wrap items-center justify-between gap-3 bg-paper px-5 py-4">
         <p className="text-[13px] font-medium text-muted">

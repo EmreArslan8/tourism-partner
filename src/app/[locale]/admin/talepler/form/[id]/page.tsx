@@ -66,7 +66,7 @@ export default async function AdminQuoteDetailPage({
         }
       />
 
-      <section className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mb-5 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <Metric title="Yönetim durumu" value={REQUEST_STATUS[status].label} hint="tüm gönderim için admin incelemesi" />
         <Metric title="Gelen Teklif" value={quote.responses.length} hint="tedarikçi yanıtı" />
         <Metric title="Kişi" value={quote.people ?? "—"} hint={quote.dateRange ?? "tarih belirtilmemiş"} />

@@ -40,7 +40,7 @@ const AdminSuppliersView = ({
           description="Sistemdeki tüm kayıtlı B2B acente ve otelleri yönetin."
         />
 
-        <div className="mb-5 grid gap-3 lg:grid-cols-3">
+        <div className="mb-5 grid grid-flow-col auto-cols-[minmax(145px,1fr)] gap-2 overflow-x-auto pb-1 [scrollbar-width:none] sm:grid-flow-row sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden [&>article]:min-w-0 [&>article]:p-3 sm:[&>article]:p-5 [&>article_p:first-child]:text-[11px] sm:[&>article_p:first-child]:text-[13px] [&>article_p:nth-child(2)]:text-[22px] sm:[&>article_p:nth-child(2)]:text-[28px]">
           <AdminMetric label="Toplam İşletme" value={total} />
           <AdminMetric label="Aktif Otel" value={activeHotels} tone="emerald" />
           <AdminMetric label="Aktif Acente" value={activeAgencies} tone="blue" />

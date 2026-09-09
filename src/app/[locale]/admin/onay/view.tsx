@@ -2,6 +2,7 @@ import { PageHeader } from "../_components";
 import ApprovalBoard from "./ApprovalBoard";
 import { updateApplicationStatus } from "@/lib/actions/admin";
 import type { AdminApplication, AdminBusiness } from "@/lib/types";
+import { DataTable, type Column } from "@/components/common";
 
 interface Props {
   applications: AdminApplication[];
@@ -45,49 +46,27 @@ const ApplicationsPanel = ({ applications, locale }: { applications: AdminApplic
       {rows.length === 0 ? (
         <p className="px-5 py-8 text-center text-[13px] font-semibold text-muted/60">Başvuru kaydı yok.</p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[840px] border-separate border-spacing-0 text-left text-[13px]">
-            <thead className="bg-cream/45 text-[11px] font-extrabold uppercase tracking-[.08em] text-muted">
-              <tr>
-                <th className="border-b border-line px-4 py-3">Firma</th>
-                <th className="border-b border-line px-4 py-3">İletişim</th>
-                <th className="border-b border-line px-4 py-3">Kategori</th>
-                <th className="border-b border-line px-4 py-3">Durum</th>
-                <th className="border-b border-line px-4 py-3 text-right">İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((application) => (
-                <tr key={application.id} className="hover:bg-cream/45">
-                  <td className="border-b border-line px-4 py-3">
-                    <p className="font-extrabold text-ink">{application.name}</p>
-                    <p className="mt-0.5 text-[12px] font-semibold text-muted">
-                      {new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(application.createdAt))}
-                    </p>
-                  </td>
-                  <td className="border-b border-line px-4 py-3 text-muted">
-                    <p className="font-semibold">{application.email}</p>
-                    <p className="mt-0.5 text-[12px]">{application.phone ?? application.contactPerson ?? "-"}</p>
-                  </td>
-                  <td className="border-b border-line px-4 py-3 text-muted">
-                    {application.categoryLabel ?? application.group ?? "-"}
-                  </td>
-                  <td className="border-b border-line px-4 py-3">
-                    <span className="rounded-full bg-cream/70 px-2.5 py-1 text-[12px] font-bold text-muted">
-                      {application.status}
-                    </span>
-                  </td>
-                  <td className="border-b border-line px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      {application.status !== "approved" && <ApplicationStatusButton id={application.id} locale={locale} status="approved" label="Onayla" />}
-                      {application.status !== "rejected" && <ApplicationStatusButton id={application.id} locale={locale} status="rejected" label="Reddet" danger />}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          data={rows}
+          getRowKey={(application) => application.id}
+          minWidth={840}
+          columns={[
+            {
+              key: "firm",
+              header: "Firma",
+              cell: (application) => <div><p className="font-extrabold text-ink">{application.name}</p><p className="mt-0.5 text-[12px] font-semibold text-muted">{new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(application.createdAt))}</p></div>,
+            },
+            { key: "contact", header: "İletişim", cell: (application) => <div className="text-muted"><p className="break-all font-semibold">{application.email}</p><p className="mt-0.5 text-[12px]">{application.phone ?? application.contactPerson ?? "-"}</p></div> },
+            { key: "category", header: "Kategori", cell: (application) => <span className="text-muted">{application.categoryLabel ?? application.group ?? "-"}</span> },
+            { key: "status", header: "Durum", cell: (application) => <span className="rounded-full bg-cream/70 px-2.5 py-1 text-[12px] font-bold text-muted">{application.status}</span> },
+            {
+              key: "action",
+              header: "İşlem",
+              align: "right",
+              cell: (application) => <div className="flex flex-wrap justify-end gap-2">{application.status !== "approved" && <ApplicationStatusButton id={application.id} locale={locale} status="approved" label="Onayla" />}{application.status !== "rejected" && <ApplicationStatusButton id={application.id} locale={locale} status="rejected" label="Reddet" danger />}</div>,
+            },
+          ] satisfies Column<AdminApplication>[]}
+        />
       )}
     </section>
   );

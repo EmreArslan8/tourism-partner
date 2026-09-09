@@ -98,9 +98,7 @@ export const AdminShell = ({
       <main className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* İnce, şeffaf üst şerit — yalnızca sağda ikonlar. Sayfa başlığı en üstte kalsın diye
             arka plan/çizgi yok ve içerik üstüne binmeyecek şekilde akışta durur. */}
-        <header className="sticky top-0 z-30 flex h-[70px] items-center gap-3 border-b border-line/80 bg-panel-bg/90 px-5 backdrop-blur md:px-8">
-          <span className="shrink-0 text-[15px] font-semibold text-brand md:hidden">B2B</span>
-
+        <header className="sticky top-0 z-30 flex h-[70px] items-center gap-3 border-b border-line/80 bg-panel-bg/90 pe-5 ps-[76px] backdrop-blur md:px-8">
           {/* Geniş arama — satırın büyük kısmını kaplar */}
           <AdminSearch />
 

@@ -64,7 +64,7 @@ export default async function AdminB2bDealDetailPage({
         }
       />
 
-      <section className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mb-5 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <Metric title="Durum" value={LABEL[deal.status]} hint="güncel yayın durumu" />
         <Metric title="Görüntülenme" value={deal.viewCount.toLocaleString("tr-TR")} hint="ilan görüntülenmesi" />
         <Metric title="İlgilenen" value={deal.interests.length} hint="ilgi bildirimi" />

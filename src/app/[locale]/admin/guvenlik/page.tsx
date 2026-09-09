@@ -27,7 +27,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         description="Admin işlemleri, erişim güvenliği ve genel hesap ayarlarını takip edin."
       />
 
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(180px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-3 md:overflow-visible md:pb-0">
         <AdminMetric icon={<ShieldCheck size={18} aria-hidden />} label="Audit Log" value={data.auditLogs.length} hint="son işlem listeleniyor" />
         <AdminMetric icon={<KeyRound size={18} aria-hidden />} label="2FA" value={mfa.enabled ? "Aktif" : "Kapalı"} hint="Admin hesabı için iki faktörlü doğrulama" tone={mfa.enabled ? "emerald" : "neutral"} />
         <AdminMetric icon={<UserCog size={18} aria-hidden />} label="Yetkiler" value={users.filter((u) => u.role === "admin").length} hint="aktif admin sayısı" tone="blue" />

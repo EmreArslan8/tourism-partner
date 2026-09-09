@@ -59,7 +59,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         description="Form taleplerini ve B2B ilanlarını takip edin. İnceleme ve durum değişiklikleri için talep detayını açın."
       />
 
-      <section className="mb-6 grid grid-cols-2 gap-4 xl:grid-cols-4">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <Metric title="Toplam Talep" value={rows.length} hint="her iki kaynak" />
         <Metric title="Form Talebi" value={formRequests.length} hint="teklif formundan" />
         <Metric title="B2B İlan" value={b2bRequests.length} hint="üye acenteden" />

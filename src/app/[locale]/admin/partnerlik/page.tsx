@@ -92,7 +92,7 @@ export default async function Page({
         </div>
       </Card>
 
-      <section className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(175px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-4 md:overflow-visible md:pb-0">
         <AdminMetric icon={<Network size={19} aria-hidden />} label="Toplam Kayıt" value={requests.length} hint="tüm partnerlik hareketleri" />
         <AdminMetric icon={<ShieldAlert size={19} aria-hidden />} label="Bekleyen" value={count("pending")} hint="firma yanıtı bekliyor" tone="amber" />
         <AdminMetric icon={<Handshake size={19} aria-hidden />} label="Aktif Bağlantı" value={count("accepted")} hint="profillerde görünür" tone="emerald" />

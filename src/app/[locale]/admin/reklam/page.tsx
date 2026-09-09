@@ -26,7 +26,7 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         description="Banner alanları, Premium Partner dopingi ve yeni işletme görünürlüğünü yönetin."
       />
 
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-3 md:overflow-visible md:pb-0">
         <Metric title="Aktif Banner" value={ads.activeBanners.length} hint="yayında" />
         <Metric title="Premium Partner" value={premium.length} hint="kalıcı doping" />
         <Metric title="Süreli Yeni Doping" value={fresh.length} hint="24 saat / paket" />

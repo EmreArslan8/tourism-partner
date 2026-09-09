@@ -39,7 +39,33 @@ export default function DataTable<T>({
     a === "right" ? "text-end" : a === "center" ? "text-center" : "text-start";
 
   return (
-    <div className={cn("overflow-x-auto", className)}>
+    <div className={cn("min-w-0", className)}>
+      <div className="grid gap-3 p-3 sm:hidden">
+        {data.map((row, i) => (
+          <article
+            key={getRowKey(row, i)}
+            className="overflow-hidden rounded-[12px] border border-line/80 bg-paper px-4 shadow-[0_10px_24px_-22px_rgba(7,17,42,.55)]"
+          >
+            <dl>
+              {columns.map((c) => (
+                <div
+                  key={c.key}
+                  className="grid grid-cols-[minmax(88px,.36fr)_minmax(0,.64fr)] items-center gap-3 border-b border-line/60 py-3 last:border-0"
+                >
+                  <dt className="min-w-0 text-[10px] font-semibold uppercase tracking-[.06em] text-muted">
+                    {c.header}
+                  </dt>
+                  <dd className={cn("min-w-0 text-[13px] text-ink", alignCls(c.align), c.className)}>
+                    {c.cell(row)}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto sm:block">
       <table className="w-full border-separate border-spacing-0 text-start" style={{ minWidth }}>
         <thead>
           <tr className="border-b border-line bg-[#F8FAFC]">
@@ -65,6 +91,7 @@ export default function DataTable<T>({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

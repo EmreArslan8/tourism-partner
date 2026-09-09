@@ -50,13 +50,13 @@ export default async function Page({
         description="Kullanıcı ve işletmelerden gelen destek taleplerini kronolojik olarak takip edin."
       />
 
-      <section className="mb-6 grid gap-4 md:grid-cols-3">
+      <section className="mb-6 grid grid-flow-col auto-cols-[minmax(165px,1fr)] gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid-flow-row md:grid-cols-3 md:overflow-visible md:pb-0">
         <Metric title="Yeni Mesaj" value={count("new")} hint="işleme alınmadı" />
         <Metric title="İşleme Alınan" value={count("in_progress")} hint="devam ediyor" />
         <Metric title="Çözülen" value={count("resolved")} hint="tamamlandı" />
       </section>
 
-      <div className="mb-4 flex flex-wrap items-center gap-1.5">
+      <div className="mb-4 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>a]:shrink-0">
         {TABS.map((tb) => {
           const n = tb.key === "all" ? allTickets.length : count(tb.key);
           return (
