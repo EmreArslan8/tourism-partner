@@ -3,9 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendEmail, escapeHtml } from "@/lib/email";
+import { sendEmail } from "@/lib/email";
+import { dealInterestEmail } from "@/lib/email-templates/deal-interest";
 import { CATEGORY_GROUPS } from "@/lib/categories";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getPathname } from "@/i18n/navigation";
+import { EMAIL_LOGO_URL, LOCALES, SITE_URL, type SiteLocale } from "@/lib/site";
 import type { ActionState, GroupKey } from "@/lib/types";
 import { clean } from "./validate";
 
@@ -112,9 +115,9 @@ export async function recordB2bDealView(id: number): Promise<void> {
   }
 }
 
-/* İlan sahibine "ilgileniyorum" bildirimi — kimlik zaten açık olduğu için
-   ilgilenen firmanın adı/telefonu doğrudan paylaşılır. */
-async function notifyDealOwner(dealId: number, from: { name: string; city: string | null; phone: string | null }, message: string | null) {
+/* İlan sahibine kısa "ilgileniyorum" bildirimi gönderilir. İlgilenen firmanın
+   detayları mailde paylaşılmaz; görüşmenin devamı için kullanıcı panele gelir. */
+async function notifyDealOwner(dealId: number) {
   try {
     const admin = createAdminClient();
     if (!admin) return;
@@ -128,19 +131,24 @@ async function notifyDealOwner(dealId: number, from: { name: string; city: strin
     if (!ownerId) return;
 
     const { data: userRes } = await admin.auth.admin.getUserById(ownerId);
-    const to = userRes?.user?.email;
+    const ownerUser = userRes?.user;
+    const to = ownerUser?.email;
     if (!to) return;
 
     const title = (deal as { title?: string } | null)?.title ?? "fırsat ilanınız";
-    const html = `
-      <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
-        <h2 style="color:#0b1c30">Fırsat ilanınıza ilgi var</h2>
-        <p style="color:#475569"><b>${escapeHtml(title)}</b> ilanınızla <b>${escapeHtml(from.name)}</b> ilgileniyor.</p>
-        <p style="color:#475569">${escapeHtml([from.city, from.phone].filter(Boolean).join(" · "))}</p>
-        ${message ? `<p style="color:#475569;white-space:pre-wrap;border-left:3px solid #2563eb;padding-left:12px">${escapeHtml(message)}</p>` : ""}
-        <p style="color:#94a3b8;font-size:13px;margin-top:20px">Detayları panelinizden görüntüleyebilirsiniz.</p>
-      </div>`;
-    await sendEmail({ to, subject: `Fırsat ilanınıza ilgi — ${title}`, html });
+    const preferredLocale = ownerUser.user_metadata?.locale;
+    const locale: SiteLocale = LOCALES.includes(preferredLocale as SiteLocale) ? preferredLocale as SiteLocale : "tr";
+    const dashboardUrl = `${SITE_URL}${getPathname({
+      locale,
+      href: { pathname: "/dashboard/firsatlar/[id]", params: { id: String(dealId) } },
+    })}`;
+    const notification = dealInterestEmail({
+      dealTitle: title,
+      dashboardUrl,
+      logoUrl: EMAIL_LOGO_URL,
+      imageUrl: `${SITE_URL}/email-assets/deal-interest-notification.png`,
+    });
+    await sendEmail({ to, ...notification });
   } catch {
     // bildirim hatası akışı etkilemez
   }
@@ -178,7 +186,7 @@ async function submitDealInterest(formData: FormData): Promise<ActionState> {
     return { ok: false, error: error.code === "42501" ? "forbidden" : (error.message || "insert_failed") };
   }
 
-  await notifyDealOwner(dealId, { name: biz.name, city: biz.city, phone: biz.phone }, message);
+  await notifyDealOwner(dealId);
   // Pano, ilanlarım ve ilan detayı — üçü de bu kayıttan etkilenir.
   revalidatePath("/[locale]/dashboard/firsatlar", "page");
   revalidatePath("/[locale]/dashboard/firsatlar/ilanlarim", "page");
