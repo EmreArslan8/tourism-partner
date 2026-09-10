@@ -13,7 +13,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
  * tahmin edilemez rastgele yol. Sahiplenilmeyen draftlar periyodik temizlenmeli.
  */
 
-export const DRAFT_PREFIX = "signup-drafts/";
+const DRAFT_PREFIX = "signup-drafts/";
 const MAX_BYTES = 6 * 1024 * 1024; // 6 MB
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
@@ -57,4 +57,31 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error: "upload" }, { status: 502 });
 
   return NextResponse.json({ path });
+}
+
+export async function DELETE(request: NextRequest) {
+  const allowed = await checkRateLimit({
+    scope: "signup-cover-delete",
+    limit: 30,
+    windowSeconds: 60 * 60,
+    identity: [clientIp(request)],
+  });
+  if (!allowed) return NextResponse.json({ error: "rate" }, { status: 429 });
+
+  let path = "";
+  try {
+    const body = await request.json() as { path?: unknown };
+    path = typeof body.path === "string" ? body.path : "";
+  } catch {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+  if (!path.startsWith(DRAFT_PREFIX) || path.includes("..") || path.length > 500) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+
+  const admin = createAdminClient();
+  if (!admin) return NextResponse.json({ error: "unavailable" }, { status: 503 });
+  const { error } = await admin.storage.from(BUSINESS_IMAGES_BUCKET).remove([path]);
+  if (error) return NextResponse.json({ error: "delete" }, { status: 502 });
+  return NextResponse.json({ ok: true });
 }

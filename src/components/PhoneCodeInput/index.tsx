@@ -84,7 +84,7 @@ const PhoneCodeInput = ({
               className="flex w-full items-center justify-between gap-3 px-3 py-2 text-start text-[13px] font-semibold text-ink transition-colors hover:bg-terra/8"
             >
               <span className="min-w-0 truncate">{phoneCodeLabel(code.iso2, locale)}</span>
-              <span className="shrink-0 text-terra" dir="ltr">{code.dial}</span>
+              <span className="shrink-0 text-ink" dir="ltr">{code.dial}</span>
             </button>
           ))}
         </div>

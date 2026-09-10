@@ -35,7 +35,6 @@ const DEFAULT_COLUMNS: ExportColumn[] = ["name", "address", "phone", "email"];
 const STATUS_VALUES: BusinessLifecycleStatus[] = [
   "pending",
   "approved",
-  "rejected",
   "active",
   "expired",
   "blacklisted",
@@ -73,6 +72,8 @@ export function parseExportIds(input: URLSearchParams): number[] {
 export function filterBusinesses(businesses: AdminBusiness[], filters: CrmFilters): AdminBusiness[] {
   const query = normalizeTr(filters.q);
   return businesses.filter((business) => {
+    if (business.status === "rejected") return false;
+
     const haystack = normalizeTr([
       business.id,
       business.name,

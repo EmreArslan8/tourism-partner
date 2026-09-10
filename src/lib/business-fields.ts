@@ -30,6 +30,9 @@ export type BizDocField = {
   required?: boolean;
 };
 
+/** Kategori listesinin dışında kullanıcı tarafından eklenen destekleyici evraklar. */
+export const OTHER_DOCUMENT_KIND = "diger_belge";
+
 /* Tüzel kişiler (rehber HARİÇ) için ortak resmi şirket bilgileri. */
 export const COMPANY_FIELDS: BizField[] = [
   {

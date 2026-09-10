@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { promoteSignupCover } from "@/lib/business-bootstrap";
 import { replaceBusinessServices } from "@/lib/business-services";
 import { CATEGORY_GROUPS, isServiceOfGroup, serviceSlug } from "@/lib/categories";
+import { BUSINESS_DOCUMENTS_BUCKET, persistableDocuments } from "@/lib/business-document-shape";
+import type { BusinessDocument } from "@/lib/types";
 
 /*
  * Kayıt niyeti (signup intent) — kayıt → işletme akışının TEK doğruluk kaynağı.
@@ -61,6 +63,7 @@ export function payloadFromMetadata(
     city: str(m.biz_city, 80),
     district: str(m.biz_district, 80),
     address: str(m.biz_address, 260),
+    website: str(m.biz_website, 300),
     description: str(m.biz_description, 2000),
     phone: str(m.biz_phone, 40),
     whatsapp: str(m.biz_whatsapp, 40),
@@ -75,6 +78,19 @@ export function payloadFromMetadata(
     contact: contact
       ? { name: str(contact.name, 160), phone: str(contact.phone, 40), email: str(contact.email, 200) }
       : undefined,
+    workMode: m.biz_work_mode === "company" ? "company" : "freelancer",
+    documents: Array.isArray(m.biz_documents)
+      ? (m.biz_documents as unknown[]).flatMap((item) => {
+          if (!item || typeof item !== "object") return [];
+          const row = item as Record<string, unknown>;
+          const path = str(row.path, 500);
+          const kind = str(row.kind, 80);
+          const name = str(row.name, 240);
+          return path.startsWith("signup-drafts/") && !path.includes("..") && kind && name
+            ? [{ kind, name, path }]
+            : [];
+        }).slice(0, 20)
+      : [],
   };
 }
 
@@ -144,10 +160,12 @@ async function createBusinessFromPayload(
       city: str(payload.city, 80),
       district: str(payload.district, 80),
       description: str(payload.description, 2000) || null,
+      website: str(payload.website, 300) || null,
       phone: str(payload.phone, 40) || null,
       details: {
         ...(whatsapp ? { whatsapp } : {}),
         ...(address ? { address } : {}),
+        work_mode: payload.workMode === "company" ? "company" : "freelancer",
       },
       status: "pending",
       // Kolon yalnızca niyet varken yazılır: migration henüz uygulanmamış bir DB'de
@@ -195,6 +213,28 @@ async function createBusinessFromPayload(
     .filter((value): value is string => Boolean(value && isServiceOfGroup(value, group)));
   if (serviceSlugs.length > 0) {
     await replaceBusinessServices(admin, businessId, group, serviceSlugs);
+  }
+
+  const finalDocuments: BusinessDocument[] = [];
+  for (const document of payload.documents ?? []) {
+    const source = str(document.path, 500);
+    const kind = str(document.kind, 80).replace(/[^a-z0-9_-]/gi, "");
+    const documentName = str(document.name, 240);
+    if (!source.startsWith("signup-drafts/") || source.includes("..") || !kind || !documentName) continue;
+    const ext = source.split(".").pop()?.replace(/[^a-z0-9]/gi, "").slice(0, 8) || "bin";
+    const destination = `${userId}/businesses/${businessId}/documents/${kind}/${crypto.randomUUID()}.${ext}`;
+    const { error: moveError } = await admin.storage.from(BUSINESS_DOCUMENTS_BUCKET).move(source, destination);
+    if (moveError) {
+      console.error("[signup-intents] belge taşınamadı", { businessId, kind, error: moveError.message });
+      continue;
+    }
+    finalDocuments.push({ kind, name: documentName, path: destination });
+  }
+  if (finalDocuments.length > 0) {
+    const { error: documentError } = await admin.from("businesses")
+      .update({ documents: persistableDocuments(finalDocuments) })
+      .eq("id", businessId);
+    if (documentError) console.error("[signup-intents] belgeler yazılamadı", { businessId, error: documentError.message });
   }
 
   const contactName = str(payload.contact?.name, 160);

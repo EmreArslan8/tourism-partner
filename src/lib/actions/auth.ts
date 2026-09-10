@@ -5,6 +5,7 @@ import { redirect } from "@/i18n/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { CATEGORY_GROUPS, isServiceOfGroup } from "@/lib/categories";
+import { docsForGroup, OTHER_DOCUMENT_KIND } from "@/lib/business-fields";
 import { ensureBusinessForUser, recordSignupIntent } from "@/lib/signup-intents";
 import {
   compactBusinessAuthMetadata,
@@ -16,7 +17,7 @@ import { SITE_URL } from "@/lib/site";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { logSessionEvent } from "@/lib/session-log";
 import type { GroupKey, ActionState } from "@/lib/types";
-import { isEmail, isBot, clean } from "./validate";
+import { isEmail, isBot, clean, cleanHttpUrl } from "./validate";
 
 /** Alt kategori slug'ından ana grup + tür etiketini çözer. */
 function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } | null {
@@ -184,21 +185,26 @@ export async function signUp(
 ): Promise<ActionState> {
   if (isBot(formData)) return { ok: true };
 
+  const firstName = clean(formData.get("firstName"), 80);
+  const lastName = clean(formData.get("lastName"), 80);
+  const fullName = `${firstName ?? ""} ${lastName ?? ""}`.trim();
   const name = clean(formData.get("name"), 160);
   const email = clean(formData.get("email"), 200);
   const password = String(formData.get("password") ?? "");
   const category = clean(formData.get("category"), 80);
-  // Üye tipi: 'buyer' = sadece arayan/kullanan firma (listelenmez, kategori istemez).
-  const accountType = clean(formData.get("accountType"), 20) === "buyer" ? "buyer" : "supplier";
+  // Public kayıt yalnızca hizmet sunan üyeler içindir. Eski buyer hesapları çalışmaya
+  // devam eder ancak bu action üzerinden yeni buyer hesabı oluşturulamaz.
+  const accountType = "supplier";
+  const workMode = clean(formData.get("workMode"), 20) === "company" ? "company" : "freelancer";
   // Alıcı için opsiyonel sektör (analitik). Tedarikçide yok sayılır.
-  const sector = accountType === "buyer" ? clean(formData.get("sector"), 40) : "";
+  const sector = "";
   // Referans / temsilci — formdan elle ya da tanıtım mailindeki ?ref= ile gelir.
   const referral = clean(formData.get("referral"), 80);
   // Kayıt anındaki tarayıcı saat dilimi (IANA, ör. Europe/Istanbul). Formdan gizli
   // alanla gelir; geçersizse yok sayılır. Bölge × saat analizinin kesin kaynağı.
   const timezone = String(formData.get("timezone") ?? "").trim().slice(0, 64).replace(/[^A-Za-z_+/-]/g, "");
 
-  if (!name || !email || !password) return { ok: false, error: "missing" };
+  if (!name || !fullName || !email || !password) return { ok: false, error: "missing" };
   // Kategori yalnızca tedarikçi (listelenecek) kayıtta zorunlu.
   if (accountType === "supplier" && !category) return { ok: false, error: "missing" };
   if (!isEmail(email)) return { ok: false, error: "email" };
@@ -222,6 +228,27 @@ export async function signUp(
           .filter((slug) => slug && isServiceOfGroup(slug, cat.group))
       : [];
 
+  let signupDocuments: { kind: string; name: string; path: string }[] = [];
+  if (cat && workMode === "company") {
+    const allowedKinds = new Set(docsForGroup(cat.group, category ?? "").map((doc) => doc.kind));
+    allowedKinds.add(OTHER_DOCUMENT_KIND);
+    try {
+      const parsed = JSON.parse(String(formData.get("documents") ?? "[]")) as unknown;
+      if (Array.isArray(parsed)) {
+        signupDocuments = parsed.flatMap((item) => {
+          if (!item || typeof item !== "object") return [];
+          const row = item as Record<string, unknown>;
+          const kind = typeof row.kind === "string" ? row.kind.slice(0, 80) : "";
+          const docName = typeof row.name === "string" ? row.name.slice(0, 240) : "";
+          const path = typeof row.path === "string" ? row.path.slice(0, 500) : "";
+          return allowedKinds.has(kind) && docName && path.startsWith("signup-drafts/") && !path.includes("..")
+            ? [{ kind, name: docName, path }]
+            : [];
+        }).slice(0, 20);
+      }
+    } catch { signupDocuments = []; }
+  }
+
   // Kayıt adımı 3'te (yalnızca tedarikçi) toplanan işletme profili. Kalıcı hedefi
   // signup_intents'tir; Auth metadata yalnız niyet yazılamazsa legacy fallback'tir.
   // Kapak görseli kayıt adım 3'te oturumsuz draft olarak yüklendi (/api/signup/cover).
@@ -237,6 +264,11 @@ export async function signUp(
         city: clean(formData.get("bizCity"), 80) ?? "",
         district: clean(formData.get("bizDistrict"), 80) ?? "",
         address: clean(formData.get("bizAddress"), 260) ?? "",
+        website: (() => {
+          const raw = clean(formData.get("bizWebsite"), 300) ?? "";
+          if (!raw) return "";
+          return cleanHttpUrl(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`, 300) ?? "";
+        })(),
         description: clean(formData.get("bizDescription"), 2000) ?? "",
         whatsapp: validPhone(clean(formData.get("bizWhatsapp"), 40) ?? ""),
         contactName: clean(formData.get("contactName"), 160) ?? "",
@@ -273,7 +305,7 @@ export async function signUp(
   }
   const hasBizProfile = Boolean(
     bizProfile &&
-      (bizProfile.country || bizProfile.description || bizProfile.whatsapp || bizProfile.contactName || bizProfile.cover),
+      (bizProfile.country || bizProfile.website || bizProfile.description || bizProfile.whatsapp || bizProfile.contactName || bizProfile.cover),
   );
 
   // Mükerrer işletme kaydı engeli — yalnızca listelenecek (tedarikçi) kayıtta.
@@ -298,6 +330,7 @@ export async function signUp(
               biz_city: bizProfile.city,
               biz_district: bizProfile.district,
               biz_address: bizProfile.address,
+              biz_website: bizProfile.website,
               biz_description: bizProfile.description,
               biz_phone: bizProfile.whatsapp,
               biz_whatsapp: bizProfile.whatsapp,
@@ -305,8 +338,10 @@ export async function signUp(
               biz_contact: {
                 name: bizProfile.contactName,
                 phone: bizProfile.contactPhone,
-                email: bizProfile.contactEmail,
+                email: bizProfile.contactEmail || email,
               },
+              biz_work_mode: workMode,
+              biz_documents: signupDocuments,
             }
           : {}),
       }
@@ -322,9 +357,11 @@ export async function signUp(
       data: {
         // Supabase e-posta şablonları .Data.locale ile Türkçe/İngilizce metni seçer.
         locale,
-        full_name: name,
+        full_name: fullName,
         firm_name: name,
         account_type: accountType,
+        phone: bizProfile?.contactPhone || "",
+        work_mode: workMode,
         ...(sector ? { sector } : {}),
         ...(referral ? { referral_code: referral } : {}),
         ...(timezone ? { timezone } : {}),
@@ -355,6 +392,7 @@ export async function signUp(
       city: bizProfile?.city ?? "",
       district: bizProfile?.district ?? "",
       address: bizProfile?.address ?? "",
+      website: bizProfile?.website ?? "",
       description: bizProfile?.description ?? "",
       phone: bizProfile?.whatsapp ?? "",
       whatsapp: bizProfile?.whatsapp ?? "",
@@ -364,9 +402,11 @@ export async function signUp(
         ? {
             name: bizProfile.contactName,
             phone: bizProfile.contactPhone,
-            email: bizProfile.contactEmail,
+            email: bizProfile.contactEmail || email,
           }
         : undefined,
+      workMode,
+      documents: signupDocuments,
     });
 
     // Olağan durumda JWT baştan küçük kalır. Niyet yazılamadıysa kayıt verisini

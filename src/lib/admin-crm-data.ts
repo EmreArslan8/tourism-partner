@@ -98,7 +98,7 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
   const visiblePromise = runBusinessQuery(applyBusinessFilters(supabase.from("businesses").select(BUSINESS_SELECT, { count: "exact" }), filters)
     .order("created_at", { ascending: false })
     .range(offset, offset + filters.limit - 1));
-  const citiesPromise = supabase.from("businesses").select("city").order("city", { ascending: true });
+  const citiesPromise = supabase.from("businesses").select("city").neq("status", "rejected").order("city", { ascending: true });
   // Süresi tamamen dolmuş üyelikler: ends_at bugünden önce (cron gecikse de tarih baz alınır).
   const nowIso = new Date().toISOString();
   const expiredPromise = supabase
@@ -134,7 +134,7 @@ export const getCrmListData = cache(async (filters: CrmFilters): Promise<CrmList
           .order("ends_at", { ascending: true })
       : Promise.resolve({ data: [], error: null }),
     expiredIds.length > 0
-      ? supabase.from("businesses").select(BUSINESS_SELECT).in("id", expiredIds)
+      ? supabase.from("businesses").select(BUSINESS_SELECT).in("id", expiredIds).neq("status", "rejected")
       : Promise.resolve({ data: [], error: null }),
   ]);
 
@@ -366,7 +366,9 @@ type BusinessFilterQuery = {
 };
 
 function applyBusinessFilters<T extends BusinessFilterQuery>(query: T, filters: CrmFilters): T {
-  let next = query;
+  // Reddedilen başvurular onay akışında yönetilir; CRM listesine ve dışa
+  // aktarımlara hiçbir filtre kombinasyonunda dahil edilmez.
+  let next = query.neq("status", "rejected") as T;
   if (filters.q) {
     const q = filters.q
       .normalize("NFKC")
@@ -380,13 +382,7 @@ function applyBusinessFilters<T extends BusinessFilterQuery>(query: T, filters: 
   }
   if (filters.group !== "all") next = next.eq("group", filters.group) as T;
   if (filters.city) next = next.eq("city", filters.city) as T;
-  if (filters.status !== "all") {
-    next = next.eq("status", filters.status) as T;
-  } else {
-    // Reddedilenler CRM listesinde gösterilmez; yalnızca durum filtresiyle açıkça
-    // istenirse görünürler (dropdown'da "Reddedildi" seçilerek).
-    next = next.neq("status", "rejected") as T;
-  }
+  if (filters.status !== "all") next = next.eq("status", filters.status) as T;
   return next;
 }
 
