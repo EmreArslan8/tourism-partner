@@ -384,7 +384,7 @@
     "servicesTitle": "ما الخدمات التي تقدمها؟", "profileDocsTitle": "أكمل ملفك", "accountTitle": "أنشئ حسابك",
     "flowLead1": "أدخل معلومات الاتصال الأساسية.", "flowLead2": "أكمل معلومات الموقع والعمل.", "flowLead3": "اختر الفئة والخدمات.", "flowLead4": "أضف الصورة والوصف اللذين سيظهران في ملفك.", "flowLead5": "حدد بيانات تسجيل الدخول.",
     "firstName": "الاسم", "lastName": "اللقب", "phone": "رقم الهاتف", "whatsapp": "رقم واتساب",
-    "hasCompanyQuestion": "هل لديك شركة مسجلة؟", "companyNo": "لا، أعمل بشكل مستقل", "companyNoDesc": "مستقل / محترف مستقل", "companyYes": "نعم، لدي شركة", "companyYesDesc": "نيابة عن شركة مسجلة",
+    "hasCompanyQuestion": "هل لديك شركة مسجلة؟", "companyNo": "ليس لدي شركة", "companyNoDesc": "أقدم خدماتي بصفتي مهنيًا مستقلاً", "companyYes": "نعم، لدي شركة", "companyYesDesc": "نيابة عن شركة مسجلة",
     "serviceArea": "منطقة الخدمة", "websiteLabel": "الموقع الإلكتروني", "profilePhotoPick": "أضف صورة الملف", "freelancerDesc": "صف خبرتك وتخصصك",
     "documentsTitle": "وثائق الشركة", "documentsPrivate": "لا تظهر الوثائق في ملفك؛ ولا يطلع عليها سوى فريق التحقق.", "documentDropTitle": "أفلت المستندات هنا أو اختر الملفات", "documentDropHint": "PDF أو JPG أو PNG أو WEBP · حتى 10 ميجابايت لكل ملف", "documentType": "اختر نوع المستند", "documentOther": "مستند آخر", "uploadDocuments": "رفع المستندات المحددة", "removeDocument": "إزالة الملف", "removeImage": "إزالة الصورة", "docUpload": "رفع", "docReplace": "استبدال", "uploadError": "تعذر رفع الملف.",
     "stepLabel": "خطوة",

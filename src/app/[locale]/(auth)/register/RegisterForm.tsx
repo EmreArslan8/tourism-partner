@@ -112,11 +112,12 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
   const queuedKinds = documentQueue.map((item) => item.kind).filter(Boolean);
   const classifiedQueuedKinds = queuedKinds.filter((kind) => kind !== OTHER_DOCUMENT_KIND);
   const documentQueueReady = documentQueue.length > 0 && queuedKinds.length === documentQueue.length && new Set(classifiedQueuedKinds).size === classifiedQueuedKinds.length;
+  const skipStepValidation = process.env.NODE_ENV === "development";
   const stepReady: Record<StepNo, boolean> = {
-    1: Boolean(firstName.trim() && lastName.trim() && phoneValid(fullPhone) && phoneValid(fullWhatsapp)),
-    2: Boolean(country && city && address.trim() && (workMode === "freelancer" || businessName.trim())),
-    3: Boolean(group && category),
-    4: Boolean(coverPath && description.trim()),
+    1: skipStepValidation || Boolean(firstName.trim() && lastName.trim() && phoneValid(fullPhone) && phoneValid(fullWhatsapp)),
+    2: skipStepValidation || Boolean(country && city && address.trim() && (workMode === "freelancer" || businessName.trim())),
+    3: skipStepValidation || Boolean(group && category),
+    4: skipStepValidation || Boolean(coverPath && description.trim()),
     5: true,
   };
 
@@ -206,8 +207,8 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
   }
 
   const nav = (
-    <div className="mt-5 grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5 max-[420px]:grid-cols-1">
-      <Button type="button" variant="outline" onClick={() => go((step - 1) as StepNo)}>{t("back")}</Button>
+    <div className={cn("mt-5 grid gap-2.5", step === 1 ? "grid-cols-1" : "grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] max-[420px]:grid-cols-1")}>
+      {step > 1 && <Button type="button" variant="outline" onClick={() => go((step - 1) as StepNo)}>{t("back")}</Button>}
       <Button type="button" disabled={!stepReady[step]} onClick={() => go((step + 1) as StepNo)}>{t("continueBtn")}</Button>
     </div>
   );
@@ -247,6 +248,10 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
               <Input label={t("lastName")} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink"><span>{t("phone")}</span><span className="flex"><PhoneCodeInput value={phoneCode} onChange={setPhoneCode} label={t("phoneCode")} /><input className="field h-[46px] min-w-0 flex-1 rounded-s-none" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></span></label>
               <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-ink"><span>{t("whatsapp")}</span><span className="flex"><PhoneCodeInput value={whatsappCode} onChange={setWhatsappCode} label={t("phoneCode")} /><input className="field h-[46px] min-w-0 flex-1 rounded-s-none" type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} /></span></label>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Input label={t("referral")} type="text" maxLength={80} autoComplete="off" placeholder={t("referralPh")} value={referral} onChange={(e) => setReferral(e.target.value)} />
+              <p className="text-[12px] leading-4 text-muted">{t("referralHint")}</p>
             </div>
             <section aria-labelledby="work-mode-heading"><h3 id="work-mode-heading" className="mb-3 text-[13px] font-bold text-ink">{t("hasCompanyQuestion")}</h3><div className="grid grid-cols-2 gap-3 max-[560px]:grid-cols-1">
               {(["freelancer", "company"] as WorkMode[]).map((mode) => <button key={mode} type="button" onClick={() => { setWorkMode(mode); setDocuments([]); setDocumentQueue([]); }} className={cn(styles.intentCard, "!px-4 !py-4", workMode === mode ? styles.intentCardActive : styles.intentCardIdle)}><span className={cn(styles.intentIcon, "!h-10 !w-10", workMode === mode ? styles.intentIconActive : styles.intentIconIdle)}>{mode === "company" ? <Building2 size={19} /> : <UserRound size={19} />}</span><span><strong className="block text-[14px]">{t(mode === "company" ? "companyYes" : "companyNo")}</strong><small className="mt-1 block text-[11px] text-muted">{t(mode === "company" ? "companyYesDesc" : "companyNoDesc")}</small></span></button>)}
@@ -289,10 +294,9 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
 
           {step === 5 && <form className="mt-6 flex flex-col gap-4" action={(formData) => { setEditingAgain(false); const tz = browserTimezone(); if (tz) formData.set("timezone", tz); action(formData); }}>
             <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
-            <input type="hidden" name="accountType" value="supplier" /><input type="hidden" name="workMode" value={workMode} /><input type="hidden" name="firstName" value={firstName} /><input type="hidden" name="lastName" value={lastName} /><input type="hidden" name="name" value={workMode === "company" ? businessName : fullName} /><input type="hidden" name="category" value={category} /><input type="hidden" name="services" value={services.join(",")} /><input type="hidden" name="bizCountry" value={country} /><input type="hidden" name="bizCity" value={city} /><input type="hidden" name="bizDistrict" value={district} /><input type="hidden" name="bizAddress" value={address} /><input type="hidden" name="bizWebsite" value={website} /><input type="hidden" name="bizDescription" value={description} /><input type="hidden" name="bizWhatsapp" value={fullWhatsapp} /><input type="hidden" name="contactName" value={fullName} /><input type="hidden" name="contactPhone" value={fullPhone} /><input type="hidden" name="bizCoverDraft" value={coverPath} /><input type="hidden" name="documents" value={JSON.stringify(documents)} />
+            <input type="hidden" name="accountType" value="supplier" /><input type="hidden" name="workMode" value={workMode} /><input type="hidden" name="firstName" value={firstName} /><input type="hidden" name="lastName" value={lastName} /><input type="hidden" name="name" value={workMode === "company" ? businessName : fullName} /><input type="hidden" name="category" value={category} /><input type="hidden" name="services" value={services.join(",")} /><input type="hidden" name="bizCountry" value={country} /><input type="hidden" name="bizCity" value={city} /><input type="hidden" name="bizDistrict" value={district} /><input type="hidden" name="bizAddress" value={address} /><input type="hidden" name="bizWebsite" value={website} /><input type="hidden" name="bizDescription" value={description} /><input type="hidden" name="bizWhatsapp" value={fullWhatsapp} /><input type="hidden" name="contactName" value={fullName} /><input type="hidden" name="contactPhone" value={fullPhone} /><input type="hidden" name="bizCoverDraft" value={coverPath} /><input type="hidden" name="documents" value={JSON.stringify(documents)} /><input type="hidden" name="referral" value={referral} />
             <Input name="email" label={t("email")} type="email" required autoComplete="email" error={emailErr} onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }} onBlur={(e) => setEmailErr(e.target.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value) ? t("vEmail") : "")} />
             <div className="flex flex-col gap-1.5"><label className="text-[13px] font-semibold">{t("password")}</label><div className="relative"><input name="password" type={showPw ? "text" : "password"} required minLength={6} autoComplete="new-password" className="field h-[46px] w-full pe-11" onChange={() => setPwErr("")} onBlur={(e) => setPwErr(e.target.value && e.target.value.length < 6 ? t("vPassword") : "")} /><button type="button" onClick={() => setShowPw((v) => !v)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted">{showPw ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>{pwErr && <p className="text-[12px] text-red-600">{pwErr}</p>}</div>
-            <Input name="referral" label={t("referral")} value={referral} onChange={(e) => setReferral(e.target.value)} />
             {state.error && <p className="text-[13px] font-medium text-red-600">{["rate", "exists", "email", "password", "businessExists"].includes(state.error) ? t(`error_${state.error}`) : t("error")}</p>}
             <div className="grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5"><Button type="button" variant="outline" onClick={() => go(4)}>{t("back")}</Button><Button type="submit" loading={pending} disabled={!!emailErr || !!pwErr}>{t("submit")}</Button></div>
           </form>}
