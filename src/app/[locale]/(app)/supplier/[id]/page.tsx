@@ -9,6 +9,7 @@ import { realBusinessGalleryImages } from "@/lib/business-images";
 import { getBusinessPartnerSection } from "@/lib/business-partners";
 import { featuredFacetTags } from "@/lib/facets";
 import { businessDescription, businessSeoDescription, businessSeoTitle } from "@/lib/business-localization";
+import type { BusinessLifecycleStatus } from "@/lib/types";
 import SupplierDetailView from "./view";
 import MemberContactSection, { MemberContactSkeleton } from "./MemberContactSection";
 
@@ -73,12 +74,14 @@ export default async function DetailPage({
   ]);
 
   let preview = false;
+  let status: BusinessLifecycleStatus | undefined;
   let b = null;
   if (wantPreview) {
     const owned = await getOwnedBusiness(id);
     if (owned && businessSlug(owned) === id) {
       b = owned;
       preview = true;
+      status = owned.status;
     }
   }
   if (!b) b = await getBusinessBySlug(id);
@@ -109,6 +112,7 @@ export default async function DetailPage({
       gallery={gallery}
       locale={locale}
       preview={preview}
+      status={status}
     />
   );
 }

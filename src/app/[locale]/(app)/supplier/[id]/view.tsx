@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Eye } from "lucide-react";
+import { Eye, ExternalLink } from "lucide-react";
+import { businessSlug } from "@/lib/business-slug";
 import { SOCIAL_ICONS } from "@/components/SocialIcons";
 import ServicesList from "./ServicesList";
 import AboutText from "./AboutText";
@@ -16,7 +17,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import ShareButton from "@/components/ShareButton";
 import ReviewsSection from "@/components/ReviewsSection";
 import BusinessBadges from "@/components/BusinessBadges";
-import type { Business, SocialPlatform } from "@/lib/types";
+import type { Business, BusinessLifecycleStatus, SocialPlatform } from "@/lib/types";
 import type { PublicBusinessPartner } from "@/lib/business-partners";
 import { cn } from "@/lib/utils";
 import styles from "./styles";
@@ -37,13 +38,23 @@ interface Props {
   locale: string;
   /** Sahibin henüz yayında olmayan (pending) ilanını önizleme modunda gösterir. */
   preview?: boolean;
+  /** Önizlemedeki ilanın gerçek durumu; banner mesajı buna göre seçilir. */
+  status?: BusinessLifecycleStatus;
 }
 
-const SupplierDetailView = ({ b, partners, partnerFeatureEnabled, contactSection, t, tc, tCommon, tService, services, gallery, locale, preview = false }: Props) => {
+const SupplierDetailView = ({ b, partners, partnerFeatureEnabled, contactSection, t, tc, tCommon, tService, services, gallery, locale, preview = false, status }: Props) => {
   const translateService = (value: string) => {
     const key = serviceTranslationKey(value);
     return key ? tService(key) : value;
   };
+  const previewKind =
+    status === "approved" || status === "active"
+      ? "Live"
+      : status === "rejected"
+        ? "Rejected"
+        : status === "suspended" || status === "blacklisted" || status === "expired"
+          ? "Restricted"
+          : "";
   const businessType = translateService(b.type);
   // Başlık yanındaki avatar her zaman kapak görseli; galeri kapağı içermez (bkz. realBusinessGalleryImages).
   const cover = businessImageUrl(b.image);
@@ -59,14 +70,23 @@ const SupplierDetailView = ({ b, partners, partnerFeatureEnabled, contactSection
     <main className={cn(styles.main, b.sponsored && styles.premiumProfile)}>
       {!preview && <RecordView type="business" id={b.id} />}
       {preview && (
-        <div className="mb-4 flex items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-950/40">
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-[12px] border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/40 dark:bg-amber-950/40">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
             <Eye size={18} aria-hidden />
           </span>
-          <div className="min-w-0">
-            <p className="text-[13.5px] font-extrabold text-amber-900 dark:text-amber-100">{t("previewTitle")}</p>
-            <p className="mt-0.5 text-[12.5px] font-medium leading-snug text-amber-800 dark:text-amber-200">{t("previewSub")}</p>
+          <div className="min-w-0 flex-1 basis-[200px]">
+            <p className="text-[13.5px] font-extrabold text-amber-900 dark:text-amber-100">{t(`preview${previewKind}Title`)}</p>
+            <p className="mt-0.5 text-[12.5px] font-medium leading-snug text-amber-800 dark:text-amber-200">{t(`preview${previewKind}Sub`)}</p>
           </div>
+          {previewKind === "Live" && (
+            <Link
+              href={{ pathname: "/supplier/[id]", params: { id: businessSlug(b) } }}
+              className="ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-[10px] border border-amber-400 px-3 py-1.5 text-[12.5px] font-bold text-amber-900 hover:bg-amber-100 dark:border-amber-500/50 dark:text-amber-100 dark:hover:bg-amber-500/15"
+            >
+              {t("previewLiveCta")}
+              <ExternalLink size={14} aria-hidden />
+            </Link>
+          )}
         </div>
       )}
       <nav className={styles.nav}>

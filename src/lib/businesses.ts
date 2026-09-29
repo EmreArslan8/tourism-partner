@@ -1,5 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
-import { SOCIAL_PLATFORMS, type Business, type BusinessSocials, type GroupKey } from "./types";
+import { SOCIAL_PLATFORMS, type Business, type BusinessLifecycleStatus, type BusinessSocials, type GroupKey } from "./types";
 import { createAdminReadClient } from "./supabase/admin";
 import { createPublicClient } from "./supabase/public";
 import type { BusinessRow } from "./supabase/database.types";
@@ -267,7 +267,7 @@ export async function getBusinessBySlug(slug: string): Promise<Business | null> 
    herhangi bir durumda) tam Business olarak döner. Public liste onaylanmamış işletmeleri
    gizlediğinden, tedarikçi ilanını yayına girmeden önce ayrı /önizleme rotasında görür.
    Oturuma bağlı olduğu için 'use cache' KULLANILMAZ (kullanıcıya özel, dinamik). */
-export async function getOwnedBusiness(slug?: string): Promise<Business | null> {
+export async function getOwnedBusiness(slug?: string): Promise<(Business & { status: BusinessLifecycleStatus }) | null> {
   if (!hasEnv()) return null;
   const { createClient } = await import("./supabase/server");
   const supabase = await createClient();
@@ -305,5 +305,8 @@ export async function getOwnedBusiness(slug?: string): Promise<Business | null> 
     partnerCount: partnerCounts.get(idNumber) ?? 0,
   });
   const serviceMap = await getServiceSlugsByBusiness(supabase, [idNumber]);
-  return { ...business, serviceTypes: serviceMap.get(idNumber) ?? [] };
+  // Önizleme bandı gerçek duruma göre mesaj versin diye status ayrıca okunur.
+  const { data: statusRow } = await supabase.from("businesses").select("status").eq("id", idNumber).maybeSingle();
+  const status = (statusRow?.status ?? "pending") as BusinessLifecycleStatus;
+  return { ...business, serviceTypes: serviceMap.get(idNumber) ?? [], status };
 }
