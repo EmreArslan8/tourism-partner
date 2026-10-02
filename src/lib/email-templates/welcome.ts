@@ -71,7 +71,7 @@ const COPY: Record<WelcomeEmailLocale, Copy> = {
     },
   },
   en: {
-    brandTag: "B2B TOURISM NETWORK",
+    brandTag: "Supplier Sourcing",
     footerLine: "Tourism Partner · The trusted network for tourism professionals",
     footerNote: "This email was sent automatically because a Tourism Partner account was created for you.",
     preheader: "Your Tourism Partner account is ready.",

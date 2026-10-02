@@ -74,7 +74,7 @@ export function businessApprovedEmail({
                     <td style="vertical-align:middle;">
                       <img src="${safeLogoUrl}" width="150" height="60" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;">
                     </td>
-                    <td align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">B2B TOURISM NETWORK</td>
+                    <td align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">Supplier Sourcing</td>
                   </tr>
                 </table>
               </td>

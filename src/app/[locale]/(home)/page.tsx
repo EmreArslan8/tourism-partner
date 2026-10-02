@@ -11,12 +11,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const fallback =
     locale === "en"
       ? {
-          title: "Tourism Partner - B2B Tourism Network",
+          title: "Tourism Partner - Supplier Sourcing",
           description:
             "Discover, compare and request quotes from hotels, agencies, guides, transfers, activities and health tourism suppliers — all in one B2B platform.",
         }
       : {
-          title: "Tourism Partner - B2B Tourism Network",
+          title: "Tourism Partner - Supplier Sourcing",
           description:
             "Otel, acente, rehber, transfer, etkinlik ve sağlık turizmi tedarikçilerini tek platformda keşfedin, karşılaştırın ve hızlıca teklif alın.",
         };

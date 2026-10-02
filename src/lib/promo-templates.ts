@@ -18,8 +18,8 @@ export type PromoTemplate = {
 export const PROMO_TEMPLATES: PromoTemplate[] = [
   {
     id: "global-b2b-network",
-    label: "Global B2B Tourism Network",
-    subject: "Join Tourism Partner – The Global B2B Tourism Network",
+    label: "Global Supplier Sourcing",
+    subject: "Join Tourism Partner – The Global Supplier Sourcing",
     preheader: "Build international tourism partnerships with Tourism Partner.",
     headline: "Meet Tourism Partner",
     intro: `Dear Sir/Madam,
@@ -44,7 +44,7 @@ We look forward to welcoming you to Tourism Partner.
 
 Kind regards,
 Tourism Partner Team
-Global B2B Tourism Network
+Global Supplier Sourcing
 https://tourismpartner.com`,
     ctaLabel: "Join Tourism Partner",
     campaign: "global-b2b-network",

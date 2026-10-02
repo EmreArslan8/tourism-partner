@@ -40,7 +40,7 @@ export function dealInterestEmail(input: DealInterestEmailInput) {
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td style="vertical-align:middle;"><img src="${escapeHtml(input.logoUrl)}" width="150" alt="Tourism Partner" style="display:block;width:150px;max-width:100%;height:auto;border:0;"></td>
-                    <td class="brand-note" align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">B2B TOURISM NETWORK</td>
+                    <td class="brand-note" align="right" style="color:#6b6675;font-size:11px;font-weight:700;letter-spacing:1px;vertical-align:middle;">Supplier Sourcing</td>
                   </tr>
                 </table>
               </td>

@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   // Google arama sonucundaki "site adı" sinyali (og:site_name ana sayfada da verilir).
   applicationName: "Tourism Partner",
-  title: "Tourism Partner - B2B Tourism Network",
+  title: "Tourism Partner - Supplier Sourcing",
   description:
     "B2B supplier network for hotels, agencies, guides, tour companies, activities and health tourism. Filter, sign up, find partners.",
   verification: { google: "aWHNh-loW2ujCEWgv1x5fm58kUgsuK-2RHdn6FpAlzw" },
