@@ -18,6 +18,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { logSessionEvent } from "@/lib/session-log";
 import type { GroupKey, ActionState } from "@/lib/types";
 import { isEmail, isBot, clean, cleanHttpUrl } from "./validate";
+import { isSignupSource } from "@/lib/signup-sources";
 
 /** Alt kategori slug'ından ana grup + tür etiketini çözer. */
 function resolveCategory(slug: string): { group: GroupKey; typeLabel: string } | null {
@@ -200,6 +201,10 @@ export async function signUp(
   const sector = "";
   // Referans / temsilci — formdan elle ya da tanıtım mailindeki ?ref= ile gelir.
   const referral = clean(formData.get("referral"), 80);
+  // "Bizi nereden duydunuz?" — pazarlama kanalı analizi. Bilinmeyen değer yok sayılır.
+  const rawSource = clean(formData.get("signupSource"), 40);
+  const signupSource = isSignupSource(rawSource) ? rawSource : null;
+  const signupSourceDetail = signupSource === "other" ? clean(formData.get("signupSourceDetail"), 120) : null;
   // Kayıt anındaki tarayıcı saat dilimi (IANA, ör. Europe/Istanbul). Formdan gizli
   // alanla gelir; geçersizse yok sayılır. Bölge × saat analizinin kesin kaynağı.
   const timezone = String(formData.get("timezone") ?? "").trim().slice(0, 64).replace(/[^A-Za-z_+/-]/g, "");
@@ -364,6 +369,8 @@ export async function signUp(
         work_mode: workMode,
         ...(sector ? { sector } : {}),
         ...(referral ? { referral_code: referral } : {}),
+        ...(signupSource ? { signup_source: signupSource } : {}),
+        ...(signupSourceDetail ? { signup_source_detail: signupSourceDetail } : {}),
         ...(timezone ? { timezone } : {}),
       },
     },

@@ -1,7 +1,8 @@
-import { AlertTriangle, Users } from "lucide-react";
+import { AlertTriangle, Megaphone, Users } from "lucide-react";
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { getAdminMembers, type AdminMember, type MemberKind } from "@/lib/admin-members";
+import { isSignupSource, SIGNUP_SOURCE_LABELS_TR } from "@/lib/signup-sources";
 import { cn } from "@/lib/utils";
 import { PageHeader, Card, CardHeader, Metric } from "../_components";
 import { DataTable, StatusBadge, EmptyState, type Column } from "@/components/common";
@@ -35,6 +36,9 @@ const STATUS_TONE: Record<string, BadgeTone> = {
   draft: "neutral",
 };
 
+const sourceLabel = (source: string | null) =>
+  source ? (isSignupSource(source) ? SIGNUP_SOURCE_LABELS_TR[source] : source) : null;
+
 const fmtDate = (value: string | null) =>
   value ? new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium" }).format(new Date(value)) : "—";
 
@@ -56,6 +60,11 @@ export default async function AdminMembersPage({
   const data = await getAdminMembers();
   const filter = parseFilter(query.tip);
   const rows = filter === "all" ? data.members : data.members.filter((m) => m.kind === filter);
+  // "Bizi nereden duydunuz?" dağılımı — yalnız soruyu cevaplamış (yeni) kayıtlar.
+  const sourceCounts = new Map<string, number>();
+  for (const m of data.members) if (m.source) sourceCounts.set(m.source, (sourceCounts.get(m.source) ?? 0) + 1);
+  const sourceRows = [...sourceCounts.entries()].sort((a, b) => b[1] - a[1]);
+  const sourceTotal = sourceRows.reduce((sum, [, n]) => sum + n, 0);
 
   return (
     <>
@@ -87,6 +96,37 @@ export default async function AdminMembersPage({
           E-posta ve son giriş bilgisi okunamadı (service_role anahtarı yok). Diğer alanlar etkilenmedi.
         </div>
       )}
+
+      <Card className="mb-6 overflow-hidden hover:translate-y-0">
+        <CardHeader
+          title="Kayıt Kaynakları"
+          tone="violet"
+          icon={<Megaphone size={18} aria-hidden />}
+          action={<span className="shrink-0 text-[12px] font-semibold text-muted">{sourceTotal} cevap</span>}
+        />
+        {sourceRows.length === 0 ? (
+          <p className="px-5 py-4 text-[13px] font-semibold text-muted">
+            Henüz cevap yok. &quot;Bizi nereden duydunuz?&quot; sorusu yeni kayıtlarda toplanıyor.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-2.5 px-5 py-4">
+            {sourceRows.map(([source, count]) => {
+              const pct = Math.round((count / sourceTotal) * 100);
+              return (
+                <li key={source} className="grid grid-cols-[minmax(120px,200px)_minmax(0,1fr)_72px] items-center gap-3 text-[13px]">
+                  <span className="truncate font-semibold text-ink">{sourceLabel(source)}</span>
+                  <span className="h-2 overflow-hidden rounded-full bg-cream">
+                    <span className="block h-full rounded-full bg-brand" style={{ width: `${pct}%` }} />
+                  </span>
+                  <span className="text-right font-bold tabular-nums text-ink/80">
+                    {count} <span className="font-semibold text-muted">· %{pct}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
 
       <Card className="overflow-hidden hover:translate-y-0">
         <CardHeader
@@ -126,7 +166,7 @@ export default async function AdminMembersPage({
           <DataTable
             data={rows}
             getRowKey={(m) => m.id}
-            minWidth={1040}
+            minWidth={1180}
             columns={[
               {
                 key: "member",
@@ -167,6 +207,19 @@ export default async function AdminMembersPage({
                   m.referral ? (
                     <span className="inline-block max-w-[160px] truncate rounded-[6px] bg-cream px-2 py-1 text-[12px] font-semibold text-brand">
                       {m.referral}
+                    </span>
+                  ) : (
+                    <span className="text-[13px] font-semibold text-muted">—</span>
+                  ),
+              },
+              {
+                key: "source",
+                header: "Kaynak",
+                cell: (m) =>
+                  m.source ? (
+                    <span className="block max-w-[180px]" title={m.sourceDetail ?? undefined}>
+                      <span className="block truncate text-[13px] font-semibold text-ink/80">{sourceLabel(m.source)}</span>
+                      {m.sourceDetail && <span className="block truncate text-[12px] font-semibold text-muted">{m.sourceDetail}</span>}
                     </span>
                   ) : (
                     <span className="text-[13px] font-semibold text-muted">—</span>

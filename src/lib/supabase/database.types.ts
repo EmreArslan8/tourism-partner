@@ -62,6 +62,8 @@ export interface Database {
           sector: string | null;
           referral_code: string | null;
           timezone: string | null;
+          signup_source: string | null;
+          signup_source_detail: string | null;
           created_at: Timestamp;
         };
         Insert: {
@@ -73,6 +75,8 @@ export interface Database {
           sector?: string | null;
           referral_code?: string | null;
           timezone?: string | null;
+          signup_source?: string | null;
+          signup_source_detail?: string | null;
           created_at?: Timestamp;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;

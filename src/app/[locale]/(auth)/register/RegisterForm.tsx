@@ -16,6 +16,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import PhoneCodeInput from "@/components/PhoneCodeInput";
 import { DEFAULT_PHONE_CODE, normalizePhoneCode } from "@/lib/phone-codes";
+import { SIGNUP_SOURCES, type SignupSource } from "@/lib/signup-sources";
 import VerifyEmail from "./VerifyEmail";
 
 type StepNo = 1 | 2 | 3 | 4 | 5;
@@ -89,6 +90,8 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
   const [pwErr, setPwErr] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [referral, setReferral] = useState(defaultReferral);
+  const [signupSource, setSignupSource] = useState<SignupSource | "">("");
+  const [signupSourceDetail, setSignupSourceDetail] = useState("");
   const [editingAgain, setEditingAgain] = useState(false);
   const coverRef = useRef<HTMLInputElement>(null);
   const docRef = useRef<HTMLInputElement>(null);
@@ -295,10 +298,12 @@ const RegisterForm = ({ defaultReferral = "" }: { defaultReferral?: string }) =>
           {step === 5 && <form className="mt-6 flex flex-col gap-4" action={(formData) => { setEditingAgain(false); const tz = browserTimezone(); if (tz) formData.set("timezone", tz); action(formData); }}>
             <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" />
             <input type="hidden" name="accountType" value="supplier" /><input type="hidden" name="workMode" value={workMode} /><input type="hidden" name="firstName" value={firstName} /><input type="hidden" name="lastName" value={lastName} /><input type="hidden" name="name" value={workMode === "company" ? businessName : fullName} /><input type="hidden" name="category" value={category} /><input type="hidden" name="services" value={services.join(",")} /><input type="hidden" name="bizCountry" value={country} /><input type="hidden" name="bizCity" value={city} /><input type="hidden" name="bizDistrict" value={district} /><input type="hidden" name="bizAddress" value={address} /><input type="hidden" name="bizWebsite" value={website} /><input type="hidden" name="bizDescription" value={description} /><input type="hidden" name="bizWhatsapp" value={fullWhatsapp} /><input type="hidden" name="contactName" value={fullName} /><input type="hidden" name="contactPhone" value={fullPhone} /><input type="hidden" name="bizCoverDraft" value={coverPath} /><input type="hidden" name="documents" value={JSON.stringify(documents)} /><input type="hidden" name="referral" value={referral} />
+            <label className="flex min-w-0 flex-col text-[13px] font-semibold text-ink"><span>{t("sourceLabel")}</span><select name="signupSource" required className="field mt-1.5 h-[46px] w-full min-w-0" value={signupSource} onChange={(e) => setSignupSource(e.target.value as SignupSource | "")}><option value="">{t("sourcePh")}</option>{SIGNUP_SOURCES.map((source) => <option key={source} value={source}>{t(`source_${source}`)}</option>)}</select></label>
+            {signupSource === "other" && <Input name="signupSourceDetail" label={t("source_other")} type="text" maxLength={120} autoComplete="off" placeholder={t("sourceOtherPh")} value={signupSourceDetail} onChange={(e) => setSignupSourceDetail(e.target.value)} />}
             <Input name="email" label={t("email")} type="email" required autoComplete="email" error={emailErr} onChange={(e) => { setEmail(e.target.value); setEmailErr(""); }} onBlur={(e) => setEmailErr(e.target.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value) ? t("vEmail") : "")} />
             <div className="flex flex-col gap-1.5"><label className="text-[13px] font-semibold">{t("password")}</label><div className="relative"><input name="password" type={showPw ? "text" : "password"} required minLength={6} autoComplete="new-password" className="field h-[46px] w-full pe-11" onChange={() => setPwErr("")} onBlur={(e) => setPwErr(e.target.value && e.target.value.length < 6 ? t("vPassword") : "")} /><button type="button" onClick={() => setShowPw((v) => !v)} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted">{showPw ? <EyeOff size={18} /> : <Eye size={18} />}</button></div>{pwErr && <p className="text-[12px] text-red-600">{pwErr}</p>}</div>
             {state.error && <p className="text-[13px] font-medium text-red-600">{["rate", "exists", "email", "password", "businessExists"].includes(state.error) ? t(`error_${state.error}`) : t("error")}</p>}
-            <div className="grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5"><Button type="button" variant="outline" onClick={() => go(4)}>{t("back")}</Button><Button type="submit" loading={pending} disabled={!!emailErr || !!pwErr}>{t("submit")}</Button></div>
+            <div className="grid grid-cols-[minmax(110px,.38fr)_minmax(0,1fr)] gap-2.5"><Button type="button" variant="outline" onClick={() => go(4)}>{t("back")}</Button><Button type="submit" loading={pending} disabled={!!emailErr || !!pwErr || !signupSource}>{t("submit")}</Button></div>
           </form>}
         </div>
       </div>
